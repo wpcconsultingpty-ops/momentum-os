@@ -416,12 +416,15 @@
     </main>
   </div>
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const { createClient } = supabase;
   const SUPABASE_URL = 'https://ajqdlpzrnlloqbdbacxo.supabase.co';
-  const SUPABASE_ANON_KEY = 'PASTE_YOUR_ANON_KEY_HERE';
-  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_jHdAPTfcG3eFNASC4SOB_w_6ff_uAcU';
+  const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  (function () {
+    'use strict';
 
   (function () {
     'use strict';
