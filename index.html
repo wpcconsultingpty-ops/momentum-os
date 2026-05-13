@@ -508,11 +508,11 @@ async function refreshAuthUI() {
       if (overlay) overlay.style.display = 'none';
       if (emailPill) emailPill.textContent = user.email || 'Signed in';
       if (signOutBtn) signOutBtn.style.display = 'inline-flex';
-    } else {
-      if (overlay) overlay.style.display = 'flex';
-      if (emailPill) emailPill.textContent = 'Not signed in';
+   } else {
+      if (overlay) overlay.style.display = 'none';
+      if (emailPill) emailPill.textContent = 'Guest mode';
       if (signOutBtn) signOutBtn.style.display = 'none';
-    }
+  }
   } catch (err) {
     setAuthStatus(err.message || 'Authentication error', true);
   }
