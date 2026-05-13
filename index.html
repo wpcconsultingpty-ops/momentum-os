@@ -259,16 +259,16 @@
                 <div class="scale-row"><span>Calm</span><span>Overloaded</span></div>
               </div>
               <div class="field">
-  <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge"><span id="habitCountInline">0</span>/6 done</div></div>
-  <div class="habit-grid">
-    <label class="habit"><input id="protectedFocus" type="checkbox" /><span>Protected focus</span></label>
-    <label class="habit"><input id="exercise" type="checkbox" /><span>Exercise or movement</span></label>
-    <label class="habit"><input id="priorityTask" type="checkbox" /><span>Priority task done</span></label>
-    <label class="habit"><input id="meditation" type="checkbox" /><span>Quiet minute or prayer</span></label>
-    <label class="habit"><input id="sleep" type="checkbox" /><span>Protected sleep routine</span></label>
-    <label class="habit"><input id="nutrition" type="checkbox" /><span>Supportive nutrition</span></label>
-  </div>
-</div>
+                <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge"><span id="habitCountInline">0</span>/6 done</div></div>
+                <div class="habit-grid">
+                  <label class="habit"><input id="protectedFocus" type="checkbox" /><span>Protected focus</span></label>
+                  <label class="habit"><input id="exercise" type="checkbox" /><span>Exercise or movement</span></label>
+                  <label class="habit"><input id="priorityTask" type="checkbox" /><span>Priority task done</span></label>
+                  <label class="habit"><input id="meditation" type="checkbox" /><span>Quiet minute or prayer</span></label>
+                  <label class="habit"><input id="sleep" type="checkbox" /><span>Protected sleep routine</span></label>
+                  <label class="habit"><input id="nutrition" type="checkbox" /><span>Supportive nutrition</span></label>
+                </div>
+              </div>
               <div class="field">
                 <div class="field-head"><label for="notes">Reflection</label><div class="value-badge">Notes</div></div>
                 <textarea id="notes" placeholder="What worked, what triggered you, and what is the next right move?"></textarea>
@@ -626,7 +626,7 @@
           return;
         }
         var totalScore = 0, totalMood = 0, totalStress = 0, best = entries[0];
-        var totals = { noPorn:0, exercise:0, priorityTask:0, meditation:0, sleep:0, nutrition:0 };
+        var totals = { protectedFocus:0, exercise:0, priorityTask:0, meditation:0, sleep:0, nutrition:0 };
         entries.forEach(function (entry) {
           totalScore += Number(entry.score || 0);
           totalMood += Number(entry.mood || 0);
@@ -634,7 +634,7 @@
           if (Number(entry.score || 0) > Number(best.score || 0)) best = entry;
           habitIds.forEach(function (id) { if (entry.habits && entry.habits[id]) totals[id] += 1; });
         });
-        var strongest = 'noPorn', weakest = 'noPorn';
+        var strongest = 'protectedFocus', weakest = 'protectedFocus';
         habitIds.forEach(function (id) { if (totals[id] > totals[strongest]) strongest = id; if (totals[id] < totals[weakest]) weakest = id; });
         review.innerHTML = [
           '<div class="review-item"><span>Saved entries</span><strong>' + entries.length + '/7</strong></div>',
@@ -647,7 +647,7 @@
         ].join('');
       }
       function labelForHabit(id) {
-        var labels = { noPorn:'Protected focus', exercise:'Exercise / movement', priorityTask:'Priority task', meditation:'Quiet minute', sleep:'Sleep routine', nutrition:'Supportive nutrition' };
+        var labels = { protectedFocus:'Protected focus', exercise:'Exercise / movement', priorityTask:'Priority task', meditation:'Quiet minute', sleep:'Sleep routine', nutrition:'Supportive nutrition' };
         return labels[id] || id;
       }
       function updateSelectedDayPanel(entry, key) {
@@ -835,44 +835,6 @@
         var text = (textValue || '').toLowerCase();
         var flags = ['suicide', 'kill myself', 'end it', 'self harm', 'hurt myself', 'want to die', 'cant go on', "can't go on", 'harm someone', 'voices', 'manic'];
         return flags.some(function (flag) { return text.indexOf(flag) !== -1; });
-      }
-      function generateCoachReply(mode, userText, entry) {
-        if (detectCrisisSignals(userText)) {
-          return 'I\'m really glad you said that. This tool is not enough for this moment. Please contact emergency services now if there is immediate danger, or call Lifeline Australia on 13 11 14 for immediate support. If you can, move toward another person right now and tell them you need help staying safe.';
-        }
-        var mood = entry && entry.mood ? Number(entry.mood) : null;
-        var stress = entry && entry.stress ? Number(entry.stress) : null;
-        var focus = entry && (entry.tomorrowFocus || entry.journalTomorrowFocus) ? (entry.tomorrowFocus || entry.journalTomorrowFocus) : '';
-        var replies = {
-          talk: [
-            'Let\'s make this simpler. In one sentence: what happened, what are you feeling, and what matters most before sleep?',
-            stress !== null && stress >= 8 ? 'Your stress looks high. Tonight is not for solving everything. Reduce the load and decide on one contained win.' : 'Try separating facts from the story in your head. Facts first, interpretation second.',
-            focus ? 'You already named tomorrow\'s focus: ' + focus + '. That matters because you do not need ten goals, only one clear target.' : 'Before bed, choose one clear target for tomorrow so the morning feels lighter.',
-            'A useful next move could be: put the phone down, drink water, write one honest sentence in the journal, and stop there.'
-          ],
-          calm: [
-            'We are going to lower the temperature first. Unclench your jaw, drop your shoulders, and take five slow breaths with a longer exhale than inhale.',
-            mood !== null && mood <= 4 ? 'Because your mood is low, keep the next action very small and physical: water, shower, short walk, or lie down without scrolling.' : 'Pick one grounding action for the next ten minutes: a short walk, cold water on your face, breathing, or tidy one surface.',
-            stress !== null && stress >= 8 ? 'Do not make big decisions in a high-stress state. The job right now is to get from overloaded to steady.' : 'Once your body settles a little, choose one gentle task and finish it completely.'
-          ],
-          reframe: [
-            'Let\'s challenge the harsh version of the story. What are you telling yourself right now that may be too absolute or unfair?',
-            'Try this format: “The fact is ... The fear is ... A more balanced view is ...”',
-            focus ? 'A balanced thought might be: “I do not need to fix everything tonight. I only need to set up tomorrow around ' + focus + '."' : 'A balanced thought might be: “This day was mixed, not ruined. I can still recover by choosing one next step.”',
-            'Now finish with one sentence you would actually believe, not a fake positive one.'
-          ]
-        };
-        return replies[mode].join('\n\n');
-      }
-      function renderCoachMode() {
-        var copy = getCoachModeCopy(state.coachMode);
-        setText('coachModeTitle', copy.title);
-        setText('coachModeSub', copy.sub);
-        document.querySelectorAll('[data-coach-mode]').forEach(function (btn) {
-          btn.classList.toggle('active', btn.getAttribute('data-coach-mode') === state.coachMode);
-        });
-        var entry = getSelectedEntry();
-        setText('coachContextTag', entry ? ('Using ' + state.selectedKey) : 'Using message only');
       }
       async function sendCoachMessage() {
         var input = el('coachInput');
