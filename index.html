@@ -261,7 +261,7 @@
               <div class="field">
                 <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge"><span id="habitCountInline">0</span>/6 done</div></div>
                 <div class="habit-grid">
-                  <label class="habit"><input id="noPorn" type="checkbox" /><span>No porn today</span></label>
+                  <label class="habit"><input id="noPorn" type="checkbox" /><span>Protected focus</span></label>
                   <label class="habit"><input id="exercise" type="checkbox" /><span>Exercise or movement</span></label>
                   <label class="habit"><input id="priorityTask" type="checkbox" /><span>Priority task done</span></label>
                   <label class="habit"><input id="meditation" type="checkbox" /><span>Quiet minute or prayer</span></label>
@@ -647,7 +647,7 @@
         ].join('');
       }
       function labelForHabit(id) {
-        var labels = { noPorn:'No porn', exercise:'Exercise / movement', priorityTask:'Priority task', meditation:'Quiet minute', sleep:'Sleep routine', nutrition:'Supportive nutrition' };
+        var labels = { noPorn:'Protected focus', exercise:'Exercise / movement', priorityTask:'Priority task', meditation:'Quiet minute', sleep:'Sleep routine', nutrition:'Supportive nutrition' };
         return labels[id] || id;
       }
       function updateSelectedDayPanel(entry, key) {
