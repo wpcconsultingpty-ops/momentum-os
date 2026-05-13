@@ -259,16 +259,16 @@
                 <div class="scale-row"><span>Calm</span><span>Overloaded</span></div>
               </div>
               <div class="field">
-                <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge"><span id="habitCountInline">0</span>/6 done</div></div>
-                <div class="habit-grid">
-                  <<label class="habit"><input id="Protected focus" type="checkbox" /><span>Protected focus</span></label>
-                  <label class="habit"><input id="exercise" type="checkbox" /><span>Exercise or movement</span></label>
-                  <label class="habit"><input id="priorityTask" type="checkbox" /><span>Priority task done</span></label>
-                  <label class="habit"><input id="meditation" type="checkbox" /><span>Quiet minute or prayer</span></label>
-                  <label class="habit"><input id="sleep" type="checkbox" /><span>Protected sleep routine</span></label>
-                  <label class="habit"><input id="nutrition" type="checkbox" /><span>Supportive nutrition</span></label>
-                </div>
-              </div>
+  <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge"><span id="habitCountInline">0</span>/6 done</div></div>
+  <div class="habit-grid">
+    <label class="habit"><input id="protectedFocus" type="checkbox" /><span>Protected focus</span></label>
+    <label class="habit"><input id="exercise" type="checkbox" /><span>Exercise or movement</span></label>
+    <label class="habit"><input id="priorityTask" type="checkbox" /><span>Priority task done</span></label>
+    <label class="habit"><input id="meditation" type="checkbox" /><span>Quiet minute or prayer</span></label>
+    <label class="habit"><input id="sleep" type="checkbox" /><span>Protected sleep routine</span></label>
+    <label class="habit"><input id="nutrition" type="checkbox" /><span>Supportive nutrition</span></label>
+  </div>
+</div>
               <div class="field">
                 <div class="field-head"><label for="notes">Reflection</label><div class="value-badge">Notes</div></div>
                 <textarea id="notes" placeholder="What worked, what triggered you, and what is the next right move?"></textarea>
@@ -421,7 +421,7 @@
       'use strict';
 
       var STORAGE_KEY = 'momentumOSCleanV1';
-      var habitIds = ['noPorn', 'exercise', 'priorityTask', 'meditation', 'sleep', 'nutrition'];
+      var habitIds = ['protectedFocus', 'exercise', 'priorityTask', 'meditation', 'sleep', 'nutrition'];
       var state = {
         activeView: 'dashboardView',
         viewDate: new Date(),
