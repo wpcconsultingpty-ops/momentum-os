@@ -19,8 +19,16 @@
       --radius: 24px;
       --shadow: 0 18px 45px rgba(31, 77, 58, 0.12);
     }
+
     * { box-sizing: border-box; }
-    html, body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+
+    html, body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
     body {
       min-height: 100vh;
       background:
@@ -28,9 +36,21 @@
         radial-gradient(circle at bottom right, rgba(31,77,58,0.14), transparent 28%),
         var(--bg);
     }
-    button, input, textarea { font: inherit; }
-    button { cursor: pointer; }
-    .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+    button, input, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
     .sidebar {
       background: rgba(255,250,242,0.82);
       border-right: 1px solid var(--line);
@@ -39,132 +59,676 @@
       top: 0;
       height: 100vh;
       backdrop-filter: blur(8px);
+      overflow-y: auto;
     }
-    .brand { display:flex; align-items:center; gap:12px; margin-bottom: 28px; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
     .brand-mark {
-      width: 48px; height: 48px; border-radius: 16px;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
       background: linear-gradient(135deg, var(--green), #163526);
-      color: white; display:grid; place-items:center; font-weight:900;
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
       box-shadow: var(--shadow);
     }
-    .brand h1 { margin:0; font-size: 1.3rem; color: var(--green); }
-    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
-    .nav-label { margin: 18px 0 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; font-size: 0.78rem; letter-spacing: .08em; }
-    .nav-list { display:grid; gap:10px; }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: var(--green);
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .nav-label {
+      margin: 18px 0 10px;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: .08em;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 10px;
+    }
+
     .nav-btn {
-      border: 1px solid var(--line); background: white; color: var(--text);
-      border-radius: 18px; padding: 14px; display:flex; justify-content:space-between; align-items:center;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 18px;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-weight: 800;
     }
-    .nav-btn.active, .nav-btn:hover { background: #f3ecdf; border-color: rgba(31,77,58,0.24); color: var(--green); }
+
+    .nav-btn.active,
+    .nav-btn:hover {
+      background: #f3ecdf;
+      border-color: rgba(31,77,58,0.24);
+      color: var(--green);
+    }
+
     .nav-chip {
-      background: #edf7f1; color: var(--green); border-radius: 999px; padding: 5px 9px; font-size: .75rem; font-weight: 900;
+      background: #edf7f1;
+      color: var(--green);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: .75rem;
+      font-weight: 900;
     }
-    .sidebar-note { margin-top: 22px; padding: 16px; border-radius: 20px; background: linear-gradient(135deg, var(--green), #193a2b); color: white; }
-    .sidebar-note h2 { margin:0 0 8px; font-size: 1rem; }
-    .sidebar-note p { margin:0; color: rgba(255,255,255,.82); line-height: 1.5; }
-    .content { padding: 24px; }
-    .topbar { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom: 18px; }
-    .topbar h2 { margin:0; color: var(--green); }
-    .topbar p { margin:4px 0 0; color: var(--muted); }
-    .topbar-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    .pill { background: white; border:1px solid var(--line); border-radius:999px; padding: 10px 14px; font-weight:900; color: var(--green); }
+
+    .sidebar-note {
+      margin-top: 22px;
+      padding: 16px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--green), #193a2b);
+      color: white;
+    }
+
+    .sidebar-note h2 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .sidebar-note p {
+      margin: 0;
+      color: rgba(255,255,255,.82);
+      line-height: 1.5;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      color: var(--green);
+    }
+
+    .topbar p {
+      margin: 4px 0 0;
+      color: var(--muted);
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 900;
+      color: var(--green);
+    }
+
     .btn {
-      border:1px solid var(--line); background:white; color: var(--green); border-radius:999px; padding:12px 16px; font-weight:900;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--green);
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-weight: 900;
     }
-    .btn.primary { background: var(--green); color: white; border-color: transparent; }
-    .btn.warn { background: #fff7ed; color: var(--warn); border-color: #fed7aa; }
-    .view { display:none; }
-    .view.active { display:block; }
-    .hero-grid, .two-col, .history-grid, .journal-grid, .coach-grid { display:grid; gap:18px; }
-    .hero-grid, .history-grid, .journal-grid, .coach-grid, .two-col { grid-template-columns: repeat(2, minmax(0,1fr)); }
+
+    .btn.primary {
+      background: var(--green);
+      color: white;
+      border-color: transparent;
+    }
+
+    .btn.warn {
+      background: #fff7ed;
+      color: var(--warn);
+      border-color: #fed7aa;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .hero-grid,
+    .two-col,
+    .history-grid,
+    .journal-grid,
+    .coach-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+
     .panel {
-      background: rgba(255,250,242,0.94); border:1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px;
+      background: rgba(255,250,242,0.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
     }
-    .panel h3 { margin:0 0 8px; color: var(--green); }
-    .subtle { color: var(--muted); line-height:1.55; }
-    .score-wrap { display:grid; grid-template-columns: 170px 1fr; gap:18px; align-items:center; }
+
+    .panel h3 {
+      margin: 0 0 8px;
+      color: var(--green);
+    }
+
+    .subtle {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .score-wrap {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
     .score-ring {
-      width: 170px; height:170px; border-radius:50%;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
       background: conic-gradient(var(--gold) 0deg, rgba(255,255,255,.2) 0deg);
-      display:grid; place-items:center;
+      display: grid;
+      place-items: center;
     }
+
     .score-ring-inner {
-      width: 126px; height:126px; border-radius:50%; background: rgba(255,250,242,0.96);
-      display:grid; place-items:center; text-align:center;
+      width: 126px;
+      height: 126px;
+      border-radius: 50%;
+      background: rgba(255,250,242,0.96);
+      display: grid;
+      place-items: center;
+      text-align: center;
       border: 1px solid var(--line);
     }
-    .score-ring-inner strong { display:block; font-size: 2.6rem; color: var(--green); line-height:1; }
-    .score-ring-inner span { color: var(--muted); font-weight:800; }
-    .message-badge { display:inline-block; margin-top:14px; background:#fff; border:1px solid var(--line); border-radius:999px; padding:10px 14px; font-weight:800; }
-    .insight-list, .field-stack, .prompt-list, .review-list, .coach-thread { display:grid; gap:12px; }
-    .insight, .prompt, .selected-box, .resource-box {
-      background:white; border:1px solid var(--line); border-radius:18px; padding:14px; line-height:1.5;
+
+    .score-ring-inner strong {
+      display: block;
+      font-size: 2.6rem;
+      color: var(--green);
+      line-height: 1;
     }
-    .kpis { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; margin: 18px 0; }
-    .kpi { background:white; border:1px solid var(--line); border-radius:18px; padding:16px; }
-    .kpi-label, .kpi-foot { color: var(--muted); font-weight:800; }
-    .kpi-value { margin:6px 0; font-size: 2rem; color: var(--green); font-weight: 900; }
-    .field { background:white; border:1px solid var(--line); border-radius:20px; padding:16px; }
-    .field-head { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:10px; }
-    .field label, .field-title { font-weight: 900; }
-    .value-badge { background:#edf7f1; color: var(--green); border-radius:999px; padding:6px 10px; font-weight:900; font-size:.84rem; }
-    input[type="range"], input[type="text"], textarea { width:100%; }
-    input[type="range"] { accent-color: var(--green); }
-    input[type="text"], textarea {
-      border:1px solid var(--line); border-radius:16px; padding:12px 14px; background:#fff; color:var(--text); outline:none;
+
+    .score-ring-inner span {
+      color: var(--muted);
+      font-weight: 800;
     }
-    textarea { min-height: 120px; resize: vertical; }
-    textarea:focus, input[type="text"]:focus { border-color: var(--green-2); box-shadow: 0 0 0 4px rgba(44,106,80,0.12); }
-    .scale-row { display:flex; justify-content:space-between; color: var(--muted); font-size:.84rem; margin-top:6px; font-weight:800; }
-    .habit-grid { display:grid; gap:10px; }
-    .habit { display:flex; gap:12px; align-items:center; border:1px solid var(--line); border-radius:16px; padding:12px; }
-    .habit input { width:20px; height:20px; accent-color: var(--green); }
-    .action-row, .coach-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; }
-    .status { margin-top:12px; color: var(--green); font-weight:900; min-height:20px; }
-    .bars { display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap:10px; align-items:end; min-height:170px; margin-top: 16px; }
-    .bar-wrap { display:grid; gap:8px; justify-items:center; }
-    .bar { width:100%; max-width:34px; border-radius: 14px 14px 8px 8px; background: linear-gradient(180deg, var(--gold), var(--green)); min-height:12px; }
-    .bar-label, .bar-score { font-size: .8rem; font-weight:800; color: var(--muted); }
-    .calendar { display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap:8px; margin-top: 16px; }
-    .weekday { text-align:center; color: var(--muted); font-size:.75rem; font-weight:900; text-transform:uppercase; }
+
+    .message-badge {
+      display: inline-block;
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+    }
+
+    .insight-list,
+    .field-stack,
+    .prompt-list,
+    .review-list,
+    .coach-thread {
+      display: grid;
+      gap: 12px;
+    }
+
+    .insight,
+    .prompt,
+    .selected-box,
+    .resource-box {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      line-height: 1.5;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .kpi {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .kpi-label,
+    .kpi-foot {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .kpi-value {
+      margin: 6px 0;
+      font-size: 2rem;
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .field {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .field-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .field label,
+    .field-title {
+      font-weight: 900;
+    }
+
+    .value-badge {
+      background: #edf7f1;
+      color: var(--green);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 900;
+      font-size: .84rem;
+    }
+
+    input[type="range"],
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+    }
+
+    input[type="range"] {
+      accent-color: var(--green);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    textarea:focus,
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--green-2);
+      box-shadow: 0 0 0 4px rgba(44,106,80,0.12);
+    }
+
+    .scale-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: .84rem;
+      margin-top: 6px;
+      font-weight: 800;
+    }
+
+    .habit-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .habit {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .habit input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--green);
+    }
+
+    .action-row,
+    .coach-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .status {
+      margin-top: 12px;
+      color: var(--green);
+      font-weight: 900;
+      min-height: 20px;
+    }
+
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0,1fr));
+      gap: 10px;
+      align-items: end;
+      min-height: 170px;
+      margin-top: 16px;
+    }
+
+    .bar-wrap {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 34px;
+      border-radius: 14px 14px 8px 8px;
+      background: linear-gradient(180deg, var(--gold), var(--green));
+      min-height: 12px;
+    }
+
+    .bar-label,
+    .bar-score {
+      font-size: .8rem;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0,1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .weekday {
+      text-align: center;
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
     .day {
-      min-height: 70px; background:white; border:1px solid var(--line); border-radius:16px; padding:8px; display:flex; flex-direction:column; justify-content:space-between;
+      min-height: 70px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .day.no-data { opacity:.72; }
-    .day.today { border:2px solid var(--green); }
+
+    .day.no-data { opacity: .72; }
+    .day.today { border: 2px solid var(--green); }
     .day.selected { box-shadow: inset 0 0 0 2px var(--gold); }
-    .day-top { display:flex; justify-content:space-between; align-items:center; }
-    .day-num { font-weight:900; }
-    .day-score { font-size:.74rem; color: var(--muted); font-weight:800; }
-    .day-dot { width:10px; height:10px; border-radius:999px; background:#d1d5db; }
-    .day-dot.good { background:#437a22; } .day-dot.mid { background:#d3a64c; } .day-dot.bad { background:#c2410c; }
-    .review-item { display:flex; justify-content:space-between; gap:12px; align-items:center; border:1px solid var(--line); border-radius:16px; background:white; padding:12px 14px; }
-    .review-item span { color: var(--muted); font-weight:800; } .review-item strong { font-weight:900; }
-    .journal-body { white-space: pre-wrap; }
-    .coach-mode-grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:14px; }
-    .coach-mode { border:1px solid var(--line); background:white; border-radius:18px; padding:14px; text-align:left; font-weight:900; }
-    .coach-mode.active, .coach-mode:hover { background:#f3ecdf; border-color: rgba(31,77,58,.24); color: var(--green); }
-    .coach-disclaimer { margin-top:14px; background:#fff7ed; border:1px solid #f2cf9f; border-radius:18px; padding:14px; color:#7c4a03; line-height:1.5; }
-    .coach-chat { background:white; border:1px solid var(--line); border-radius:22px; padding:14px; min-height: 360px; }
-    .chat-bubble { max-width:90%; border-radius:18px; padding:12px 14px; white-space:pre-wrap; line-height:1.5; }
-    .chat-bubble.ai { background:#f6f1e7; border:1px solid var(--line); }
-    .chat-bubble.user { background: var(--green); color:white; margin-left:auto; }
-    .footer-note { margin-top: 14px; color: var(--muted); font-size:.9rem; }
-    .mobile-menu-btn { display:none; }
+
+    .day-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-num { font-weight: 900; }
+
+    .day-score {
+      font-size: .74rem;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .day-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #d1d5db;
+    }
+
+    .day-dot.good { background: #437a22; }
+    .day-dot.mid { background: #d3a64c; }
+    .day-dot.bad { background: #c2410c; }
+
+    .review-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+      padding: 12px 14px;
+    }
+
+    .review-item span {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .review-item strong {
+      font-weight: 900;
+    }
+
+    .journal-body {
+      white-space: pre-wrap;
+    }
+
+    .coach-mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .coach-mode {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 18px;
+      padding: 14px;
+      text-align: left;
+      font-weight: 900;
+    }
+
+    .coach-mode.active,
+    .coach-mode:hover {
+      background: #f3ecdf;
+      border-color: rgba(31,77,58,.24);
+      color: var(--green);
+    }
+
+    .coach-disclaimer {
+      margin-top: 14px;
+      background: #fff7ed;
+      border: 1px solid #f2cf9f;
+      border-radius: 18px;
+      padding: 14px;
+      color: #7c4a03;
+      line-height: 1.5;
+    }
+
+    .coach-chat {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 14px;
+      min-height: 360px;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    .chat-bubble {
+      max-width: 90%;
+      border-radius: 18px;
+      padding: 12px 14px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .chat-bubble.ai {
+      background: #f6f1e7;
+      border: 1px solid var(--line);
+    }
+
+    .chat-bubble.user {
+      background: var(--green);
+      color: white;
+      margin-left: auto;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+    }
+
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(36,49,59,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1200;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .auth-card h3 {
+      margin: 0 0 8px;
+      color: var(--green);
+    }
+
+    .auth-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
     @media (max-width: 980px) {
-      .app-shell { grid-template-columns: 1fr; }
-      .sidebar {
-        position: fixed; inset: 0 auto 0 0; width: 280px; transform: translateX(-100%); transition: transform .25s ease; z-index: 1000; height:100vh;
+      .app-shell {
+        grid-template-columns: 1fr;
       }
-      .sidebar.open { transform: translateX(0); }
-      .content { padding: 18px; }
-      .hero-grid, .two-col, .history-grid, .journal-grid, .coach-grid, .kpis, .coach-mode-grid, .score-wrap { grid-template-columns: 1fr; }
-      .mobile-menu-btn { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid var(--line); border-radius:14px; background:white; }
+
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 280px;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        height: 100vh;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .hero-grid,
+      .two-col,
+      .history-grid,
+      .journal-grid,
+      .coach-grid,
+      .kpis,
+      .coach-mode-grid,
+      .score-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: white;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <h3>Sign in to Momentum OS</h3>
+      <p class="subtle">Use Supabase auth or continue in guest mode.</p>
+      <div class="auth-form">
+        <input id="authEmail" type="email" placeholder="Email" />
+        <input id="authPassword" type="password" placeholder="Password" />
+        <div class="action-row" style="margin-top:0;">
+          <button class="btn primary" id="signInBtn" type="button">Sign in</button>
+          <button class="btn" id="signUpBtn" type="button">Create account</button>
+          <button class="btn" id="continueGuestBtn" type="button">Continue as guest</button>
+        </div>
+        <div class="status" id="authStatus"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
@@ -206,9 +770,11 @@
             <p id="todayText">Loading date...</p>
           </div>
         </div>
+
         <div class="topbar-actions">
           <div class="pill" id="selectedDateLabel">Today</div>
           <div class="pill" id="userEmailPill">Guest mode</div>
+          <button class="btn" id="openAuthBtn" type="button">Sign in</button>
           <button class="btn" id="signOutBtn" type="button" style="display:none;">Sign out</button>
           <button class="btn primary" id="saveDayBtn" type="button">Save day</button>
         </div>
@@ -231,6 +797,7 @@
               </div>
             </div>
           </div>
+
           <div class="panel">
             <h3>Daily direction</h3>
             <p class="subtle">Fast signals that tell you what to protect next.</p>
@@ -249,22 +816,26 @@
           <div class="panel" id="checkinSection">
             <h3>Today’s check-in</h3>
             <p class="subtle">Quick input. High signal. No clutter.</p>
+
             <div class="field-stack" style="margin-top:14px;">
               <div class="field">
                 <div class="field-head"><label for="mood">Mood</label><div class="value-badge"><span id="moodValue">5</span>/10</div></div>
                 <input id="mood" type="range" min="1" max="10" value="5" />
                 <div class="scale-row"><span>Flat</span><span>Strong</span></div>
               </div>
+
               <div class="field">
                 <div class="field-head"><label for="stress">Stress</label><div class="value-badge"><span id="stressValue">5</span>/10</div></div>
                 <input id="stress" type="range" min="1" max="10" value="5" />
                 <div class="scale-row"><span>Calm</span><span>Overloaded</span></div>
               </div>
+
               <div class="field">
                 <div class="field-head"><label for="energy">Energy</label><div class="value-badge"><span id="energyValue">5</span>/10</div></div>
                 <input id="energy" type="range" min="1" max="10" value="5" />
                 <div class="scale-row"><span>Flat</span><span>Sharp</span></div>
               </div>
+
               <div class="field">
                 <div class="field-head"><div class="field-title">Daily signals</div><div class="value-badge"><span id="signalsCountInline">0</span>/2 logged</div></div>
                 <div class="habit-grid">
@@ -272,6 +843,7 @@
                   <label class="habit"><input id="connection" type="checkbox" /><span>Meaningful connection</span></label>
                 </div>
               </div>
+
               <div class="field">
                 <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge"><span id="habitCountInline">0</span>/6 done</div></div>
                 <div class="habit-grid">
@@ -283,32 +855,38 @@
                   <label class="habit"><input id="nutrition" type="checkbox" /><span>Supportive nutrition</span></label>
                 </div>
               </div>
+
               <div class="field">
                 <div class="field-head"><label for="notes">Reflection</label><div class="value-badge">Notes</div></div>
                 <textarea id="notes" placeholder="What worked, what triggered you, and what is the next right move?"></textarea>
               </div>
+
               <div class="field">
                 <div class="field-head"><label for="tomorrowFocus">Tomorrow’s focus</label><div class="value-badge">1 target</div></div>
                 <input id="tomorrowFocus" type="text" placeholder="Example: Finish proposal review before 10am" />
               </div>
             </div>
+
             <div class="action-row">
               <button class="btn primary" id="saveDayBtnSecondary" type="button">Save today</button>
               <button class="btn" id="loadTodayBtn" type="button">Load today</button>
               <button class="btn warn" id="clearTodayBtn" type="button">Clear today</button>
               <button class="btn warn" id="resetAllBtn" type="button">Reset all</button>
             </div>
+
             <div class="status" id="saveStatus"></div>
           </div>
 
           <div class="panel" id="reviewSection">
             <h3>Last 7 days</h3>
             <p class="subtle">Trends in the middle. Details lower down.</p>
+
             <div class="selected-box" style="margin-top:14px;">
               <div class="kpi-label" style="margin-bottom:6px;">Momentum trend</div>
               <div class="subtle">Scores across recent saved days</div>
               <div class="bars" id="trendBars"></div>
             </div>
+
             <div class="selected-box" style="margin-top:14px;">
               <div class="kpi-label" style="margin-bottom:6px;">Weekly review</div>
               <div class="subtle">A quick read on what is helping and what needs attention.</div>
@@ -322,7 +900,10 @@
         <div class="history-grid">
           <div class="panel">
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;">
-              <div><h3>Calendar history</h3><p class="subtle" id="monthLabel">This month</p></div>
+              <div>
+                <h3>Calendar history</h3>
+                <p class="subtle" id="monthLabel">This month</p>
+              </div>
               <div class="action-row" style="margin-top:0;">
                 <button class="btn" id="prevMonthBtn" type="button">Previous</button>
                 <button class="btn" id="currentMonthBtn" type="button">Current</button>
@@ -331,6 +912,7 @@
             </div>
             <div class="calendar" id="calendarGrid"></div>
           </div>
+
           <div class="panel">
             <h3>Selected day</h3>
             <p class="subtle">Click any day with data to load it into the dashboard and journal.</p>
@@ -342,7 +924,10 @@
               <li class="review-item"><span>Habits done</span><strong id="selectedDayHabits">—</strong></li>
               <li class="review-item"><span>Tomorrow’s focus</span><strong id="selectedDayFocus">—</strong></li>
             </ul>
-            <div class="selected-box" style="margin-top:14px;"><strong>Notes</strong><div id="selectedDayNotes" class="journal-body">No day selected yet.</div></div>
+            <div class="selected-box" style="margin-top:14px;">
+              <strong>Notes</strong>
+              <div id="selectedDayNotes" class="journal-body">No day selected yet.</div>
+            </div>
             <div class="footer-note">Prototype version stores data locally in this browser.</div>
           </div>
         </div>
@@ -353,23 +938,28 @@
           <div class="panel">
             <h3>Journal</h3>
             <p class="subtle">Use the prompts when your head is noisy. Keep it honest and practical.</p>
+
             <div class="prompt-list" style="margin-top:14px;">
               <div class="prompt"><strong>What went well today?</strong> Name the wins, even if they were small.</div>
               <div class="prompt"><strong>What threw me off?</strong> Capture the trigger without beating yourself up.</div>
               <div class="prompt"><strong>What is the next right move?</strong> Write the smallest action that still counts.</div>
             </div>
+
             <div class="field-stack" style="margin-top:14px;">
               <div class="field"><div class="field-head"><label for="journalTitle">Entry title</label><div class="value-badge">Optional</div></div><input id="journalTitle" type="text" placeholder="Example: Reset after a flat afternoon" /></div>
               <div class="field"><div class="field-head"><label for="journalTomorrowFocus">Tomorrow’s focus</label><div class="value-badge">Carry forward</div></div><input id="journalTomorrowFocus" type="text" placeholder="Example: Send pricing mark-up before lunch" /></div>
               <div class="field"><div class="field-head"><label for="journalEntry">Today’s journal</label><div class="value-badge" id="journalWordCount">0 words</div></div><textarea id="journalEntry" placeholder="Write honestly. This can be a brain dump, a reflection, or a reset note to yourself." style="min-height:260px;"></textarea></div>
             </div>
+
             <div class="action-row">
               <button class="btn primary" id="saveJournalBtn" type="button">Save journal</button>
               <button class="btn" id="loadJournalBtn" type="button">Load selected day</button>
               <button class="btn warn" id="clearJournalBtn" type="button">Clear journal</button>
             </div>
+
             <div class="status" id="journalStatus"></div>
           </div>
+
           <div class="panel">
             <h3>Journal history</h3>
             <p class="subtle">The selected day’s writing appears here.</p>
@@ -391,16 +981,19 @@
             <h3>Reset Coach</h3>
             <p class="subtle">Guided self-help support based on your check-in data. This is not therapy, diagnosis, or crisis care.</p>
             <div class="coach-disclaimer">If you feel at risk of harming yourself or someone else, or you feel unable to stay safe, do not use this tool alone. Contact emergency services or a crisis support line now.</div>
+
             <div class="coach-mode-grid">
               <button class="coach-mode active" type="button" data-coach-mode="talk">Talk it through</button>
               <button class="coach-mode" type="button" data-coach-mode="calm">Calm me down</button>
               <button class="coach-mode" type="button" data-coach-mode="reframe">Reframe this</button>
             </div>
-            <div class="resource-box">
+
+            <div class="resource-box" style="margin-top:14px;">
               <strong>Ground rules</strong>
               <div class="subtle" style="margin-top:8px; color: var(--text);">The coach can help you slow down, reflect, and choose a next step. It should not present itself as a therapist, and it should push you toward real-world support if things feel unsafe or too heavy.</div>
             </div>
-            <div class="resource-box">
+
+            <div class="resource-box" style="margin-top:14px;">
               <strong>Support options</strong>
               <div style="margin-top:8px; display:grid; gap:10px;">
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><button class="btn" type="button" id="openLifelineBtn">Open Lifeline Australia</button><span>13 11 14</span></div>
@@ -409,20 +1002,33 @@
               </div>
             </div>
           </div>
+
           <div class="panel">
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;">
-              <div><h3 id="coachModeTitle">Talk it through</h3><p class="subtle" id="coachModeSub">Name what happened, what you feel, and what matters most tonight.</p></div>
+              <div>
+                <h3 id="coachModeTitle">Talk it through</h3>
+                <p class="subtle" id="coachModeSub">Name what happened, what you feel, and what matters most tonight.</p>
+              </div>
               <div class="value-badge" id="coachContextTag">Using today’s data</div>
             </div>
-            <div class="coach-chat"><div class="coach-thread" id="coachThread"></div></div>
-            <div class="field-stack" style="margin-top:14px;">
-              <div class="field"><div class="field-head"><label for="coachInput">Your message</label><div class="value-badge">Private in browser</div></div><textarea id="coachInput" placeholder="Example: I had a decent day, but I feel flat tonight and I’m getting in my own head."></textarea></div>
+
+            <div class="coach-chat">
+              <div class="coach-thread" id="coachThread"></div>
             </div>
+
+            <div class="field-stack" style="margin-top:14px;">
+              <div class="field">
+                <div class="field-head"><label for="coachInput">Your message</label><div class="value-badge">Private in browser</div></div>
+                <textarea id="coachInput" placeholder="Example: I had a decent day, but I feel flat tonight and I’m getting in my own head."></textarea>
+              </div>
+            </div>
+
             <div class="coach-actions">
               <button class="btn primary" id="sendCoachBtn" type="button">Get guidance</button>
               <button class="btn" id="useDayContextBtn" type="button">Use selected day context</button>
               <button class="btn warn" id="clearCoachBtn" type="button">Clear conversation</button>
             </div>
+
             <div class="status" id="coachStatus"></div>
           </div>
         </div>
@@ -440,27 +1046,759 @@
     (function () {
       'use strict';
 
+      var STORAGE_KEY = 'momentumOSCleanV1';
+      var habitIds = ['protectedFocus', 'exercise', 'priorityTask', 'meditation', 'sleep', 'nutrition'];
+
+      var state = {
+        activeView: 'dashboardView',
+        viewDate: new Date(),
+        selectedKey: getDateKey(new Date()),
+        coachMode: 'talk'
+      };
+
+      function el(id) {
+        return document.getElementById(id);
+      }
+
+      function setText(id, value) {
+        var node = el(id);
+        if (node) node.textContent = value;
+      }
+
+      function getValue(id, fallback) {
+        var node = el(id);
+        return node ? node.value : (fallback || '');
+      }
+
+      function isChecked(id) {
+        var node = el(id);
+        return !!(node && node.checked);
+      }
+
+      function getDateKey(date) {
+        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+      }
+
+      function dateFromKey(key) {
+        var parts = key.split('-');
+        return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      }
+
+      function addDays(date, amount) {
+        var copy = new Date(date);
+        copy.setDate(copy.getDate() + amount);
+        return copy;
+      }
+
+      function formatLongDate(date) {
+        return date.toLocaleDateString(undefined, {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        });
+      }
+
+      function formatMonth(date) {
+        return date.toLocaleDateString(undefined, {
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+
+      function countWords(value) {
+        var trimmed = (value || '').trim();
+        return trimmed ? trimmed.split(/\s+/).length : 0;
+      }
+
+      function loadData() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveData(data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+
+      function labelForHabit(id) {
+        var labels = {
+          protectedFocus: 'Protected focus',
+          exercise: 'Exercise / movement',
+          priorityTask: 'Priority task',
+          meditation: 'Quiet minute',
+          sleep: 'Sleep routine',
+          nutrition: 'Supportive nutrition'
+        };
+        return labels[id] || id;
+      }
+
+      function getCheckedCount() {
+        var count = 0;
+        habitIds.forEach(function (id) {
+          if (isChecked(id)) count += 1;
+        });
+        return count;
+      }
+
+      function getHabitMapFromForm() {
+        var habits = {};
+        habitIds.forEach(function (id) {
+          habits[id] = isChecked(id);
+        });
+        return habits;
+      }
+
+      function calculateSignalCount() {
+        var count = 0;
+        if (isChecked('alcohol')) count += 1;
+        if (isChecked('connection')) count += 1;
+        setText('signalsCountInline', count);
+        return count;
+      }
+
+      function getScoreMessage(score) {
+        if (score >= 85) return 'Strong day. Protect the evening.';
+        if (score >= 70) return 'Good day. Stay deliberate.';
+        if (score >= 50) return 'Mixed day. Finish clean.';
+        if (score >= 30) return 'Hard day. Make the next move small.';
+        return 'Reset gently. One next right step.';
+      }
+
+      function updateScoreRing(score) {
+        var ring = el('scoreRing');
+        if (!ring) return;
+        var deg = Math.round((score / 100) * 360);
+        ring.style.background = 'conic-gradient(var(--gold) ' + deg + 'deg, rgba(255,255,255,0.18) ' + deg + 'deg)';
+      }
+
+      function calculateScore() {
+        var mood = Number(getValue('mood', 5));
+        var stress = Number(getValue('stress', 5));
+        var energy = Number(getValue('energy', 5));
+        var habitsDone = getCheckedCount();
+        var noteBonus = getValue('notes').trim() ? 0.4 : 0;
+        var focusBonus = getValue('tomorrowFocus').trim() ? 0.4 : 0;
+        var signalBonus = isChecked('connection') ? 0.3 : 0;
+        var alcoholPenalty = isChecked('alcohol') ? 0.4 : 0;
+
+        setText('moodValue', mood);
+        setText('stressValue', stress);
+        setText('energyValue', energy);
+        setText('habitCountInline', habitsDone);
+        setText('habitCount', habitsDone);
+        calculateSignalCount();
+
+        var raw = (mood * 0.28) + (energy * 0.24) + ((11 - stress) * 0.22) + (habitsDone * 0.85) + noteBonus + focusBonus + signalBonus - alcoholPenalty;
+        var score = Math.round((raw / 9.2) * 100);
+        score = Math.max(0, Math.min(100, score));
+
+        setText('overallScore', score);
+        setText('scoreMessage', getScoreMessage(score));
+        updateScoreRing(score);
+        updateInsights(score);
+
+        return score;
+      }
+
+      function buildEntryFromForm(key) {
+        return {
+          date: key,
+          score: calculateScore(),
+          mood: Number(getValue('mood', 5)),
+          stress: Number(getValue('stress', 5)),
+          energy: Number(getValue('energy', 5)),
+          alcohol: isChecked('alcohol'),
+          connection: isChecked('connection'),
+          habits: getHabitMapFromForm(),
+          notes: getValue('notes').trim(),
+          tomorrowFocus: getValue('tomorrowFocus').trim(),
+          journalTitle: getValue('journalTitle').trim(),
+          journalTomorrowFocus: getValue('journalTomorrowFocus').trim(),
+          journalEntry: getValue('journalEntry').trim(),
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      function resetDayForm() {
+        if (el('mood')) el('mood').value = 5;
+        if (el('stress')) el('stress').value = 5;
+        if (el('energy')) el('energy').value = 5;
+        if (el('notes')) el('notes').value = '';
+        if (el('tomorrowFocus')) el('tomorrowFocus').value = '';
+        if (el('alcohol')) el('alcohol').checked = false;
+        if (el('connection')) el('connection').checked = false;
+
+        habitIds.forEach(function (id) {
+          if (el(id)) el(id).checked = false;
+        });
+
+        calculateScore();
+      }
+
+      function resetJournalForm() {
+        if (el('journalTitle')) el('journalTitle').value = '';
+        if (el('journalTomorrowFocus')) el('journalTomorrowFocus').value = '';
+        if (el('journalEntry')) el('journalEntry').value = '';
+        updateJournalWordCount();
+      }
+
+      function updateSelectedDayPanel(entry, key) {
+        setText('selectedDayDate', key ? formatLongDate(dateFromKey(key)) : 'Today');
+
+        if (!entry) {
+          setText('selectedDayScore', '—');
+          setText('selectedDayMood', '—');
+          setText('selectedDayStress', '—');
+          setText('selectedDayHabits', '—');
+          setText('selectedDayFocus', '—');
+          setText('selectedDayNotes', 'No saved notes for this day yet.');
+          return;
+        }
+
+        var habitsDone = 0;
+        habitIds.forEach(function (id) {
+          if (entry.habits && entry.habits[id]) habitsDone += 1;
+        });
+
+        setText('selectedDayScore', entry.score != null ? entry.score : '—');
+        setText('selectedDayMood', (entry.mood != null ? entry.mood : '—') + '/10');
+        setText('selectedDayStress', (entry.stress != null ? entry.stress : '—') + '/10');
+        setText('selectedDayHabits', habitsDone + '/6');
+        setText('selectedDayFocus', entry.tomorrowFocus || entry.journalTomorrowFocus || '—');
+        setText('selectedDayNotes', entry.notes || 'No notes recorded.');
+      }
+
+      function updateJournalWordCount() {
+        setText('journalWordCount', countWords(getValue('journalEntry')) + ' words');
+      }
+
+      function updateJournalPanel(entry, key) {
+        setText('journalSelectedDate', key ? formatLongDate(dateFromKey(key)) : 'Today');
+        setText('journalSavedTitle', entry && entry.journalTitle ? entry.journalTitle : '—');
+        setText('journalSavedFocus', entry && (entry.journalTomorrowFocus || entry.tomorrowFocus) ? (entry.journalTomorrowFocus || entry.tomorrowFocus) : '—');
+        setText('journalSavedWords', entry && entry.journalEntry ? countWords(entry.journalEntry) : 0);
+        setText('journalSavedBody', entry && entry.journalEntry ? entry.journalEntry : 'No saved journal for this day yet.');
+      }
+
+      function applyEntryToUI(entry, key) {
+        if (!entry) {
+          resetDayForm();
+          resetJournalForm();
+          updateSelectedDayPanel(null, key);
+          updateJournalPanel(null, key);
+          return;
+        }
+
+        if (el('mood')) el('mood').value = entry.mood != null ? entry.mood : 5;
+        if (el('stress')) el('stress').value = entry.stress != null ? entry.stress : 5;
+        if (el('energy')) el('energy').value = entry.energy != null ? entry.energy : 5;
+        if (el('alcohol')) el('alcohol').checked = !!entry.alcohol;
+        if (el('connection')) el('connection').checked = !!entry.connection;
+        if (el('notes')) el('notes').value = entry.notes || '';
+        if (el('tomorrowFocus')) el('tomorrowFocus').value = entry.tomorrowFocus || entry.journalTomorrowFocus || '';
+
+        habitIds.forEach(function (id) {
+          if (el(id)) el(id).checked = !!(entry.habits && entry.habits[id]);
+        });
+
+        if (el('journalTitle')) el('journalTitle').value = entry.journalTitle || '';
+        if (el('journalTomorrowFocus')) el('journalTomorrowFocus').value = entry.journalTomorrowFocus || entry.tomorrowFocus || '';
+        if (el('journalEntry')) el('journalEntry').value = entry.journalEntry || '';
+
+        updateJournalWordCount();
+        calculateScore();
+        updateSelectedDayPanel(entry, key);
+        updateJournalPanel(entry, key);
+      }
+
+      function getEntriesForRange(data, startOffset, days) {
+        var entries = [];
+        var today = new Date();
+
+        for (var i = startOffset; i < startOffset + days; i += 1) {
+          var key = getDateKey(addDays(today, -i));
+          if (data[key]) entries.push(data[key]);
+        }
+
+        return entries;
+      }
+
+      function averageFromEntries(entries, field) {
+        if (!entries.length) return 0;
+        var total = 0;
+        entries.forEach(function (entry) {
+          total += Number(entry[field] || 0);
+        });
+        return total / entries.length;
+      }
+
+      function habitRateFromEntries(entries, habitId) {
+        if (!entries.length) return 0;
+        var total = 0;
+        entries.forEach(function (entry) {
+          if (entry.habits && entry.habits[habitId]) total += 1;
+        });
+        return total / entries.length;
+      }
+
+      function getTrendDirection(currentValue, previousValue, threshold) {
+        var diff = currentValue - previousValue;
+        if (Math.abs(diff) < threshold) return 'flat';
+        return diff > 0 ? 'up' : 'down';
+      }
+
+      function buildTrendSummary() {
+        var data = loadData();
+        var currentWeek = getEntriesForRange(data, 0, 7);
+        var previousWeek = getEntriesForRange(data, 7, 7);
+
+        if (!currentWeek.length || !previousWeek.length) return null;
+
+        var currentScore = averageFromEntries(currentWeek, 'score');
+        var previousScore = averageFromEntries(previousWeek, 'score');
+        var currentMood = averageFromEntries(currentWeek, 'mood');
+        var previousMood = averageFromEntries(previousWeek, 'mood');
+        var currentStress = averageFromEntries(currentWeek, 'stress');
+        var previousStress = averageFromEntries(previousWeek, 'stress');
+
+        var scoreTrend = getTrendDirection(currentScore, previousScore, 3);
+        var moodTrend = getTrendDirection(currentMood, previousMood, 0.4);
+        var stressTrend = getTrendDirection(previousStress, currentStress, 0.4);
+
+        var strongestHabit = null;
+        var weakestHabit = null;
+        var bestDelta = -999;
+        var worstDelta = 999;
+
+        habitIds.forEach(function (id) {
+          var currentRate = habitRateFromEntries(currentWeek, id);
+          var previousRate = habitRateFromEntries(previousWeek, id);
+          var delta = currentRate - previousRate;
+
+          if (delta > bestDelta) {
+            bestDelta = delta;
+            strongestHabit = id;
+          }
+
+          if (delta < worstDelta) {
+            worstDelta = delta;
+            weakestHabit = id;
+          }
+        });
+
+        return {
+          currentScore: Math.round(currentScore),
+          previousScore: Math.round(previousScore),
+          currentMood: currentMood,
+          previousMood: previousMood,
+          currentStress: currentStress,
+          previousStress: previousStress,
+          scoreTrend: scoreTrend,
+          moodTrend: moodTrend,
+          stressTrend: stressTrend,
+          strongestHabit: strongestHabit,
+          weakestHabit: weakestHabit,
+          strongestDelta: bestDelta,
+          weakestDelta: worstDelta
+        };
+      }
+
+      function updateInsights(score) {
+        var box = el('insights');
+        if (!box) return;
+
+        var messages = [];
+        var stress = Number(getValue('stress', 5));
+        var mood = Number(getValue('mood', 5));
+        var energy = Number(getValue('energy', 5));
+        var habits = getCheckedCount();
+        var trend = buildTrendSummary();
+
+        if (stress >= 8) messages.push('Stress is high today. Make the next goal smaller, not bigger.');
+        if (mood <= 4) messages.push('Mood is low. Prioritise sleep, food, movement, and connection before judging yourself.');
+        if (energy <= 4) messages.push('Energy is low. Protect recovery and avoid pretending this is a push day.');
+        if (isChecked('alcohol')) messages.push('Alcohol logged today. Protect tomorrow morning and keep the evening lighter.');
+        if (!isChecked('connection')) messages.push('You may need human contact more than more thinking tonight.');
+        if (habits >= 4) messages.push('You have good behavioural momentum. Protect it with a calm finish.');
+        if (!isChecked('priorityTask')) messages.push('If the day feels scattered, finish one priority task before adding anything else.');
+        if (score < 50) messages.push('This is a recovery day. Win it by doing one small clean action before bed.');
+
+        if (trend) {
+          if (trend.scoreTrend === 'up') messages.push('Weekly score trend is improving versus the previous 7 days.');
+          if (trend.scoreTrend === 'down') messages.push('Weekly score trend is slipping versus the previous 7 days.');
+          if (trend.moodTrend === 'up') messages.push('Average mood is trending upward this week.');
+          if (trend.stressTrend === 'up') messages.push('Average stress is easing compared with last week.');
+          if (trend.strongestHabit && trend.strongestDelta > 0.15) messages.push(labelForHabit(trend.strongestHabit) + ' is your most improved habit this week.');
+          if (trend.weakestHabit && trend.weakestDelta < -0.15) messages.push(labelForHabit(trend.weakestHabit) + ' has slipped compared with the previous week.');
+        }
+
+        if (!messages.length) messages.push('Steady day. Keep the next move clear and simple.');
+
+        box.innerHTML = '';
+        messages.slice(0, 6).forEach(function (message) {
+          var div = document.createElement('div');
+          div.className = 'insight';
+          div.textContent = message;
+          box.appendChild(div);
+        });
+      }
+
+      function calculateStreak(data) {
+        var streak = 0;
+        var cursor = new Date();
+
+        while (data[getDateKey(cursor)]) {
+          streak += 1;
+          cursor = addDays(cursor, -1);
+        }
+
+        return streak;
+      }
+
+      function calculateSevenDayAverage(data) {
+        var total = 0;
+        var count = 0;
+        var today = new Date();
+
+        for (var i = 0; i < 7; i += 1) {
+          var key = getDateKey(addDays(today, -i));
+          if (data[key]) {
+            total += Number(data[key].score || 0);
+            count += 1;
+          }
+        }
+
+        return count ? Math.round(total / count) : 0;
+      }
+
+      function updateTopStats() {
+        var data = loadData();
+        setText('streakStat', calculateStreak(data));
+        setText('avgStat', calculateSevenDayAverage(data));
+        setText('savedStat', Object.keys(data).length);
+      }
+
+      function renderTrendBars() {
+        var bars = el('trendBars');
+        if (!bars) return;
+
+        var data = loadData();
+        var today = new Date();
+        bars.innerHTML = '';
+
+        for (var i = 6; i >= 0; i -= 1) {
+          var date = addDays(today, -i);
+          var key = getDateKey(date);
+          var entry = data[key];
+          var score = entry ? Number(entry.score || 0) : 0;
+
+          var wrap = document.createElement('div');
+          wrap.className = 'bar-wrap';
+
+          var top = document.createElement('div');
+          top.className = 'bar-score';
+          top.textContent = entry ? score : '—';
+
+          var bar = document.createElement('div');
+          bar.className = 'bar';
+          bar.style.height = Math.max(12, score * 1.2) + 'px';
+          bar.style.opacity = entry ? '1' : '.2';
+
+          var label = document.createElement('div');
+          label.className = 'bar-label';
+          label.textContent = date.toLocaleDateString(undefined, { weekday: 'short' });
+
+          wrap.appendChild(top);
+          wrap.appendChild(bar);
+          wrap.appendChild(label);
+          bars.appendChild(wrap);
+        }
+      }
+
+      function renderWeeklyReview() {
+        var review = el('weeklyReview');
+        if (!review) return;
+
+        var data = loadData();
+        var today = new Date();
+        var entries = [];
+        var trend = buildTrendSummary();
+
+        for (var i = 0; i < 7; i += 1) {
+          var key = getDateKey(addDays(today, -i));
+          if (data[key]) entries.push(data[key]);
+        }
+
+        if (!entries.length) {
+          review.innerHTML = '<div class="review-item"><span>Status</span><strong>No saved entries yet</strong></div>';
+          return;
+        }
+
+        var totalScore = 0;
+        var totalMood = 0;
+        var totalStress = 0;
+        var best = entries[0];
+        var totals = {
+          protectedFocus: 0,
+          exercise: 0,
+          priorityTask: 0,
+          meditation: 0,
+          sleep: 0,
+          nutrition: 0
+        };
+
+        entries.forEach(function (entry) {
+          totalScore += Number(entry.score || 0);
+          totalMood += Number(entry.mood || 0);
+          totalStress += Number(entry.stress || 0);
+          if (Number(entry.score || 0) > Number(best.score || 0)) best = entry;
+          habitIds.forEach(function (id) {
+            if (entry.habits && entry.habits[id]) totals[id] += 1;
+          });
+        });
+
+        var strongest = 'protectedFocus';
+        var weakest = 'protectedFocus';
+
+        habitIds.forEach(function (id) {
+          if (totals[id] > totals[strongest]) strongest = id;
+          if (totals[id] < totals[weakest]) weakest = id;
+        });
+
+        var trendLine = 'Not enough history yet';
+        if (trend) {
+          var scoreText = trend.scoreTrend === 'up' ? 'Improving' : trend.scoreTrend === 'down' ? 'Down' : 'Stable';
+          var moodText = trend.moodTrend === 'up' ? 'Mood up' : trend.moodTrend === 'down' ? 'Mood down' : 'Mood steady';
+          var stressText = trend.stressTrend === 'up' ? 'Stress easing' : trend.stressTrend === 'down' ? 'Stress rising' : 'Stress steady';
+          trendLine = scoreText + ' · ' + moodText + ' · ' + stressText;
+        }
+
+        review.innerHTML = [
+          '<div class="review-item"><span>Saved entries</span><strong>' + entries.length + '/7</strong></div>',
+          '<div class="review-item"><span>Average score</span><strong>' + Math.round(totalScore / entries.length) + '</strong></div>',
+          '<div class="review-item"><span>Average mood</span><strong>' + (totalMood / entries.length).toFixed(1) + '/10</strong></div>',
+          '<div class="review-item"><span>Average stress</span><strong>' + (totalStress / entries.length).toFixed(1) + '/10</strong></div>',
+          '<div class="review-item"><span>Best day</span><strong>' + best.date + ' · ' + best.score + '</strong></div>',
+          '<div class="review-item"><span>Strongest habit</span><strong>' + labelForHabit(strongest) + '</strong></div>',
+          '<div class="review-item"><span>Needs attention</span><strong>' + labelForHabit(weakest) + '</strong></div>',
+          '<div class="review-item"><span>Trend</span><strong>' + trendLine + '</strong></div>'
+        ].join('');
+      }
+
+      function updateJournalStats() {
+        var data = loadData();
+        var count = 0;
+
+        Object.keys(data).forEach(function (key) {
+          if (data[key] && data[key].journalEntry) count += 1;
+        });
+
+        setText('journalDaysCount', count);
+      }
+
+      function renderCalendar() {
+        var grid = el('calendarGrid');
+        if (!grid) return;
+
+        var data = loadData();
+        var todayKey = getDateKey(new Date());
+        grid.innerHTML = '';
+
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(function (name) {
+          var div = document.createElement('div');
+          div.className = 'weekday';
+          div.textContent = name;
+          grid.appendChild(div);
+        });
+
+        var year = state.viewDate.getFullYear();
+        var month = state.viewDate.getMonth();
+        var first = new Date(year, month, 1);
+        var last = new Date(year, month + 1, 0);
+        var startOffset = first.getDay();
+
+        setText('monthLabel', formatMonth(state.viewDate));
+
+        for (var i = 0; i < startOffset; i += 1) {
+          var empty = document.createElement('div');
+          empty.className = 'day';
+          empty.style.opacity = '0';
+          grid.appendChild(empty);
+        }
+
+        for (var day = 1; day <= last.getDate(); day += 1) {
+          (function (loopDay) {
+            var date = new Date(year, month, loopDay);
+            var key = getDateKey(date);
+            var entry = data[key];
+
+            var cell = document.createElement('button');
+            cell.type = 'button';
+
+            var classes = 'day';
+            if (!entry) classes += ' no-data';
+            if (key === todayKey) classes += ' today';
+            if (key === state.selectedKey) classes += ' selected';
+            cell.className = classes;
+
+            var dotClass = 'day-dot';
+            if (entry) {
+              if (entry.score >= 75) dotClass += ' good';
+              else if (entry.score >= 50) dotClass += ' mid';
+              else dotClass += ' bad';
+            }
+
+            cell.innerHTML = '<div class="day-top"><div class="day-num">' + loopDay + '</div><div class="' + dotClass + '"></div></div><div class="day-score">' + (entry ? entry.score + ' score' : 'No data') + '</div>';
+
+            cell.addEventListener('click', function () {
+              state.selectedKey = key;
+              setText('selectedDateLabel', key === getDateKey(new Date()) ? 'Today' : 'Viewing ' + key);
+              applyEntryToUI(entry || null, key);
+              setText('saveStatus', entry ? 'Loaded ' + formatLongDate(dateFromKey(key)) + '.' : 'Selected ' + formatLongDate(dateFromKey(key)) + '. No saved data.');
+              setText('journalStatus', entry && entry.journalEntry ? 'Loaded journal for ' + formatLongDate(dateFromKey(key)) + '.' : 'No saved journal for this day yet.');
+              renderCalendar();
+              renderCoachMode();
+            });
+
+            grid.appendChild(cell);
+          })(day);
+        }
+      }
+
+      function switchView(viewId) {
+        state.activeView = viewId;
+
+        document.querySelectorAll('.view').forEach(function (view) {
+          view.classList.toggle('active', view.id === viewId);
+        });
+
+        document.querySelectorAll('[data-view-target]').forEach(function (button) {
+          button.classList.toggle('active', button.getAttribute('data-view-target') === viewId);
+        });
+
+        if (el('sidebar')) el('sidebar').classList.remove('open');
+      }
+
+      function saveSelectedDay() {
+        var key = state.selectedKey || getDateKey(new Date());
+        var data = loadData();
+        data[key] = buildEntryFromForm(key);
+        saveData(data);
+        updateSelectedDayPanel(data[key], key);
+        updateJournalPanel(data[key], key);
+        setText('selectedDateLabel', key === getDateKey(new Date()) ? 'Today saved' : 'Saved ' + key);
+        setText('saveStatus', 'Saved ' + formatLongDate(dateFromKey(key)) + '.');
+        renderAll();
+      }
+
+      function loadToday() {
+        var data = loadData();
+        var key = getDateKey(new Date());
+        state.selectedKey = key;
+        setText('selectedDateLabel', 'Today');
+        applyEntryToUI(data[key] || null, key);
+        setText('saveStatus', data[key] ? 'Loaded today.' : 'No saved entry for today yet.');
+        setText('journalStatus', data[key] && data[key].journalEntry ? 'Loaded journal for today.' : 'No saved journal for today yet.');
+        renderAll();
+      }
+
+      function clearSelectedDay() {
+        var data = loadData();
+        var key = state.selectedKey || getDateKey(new Date());
+        delete data[key];
+        saveData(data);
+        applyEntryToUI(null, key);
+        setText('saveStatus', 'Cleared ' + formatLongDate(dateFromKey(key)) + '.');
+        renderAll();
+      }
+
+      function resetAllData() {
+        if (!window.confirm('Delete all saved dashboard data?')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        state.selectedKey = getDateKey(new Date());
+        loadToday();
+        setText('journalStatus', 'All journal data reset.');
+      }
+
+      function saveJournalOnly() {
+        var key = state.selectedKey || getDateKey(new Date());
+        var data = loadData();
+        var existing = data[key] || buildEntryFromForm(key);
+
+        existing.journalTitle = getValue('journalTitle').trim();
+        existing.journalTomorrowFocus = getValue('journalTomorrowFocus').trim();
+        existing.tomorrowFocus = getValue('journalTomorrowFocus').trim() || existing.tomorrowFocus || '';
+        existing.journalEntry = getValue('journalEntry').trim();
+        existing.updatedAt = new Date().toISOString();
+
+        data[key] = existing;
+        saveData(data);
+
+        updateJournalPanel(existing, key);
+        updateJournalStats();
+        renderCalendar();
+        setText('journalStatus', 'Saved journal for ' + formatLongDate(dateFromKey(key)) + '.');
+      }
+
+      function loadJournalForSelectedDay() {
+        var key = state.selectedKey || getDateKey(new Date());
+        var entry = loadData()[key] || null;
+
+        if (entry) {
+          if (el('journalTitle')) el('journalTitle').value = entry.journalTitle || '';
+          if (el('journalTomorrowFocus')) el('journalTomorrowFocus').value = entry.journalTomorrowFocus || entry.tomorrowFocus || '';
+          if (el('journalEntry')) el('journalEntry').value = entry.journalEntry || '';
+        } else {
+          resetJournalForm();
+        }
+
+        updateJournalWordCount();
+        updateJournalPanel(entry, key);
+        setText('journalStatus', entry && entry.journalEntry ? 'Loaded journal for ' + formatLongDate(dateFromKey(key)) + '.' : 'No saved journal for this day yet.');
+      }
+
+      function clearJournalForSelectedDay() {
+        var key = state.selectedKey || getDateKey(new Date());
+        var data = loadData();
+
+        if (data[key]) {
+          data[key].journalTitle = '';
+          data[key].journalTomorrowFocus = '';
+          data[key].journalEntry = '';
+          data[key].updatedAt = new Date().toISOString();
+          saveData(data);
+        }
+
+        resetJournalForm();
+        updateJournalPanel(data[key] || null, key);
+        updateJournalStats();
+        setText('journalStatus', 'Cleared journal for ' + formatLongDate(dateFromKey(key)) + '.');
+      }
+
       async function signUp(email, password) {
-        const { data, error } = await db.auth.signUp({ email: email, password: password });
-        if (error) throw error;
-        return data;
+        var result = await db.auth.signUp({ email: email, password: password });
+        if (result.error) throw result.error;
+        return result.data;
       }
 
       async function signIn(email, password) {
-        const { data, error } = await db.auth.signInWithPassword({ email: email, password: password });
-        if (error) throw error;
-        return data;
+        var result = await db.auth.signInWithPassword({ email: email, password: password });
+        if (result.error) throw result.error;
+        return result.data;
       }
 
       async function signOut() {
-        const { error } = await db.auth.signOut();
-        if (error) throw error;
+        var result = await db.auth.signOut();
+        if (result.error) throw result.error;
       }
 
       async function getCurrentUser() {
-        const { data, error } = await db.auth.getUser();
-        if (error) throw error;
-        return data.user;
+        var result = await db.auth.getUser();
+        if (result.error) throw result.error;
+        return result.data.user;
       }
 
       function setAuthStatus(message, isError) {
@@ -472,19 +1810,21 @@
 
       async function refreshAuthUI() {
         try {
-          const user = await getCurrentUser();
-          const overlay = el('authOverlay');
-          const emailPill = el('userEmailPill');
-          const signOutBtn = el('signOutBtn');
+          var user = await getCurrentUser();
+          var overlay = el('authOverlay');
+          var emailPill = el('userEmailPill');
+          var signOutBtn = el('signOutBtn');
+          var openAuthBtn = el('openAuthBtn');
 
           if (user) {
             if (overlay) overlay.style.display = 'none';
             if (emailPill) emailPill.textContent = user.email || 'Signed in';
             if (signOutBtn) signOutBtn.style.display = 'inline-flex';
+            if (openAuthBtn) openAuthBtn.style.display = 'none';
           } else {
-            if (overlay) overlay.style.display = 'none';
             if (emailPill) emailPill.textContent = 'Guest mode';
             if (signOutBtn) signOutBtn.style.display = 'none';
+            if (openAuthBtn) openAuthBtn.style.display = 'inline-flex';
           }
         } catch (err) {
           setAuthStatus(err.message || 'Authentication error', true);
@@ -494,7 +1834,12 @@
       async function handleSignUp() {
         var email = (el('authEmail') && el('authEmail').value || '').trim();
         var password = (el('authPassword') && el('authPassword').value || '').trim();
-        if (!email || !password) { setAuthStatus('Enter your email and password first.', true); return; }
+
+        if (!email || !password) {
+          setAuthStatus('Enter your email and password first.', true);
+          return;
+        }
+
         try {
           setAuthStatus('Creating account...', false);
           await signUp(email, password);
@@ -508,13 +1853,18 @@
       async function handleSignIn() {
         var email = (el('authEmail') && el('authEmail').value || '').trim();
         var password = (el('authPassword') && el('authPassword').value || '').trim();
-        if (!email || !password) { setAuthStatus('Enter your email and password first.', true); return; }
+
+        if (!email || !password) {
+          setAuthStatus('Enter your email and password first.', true);
+          return;
+        }
+
         try {
           setAuthStatus('Signing in...', false);
           await signIn(email, password);
           setAuthStatus('Signed in.', false);
           await refreshAuthUI();
-          await loadToday();
+          loadToday();
         } catch (err) {
           setAuthStatus(err.message || 'Could not sign in.', true);
         }
@@ -531,499 +1881,42 @@
         }
       }
 
-      var STORAGE_KEY = 'momentumOSCleanV1';
-      var habitIds = ['protectedFocus', 'exercise', 'priorityTask', 'meditation', 'sleep', 'nutrition'];
-      var state = {
-        activeView: 'dashboardView',
-        viewDate: new Date(),
-        selectedKey: getDateKey(new Date()),
-        coachMode: 'talk'
-      };
-
-      function el(id) { return document.getElementById(id); }
-      function setText(id, value) { var node = el(id); if (node) node.textContent = value; }
-      function getDateKey(date) {
-        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-      }
-      function dateFromKey(key) {
-        var parts = key.split('-');
-        return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-      }
-      function addDays(date, amount) {
-        var copy = new Date(date);
-        copy.setDate(copy.getDate() + amount);
-        return copy;
-      }
-      function formatLongDate(date) {
-        return date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-      }
-      function formatMonth(date) {
-        return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-      }
-      function loadData() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-        catch (e) { return {}; }
-      }
-      function saveData(data) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      }
-      function countWords(value) {
-        var trimmed = (value || '').trim();
-        return trimmed ? trimmed.split(/\s+/).length : 0;
-      }
-     function getCheckedCount() {
-        var count = 0;
-        habitIds.forEach(function (id) {
-        if (el(id) && el(id).checked) count += 1;
-      });
-      return count;
-}
-      }
-      function getHabitMapFromForm() {
-        var habits = {};
-        habitIds.forEach(function (id) { habits[id] = Boolean(el(id).checked); });
-        return habits;
-      }
-     function calculateScore() {
-        var mood = Number(el('mood').value);
-        var stress = Number(el('stress').value);
-      
-        setText('moodValue', el('mood').value);
-        setText('stressValue', el('stress').value);
-      
-        var habitsDone = getCheckedCount();
-        setText('habitCountInline', habitsDone);
-      
-        var noteBonus = el('notes').value.trim() ? 0.4 : 0;
-        var focusBonus = el('tomorrowFocus').value.trim() ? 0.4 : 0;
-        var score = Math.round((mood * 0.35 + (11 - stress) * 0.25 + habitsDone * 1.1 + noteBonus + focusBonus) * 10 / 8.4);
-        score = Math.max(0, Math.min(100, score));
-
-      setText('scoreValue', score);
-      setText('scoreTag', score >= 75 ? 'Locked in' : score >= 55 ? 'On track' : 'Reset needed');
-      updateInsights(score);
-}
-      }
-      function getScoreMessage(score) {
-        if (score >= 85) return 'Strong day. Protect the evening.';
-        if (score >= 70) return 'Good day. Stay deliberate.';
-        if (score >= 50) return 'Mixed day. Finish clean.';
-        if (score >= 30) return 'Hard day. Make the next move small.';
-        return 'Reset gently. One next right step.';
-      }
-      function updateScoreRing(score) {
-        var ring = el('scoreRing');
-        var deg = Math.round((score / 100) * 360);
-        ring.style.background = 'conic-gradient(var(--gold) ' + deg + 'deg, rgba(255,255,255,0.18) ' + deg + 'deg)';
-      }
-      function buildEntryFromForm(key) {
-        return {
-          date: key,
-          score: calculateScore(),
-          mood: Number(el('mood').value),
-          stress: Number(el('stress').value),
-          habits: getHabitMapFromForm(),
-          notes: el('notes').value.trim(),
-          tomorrowFocus: el('tomorrowFocus').value.trim(),
-          journalTitle: el('journalTitle').value.trim(),
-          journalTomorrowFocus: el('journalTomorrowFocus').value.trim(),
-          journalEntry: el('journalEntry').value.trim(),
-          updatedAt: new Date().toISOString()
-        };
-      }
-      function resetDayForm() {
-        el('mood').value = 5;
-        el('stress').value = 5;
-        el('notes').value = '';
-        el('tomorrowFocus').value = '';
-        habitIds.forEach(function (id) { el(id).checked = false; });
-        calculateScore();
-      }
-      function resetJournalForm() {
-        el('journalTitle').value = '';
-        el('journalTomorrowFocus').value = '';
-        el('journalEntry').value = '';
-        updateJournalWordCount();
-      }
-      function applyEntryToUI(entry, key) {
-        if (!entry) {
-          resetDayForm();
-          resetJournalForm();
-          updateSelectedDayPanel(null, key);
-          updateJournalPanel(null, key);
-          return;
-        }
-        el('mood').value = entry.mood || 5;
-        el('stress').value = entry.stress || 5;
-        el('notes').value = entry.notes || '';
-        el('tomorrowFocus').value = entry.tomorrowFocus || entry.journalTomorrowFocus || '';
-        habitIds.forEach(function (id) { el(id).checked = Boolean(entry.habits && entry.habits[id]); });
-        el('journalTitle').value = entry.journalTitle || '';
-        el('journalTomorrowFocus').value = entry.journalTomorrowFocus || entry.tomorrowFocus || '';
-        el('journalEntry').value = entry.journalEntry || '';
-        updateJournalWordCount();
-        calculateScore();
-        updateSelectedDayPanel(entry, key);
-        updateJournalPanel(entry, key);
-      }
-      function getEntriesForRange(data, startOffset, days) {
-        var entries = [];
-        var today = new Date();
-        for (var i = startOffset; i < startOffset + days; i += 1) {
-          var key = getDateKey(addDays(today, -i));
-          if (data[key]) entries.push(data[key]);
-        }
-        return entries;
-      }
-      function averageFromEntries(entries, field) {
-        if (!entries.length) return 0;
-        var total = 0;
-        entries.forEach(function (entry) { total += Number(entry[field] || 0); });
-        return total / entries.length;
-      }
-      function habitRateFromEntries(entries, habitId) {
-        if (!entries.length) return 0;
-        var total = 0;
-        entries.forEach(function (entry) { if (entry.habits && entry.habits[habitId]) total += 1; });
-        return total / entries.length;
-      }
-      function getTrendDirection(currentValue, previousValue, threshold) {
-        var diff = currentValue - previousValue;
-        if (Math.abs(diff) < threshold) return 'flat';
-        return diff > 0 ? 'up' : 'down';
-      }
-      function buildTrendSummary() {
-        var data = loadData();
-        var currentWeek = getEntriesForRange(data, 0, 7);
-        var previousWeek = getEntriesForRange(data, 7, 7);
-        if (!currentWeek.length || !previousWeek.length) return null;
-        var currentScore = averageFromEntries(currentWeek, 'score');
-        var previousScore = averageFromEntries(previousWeek, 'score');
-        var currentMood = averageFromEntries(currentWeek, 'mood');
-        var previousMood = averageFromEntries(previousWeek, 'mood');
-        var currentStress = averageFromEntries(currentWeek, 'stress');
-        var previousStress = averageFromEntries(previousWeek, 'stress');
-        var scoreTrend = getTrendDirection(currentScore, previousScore, 3);
-        var moodTrend = getTrendDirection(currentMood, previousMood, 0.4);
-        var stressTrend = getTrendDirection(previousStress, currentStress, 0.4);
-        var strongestHabit = null, weakestHabit = null, bestDelta = -999, worstDelta = 999;
-        habitIds.forEach(function (id) {
-          var currentRate = habitRateFromEntries(currentWeek, id);
-          var previousRate = habitRateFromEntries(previousWeek, id);
-          var delta = currentRate - previousRate;
-          if (delta > bestDelta) { bestDelta = delta; strongestHabit = id; }
-          if (delta < worstDelta) { worstDelta = delta; weakestHabit = id; }
-        });
-        return {
-          currentWeekCount: currentWeek.length,
-          previousWeekCount: previousWeek.length,
-          currentScore: Math.round(currentScore),
-          previousScore: Math.round(previousScore),
-          currentMood: currentMood,
-          previousMood: previousMood,
-          currentStress: currentStress,
-          previousStress: previousStress,
-          scoreTrend: scoreTrend,
-          moodTrend: moodTrend,
-          stressTrend: stressTrend,
-          strongestHabit: strongestHabit,
-          weakestHabit: weakestHabit,
-          strongestDelta: bestDelta,
-          weakestDelta: worstDelta
-        };
-      }
-      function updateInsights(score) {
-        var box = el('insights');
-        var messages = [];
-        var stress = Number(el('stress').value);
-        var mood = Number(el('mood').value);
-        var energy = Number(el('energy').value);
-        var habits = getCheckedCount();
-        var trend = buildTrendSummary();
-        if (stress >= 8) messages.push('Stress is high today. Make the next goal smaller, not bigger.');
-        if (mood <= 4) messages.push('Mood is low. Prioritize sleep, food, movement, and connection before judging yourself.');
-        if (energy <= 4) messages.push('Energy is low. Protect recovery and avoid pretending this is a push day.');
-        if (el('alcohol').checked) messages.push('Alcohol logged today. Expect slightly lower recovery and protect tomorrow morning.');
-        if (!el('connection').checked) messages.push('You may need human contact more than more thinking tonight.');
-        if (habits >= 4) messages.push('You have good behavioural momentum. Protect it with a calm finish.');
-        if (!el('priorityTask').checked) messages.push('If the day feels scattered, finish one priority task before adding anything else.');
-        if (score < 50) messages.push('This is a recovery day. Win it by doing one small clean action before bed.');
-        if (trend) {
-          if (trend.scoreTrend === 'up') messages.push('Weekly score trend is improving versus the previous 7 days.');
-          if (trend.scoreTrend === 'down') messages.push('Weekly score trend is slipping versus the previous 7 days.');
-          if (trend.moodTrend === 'up') messages.push('Average mood is trending upward this week.');
-          if (trend.stressTrend === 'up') messages.push('Average stress is easing compared with last week.');
-          if (trend.strongestHabit && trend.strongestDelta > 0.15) messages.push(labelForHabit(trend.strongestHabit) + ' is your most improved habit this week.');
-          if (trend.weakestHabit && trend.weakestDelta < -0.15) messages.push(labelForHabit(trend.weakestHabit) + ' has slipped compared with the previous week.');
-        }
-        if (messages.length === 0) messages.push('Steady day. Keep the next move clear and simple.');
-        box.innerHTML = '';
-        messages.slice(0, 6).forEach(function (message) {
-          var div = document.createElement('div');
-          div.className = 'insight';
-          div.textContent = message;
-          box.appendChild(div);
-        });
-      }
-      function calculateSignalCount() {
-          var count = 0;
-          if (el('alcohol') && el('alcohol').checked) count += 1;
-          if (el('connection') && el('connection').checked) count += 1;
-          setText('signalsCountInline', count);
-}
-}
-      }
-      function calculateStreak(data) {
-        var streak = 0, cursor = new Date();
-        while (data[getDateKey(cursor)]) { streak += 1; cursor = addDays(cursor, -1); }
-        return streak;
-      }
-      function calculateSevenDayAverage(data) {
-        var total = 0, count = 0, today = new Date();
-        for (var i = 0; i < 7; i += 1) {
-          var key = getDateKey(addDays(today, -i));
-          if (data[key]) { total += Number(data[key].score || 0); count += 1; }
-        }
-        return count ? Math.round(total / count) : 0;
-      }
-      function updateTopStats() {
-        var data = loadData();
-        setText('streakStat', calculateStreak(data));
-        setText('avgStat', calculateSevenDayAverage(data));
-        setText('savedStat', Object.keys(data).length);
-      }
-      function renderTrendBars() {
-        var bars = el('trendBars');
-        var data = loadData();
-        var today = new Date();
-        bars.innerHTML = '';
-        for (var i = 6; i >= 0; i -= 1) {
-          var date = addDays(today, -i);
-          var key = getDateKey(date);
-          var entry = data[key];
-          var score = entry ? Number(entry.score || 0) : 0;
-          var wrap = document.createElement('div');
-          wrap.className = 'bar-wrap';
-          var top = document.createElement('div');
-          top.className = 'bar-score';
-          top.textContent = entry ? score : '—';
-          var bar = document.createElement('div');
-          bar.className = 'bar';
-          bar.style.height = Math.max(12, score * 1.2) + 'px';
-          bar.style.opacity = entry ? '1' : '.2';
-          var label = document.createElement('div');
-          label.className = 'bar-label';
-          label.textContent = date.toLocaleDateString(undefined, { weekday: 'short' });
-          wrap.appendChild(top); wrap.appendChild(bar); wrap.appendChild(label); bars.appendChild(wrap);
-        }
-      }
-      function renderWeeklyReview() {
-        var review = el('weeklyReview');
-        var data = loadData();
-        var today = new Date();
-        var entries = [];
-        var trend = buildTrendSummary();
-        for (var i = 0; i < 7; i += 1) {
-          var key = getDateKey(addDays(today, -i));
-          if (data[key]) entries.push(data[key]);
-        }
-        if (!entries.length) {
-          review.innerHTML = '<div class="review-item"><span>Status</span><strong>No saved entries yet</strong></div>';
-          return;
-        }
-        var totalScore = 0, totalMood = 0, totalStress = 0, best = entries[0];
-        var totals = { protectedFocus:0, exercise:0, priorityTask:0, meditation:0, sleep:0, nutrition:0 };
-        entries.forEach(function (entry) {
-          totalScore += Number(entry.score || 0);
-          totalMood += Number(entry.mood || 0);
-          totalStress += Number(entry.stress || 0);
-          if (Number(entry.score || 0) > Number(best.score || 0)) best = entry;
-          habitIds.forEach(function (id) { if (entry.habits && entry.habits[id]) totals[id] += 1; });
-        });
-        var strongest = 'protectedFocus', weakest = 'protectedFocus';
-        habitIds.forEach(function (id) { if (totals[id] > totals[strongest]) strongest = id; if (totals[id] < totals[weakest]) weakest = id; });
-        var trendLine = 'Not enough history yet';
-        if (trend) {
-          var scoreText = trend.scoreTrend === 'up' ? 'Improving' : trend.scoreTrend === 'down' ? 'Down' : 'Stable';
-          var moodText = trend.moodTrend === 'up' ? 'Mood up' : trend.moodTrend === 'down' ? 'Mood down' : 'Mood steady';
-          var stressText = trend.stressTrend === 'up' ? 'Stress easing' : trend.stressTrend === 'down' ? 'Stress rising' : 'Stress steady';
-          trendLine = scoreText + ' · ' + moodText + ' · ' + stressText;
-        }
-        review.innerHTML = [
-          '<div class="review-item"><span>Saved entries</span><strong>' + entries.length + '/7</strong></div>',
-          '<div class="review-item"><span>Average score</span><strong>' + Math.round(totalScore / entries.length) + '</strong></div>',
-          '<div class="review-item"><span>Average mood</span><strong>' + (totalMood / entries.length).toFixed(1) + '/10</strong></div>',
-          '<div class="review-item"><span>Average stress</span><strong>' + (totalStress / entries.length).toFixed(1) + '/10</strong></div>',
-          '<div class="review-item"><span>Best day</span><strong>' + best.date + ' · ' + best.score + '</strong></div>',
-          '<div class="review-item"><span>Strongest habit</span><strong>' + labelForHabit(strongest) + '</strong></div>',
-          '<div class="review-item"><span>Needs attention</span><strong>' + labelForHabit(weakest) + '</strong></div>',
-          '<div class="review-item"><span>Trend</span><strong>' + trendLine + '</strong></div>'
-        ].join('');
-      }
-      function labelForHabit(id) {
-        var labels = { protectedFocus:'Protected focus', exercise:'Exercise / movement', priorityTask:'Priority task', meditation:'Quiet minute', sleep:'Sleep routine', nutrition:'Supportive nutrition' };
-        return labels[id] || id;
-      }
-      function updateSelectedDayPanel(entry, key) {
-        setText('selectedDayDate', key ? formatLongDate(dateFromKey(key)) : 'Today');
-        if (!entry) {
-          setText('selectedDayScore', '—'); setText('selectedDayMood', '—'); setText('selectedDayStress', '—'); setText('selectedDayHabits', '—'); setText('selectedDayFocus', '—'); setText('selectedDayNotes', 'No saved notes for this day yet.');
-          return;
-        }
-        var habitsDone = 0;
-        habitIds.forEach(function (id) { if (entry.habits && entry.habits[id]) habitsDone += 1; });
-        setText('selectedDayScore', entry.score || '—');
-        setText('selectedDayMood', (entry.mood || '—') + '/10');
-        setText('selectedDayStress', (entry.stress || '—') + '/10');
-        setText('selectedDayHabits', habitsDone + '/6');
-        setText('selectedDayFocus', entry.tomorrowFocus || entry.journalTomorrowFocus || '—');
-        setText('selectedDayNotes', entry.notes || 'No notes recorded.');
-      }
-      function updateJournalWordCount() {
-        setText('journalWordCount', countWords(el('journalEntry').value) + ' words');
-      }
-      function updateJournalPanel(entry, key) {
-        setText('journalSelectedDate', key ? formatLongDate(dateFromKey(key)) : 'Today');
-        setText('journalSavedTitle', entry && entry.journalTitle ? entry.journalTitle : '—');
-        setText('journalSavedFocus', entry && (entry.journalTomorrowFocus || entry.tomorrowFocus) ? (entry.journalTomorrowFocus || entry.tomorrowFocus) : '—');
-        setText('journalSavedWords', entry && entry.journalEntry ? countWords(entry.journalEntry) : 0);
-        setText('journalSavedBody', entry && entry.journalEntry ? entry.journalEntry : 'No saved journal for this day yet.');
-      }
-      function updateJournalStats() {
-        var data = loadData(), count = 0;
-        Object.keys(data).forEach(function (key) { if (data[key] && data[key].journalEntry) count += 1; });
-        setText('journalDaysCount', count);
-      }
-      function renderCalendar() {
-        var grid = el('calendarGrid');
-        var data = loadData();
-        var todayKey = getDateKey(new Date());
-        grid.innerHTML = '';
-        ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function (name) {
-          var div = document.createElement('div'); div.className = 'weekday'; div.textContent = name; grid.appendChild(div);
-        });
-        var year = state.viewDate.getFullYear(), month = state.viewDate.getMonth();
-        var first = new Date(year, month, 1), last = new Date(year, month + 1, 0), startOffset = first.getDay();
-        setText('monthLabel', formatMonth(state.viewDate));
-        for (var i = 0; i < startOffset; i += 1) {
-          var empty = document.createElement('div'); empty.className = 'day'; empty.style.opacity = '0'; grid.appendChild(empty);
-        }
-        for (var day = 1; day <= last.getDate(); day += 1) {
-          (function (loopDay) {
-            var date = new Date(year, month, loopDay), key = getDateKey(date), entry = data[key];
-            var cell = document.createElement('button'); cell.type = 'button';
-            var classes = 'day'; if (!entry) classes += ' no-data'; if (key === todayKey) classes += ' today'; if (key === state.selectedKey) classes += ' selected'; cell.className = classes;
-            var dotClass = 'day-dot';
-            if (entry) { if (entry.score >= 75) dotClass += ' good'; else if (entry.score >= 50) dotClass += ' mid'; else dotClass += ' bad'; }
-            cell.innerHTML = '<div class="day-top"><div class="day-num">' + loopDay + '</div><div class="' + dotClass + '"></div></div><div class="day-score">' + (entry ? entry.score + ' score' : 'No data') + '</div>';
-            cell.addEventListener('click', function () {
-              state.selectedKey = key;
-              setText('selectedDateLabel', key === getDateKey(new Date()) ? 'Today' : 'Viewing ' + key);
-              applyEntryToUI(entry || null, key);
-              setText('saveStatus', entry ? 'Loaded ' + formatLongDate(dateFromKey(key)) + '.' : 'Selected ' + formatLongDate(dateFromKey(key)) + '. No saved data.');
-              setText('journalStatus', entry && entry.journalEntry ? 'Loaded journal for ' + formatLongDate(dateFromKey(key)) + '.' : 'No saved journal for this day yet.');
-              renderCalendar();
-            });
-            grid.appendChild(cell);
-          })(day);
-        }
-      }
-      function switchView(viewId) {
-        state.activeView = viewId;
-        document.querySelectorAll('.view').forEach(function (view) {
-          view.classList.toggle('active', view.id === viewId);
-        });
-        document.querySelectorAll('[data-view-target]').forEach(function (button) {
-          button.classList.toggle('active', button.getAttribute('data-view-target') === viewId);
-        });
-        el('sidebar').classList.remove('open');
-      }
-      function saveSelectedDay() {
-        var key = state.selectedKey || getDateKey(new Date());
-        var data = loadData();
-        data[key] = buildEntryFromForm(key);
-        saveData(data);
-        updateSelectedDayPanel(data[key], key);
-        updateJournalPanel(data[key], key);
-        setText('selectedDateLabel', key === getDateKey(new Date()) ? 'Today saved' : 'Saved ' + key);
-        setText('saveStatus', 'Saved ' + formatLongDate(dateFromKey(key)) + '.');
-        renderAll();
-      }
-      function loadToday() {
-        var data = loadData();
-        var key = getDateKey(new Date());
-        state.selectedKey = key;
-        setText('selectedDateLabel', 'Today');
-        applyEntryToUI(data[key] || null, key);
-        setText('saveStatus', data[key] ? 'Loaded today.' : 'No saved entry for today yet.');
-        setText('journalStatus', data[key] && data[key].journalEntry ? 'Loaded journal for today.' : 'No saved journal for today yet.');
-        renderAll();
-      }
-      function clearSelectedDay() {
-        var data = loadData(), key = state.selectedKey || getDateKey(new Date());
-        delete data[key]; saveData(data);
-        applyEntryToUI(null, key);
-        setText('saveStatus', 'Cleared ' + formatLongDate(dateFromKey(key)) + '.');
-        renderAll();
-      }
-      function resetAllData() {
-        if (!window.confirm('Delete all saved dashboard data?')) return;
-        localStorage.removeItem(STORAGE_KEY);
-        state.selectedKey = getDateKey(new Date());
-        loadToday();
-        setText('journalStatus', 'All journal data reset.');
-      }
-      function saveJournalOnly() {
-        var key = state.selectedKey || getDateKey(new Date());
-        var data = loadData();
-        var existing = data[key] || buildEntryFromForm(key);
-        existing.journalTitle = el('journalTitle').value.trim();
-        existing.journalTomorrowFocus = el('journalTomorrowFocus').value.trim();
-        existing.tomorrowFocus = el('journalTomorrowFocus').value.trim() || existing.tomorrowFocus || '';
-        existing.journalEntry = el('journalEntry').value.trim();
-        existing.updatedAt = new Date().toISOString();
-        data[key] = existing; saveData(data);
-        updateJournalPanel(existing, key); updateJournalStats(); renderCalendar();
-        setText('journalStatus', 'Saved journal for ' + formatLongDate(dateFromKey(key)) + '.');
-      }
-      function loadJournalForSelectedDay() {
-        var key = state.selectedKey || getDateKey(new Date());
-        var entry = loadData()[key] || null;
-        if (entry) {
-          el('journalTitle').value = entry.journalTitle || '';
-          el('journalTomorrowFocus').value = entry.journalTomorrowFocus || entry.tomorrowFocus || '';
-          el('journalEntry').value = entry.journalEntry || '';
-        } else resetJournalForm();
-        updateJournalWordCount(); updateJournalPanel(entry, key);
-        setText('journalStatus', entry && entry.journalEntry ? 'Loaded journal for ' + formatLongDate(dateFromKey(key)) + '.' : 'No saved journal for this day yet.');
-      }
-      function clearJournalForSelectedDay() {
-        var key = state.selectedKey || getDateKey(new Date()), data = loadData();
-        if (data[key]) {
-          data[key].journalTitle = ''; data[key].journalTomorrowFocus = ''; data[key].journalEntry = ''; data[key].updatedAt = new Date().toISOString();
-          saveData(data);
-        }
-        resetJournalForm(); updateJournalPanel(data[key] || null, key); updateJournalStats();
-        setText('journalStatus', 'Cleared journal for ' + formatLongDate(dateFromKey(key)) + '.');
-      }
       function getCoachModeCopy(mode) {
         var copy = {
-          talk: { title: 'Talk it through', sub: 'Name what happened, what you feel, and what matters most tonight.' },
-          calm: { title: 'Calm me down', sub: 'Slow the moment down. Reduce overload first, then choose one safe next step.' },
-          reframe: { title: 'Reframe this', sub: 'Challenge the harsh story in your head and replace it with something more useful.' }
+          talk: {
+            title: 'Talk it through',
+            sub: 'Name what happened, what you feel, and what matters most tonight.'
+          },
+          calm: {
+            title: 'Calm me down',
+            sub: 'Slow the moment down. Reduce overload first, then choose one safe next step.'
+          },
+          reframe: {
+            title: 'Reframe this',
+            sub: 'Challenge the harsh story in your head and replace it with something more useful.'
+          }
         };
         return copy[mode] || copy.talk;
       }
-      function getSelectedEntry() { return loadData()[state.selectedKey] || null; }
+
+      function getSelectedEntry() {
+        return loadData()[state.selectedKey] || null;
+      }
+
       function buildCoachContextText(entry) {
         if (!entry) return 'No saved day selected yet. Work with the message only.';
+
         var habitsDone = 0;
-        habitIds.forEach(function (id) { if (entry.habits && entry.habits[id]) habitsDone += 1; });
+        habitIds.forEach(function (id) {
+          if (entry.habits && entry.habits[id]) habitsDone += 1;
+        });
+
         return [
           'Selected day: ' + entry.date,
           'Score: ' + (entry.score || 0),
           'Mood: ' + (entry.mood || '—') + '/10',
           'Stress: ' + (entry.stress || '—') + '/10',
+          'Energy: ' + (entry.energy || '—') + '/10',
           'Habits done: ' + habitsDone + '/6',
           'Tomorrow focus: ' + (entry.tomorrowFocus || entry.journalTomorrowFocus || 'Not set'),
           'Notes: ' + (entry.notes || 'None'),
@@ -1031,32 +1924,43 @@
           'Journal entry: ' + (entry.journalEntry || 'None')
         ].join('\n');
       }
+
       function addCoachMessage(role, textValue) {
         var thread = el('coachThread');
+        if (!thread) return;
+
         var div = document.createElement('div');
         div.className = 'chat-bubble ' + role;
         div.textContent = textValue;
         thread.appendChild(div);
         thread.scrollTop = thread.scrollHeight;
       }
+
       function resetCoachThread() {
+        if (!el('coachThread')) return;
         el('coachThread').innerHTML = '';
         addCoachMessage('ai', 'I can help you slow down, reflect, and pick one next step. I am not a therapist, and I am not the right place for crisis support. If safety is a concern, contact emergency services or Lifeline now.');
         var copy = getCoachModeCopy(state.coachMode);
         addCoachMessage('ai', copy.title + ': ' + copy.sub);
       }
+
       function detectCrisisSignals(textValue) {
         var text = (textValue || '').toLowerCase();
         var flags = ['suicide', 'kill myself', 'end it', 'self harm', 'hurt myself', 'want to die', 'cant go on', "can't go on", 'harm someone', 'voices', 'manic'];
-        return flags.some(function (flag) { return text.indexOf(flag) !== -1; });
+        return flags.some(function (flag) {
+          return text.indexOf(flag) !== -1;
+        });
       }
+
       function generateCoachReply(mode, userText, entry) {
         if (detectCrisisSignals(userText)) {
           return 'I\'m really glad you said that. This tool is not enough for this moment. Please contact emergency services now if there is immediate danger, or call Lifeline Australia on 13 11 14 for immediate support. If you can, move toward another person right now and tell them you need help staying safe.';
         }
+
         var mood = entry && entry.mood ? Number(entry.mood) : null;
         var stress = entry && entry.stress ? Number(entry.stress) : null;
         var focus = entry && (entry.tomorrowFocus || entry.journalTomorrowFocus) ? (entry.tomorrowFocus || entry.journalTomorrowFocus) : '';
+
         var replies = {
           talk: [
             'Let\'s make this simpler. In one sentence: what happened, what are you feeling, and what matters most before sleep?',
@@ -1072,25 +1976,30 @@
           reframe: [
             'Let\'s challenge the harsh version of the story. What are you telling yourself right now that may be too absolute or unfair?',
             'Try this format: “The fact is ... The fear is ... A more balanced view is ...”',
-            focus ? 'A balanced thought might be: “I do not need to fix everything tonight. I only need to set up tomorrow around ' + focus + '."' : 'A balanced thought might be: “This day was mixed, not ruined. I can still recover by choosing one next step.”',
+            focus ? 'A balanced thought might be: “I do not need to fix everything tonight. I only need to set up tomorrow around ' + focus + '.”' : 'A balanced thought might be: “This day was mixed, not ruined. I can still recover by choosing one next step.”',
             'Now finish with one sentence you would actually believe, not a fake positive one.'
           ]
         };
+
         return replies[mode].join('\n\n');
       }
+
       function renderCoachMode() {
         var copy = getCoachModeCopy(state.coachMode);
         setText('coachModeTitle', copy.title);
         setText('coachModeSub', copy.sub);
+
         document.querySelectorAll('[data-coach-mode]').forEach(function (btn) {
           btn.classList.toggle('active', btn.getAttribute('data-coach-mode') === state.coachMode);
         });
+
         var entry = getSelectedEntry();
         setText('coachContextTag', entry ? ('Using ' + state.selectedKey) : 'Using message only');
       }
+
       async function sendCoachMessage() {
         var input = el('coachInput');
-        if (!input) { return; }
+        if (!input) return;
 
         var userText = input.value.trim();
         if (!userText) {
@@ -1111,36 +2020,52 @@
               score: Number(el('overallScore') ? el('overallScore').textContent : 0),
               mood: Number(el('mood') ? el('mood').value : 0),
               stress: Number(el('stress') ? el('stress').value : 0),
+              energy: Number(el('energy') ? el('energy').value : 0),
               notes: el('notes') ? el('notes').value : ''
             }
           };
 
-          var response = await fetch('/api/coach', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
+          var replyText = '';
 
-          var data = await response.json();
+          try {
+            var response = await fetch('/api/coach', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
 
-          if (!response.ok) {
-            throw new Error(data.error || 'Request failed');
+            if (response.ok) {
+              var data = await response.json();
+              replyText = data.reply || '';
+            }
+          } catch (apiError) {}
+
+          if (!replyText) {
+            replyText = generateCoachReply(state.coachMode, userText, entry);
           }
 
-          addCoachMessage('ai', data.reply || 'No response returned.');
+          addCoachMessage('ai', replyText);
           setText('coachStatus', detectCrisisSignals(userText) ? 'Crisis guidance shown.' : 'Guided response ready.');
         } catch (error) {
-          console.error(error);
           addCoachMessage('ai', 'Sorry, something went wrong while contacting Reset Coach. Please try again.');
           setText('coachStatus', 'Could not reach the coach service.');
         }
       }
+
       function useSelectedDayContext() {
         var entry = getSelectedEntry();
-        if (!entry) { setText('coachStatus', 'No saved day selected yet. Save or select a day first.'); return; }
-        el('coachInput').value = 'Use this context to help me.\n\n' + buildCoachContextText(entry);
+        if (!entry) {
+          setText('coachStatus', 'No saved day selected yet. Save or select a day first.');
+          return;
+        }
+
+        if (el('coachInput')) {
+          el('coachInput').value = 'Use this context to help me.\n\n' + buildCoachContextText(entry);
+        }
+
         setText('coachStatus', 'Selected day context inserted.');
       }
+
       function renderAll() {
         calculateScore();
         updateTopStats();
@@ -1151,44 +2076,117 @@
         renderWeeklyReview();
         renderCoachMode();
       }
+
       function bindEvents() {
         if (el('signUpBtn')) el('signUpBtn').addEventListener('click', handleSignUp);
         if (el('signInBtn')) el('signInBtn').addEventListener('click', handleSignIn);
         if (el('signOutBtn')) el('signOutBtn').addEventListener('click', handleSignOut);
-        el('saveDayBtn').addEventListener('click', saveSelectedDay);
-        el('saveDayBtnSecondary').addEventListener('click', saveSelectedDay);
-        el('loadTodayBtn').addEventListener('click', loadToday);
-        el('clearTodayBtn').addEventListener('click', clearSelectedDay);
-        el('resetAllBtn').addEventListener('click', resetAllData);
-        el('saveJournalBtn').addEventListener('click', saveJournalOnly);
-        el('loadJournalBtn').addEventListener('click', loadJournalForSelectedDay);
-        el('clearJournalBtn').addEventListener('click', clearJournalForSelectedDay);
-        el('journalEntry').addEventListener('input', updateJournalWordCount);
-        el('mood').addEventListener('input', calculateScore);
-        el('stress').addEventListener('input', calculateScore);
-        el('energy').addEventListener('input', calculateScore);
-        el('alcohol').addEventListener('change', calculateScore);
-        el('connection').addEventListener('change', calculateScore);
-        el('notes').addEventListener('input', calculateScore);
-        el('tomorrowFocus').addEventListener('input', function () {
-          if (document.activeElement !== el('journalTomorrowFocus')) el('journalTomorrowFocus').value = el('tomorrowFocus').value;
+
+        if (el('continueGuestBtn')) {
+          el('continueGuestBtn').addEventListener('click', function () {
+            if (el('authOverlay')) el('authOverlay').style.display = 'none';
+            setAuthStatus('');
+          });
+        }
+
+        if (el('openAuthBtn')) {
+          el('openAuthBtn').addEventListener('click', function () {
+            if (el('authOverlay')) el('authOverlay').style.display = 'flex';
+          });
+        }
+
+        if (el('saveDayBtn')) el('saveDayBtn').addEventListener('click', saveSelectedDay);
+        if (el('saveDayBtnSecondary')) el('saveDayBtnSecondary').addEventListener('click', saveSelectedDay);
+        if (el('loadTodayBtn')) el('loadTodayBtn').addEventListener('click', loadToday);
+        if (el('clearTodayBtn')) el('clearTodayBtn').addEventListener('click', clearSelectedDay);
+        if (el('resetAllBtn')) el('resetAllBtn').addEventListener('click', resetAllData);
+
+        if (el('saveJournalBtn')) el('saveJournalBtn').addEventListener('click', saveJournalOnly);
+        if (el('loadJournalBtn')) el('loadJournalBtn').addEventListener('click', loadJournalForSelectedDay);
+        if (el('clearJournalBtn')) el('clearJournalBtn').addEventListener('click', clearJournalForSelectedDay);
+
+        if (el('journalEntry')) el('journalEntry').addEventListener('input', updateJournalWordCount);
+
+        if (el('mood')) el('mood').addEventListener('input', calculateScore);
+        if (el('stress')) el('stress').addEventListener('input', calculateScore);
+        if (el('energy')) el('energy').addEventListener('input', calculateScore);
+        if (el('alcohol')) el('alcohol').addEventListener('change', calculateScore);
+        if (el('connection')) el('connection').addEventListener('change', calculateScore);
+        if (el('notes')) el('notes').addEventListener('input', calculateScore);
+
+        if (el('tomorrowFocus')) {
+          el('tomorrowFocus').addEventListener('input', function () {
+            if (el('journalTomorrowFocus') && document.activeElement !== el('journalTomorrowFocus')) {
+              el('journalTomorrowFocus').value = el('tomorrowFocus').value;
+            }
+          });
+        }
+
+        if (el('journalTomorrowFocus')) {
+          el('journalTomorrowFocus').addEventListener('input', function () {
+            if (el('tomorrowFocus') && document.activeElement !== el('tomorrowFocus')) {
+              el('tomorrowFocus').value = el('journalTomorrowFocus').value;
+            }
+          });
+        }
+
+        habitIds.forEach(function (id) {
+          if (el(id)) el(id).addEventListener('change', calculateScore);
         });
-        el('journalTomorrowFocus').addEventListener('input', function () {
-          if (document.activeElement !== el('tomorrowFocus')) el('tomorrowFocus').value = el('journalTomorrowFocus').value;
-        });
-        habitIds.forEach(function (id) { el(id).addEventListener('change', calculateScore); });
-        el('prevMonthBtn').addEventListener('click', function () { state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() - 1, 1); renderCalendar(); });
-        el('currentMonthBtn').addEventListener('click', function () { state.viewDate = new Date(); renderCalendar(); });
-        el('nextMonthBtn').addEventListener('click', function () { state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() + 1, 1); renderCalendar(); });
+
+        if (el('prevMonthBtn')) {
+          el('prevMonthBtn').addEventListener('click', function () {
+            state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() - 1, 1);
+            renderCalendar();
+          });
+        }
+
+        if (el('currentMonthBtn')) {
+          el('currentMonthBtn').addEventListener('click', function () {
+            state.viewDate = new Date();
+            renderCalendar();
+          });
+        }
+
+        if (el('nextMonthBtn')) {
+          el('nextMonthBtn').addEventListener('click', function () {
+            state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() + 1, 1);
+            renderCalendar();
+          });
+        }
+
         document.querySelectorAll('[data-view-target]').forEach(function (button) {
           button.addEventListener('click', function () {
             switchView(button.getAttribute('data-view-target'));
           });
         });
-        el('jumpCheckin').addEventListener('click', function () { switchView('dashboardView'); el('checkinSection').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
-        el('jumpReview').addEventListener('click', function () { switchView('dashboardView'); el('reviewSection').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
-        el('jumpJournal').addEventListener('click', function () { switchView('journalView'); });
-        el('jumpCoach').addEventListener('click', function () { switchView('coachView'); });
+
+        if (el('jumpCheckin')) {
+          el('jumpCheckin').addEventListener('click', function () {
+            switchView('dashboardView');
+            if (el('checkinSection')) el('checkinSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
+
+        if (el('jumpReview')) {
+          el('jumpReview').addEventListener('click', function () {
+            switchView('dashboardView');
+            if (el('reviewSection')) el('reviewSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
+
+        if (el('jumpJournal')) {
+          el('jumpJournal').addEventListener('click', function () {
+            switchView('journalView');
+          });
+        }
+
+        if (el('jumpCoach')) {
+          el('jumpCoach').addEventListener('click', function () {
+            switchView('coachView');
+          });
+        }
+
         document.querySelectorAll('[data-coach-mode]').forEach(function (button) {
           button.addEventListener('click', function () {
             state.coachMode = button.getAttribute('data-coach-mode');
@@ -1197,13 +2195,37 @@
             setText('coachStatus', 'Mode changed to ' + getCoachModeCopy(state.coachMode).title + '.');
           });
         });
-        el('sendCoachBtn').addEventListener('click', sendCoachMessage);
-        el('useDayContextBtn').addEventListener('click', useSelectedDayContext);
-        el('clearCoachBtn').addEventListener('click', function () { el('coachInput').value = ''; resetCoachThread(); setText('coachStatus', 'Conversation cleared.'); });
-        el('openLifelineBtn').addEventListener('click', function () { window.open('https://www.lifeline.org.au/', '_blank', 'noopener,noreferrer'); });
-        el('openBeyondBlueBtn').addEventListener('click', function () { window.open('https://www.beyondblue.org.au/', '_blank', 'noopener,noreferrer'); });
-        el('menuBtn').addEventListener('click', function () { el('sidebar').classList.toggle('open'); });
+
+        if (el('sendCoachBtn')) el('sendCoachBtn').addEventListener('click', sendCoachMessage);
+        if (el('useDayContextBtn')) el('useDayContextBtn').addEventListener('click', useSelectedDayContext);
+
+        if (el('clearCoachBtn')) {
+          el('clearCoachBtn').addEventListener('click', function () {
+            if (el('coachInput')) el('coachInput').value = '';
+            resetCoachThread();
+            setText('coachStatus', 'Conversation cleared.');
+          });
+        }
+
+        if (el('openLifelineBtn')) {
+          el('openLifelineBtn').addEventListener('click', function () {
+            window.open('https://www.lifeline.org.au/', '_blank', 'noopener,noreferrer');
+          });
+        }
+
+        if (el('openBeyondBlueBtn')) {
+          el('openBeyondBlueBtn').addEventListener('click', function () {
+            window.open('https://www.beyondblue.org.au/', '_blank', 'noopener,noreferrer');
+          });
+        }
+
+        if (el('menuBtn')) {
+          el('menuBtn').addEventListener('click', function () {
+            if (el('sidebar')) el('sidebar').classList.toggle('open');
+          });
+        }
       }
+
       function init() {
         setText('todayText', formatLongDate(new Date()));
         bindEvents();
@@ -1213,7 +2235,12 @@
         resetCoachThread();
         refreshAuthUI();
       }
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     })();
   </script>
 </body>
