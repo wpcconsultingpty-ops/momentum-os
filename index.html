@@ -171,7 +171,7 @@
         <div class="brand-mark">M</div>
         <div>
           <h1>Momentum OS</h1>
-          <p>Personal control panel</p>
+          <p>Reset. Refocus. Move.</p>
         </div>
       </div>
 
@@ -647,20 +647,95 @@
         updateSelectedDayPanel(entry, key);
         updateJournalPanel(entry, key);
       }
+      function getEntriesForRange(data, startOffset, days) {
+        var entries = [];
+        var today = new Date();
+        for (var i = startOffset; i < startOffset + days; i += 1) {
+          var key = getDateKey(addDays(today, -i));
+          if (data[key]) entries.push(data[key]);
+        }
+        return entries;
+      }
+      function averageFromEntries(entries, field) {
+        if (!entries.length) return 0;
+        var total = 0;
+        entries.forEach(function (entry) { total += Number(entry[field] || 0); });
+        return total / entries.length;
+      }
+      function habitRateFromEntries(entries, habitId) {
+        if (!entries.length) return 0;
+        var total = 0;
+        entries.forEach(function (entry) { if (entry.habits && entry.habits[habitId]) total += 1; });
+        return total / entries.length;
+      }
+      function getTrendDirection(currentValue, previousValue, threshold) {
+        var diff = currentValue - previousValue;
+        if (Math.abs(diff) < threshold) return 'flat';
+        return diff > 0 ? 'up' : 'down';
+      }
+      function buildTrendSummary() {
+        var data = loadData();
+        var currentWeek = getEntriesForRange(data, 0, 7);
+        var previousWeek = getEntriesForRange(data, 7, 7);
+        if (!currentWeek.length || !previousWeek.length) return null;
+        var currentScore = averageFromEntries(currentWeek, 'score');
+        var previousScore = averageFromEntries(previousWeek, 'score');
+        var currentMood = averageFromEntries(currentWeek, 'mood');
+        var previousMood = averageFromEntries(previousWeek, 'mood');
+        var currentStress = averageFromEntries(currentWeek, 'stress');
+        var previousStress = averageFromEntries(previousWeek, 'stress');
+        var scoreTrend = getTrendDirection(currentScore, previousScore, 3);
+        var moodTrend = getTrendDirection(currentMood, previousMood, 0.4);
+        var stressTrend = getTrendDirection(previousStress, currentStress, 0.4);
+        var strongestHabit = null, weakestHabit = null, bestDelta = -999, worstDelta = 999;
+        habitIds.forEach(function (id) {
+          var currentRate = habitRateFromEntries(currentWeek, id);
+          var previousRate = habitRateFromEntries(previousWeek, id);
+          var delta = currentRate - previousRate;
+          if (delta > bestDelta) { bestDelta = delta; strongestHabit = id; }
+          if (delta < worstDelta) { worstDelta = delta; weakestHabit = id; }
+        });
+        return {
+          currentWeekCount: currentWeek.length,
+          previousWeekCount: previousWeek.length,
+          currentScore: Math.round(currentScore),
+          previousScore: Math.round(previousScore),
+          currentMood: currentMood,
+          previousMood: previousMood,
+          currentStress: currentStress,
+          previousStress: previousStress,
+          scoreTrend: scoreTrend,
+          moodTrend: moodTrend,
+          stressTrend: stressTrend,
+          strongestHabit: strongestHabit,
+          weakestHabit: weakestHabit,
+          strongestDelta: bestDelta,
+          weakestDelta: worstDelta
+        };
+      }
       function updateInsights(score) {
         var box = el('insights');
         var messages = [];
         var stress = Number(el('stress').value);
         var mood = Number(el('mood').value);
         var habits = getCheckedCount();
+        var trend = buildTrendSummary();
         if (stress >= 8) messages.push('Stress is high today. Make the next goal smaller, not bigger.');
         if (mood <= 4) messages.push('Mood is low. Prioritize sleep, food, movement, and connection before judging yourself.');
         if (habits >= 4) messages.push('You have good behavioural momentum. Protect it with a calm finish.');
         if (!el('priorityTask').checked) messages.push('If the day feels scattered, finish one priority task before adding anything else.');
         if (score < 50) messages.push('This is a recovery day. Win it by doing one small clean action before bed.');
+        if (trend) {
+          if (trend.scoreTrend === 'up') messages.push('Weekly score trend is improving versus the previous 7 days.');
+          if (trend.scoreTrend === 'down') messages.push('Weekly score trend is slipping versus the previous 7 days.');
+          if (trend.moodTrend === 'up') messages.push('Average mood is trending upward this week.');
+          if (trend.stressTrend === 'up') messages.push('Average stress is easing compared with last week.');
+          if (trend.strongestHabit && trend.strongestDelta > 0.15) messages.push(labelForHabit(trend.strongestHabit) + ' is your most improved habit this week.');
+          if (trend.weakestHabit && trend.weakestDelta < -0.15) messages.push(labelForHabit(trend.weakestHabit) + ' has slipped compared with the previous week.');
+        }
         if (messages.length === 0) messages.push('Steady day. Keep the next move clear and simple.');
         box.innerHTML = '';
-        messages.forEach(function (message) {
+        messages.slice(0, 6).forEach(function (message) {
           var div = document.createElement('div');
           div.className = 'insight';
           div.textContent = message;
@@ -716,6 +791,7 @@
         var data = loadData();
         var today = new Date();
         var entries = [];
+        var trend = buildTrendSummary();
         for (var i = 0; i < 7; i += 1) {
           var key = getDateKey(addDays(today, -i));
           if (data[key]) entries.push(data[key]);
@@ -735,6 +811,13 @@
         });
         var strongest = 'protectedFocus', weakest = 'protectedFocus';
         habitIds.forEach(function (id) { if (totals[id] > totals[strongest]) strongest = id; if (totals[id] < totals[weakest]) weakest = id; });
+        var trendLine = 'Not enough history yet';
+        if (trend) {
+          var scoreText = trend.scoreTrend === 'up' ? 'Improving' : trend.scoreTrend === 'down' ? 'Down' : 'Stable';
+          var moodText = trend.moodTrend === 'up' ? 'Mood up' : trend.moodTrend === 'down' ? 'Mood down' : 'Mood steady';
+          var stressText = trend.stressTrend === 'up' ? 'Stress easing' : trend.stressTrend === 'down' ? 'Stress rising' : 'Stress steady';
+          trendLine = scoreText + ' · ' + moodText + ' · ' + stressText;
+        }
         review.innerHTML = [
           '<div class="review-item"><span>Saved entries</span><strong>' + entries.length + '/7</strong></div>',
           '<div class="review-item"><span>Average score</span><strong>' + Math.round(totalScore / entries.length) + '</strong></div>',
@@ -742,7 +825,8 @@
           '<div class="review-item"><span>Average stress</span><strong>' + (totalStress / entries.length).toFixed(1) + '/10</strong></div>',
           '<div class="review-item"><span>Best day</span><strong>' + best.date + ' · ' + best.score + '</strong></div>',
           '<div class="review-item"><span>Strongest habit</span><strong>' + labelForHabit(strongest) + '</strong></div>',
-          '<div class="review-item"><span>Needs attention</span><strong>' + labelForHabit(weakest) + '</strong></div>'
+          '<div class="review-item"><span>Needs attention</span><strong>' + labelForHabit(weakest) + '</strong></div>',
+          '<div class="review-item"><span>Trend</span><strong>' + trendLine + '</strong></div>'
         ].join('');
       }
       function labelForHabit(id) {
