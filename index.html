@@ -261,6 +261,18 @@
                 <div class="scale-row"><span>Calm</span><span>Overloaded</span></div>
               </div>
               <div class="field">
+                <div class="field-head"><label for="energy">Energy</label><div class="value-badge"><span id="energyValue">5</span>/10</div></div>
+                <input id="energy" type="range" min="1" max="10" value="5" />
+                <div class="scale-row"><span>Flat</span><span>Sharp</span></div>
+              </div>
+              <div class="field">
+                <div class="field-head"><div class="field-title">Daily signals</div><div class="value-badge"><span id="signalsCountInline">0</span>/2 logged</div></div>
+                <div class="habit-grid">
+                  <label class="habit"><input id="alcohol" type="checkbox" /><span>Alcohol today</span></label>
+                  <label class="habit"><input id="connection" type="checkbox" /><span>Meaningful connection</span></label>
+                </div>
+              </div>
+              <div class="field">
                 <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge"><span id="habitCountInline">0</span>/6 done</div></div>
                 <div class="habit-grid">
                   <label class="habit"><input id="protectedFocus" type="checkbox" /><span>Protected focus</span></label>
@@ -718,10 +730,14 @@
         var messages = [];
         var stress = Number(el('stress').value);
         var mood = Number(el('mood').value);
+        var energy = Number(el('energy').value);
         var habits = getCheckedCount();
         var trend = buildTrendSummary();
         if (stress >= 8) messages.push('Stress is high today. Make the next goal smaller, not bigger.');
         if (mood <= 4) messages.push('Mood is low. Prioritize sleep, food, movement, and connection before judging yourself.');
+        if (energy <= 4) messages.push('Energy is low. Protect recovery and avoid pretending this is a push day.');
+        if (el('alcohol').checked) messages.push('Alcohol logged today. Expect slightly lower recovery and protect tomorrow morning.');
+        if (!el('connection').checked) messages.push('You may need human contact more than more thinking tonight.');
         if (habits >= 4) messages.push('You have good behavioural momentum. Protect it with a calm finish.');
         if (!el('priorityTask').checked) messages.push('If the day feels scattered, finish one priority task before adding anything else.');
         if (score < 50) messages.push('This is a recovery day. Win it by doing one small clean action before bed.');
@@ -741,6 +757,12 @@
           div.textContent = message;
           box.appendChild(div);
         });
+      }
+      function calculateSignalCount() {
+        var count = 0;
+        if (el('alcohol').checked) count += 1;
+        if (el('connection').checked) count += 1;
+        setText('signalsCountInline', count);
       }
       function calculateStreak(data) {
         var streak = 0, cursor = new Date();
@@ -1135,6 +1157,9 @@
         el('journalEntry').addEventListener('input', updateJournalWordCount);
         el('mood').addEventListener('input', calculateScore);
         el('stress').addEventListener('input', calculateScore);
+        el('energy').addEventListener('input', calculateScore);
+        el('alcohol').addEventListener('change', calculateScore);
+        el('connection').addEventListener('change', calculateScore);
         el('notes').addEventListener('input', calculateScore);
         el('tomorrowFocus').addEventListener('input', function () {
           if (document.activeElement !== el('journalTomorrowFocus')) el('journalTomorrowFocus').value = el('tomorrowFocus').value;
