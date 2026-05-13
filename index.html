@@ -165,8 +165,42 @@
   </style>
 </head>
 <body>
+  <div id="authOverlay" style="position:fixed;inset:0;background:rgba(20,20,20,.45);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:3000;padding:20px;">
+    <div style="width:min(460px,100%);background:#fffaf2;border:1px solid #e6dac4;border-radius:24px;box-shadow:0 18px 45px rgba(31,77,58,0.12);padding:24px;">
+      <h2 style="margin:0 0 8px;color:#1f4d3a;">Welcome to Momentum</h2>
+      <p style="margin:0 0 18px;color:#6b7280;line-height:1.5;">Create an account or sign in to save your check-ins, journal, and history across devices.</p>
+
+      <div style="display:grid;gap:14px;">
+        <div>
+          <label for="authEmail" style="display:block;font-weight:800;margin-bottom:6px;">Email</label>
+          <input id="authEmail" type="email" placeholder="you@example.com" style="width:100%;border:1px solid #e6dac4;border-radius:16px;padding:12px 14px;background:#fff;" />
+        </div>
+
+        <div>
+          <label for="authPassword" style="display:block;font-weight:800;margin-bottom:6px;">Password</label>
+          <input id="authPassword" type="password" placeholder="Enter your password" style="width:100%;border:1px solid #e6dac4;border-radius:16px;padding:12px 14px;background:#fff;" />
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;">
+        <button id="signUpBtn" type="button" class="btn primary">Create account</button>
+        <button id="signInBtn" type="button" class="btn">Sign in</button>
+      </div>
+
+      <div id="authStatus" style="margin-top:14px;color:#1f4d3a;font-weight:800;min-height:20px;"></div>
+      <div style="margin-top:12px;color:#6b7280;font-size:.92rem;">Use a real email if email confirmation is enabled in Supabase.</div>
+    </div>
+  </div>
+
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div>
+          <h1>Momentum OS</h1>
+          <p>Personal control panel</p>
+        </div>
+      </div>
       <div class="brand">
         <div class="brand-mark">M</div>
         <div>
@@ -207,9 +241,11 @@
           </div>
         </div>
         <div class="topbar-actions">
-          <div class="pill" id="selectedDateLabel">Today</div>
-          <button class="btn primary" id="saveDayBtn" type="button">Save day</button>
-        </div>
+  <div class="pill" id="selectedDateLabel">Today</div>
+  <div class="pill" id="userEmailPill">Not signed in</div>
+  <button class="btn" id="signOutBtn" type="button">Sign out</button>
+  <button class="btn primary" id="saveDayBtn" type="button">Save day</button>
+</div>
       </header>
 
       <section class="view active" id="dashboardView">
@@ -425,13 +461,96 @@
 
   (function () {
     'use strict';
+async function signUp(email, password) {
+  const { data, error } = await db.auth.signUp({
+    email: email,
+    password: password
+  });
+  if (error) throw error;
+  return data;
+}
 
-  (function () {
-    'use strict';
+async function signIn(email, password) {
+  const { data, error } = await db.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+  if (error) throw error;
+  return data;
+}
 
-    (function () {
-      'use strict';
+async function signOut() {
+  const { error } = await db.auth.signOut();
+  if (error) throw error;
+}
 
+async function getCurrentUser() {
+  const { data, error } = await db.auth.getUser();
+  if (error) throw error;
+  return data.user;
+}
+
+function setAuthStatus(message, isError) {
+  var node = el('authStatus');
+  if (!node) return;
+  node.textContent = message || '';
+  node.style.color = isError ? '#9a3412' : '#1f4d3a';
+}
+
+async function refreshAuthUI() {
+  try {
+    const user = await getCurrentUser();
+    const overlay = el('authOverlay');
+    const emailPill = el('userEmailPill');
+    const signOutBtn = el('signOutBtn');
+
+    if (user) {
+      if (overlay) overlay.style.display = 'none';
+      if (emailPill) emailPill.textContent = user.email || 'Signed in';
+      if (signOutBtn) signOutBtn.style.display = 'inline-flex';
+    } else {
+      if (overlay) overlay.style.display = 'flex';
+      if (emailPill) emailPill.textContent = 'Not signed in';
+      if (signOutBtn) signOutBtn.style.display = 'none';
+    }
+  } catch (err) {
+    setAuthStatus(err.message || 'Authentication error', true);
+  }
+}
+
+async function handleSignUp() {
+  var email = (el('authEmail').value || '').trim();
+  var password = (el('authPassword').value || '').trim();
+
+  if (!email || !password) {
+    setAuthStatus('Enter your email and password first.', true);
+    return;
+  }
+
+  try {
+    setAuthStatus('Creating account...', false);
+    await signUp(email, password);
+    setAuthStatus('Account created. Check your email if confirmation is enabled, then sign in.', false);
+    await refreshAuthUI();
+  } catch (err) {
+    setAuthStatus(err.message || 'Could not create account.', true);
+  }
+}
+
+async function handleSignIn() {
+  var email = (el('authEmail').value || '').trim();
+  var password = (el('authPassword').value || '').trim();
+
+  if (!email || !password) {
+    setAuthStatus('Enter your email and password first.', true);
+    return;
+  }
+
+  try {
+    setAuthStatus('Signing in...', false);
+    await signIn(email, password);
+    setAuthStatus('Signed in.', false);
+    
       var STORAGE_KEY = 'momentumOSCleanV1';
       var habitIds = ['protectedFocus', 'exercise', 'priorityTask', 'meditation', 'sleep', 'nutrition'];
       var state = {
