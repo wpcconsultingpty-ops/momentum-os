@@ -1031,6 +1031,9 @@ async function handleSignIn() {
         renderCoachMode();
       }
       function bindEvents() {
+        el('signUpBtn').addEventListener('click', handleSignUp);
+        el('signInBtn').addEventListener('click', handleSignIn);
+        el('signOutBtn').addEventListener('click', handleSignOut);
         el('saveDayBtn').addEventListener('click', saveSelectedDay);
         el('saveDayBtnSecondary').addEventListener('click', saveSelectedDay);
         el('loadTodayBtn').addEventListener('click', loadToday);
@@ -1077,13 +1080,14 @@ async function handleSignIn() {
         el('openBeyondBlueBtn').addEventListener('click', function () { window.open('https://www.beyondblue.org.au/', '_blank', 'noopener,noreferrer'); });
         el('menuBtn').addEventListener('click', function () { el('sidebar').classList.toggle('open'); });
       }
-      function init() {
+     function init() {
         setText('todayText', formatLongDate(new Date()));
         bindEvents();
         loadToday();
         switchView('dashboardView');
         renderAll();
         resetCoachThread();
+        refreshAuthUI();
       }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
     })();
