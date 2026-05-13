@@ -874,14 +874,52 @@
         var entry = getSelectedEntry();
         setText('coachContextTag', entry ? ('Using ' + state.selectedKey) : 'Using message only');
       }
-      function sendCoachMessage() {
-        var userText = el('coachInput').value.trim();
-        if (!userText) { setText('coachStatus', 'Write a short message first.'); return; }
+      async function sendCoachMessage() {
+        var input = el('coachInput');
+        if (!input) { return; }
+
+        var userText = input.value.trim();
+        if (!userText) {
+          setText('coachStatus', 'Write a short message first.');
+          return;
+        }
+
         var entry = getSelectedEntry();
         addCoachMessage('user', userText);
-        addCoachMessage('ai', generateCoachReply(state.coachMode, userText, entry));
-        setText('coachStatus', detectCrisisSignals(userText) ? 'Crisis guidance shown.' : 'Guided response ready.');
-        el('coachInput').value = '';
+        setText('coachStatus', 'Getting guidance...');
+        input.value = '';
+
+        try {
+          var payload = {
+            message: userText,
+            mode: state.coachMode,
+            context: entry || {
+              score: Number(el('overallScore') ? el('overallScore').textContent : 0),
+              mood: Number(el('mood') ? el('mood').value : 0),
+              stress: Number(el('stress') ? el('stress').value : 0),
+              notes: el('notes') ? el('notes').value : ''
+            }
+          };
+
+          var response = await fetch('/api/coach', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          var data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Request failed');
+          }
+
+          addCoachMessage('ai', data.reply || 'No response returned.');
+          setText('coachStatus', detectCrisisSignals(userText) ? 'Crisis guidance shown.' : 'Guided response ready.');
+        } catch (error) {
+          console.error(error);
+          addCoachMessage('ai', 'Sorry, something went wrong while contacting Reset Coach. Please try again.');
+          setText('coachStatus', 'Could not reach the coach service.');
+        }
       }
       function useSelectedDayContext() {
         var entry = getSelectedEntry();
