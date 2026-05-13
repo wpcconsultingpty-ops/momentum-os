@@ -571,31 +571,38 @@
         var trimmed = (value || '').trim();
         return trimmed ? trimmed.split(/\s+/).length : 0;
       }
-      function getCheckedCount() {
+     function getCheckedCount() {
         var count = 0;
-        habitIds.forEach(function (id) { if (el(id).checked) count += 1; });
-        return count;
+        habitIds.forEach(function (id) {
+        if (el(id) && el(id).checked) count += 1;
+      });
+      return count;
+}
       }
       function getHabitMapFromForm() {
         var habits = {};
         habitIds.forEach(function (id) { habits[id] = Boolean(el(id).checked); });
         return habits;
       }
-      function calculateScore() {
+     function calculateScore() {
         var mood = Number(el('mood').value);
         var stress = Number(el('stress').value);
-        var habitCount = getCheckedCount();
-        var score = Math.round((mood * 4) + ((11 - stress) * 3) + (habitCount * 5));
+      
+        setText('moodValue', el('mood').value);
+        setText('stressValue', el('stress').value);
+      
+        var habitsDone = getCheckedCount();
+        setText('habitCountInline', habitsDone);
+      
+        var noteBonus = el('notes').value.trim() ? 0.4 : 0;
+        var focusBonus = el('tomorrowFocus').value.trim() ? 0.4 : 0;
+        var score = Math.round((mood * 0.35 + (11 - stress) * 0.25 + habitsDone * 1.1 + noteBonus + focusBonus) * 10 / 8.4);
         score = Math.max(0, Math.min(100, score));
-        setText('moodValue', mood);
-        setText('stressValue', stress);
-        setText('habitCount', habitCount);
-        setText('habitCountInline', habitCount);
-        setText('overallScore', score);
-        setText('scoreMessage', getScoreMessage(score));
-        updateScoreRing(score);
-        updateInsights(score);
-        return score;
+
+      setText('scoreValue', score);
+      setText('scoreTag', score >= 75 ? 'Locked in' : score >= 55 ? 'On track' : 'Reset needed');
+      updateInsights(score);
+}
       }
       function getScoreMessage(score) {
         if (score >= 85) return 'Strong day. Protect the evening.';
