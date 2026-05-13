@@ -767,9 +767,10 @@
       }
       function calculateSignalCount() {
         var count = 0;
-        if (el('alcohol').checked) count += 1;
-        if (el('connection').checked) count += 1;
+        if (el('alcohol') && el('alcohol').checked) count += 1;
+        if (el('connection') && el('connection').checked) count += 1;
         setText('signalsCountInline', count);
+}
       }
       function calculateStreak(data) {
         var streak = 0, cursor = new Date();
