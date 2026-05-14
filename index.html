@@ -52,6 +52,7 @@
         radial-gradient(circle at bottom right, rgba(30,90,69,.12), transparent 30%),
         var(--bg);
     }
+
     button, input, textarea { font: inherit; }
     button { cursor: pointer; }
 
@@ -108,6 +109,7 @@
     }
 
     .brand p { margin: 4px 0 0; font-size: var(--text-sm); }
+
     .nav-label {
       margin: var(--space-6) 0 var(--space-3);
       font-size: var(--text-xs);
@@ -216,9 +218,7 @@
       border-color: rgba(163,74,31,.18);
     }
 
-    .views {
-      min-width: 0;
-    }
+    .views { min-width: 0; }
 
     .view { display: none; }
     .view.active {
@@ -282,9 +282,10 @@
       width: 180px;
       height: 180px;
       border-radius: 50%;
-      background: conic-gradient(var(--accent) 270deg, rgba(255,255,255,.3) 0deg);
+      background: conic-gradient(var(--accent) 266deg, rgba(255,255,255,.3) 0deg);
       padding: 14px;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
+      transition: background .2s ease;
     }
 
     .score-ring-inner {
@@ -473,10 +474,16 @@
       flex-direction: column;
       justify-content: space-between;
       box-shadow: var(--shadow-sm);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .day:hover {
+      transform: translateY(-1px);
     }
 
     .day.today { border: 2px solid rgba(30,90,69,.45); }
     .day.selected { box-shadow: inset 0 0 0 2px rgba(212,164,76,.65); }
+
     .day-top { display: flex; justify-content: space-between; align-items: center; }
     .day-dot { width: 10px; height: 10px; border-radius: 999px; background: #d2d7d9; }
     .day-dot.good { background: var(--success); }
@@ -655,10 +662,10 @@
           </div>
         </div>
         <div class="topbar-actions">
-          <div class="pill">Thursday, May 14</div>
+          <div class="pill" id="topDateLabel">Thursday, May 14</div>
           <div class="pill">Guest mode</div>
           <button class="btn">Sign in</button>
-          <button class="btn primary">Save day</button>
+          <button class="btn primary" id="topSaveBtn">Save day</button>
         </div>
       </header>
 
@@ -667,10 +674,10 @@
           <div class="hero-grid">
             <div class="panel">
               <div class="score-wrap">
-                <div class="score-ring">
+                <div class="score-ring" id="scoreRing">
                   <div class="score-ring-inner">
                     <div>
-                      <strong>74</strong>
+                      <strong id="dailyScore">74</strong>
                       <span>Daily score</span>
                     </div>
                   </div>
@@ -678,7 +685,7 @@
                 <div>
                   <h3>Protect the next few hours.</h3>
                   <p class="subtle">Your redesign centres the score, strips out wasted vertical space, and keeps the first screen focused on what matters now.</p>
-                  <div class="message-badge" style="margin-top:14px;">Good day. Stay deliberate.</div>
+                  <div class="message-badge" id="messageBadge" style="margin-top:14px;">Good day. Stay deliberate.</div>
                 </div>
               </div>
             </div>
@@ -696,87 +703,98 @@
           </div>
 
           <div class="kpis">
-            <div class="kpi"><div class="meta">Current streak</div><div class="kpi-value">6</div><div class="kpi-foot">Consecutive saved days</div></div>
-            <div class="kpi"><div class="meta">7-day average</div><div class="kpi-value">68</div><div class="kpi-foot">Recent baseline</div></div>
-            <div class="kpi"><div class="meta">Habit wins</div><div class="kpi-value">4/6</div><div class="kpi-foot">Boxes ticked today</div></div>
-            <div class="kpi"><div class="meta">Saved days</div><div class="kpi-value">29</div><div class="kpi-foot">Tracked this month</div></div>
+            <div class="kpi"><div class="meta">Current streak</div><div class="kpi-value" id="currentStreak">6</div><div class="kpi-foot">Consecutive saved days</div></div>
+            <div class="kpi"><div class="meta">7-day average</div><div class="kpi-value" id="avgScore">68</div><div class="kpi-foot">Recent baseline</div></div>
+            <div class="kpi"><div class="meta">Habit wins</div><div class="kpi-value" id="habitWins">4/6</div><div class="kpi-foot">Boxes ticked today</div></div>
+            <div class="kpi"><div class="meta">Saved days</div><div class="kpi-value" id="savedDaysCount">29</div><div class="kpi-foot">Tracked this month</div></div>
           </div>
 
           <div class="two-col">
             <div class="panel" id="checkinSection">
               <h3>Today’s check-in</h3>
               <p class="subtle">A tighter form stack with consistent spacing and no layout glitches.</p>
+
               <div class="field-stack" style="margin-top:14px;">
                 <div class="field">
-                  <div class="field-head"><label>Mood</label><div class="value-badge">7 / 10</div></div>
-                  <input type="range" min="1" max="10" value="7" />
+                  <div class="field-head"><label for="moodRange">Mood</label><div class="value-badge" id="moodValue">7 / 10</div></div>
+                  <input id="moodRange" type="range" min="1" max="10" value="7" />
                   <div class="scale-row"><span>Flat</span><span>Strong</span></div>
                 </div>
+
                 <div class="field">
-                  <div class="field-head"><label>Stress</label><div class="value-badge">4 / 10</div></div>
-                  <input type="range" min="1" max="10" value="4" />
+                  <div class="field-head"><label for="stressRange">Stress</label><div class="value-badge" id="stressValue">4 / 10</div></div>
+                  <input id="stressRange" type="range" min="1" max="10" value="4" />
                   <div class="scale-row"><span>Calm</span><span>Overloaded</span></div>
                 </div>
+
                 <div class="field">
-                  <div class="field-head"><label>Energy</label><div class="value-badge">7 / 10</div></div>
-                  <input type="range" min="1" max="10" value="7" />
+                  <div class="field-head"><label for="energyRange">Energy</label><div class="value-badge" id="energyValue">7 / 10</div></div>
+                  <input id="energyRange" type="range" min="1" max="10" value="7" />
                   <div class="scale-row"><span>Flat</span><span>Sharp</span></div>
                 </div>
+
                 <div class="field">
-                  <div class="field-head"><div class="field-title">Daily signals</div><div class="value-badge">1 / 2 logged</div></div>
+                  <div class="field-head"><div class="field-title">Daily signals</div><div class="value-badge" id="signalsValue">1 / 2 logged</div></div>
                   <div class="habit-grid">
-                    <label class="habit"><input type="checkbox" /> <span>Alcohol today</span></label>
-                    <label class="habit"><input type="checkbox" checked /> <span>Meaningful connection</span></label>
+                    <label class="habit"><input class="daily-signal" type="checkbox" /> <span>Alcohol today</span></label>
+                    <label class="habit"><input class="daily-signal" type="checkbox" checked /> <span>Meaningful connection</span></label>
                   </div>
                 </div>
+
                 <div class="field">
-                  <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge">4 / 6 done</div></div>
+                  <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge" id="habitsValue">4 / 6 done</div></div>
                   <div class="habit-grid">
-                    <label class="habit"><input type="checkbox" checked /> <span>Protected focus</span></label>
-                    <label class="habit"><input type="checkbox" checked /> <span>Exercise or movement</span></label>
-                    <label class="habit"><input type="checkbox" checked /> <span>Priority task done</span></label>
-                    <label class="habit"><input type="checkbox" /> <span>Quiet minute or prayer</span></label>
-                    <label class="habit"><input type="checkbox" /> <span>Protected sleep routine</span></label>
-                    <label class="habit"><input type="checkbox" checked /> <span>Supportive nutrition</span></label>
+                    <label class="habit"><input class="core-habit" type="checkbox" checked /> <span>Protected focus</span></label>
+                    <label class="habit"><input class="core-habit" type="checkbox" checked /> <span>Exercise or movement</span></label>
+                    <label class="habit"><input class="core-habit" type="checkbox" checked /> <span>Priority task done</span></label>
+                    <label class="habit"><input class="core-habit" type="checkbox" /> <span>Quiet minute or prayer</span></label>
+                    <label class="habit"><input class="core-habit" type="checkbox" /> <span>Protected sleep routine</span></label>
+                    <label class="habit"><input class="core-habit" type="checkbox" checked /> <span>Supportive nutrition</span></label>
                   </div>
                 </div>
+
                 <div class="field">
-                  <div class="field-head"><label>Reflection</label><div class="value-badge">Notes</div></div>
-                  <textarea>Worked well until mid-afternoon. Need a cleaner shutdown routine tonight.</textarea>
+                  <div class="field-head"><label for="reflectionInput">Reflection</label><div class="value-badge">Notes</div></div>
+                  <textarea id="reflectionInput">Worked well until mid-afternoon. Need a cleaner shutdown routine tonight.</textarea>
                 </div>
+
                 <div class="field">
-                  <div class="field-head"><label>Tomorrow’s focus</label><div class="value-badge">1 target</div></div>
-                  <input type="text" value="Finish proposal review before 10am" />
+                  <div class="field-head"><label for="tomorrowFocusInput">Tomorrow’s focus</label><div class="value-badge">1 target</div></div>
+                  <input id="tomorrowFocusInput" type="text" value="Finish proposal review before 10am" />
                 </div>
               </div>
+
               <div class="action-row">
-                <button class="btn primary">Save today</button>
-                <button class="btn">Load today</button>
-                <button class="btn warn">Clear today</button>
+                <button class="btn primary" id="saveTodayBtn">Save today</button>
+                <button class="btn" id="loadTodayBtn">Load today</button>
+                <button class="btn warn" id="clearTodayBtn">Clear today</button>
               </div>
-              <div class="status">Prototype redesign ready for your real data wiring.</div>
+
+              <div class="status" id="dayStatus">Ready.</div>
             </div>
 
             <div class="panel" id="reviewSection">
               <h3>Last 7 days</h3>
               <p class="subtle">Trend panel redesigned as a cleaner, lighter review surface.</p>
+
               <div class="selected-box" style="margin-top:14px;">
                 <div class="meta">Momentum trend</div>
                 <div class="subtle">Scores across recent saved days</div>
                 <div class="bars">
-                  <div class="bar-wrap"><div class="bar-score">54</div><div class="bar" style="height:65px"></div><div class="bar-label">Fri</div></div>
-                  <div class="bar-wrap"><div class="bar-score">61</div><div class="bar" style="height:78px"></div><div class="bar-label">Sat</div></div>
-                  <div class="bar-wrap"><div class="bar-score">66</div><div class="bar" style="height:90px"></div><div class="bar-label">Sun</div></div>
-                  <div class="bar-wrap"><div class="bar-score">72</div><div class="bar" style="height:112px"></div><div class="bar-label">Mon</div></div>
-                  <div class="bar-wrap"><div class="bar-score">64</div><div class="bar" style="height:84px"></div><div class="bar-label">Tue</div></div>
-                  <div class="bar-wrap"><div class="bar-score">70</div><div class="bar" style="height:106px"></div><div class="bar-label">Wed</div></div>
-                  <div class="bar-wrap"><div class="bar-score">74</div><div class="bar" style="height:122px"></div><div class="bar-label">Thu</div></div>
+                  <div class="bar-wrap" data-score="54"><div class="bar-score">54</div><div class="bar" style="height:65px"></div><div class="bar-label">Fri</div></div>
+                  <div class="bar-wrap" data-score="61"><div class="bar-score">61</div><div class="bar" style="height:78px"></div><div class="bar-label">Sat</div></div>
+                  <div class="bar-wrap" data-score="66"><div class="bar-score">66</div><div class="bar" style="height:90px"></div><div class="bar-label">Sun</div></div>
+                  <div class="bar-wrap" data-score="72"><div class="bar-score">72</div><div class="bar" style="height:112px"></div><div class="bar-label">Mon</div></div>
+                  <div class="bar-wrap" data-score="64"><div class="bar-score">64</div><div class="bar" style="height:84px"></div><div class="bar-label">Tue</div></div>
+                  <div class="bar-wrap" data-score="70"><div class="bar-score">70</div><div class="bar" style="height:106px"></div><div class="bar-label">Wed</div></div>
+                  <div class="bar-wrap" data-score="74"><div class="bar-score">74</div><div class="bar" style="height:122px"></div><div class="bar-label">Thu</div></div>
                 </div>
               </div>
+
               <div class="selected-box" style="margin-top:14px;">
                 <div class="meta">Weekly review</div>
                 <div class="review-list" style="margin-top:12px;">
-                  <div class="review-item"><span>Average score</span><strong>66</strong></div>
+                  <div class="review-item"><span>Average score</span><strong id="weeklyAverageDisplay">66</strong></div>
                   <div class="review-item"><span>Mood trend</span><strong>Up</strong></div>
                   <div class="review-item"><span>Stress trend</span><strong>Easing</strong></div>
                   <div class="review-item"><span>Best lever</span><strong>Protected focus</strong></div>
@@ -800,37 +818,142 @@
                   <button class="btn">Next</button>
                 </div>
               </div>
+
               <div class="calendar">
                 <div class="weekday">Sun</div><div class="weekday">Mon</div><div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div>
-                <div></div><div></div><div></div><div class="day"><div class="day-top"><div>1</div><div class="day-dot mid"></div></div><div class="day-score">58 score</div></div>
-                <div class="day"><div class="day-top"><div>2</div><div class="day-dot good"></div></div><div class="day-score">77 score</div></div>
-                <div class="day"><div class="day-top"><div>3</div><div class="day-dot mid"></div></div><div class="day-score">63 score</div></div>
-                <div class="day"><div class="day-top"><div>4</div><div class="day-dot bad"></div></div><div class="day-score">42 score</div></div>
-                <div class="day"><div class="day-top"><div>5</div><div class="day-dot mid"></div></div><div class="day-score">57 score</div></div>
-                <div class="day"><div class="day-top"><div>6</div><div class="day-dot good"></div></div><div class="day-score">75 score</div></div>
-                <div class="day"><div class="day-top"><div>7</div><div class="day-dot good"></div></div><div class="day-score">79 score</div></div>
-                <div class="day"><div class="day-top"><div>8</div><div class="day-dot mid"></div></div><div class="day-score">60 score</div></div>
-                <div class="day"><div class="day-top"><div>9</div><div class="day-dot mid"></div></div><div class="day-score">64 score</div></div>
-                <div class="day today selected"><div class="day-top"><div>14</div><div class="day-dot good"></div></div><div class="day-score">74 score</div></div>
+
+                <div></div><div></div><div></div>
+
+                <div class="day"
+                  data-date="Thursday, May 1"
+                  data-score="58"
+                  data-mood="5 / 10"
+                  data-stress="6 / 10"
+                  data-habits="3 / 6"
+                  data-focus="Reset workflow"
+                  data-notes="A stop-start day. Better once I reduced task switching.">
+                  <div class="day-top"><div>1</div><div class="day-dot mid"></div></div><div class="day-score">58 score</div>
+                </div>
+
+                <div class="day"
+                  data-date="Friday, May 2"
+                  data-score="77"
+                  data-mood="8 / 10"
+                  data-stress="3 / 10"
+                  data-habits="5 / 6"
+                  data-focus="Close open actions"
+                  data-notes="Strong energy and good structure.">
+                  <div class="day-top"><div>2</div><div class="day-dot good"></div></div><div class="day-score">77 score</div>
+                </div>
+
+                <div class="day"
+                  data-date="Saturday, May 3"
+                  data-score="63"
+                  data-mood="6 / 10"
+                  data-stress="4 / 10"
+                  data-habits="4 / 6"
+                  data-focus="Family time first"
+                  data-notes="Decent day with a softer pace.">
+                  <div class="day-top"><div>3</div><div class="day-dot mid"></div></div><div class="day-score">63 score</div>
+                </div>
+
+                <div class="day"
+                  data-date="Sunday, May 4"
+                  data-score="42"
+                  data-mood="4 / 10"
+                  data-stress="8 / 10"
+                  data-habits="2 / 6"
+                  data-focus="Recover early"
+                  data-notes="Low-energy day. Needed less pressure, not more.">
+                  <div class="day-top"><div>4</div><div class="day-dot bad"></div></div><div class="day-score">42 score</div>
+                </div>
+
+                <div class="day"
+                  data-date="Monday, May 5"
+                  data-score="57"
+                  data-mood="5 / 10"
+                  data-stress="5 / 10"
+                  data-habits="3 / 6"
+                  data-focus="Do first hard thing early"
+                  data-notes="Recovered some momentum once priorities were clearer.">
+                  <div class="day-top"><div>5</div><div class="day-dot mid"></div></div><div class="day-score">57 score</div>
+                </div>
+
+                <div class="day"
+                  data-date="Tuesday, May 6"
+                  data-score="75"
+                  data-mood="7 / 10"
+                  data-stress="4 / 10"
+                  data-habits="5 / 6"
+                  data-focus="Protect focus blocks"
+                  data-notes="A good day with fewer interruptions.">
+                  <div class="day-top"><div>6</div><div class="day-dot good"></div></div><div class="day-score">75 score</div>
+                </div>
+
+                <div class="day"
+                  data-date="Wednesday, May 7"
+                  data-score="79"
+                  data-mood="8 / 10"
+                  data-stress="3 / 10"
+                  data-habits="5 / 6"
+                  data-focus="Keep morning simple"
+                  data-notes="High-quality output and strong discipline.">
+                  <div class="day-top"><div>7</div><div class="day-dot good"></div></div><div class="day-score">79 score</div>
+                </div>
+
+                <div class="day"
+                  data-date="Thursday, May 8"
+                  data-score="60"
+                  data-mood="6 / 10"
+                  data-stress="5 / 10"
+                  data-habits="4 / 6"
+                  data-focus="Finish one job fully"
+                  data-notes="Solid enough, but scattered late.">
+                  <div class="day-top"><div>8</div><div class="day-dot mid"></div></div><div class="day-score">60 score</div>
+                </div>
+
+                <div class="day"
+                  data-date="Friday, May 9"
+                  data-score="64"
+                  data-mood="6 / 10"
+                  data-stress="4 / 10"
+                  data-habits="4 / 6"
+                  data-focus="Avoid reactive work"
+                  data-notes="Better than it felt in the moment.">
+                  <div class="day-top"><div>9</div><div class="day-dot mid"></div></div><div class="day-score">64 score</div>
+                </div>
+
+                <div class="day today selected"
+                  data-date="Thursday, May 14"
+                  data-score="74"
+                  data-mood="7 / 10"
+                  data-stress="4 / 10"
+                  data-habits="4 / 6"
+                  data-focus="Finish proposal review"
+                  data-notes="Good momentum overall. Afternoon drift started when I switched tasks too often. Best move tonight is a calmer shutdown and an early start.">
+                  <div class="day-top"><div>14</div><div class="day-dot good"></div></div><div class="day-score">74 score</div>
+                </div>
               </div>
             </div>
 
             <div class="panel">
               <h3>Selected day</h3>
               <p class="subtle">The redesign turns this into a clear detail card instead of a loose stack.</p>
+
               <div class="selected-box" style="margin-top:14px;">
                 <div class="review-list">
-                  <div class="review-item"><span>Date</span><strong>Thursday, May 14</strong></div>
-                  <div class="review-item"><span>Score</span><strong>74</strong></div>
-                  <div class="review-item"><span>Mood</span><strong>7 / 10</strong></div>
-                  <div class="review-item"><span>Stress</span><strong>4 / 10</strong></div>
-                  <div class="review-item"><span>Habits done</span><strong>4 / 6</strong></div>
-                  <div class="review-item"><span>Tomorrow’s focus</span><strong>Finish proposal review</strong></div>
+                  <div class="review-item"><span>Date</span><strong id="selectedDate">Thursday, May 14</strong></div>
+                  <div class="review-item"><span>Score</span><strong id="selectedScore">74</strong></div>
+                  <div class="review-item"><span>Mood</span><strong id="selectedMood">7 / 10</strong></div>
+                  <div class="review-item"><span>Stress</span><strong id="selectedStress">4 / 10</strong></div>
+                  <div class="review-item"><span>Habits done</span><strong id="selectedHabits">4 / 6</strong></div>
+                  <div class="review-item"><span>Tomorrow’s focus</span><strong id="selectedFocus">Finish proposal review</strong></div>
                 </div>
               </div>
+
               <div class="selected-box" style="margin-top:14px;">
                 <div class="meta">Notes</div>
-                <p class="subtle" style="margin-top:10px;">Good momentum overall. Afternoon drift started when I switched tasks too often. Best move tonight is a calmer shutdown and an early start.</p>
+                <p class="subtle" id="selectedNotes" style="margin-top:10px;">Good momentum overall. Afternoon drift started when I switched tasks too often. Best move tonight is a calmer shutdown and an early start.</p>
               </div>
             </div>
           </div>
@@ -841,6 +964,7 @@
             <div class="panel" id="journalPanel">
               <h3>Journal</h3>
               <p class="subtle">This layout gives journaling more breathing room and a more editorial feel.</p>
+
               <div class="field-stack" style="margin-top:14px;">
                 <div class="field">
                   <div class="field-head"><label>What went well today?</label><div class="value-badge">Prompt 1</div></div>
@@ -859,16 +983,19 @@
                   <input type="text" value="Carry forward" />
                 </div>
               </div>
+
               <div class="action-row">
                 <button class="btn primary">Save journal</button>
                 <button class="btn">Load entry</button>
               </div>
+
               <div class="status">Journal layout refreshed and ready for content binding.</div>
             </div>
 
             <div class="panel">
               <h3>Journal history</h3>
               <p class="subtle">Saved writing now sits in a dedicated reading card with stronger hierarchy.</p>
+
               <div class="selected-box" style="margin-top:14px;">
                 <div class="review-list">
                   <div class="review-item"><span>Selected day</span><strong>Thursday, May 14</strong></div>
@@ -877,6 +1004,7 @@
                   <div class="review-item"><span>Word count</span><strong>92</strong></div>
                 </div>
               </div>
+
               <div class="selected-box journal-body" style="margin-top:14px;">
                 <div class="meta" style="margin-bottom:10px;">Saved journal</div>
                 I had a solid day overall, but I noticed how quickly I can lose shape once the main task is done. The best move tonight is to keep things simple, not chase more stimulation, and leave tomorrow a cleaner runway.
@@ -915,6 +1043,7 @@
             <div class="panel">
               <h3>Talk it through</h3>
               <p class="subtle">Using today’s data</p>
+
               <div class="coach-chat" style="margin-top:14px;">
                 <div class="coach-thread">
                   <div class="chat-bubble ai">You have had a better day than your evening mood is telling you. Before you analyse anything bigger, tell me what part of tonight feels most slippery.</div>
@@ -922,12 +1051,14 @@
                   <div class="chat-bubble ai">That sounds like a transition problem, not a life problem. Pick one calming action for the next 20 minutes: shower, walk, tidy one zone, or write down tomorrow’s first task.</div>
                 </div>
               </div>
+
               <div class="coach-actions">
                 <button class="btn">Shower</button>
                 <button class="btn">Walk</button>
                 <button class="btn">Tidy one zone</button>
                 <button class="btn primary">Write tomorrow’s first task</button>
               </div>
+
               <div class="footer-note">Private in browser</div>
             </div>
           </div>
@@ -937,37 +1068,82 @@
   </div>
 
   <script>
-    const navButtons = document.querySelectorAll('[data-view-target]');
-    const views = document.querySelectorAll('.view');
-    const jumpButtons = document.querySelectorAll('[data-jump]');
-    const sidebar = document.getElementById('sidebar');
-    const menuBtn = document.getElementById('menuBtn');
+    (() => {
+      const state = {
+        selectedDate: 'Thursday, May 14',
+        savedDays: {}
+      };
 
-    function showView(targetId) {
-      views.forEach(view => {
-        view.classList.toggle('active', view.id === targetId);
-      });
+      const qs = (selector, scope = document) => scope.querySelector(selector);
+      const qsa = (selector, scope = document) => [...scope.querySelectorAll(selector)];
 
-      navButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.viewTarget === targetId);
-      });
+      const navButtons = qsa('[data-view-target]');
+      const views = qsa('.view');
+      const jumpButtons = qsa('[data-jump]');
+      const sidebar = qs('#sidebar');
+      const menuBtn = qs('#menuBtn');
 
-      if (window.innerWidth <= 980) {
-        sidebar.classList.remove('open');
+      const moodRange = qs('#moodRange');
+      const stressRange = qs('#stressRange');
+      const energyRange = qs('#energyRange');
+
+      const moodValue = qs('#moodValue');
+      const stressValue = qs('#stressValue');
+      const energyValue = qs('#energyValue');
+
+      const signalInputs = qsa('.daily-signal');
+      const habitInputs = qsa('.core-habit');
+
+      const signalsValue = qs('#signalsValue');
+      const habitsValue = qs('#habitsValue');
+
+      const dailyScore = qs('#dailyScore');
+      const scoreRing = qs('#scoreRing');
+      const messageBadge = qs('#messageBadge');
+      const statusEl = qs('#dayStatus');
+
+      const avgScoreEl = qs('#avgScore');
+      const weeklyAverageDisplay = qs('#weeklyAverageDisplay');
+      const habitWinsEl = qs('#habitWins');
+      const currentStreakEl = qs('#currentStreak');
+      const savedDaysEl = qs('#savedDaysCount');
+
+      const reflectionInput = qs('#reflectionInput');
+      const tomorrowFocusInput = qs('#tomorrowFocusInput');
+
+      const saveTodayBtn = qs('#saveTodayBtn');
+      const loadTodayBtn = qs('#loadTodayBtn');
+      const clearTodayBtn = qs('#clearTodayBtn');
+      const topSaveBtn = qs('#topSaveBtn');
+      const topDateLabel = qs('#topDateLabel');
+
+      const selectedDateEl = qs('#selectedDate');
+      const selectedScoreEl = qs('#selectedScore');
+      const selectedMoodEl = qs('#selectedMood');
+      const selectedStressEl = qs('#selectedStress');
+      const selectedHabitsEl = qs('#selectedHabits');
+      const selectedFocusEl = qs('#selectedFocus');
+      const selectedNotesEl = qs('#selectedNotes');
+
+      const weekBars = qsa('.bar-wrap[data-score]');
+      const calendarDays = qsa('.day[data-date]');
+
+      function showView(targetId) {
+        views.forEach(view => {
+          view.classList.toggle('active', view.id === targetId);
+        });
+
+        navButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.viewTarget === targetId);
+        });
+
+        if (window.innerWidth <= 980 && sidebar) {
+          sidebar.classList.remove('open');
+        }
       }
-    }
 
-    navButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        showView(button.dataset.viewTarget);
-      });
-    });
-
-    jumpButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const targetId = button.dataset.jump;
+      function jumpToTarget(targetId) {
         const target = document.getElementById(targetId);
-
         if (!target) return;
 
         const parentView = target.closest('.view');
@@ -977,25 +1153,299 @@
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }, 100);
         }
-      });
-    });
-
-    if (menuBtn) {
-      menuBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-      });
-    }
-
-    document.addEventListener('click', (event) => {
-      if (
-        window.innerWidth <= 980 &&
-        sidebar.classList.contains('open') &&
-        !sidebar.contains(event.target) &&
-        !menuBtn.contains(event.target)
-      ) {
-        sidebar.classList.remove('open');
       }
-    });
+
+      function formatScoreMessage(score) {
+        if (score >= 80) return 'Strong day. Keep the night simple and protected.';
+        if (score >= 65) return 'Good day. Stay deliberate.';
+        if (score >= 50) return 'Mixed day. Simplify the next hour.';
+        return 'Low day. Make the next step small and kind.';
+      }
+
+      function clampScore(score) {
+        return Math.max(0, Math.min(100, Math.round(score)));
+      }
+
+      function getCheckedCount(inputs) {
+        return inputs.filter(input => input.checked).length;
+      }
+
+      function calculateScore() {
+        const mood = Number(moodRange?.value || 0);
+        const stress = Number(stressRange?.value || 0);
+        const energy = Number(energyRange?.value || 0);
+        const signalsDone = getCheckedCount(signalInputs);
+        const habitsDone = getCheckedCount(habitInputs);
+
+        const weightedScore =
+          mood * 3 +
+          energy * 3 +
+          (11 - stress) * 2.5 +
+          signalsDone * 6 +
+          habitsDone * 4.5;
+
+        return {
+          mood,
+          stress,
+          energy,
+          signalsDone,
+          habitsDone,
+          score: clampScore(weightedScore)
+        };
+      }
+
+      function updateScoreUI() {
+        if (!moodRange || !stressRange || !energyRange) return;
+
+        const data = calculateScore();
+
+        moodValue.textContent = `${data.mood} / 10`;
+        stressValue.textContent = `${data.stress} / 10`;
+        energyValue.textContent = `${data.energy} / 10`;
+
+        signalsValue.textContent = `${data.signalsDone} / ${signalInputs.length} logged`;
+        habitsValue.textContent = `${data.habitsDone} / ${habitInputs.length} done`;
+
+        dailyScore.textContent = data.score;
+        messageBadge.textContent = formatScoreMessage(data.score);
+
+        const degrees = Math.round((data.score / 100) * 360);
+        scoreRing.style.background = `conic-gradient(var(--accent) ${degrees}deg, rgba(255,255,255,.3) 0deg)`;
+
+        habitWinsEl.textContent = `${data.habitsDone}/${habitInputs.length}`;
+
+        return data;
+      }
+
+      function getTodayPayload() {
+        const data = calculateScore();
+
+        return {
+          date: state.selectedDate,
+          score: data.score,
+          mood: `${data.mood} / 10`,
+          stress: `${data.stress} / 10`,
+          habits: `${data.habitsDone} / ${habitInputs.length}`,
+          focus: tomorrowFocusInput.value.trim() || '-',
+          notes: reflectionInput.value.trim() || '-'
+        };
+      }
+
+      function updateSelectedDayPanel(payload) {
+        if (!payload) return;
+
+        selectedDateEl.textContent = payload.date || '-';
+        selectedScoreEl.textContent = payload.score ?? '-';
+        selectedMoodEl.textContent = payload.mood || '-';
+        selectedStressEl.textContent = payload.stress || '-';
+        selectedHabitsEl.textContent = payload.habits || '-';
+        selectedFocusEl.textContent = payload.focus || '-';
+        selectedNotesEl.textContent = payload.notes || '-';
+
+        if (topDateLabel) topDateLabel.textContent = payload.date || 'Today';
+      }
+
+      function parseBarScores() {
+        const scores = weekBars
+          .map(bar => Number(bar.dataset.score))
+          .filter(score => !Number.isNaN(score));
+
+        Object.values(state.savedDays).forEach(day => {
+          if (typeof day.score === 'number') scores.push(day.score);
+        });
+
+        return scores;
+      }
+
+      function calculateAverage(scores) {
+        if (!scores.length) return 0;
+        return Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length);
+      }
+
+      function calculateStreak() {
+        const savedCount = Object.keys(state.savedDays).length;
+        return savedCount ? 6 + savedCount : 6;
+      }
+
+      function updateKpis() {
+        const scores = parseBarScores();
+        const avg = calculateAverage(scores);
+        const savedCount = 29 + Object.keys(state.savedDays).length;
+        const streak = calculateStreak();
+
+        avgScoreEl.textContent = avg;
+        weeklyAverageDisplay.textContent = avg;
+        savedDaysEl.textContent = savedCount;
+        currentStreakEl.textContent = streak;
+      }
+
+      function setStatus(message) {
+        statusEl.textContent = message;
+      }
+
+      function markSelectedCalendarDay(dayEl) {
+        calendarDays.forEach(day => day.classList.remove('selected'));
+        if (dayEl) dayEl.classList.add('selected');
+      }
+
+      function payloadFromDayElement(dayEl) {
+        return {
+          date: dayEl.dataset.date || '-',
+          score: dayEl.dataset.score || '-',
+          mood: dayEl.dataset.mood || '-',
+          stress: dayEl.dataset.stress || '-',
+          habits: dayEl.dataset.habits || '-',
+          focus: dayEl.dataset.focus || '-',
+          notes: dayEl.dataset.notes || '-'
+        };
+      }
+
+      function bindCalendarDays() {
+        calendarDays.forEach(day => {
+          day.setAttribute('role', 'button');
+          day.setAttribute('tabindex', '0');
+
+          const activate = () => {
+            markSelectedCalendarDay(day);
+            const payload = payloadFromDayElement(day);
+            updateSelectedDayPanel(payload);
+            state.selectedDate = payload.date;
+            setStatus(`Loaded ${state.selectedDate}.`);
+          };
+
+          day.addEventListener('click', activate);
+          day.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              activate();
+            }
+          });
+        });
+      }
+
+      function saveToday() {
+        const payload = getTodayPayload();
+        state.savedDays[payload.date] = payload;
+        updateSelectedDayPanel(payload);
+        updateKpis();
+        setStatus(`Saved ${payload.date} with score ${payload.score}.`);
+
+        const matchingDay = calendarDays.find(day => day.dataset.date === payload.date);
+        if (matchingDay) {
+          matchingDay.dataset.score = String(payload.score);
+          matchingDay.dataset.mood = payload.mood;
+          matchingDay.dataset.stress = payload.stress;
+          matchingDay.dataset.habits = payload.habits;
+          matchingDay.dataset.focus = payload.focus;
+          matchingDay.dataset.notes = payload.notes;
+
+          const scoreEl = qs('.day-score', matchingDay);
+          if (scoreEl) scoreEl.textContent = `${payload.score} score`;
+
+          const dot = qs('.day-dot', matchingDay);
+          if (dot) {
+            dot.classList.remove('good', 'mid', 'bad');
+            if (payload.score >= 70) dot.classList.add('good');
+            else if (payload.score >= 50) dot.classList.add('mid');
+            else dot.classList.add('bad');
+          }
+
+          markSelectedCalendarDay(matchingDay);
+        }
+      }
+
+      function loadToday() {
+        const saved = state.savedDays[state.selectedDate];
+        if (!saved) {
+          setStatus(`No saved entry found for ${state.selectedDate}.`);
+          return;
+        }
+
+        selectedDateEl.textContent = saved.date;
+        selectedScoreEl.textContent = saved.score;
+        selectedMoodEl.textContent = saved.mood;
+        selectedStressEl.textContent = saved.stress;
+        selectedHabitsEl.textContent = saved.habits;
+        selectedFocusEl.textContent = saved.focus;
+        selectedNotesEl.textContent = saved.notes;
+
+        tomorrowFocusInput.value = saved.focus !== '-' ? saved.focus : '';
+        reflectionInput.value = saved.notes !== '-' ? saved.notes : '';
+
+        setStatus(`Loaded saved entry for ${saved.date}.`);
+      }
+
+      function clearToday() {
+        moodRange.value = 5;
+        stressRange.value = 5;
+        energyRange.value = 5;
+
+        signalInputs.forEach(input => { input.checked = false; });
+        habitInputs.forEach((input, index) => { input.checked = index < 3; });
+
+        reflectionInput.value = '';
+        tomorrowFocusInput.value = '';
+
+        updateScoreUI();
+        setStatus('Cleared today’s inputs.');
+      }
+
+      navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          showView(button.dataset.viewTarget);
+        });
+      });
+
+      jumpButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          jumpToTarget(button.dataset.jump);
+        });
+      });
+
+      if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('open');
+        });
+      }
+
+      document.addEventListener('click', event => {
+        if (
+          window.innerWidth <= 980 &&
+          sidebar &&
+          sidebar.classList.contains('open') &&
+          !sidebar.contains(event.target) &&
+          menuBtn &&
+          !menuBtn.contains(event.target)
+        ) {
+          sidebar.classList.remove('open');
+        }
+      });
+
+      [moodRange, stressRange, energyRange].forEach(input => {
+        input.addEventListener('input', updateScoreUI);
+      });
+
+      [...signalInputs, ...habitInputs].forEach(input => {
+        input.addEventListener('change', updateScoreUI);
+      });
+
+      saveTodayBtn.addEventListener('click', saveToday);
+      topSaveBtn.addEventListener('click', saveToday);
+      loadTodayBtn.addEventListener('click', loadToday);
+      clearTodayBtn.addEventListener('click', clearToday);
+
+      bindCalendarDays();
+      updateScoreUI();
+      updateKpis();
+
+      const initialSelectedDay = qs('.day.selected[data-date]') || calendarDays[calendarDays.length - 1];
+      if (initialSelectedDay) {
+        state.selectedDate = initialSelectedDay.dataset.date || state.selectedDate;
+        updateSelectedDayPanel(payloadFromDayElement(initialSelectedDay));
+      }
+
+      setStatus('Ready.');
+    })();
   </script>
 </body>
 </html>
