@@ -161,7 +161,7 @@
     }
 
     .content {
-      padding: 24px;
+      padding: 24px; overflow-y: auto; height: 100vh;
     }
 
     .topbar {
@@ -1687,10 +1687,12 @@
 
         if (el('sidebar')) el('sidebar').classList.remove('open');
             window.scrollTo(0, 0);
+            var c = document.querySelector('main.content'); if (c) c.scrollTop = 0;
       }
 
       function saveSelectedDay() {
         var key = state.selectedKey || getDateKey(new Date());
+              
         var data = loadData();
         data[key] = buildEntryFromForm(key);
         saveData(data);
