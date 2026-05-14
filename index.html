@@ -1376,23 +1376,47 @@
       }
 
       function clearToday() {
-        moodRange.value = 5;
-        stressRange.value = 5;
-        energyRange.value = 5;
-
-        signalInputs.forEach(input => { input.checked = false; });
-        habitInputs.forEach((input, index) => { input.checked = index < 3; });
-
+        moodRange.value = 1;
+        stressRange.value = 1;
+        energyRange.value = 1;
+      
+        signalInputs.forEach(input => {
+          input.checked = false;
+        });
+      
+        habitInputs.forEach(input => {
+          input.checked = false;
+        });
+      
         reflectionInput.value = '';
         tomorrowFocusInput.value = '';
-
+      
+        markSelectedCalendarDay(null);
+      
         updateScoreUI();
-        setStatus('Cleared today’s inputs.');
+        updateKpis();
+      
+        updateSelectedDayPanel({
+          date: 'No day selected',
+          score: '-',
+          mood: '-',
+          stress: '-',
+          habits: '-',
+          focus: '-',
+          notes: '-'
+        });
+      
+        if (topDateLabel) {
+          topDateLabel.textContent = 'No day selected';
+        }
+      
+        setStatus('Cleared all dashboard inputs.');
       }
-
-      navButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          showView(button.dataset.viewTarget);
+            }
+      
+            navButtons.forEach(button => {
+              button.addEventListener('click', () => {
+                showView(button.dataset.viewTarget);
         });
       });
 
