@@ -1678,7 +1678,7 @@
         state.activeView = viewId;
 
         document.querySelectorAll('.view').forEach(function (view) {
-          view.classList.toggle('active', view.id === viewId); view.style.display = (view.id === viewId) ? 'block' : 'none';('active', view.id === viewId);
+          view.classList.toggle('active', view.id === viewId); view.style.display = (view.id === viewId) ? 'block' : 'none'; view.classList.toggle('active', view.id === viewId);
         });
 
         document.querySelectorAll('[data-view-target]').forEach(function (button) {
@@ -1687,7 +1687,7 @@
 
         if (el('sidebar')) el('sidebar').classList.remove('open');
             window.scrollTo(0, 0);
-            setTimeout(function(){var c=document.querySelector('main.content');if(c)c.scrollTop=0;window.scrollTo(0,0);},10);('main.content'); if (c) c.scrollTop = 0;
+            setTimeout(function(){var c=document.querySelector('main.content');if(c)c.scrollTop=0;window.scrollTo(0,0);},10);
       }
 
       function saveSelectedDay() {
