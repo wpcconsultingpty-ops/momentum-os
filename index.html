@@ -1,304 +1,332 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>momentum-os-clean</title>
+  <title>Momentum OS Redesign</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f6efe1;
-      --card: #fffaf2;
-      --card-2: #ffffff;
-      --green: #1f4d3a;
-      --green-2: #2c6a50;
-      --gold: #d3a64c;
-      --line: #e6dac4;
-      --text: #24313b;
-      --muted: #6b7280;
-      --warn: #9a3412;
-      --radius: 24px;
-      --shadow: 0 18px 45px rgba(31, 77, 58, 0.12);
+      --bg: #f6f3ed;
+      --surface: rgba(255,255,255,0.78);
+      --surface-2: #fffdf9;
+      --surface-3: #f1ece3;
+      --border: rgba(31, 51, 59, 0.10);
+      --text: #1f2e36;
+      --muted: #69757d;
+      --primary: #1e5a45;
+      --primary-2: #2c6e56;
+      --accent: #d4a44c;
+      --warn: #a34a1f;
+      --danger: #8f2d2d;
+      --success: #4c7a27;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+      --shadow-sm: 0 6px 18px rgba(30, 41, 49, 0.06);
+      --shadow-lg: 0 18px 44px rgba(30, 41, 49, 0.10);
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --text-xs: 12px;
+      --text-sm: 14px;
+      --text-base: 16px;
+      --text-lg: 20px;
+      --text-xl: 30px;
     }
 
-        * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
     body {
       min-height: 100vh;
+      font-family: 'Satoshi', Arial, sans-serif;
+      font-size: var(--text-base);
+      color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(211,166,76,0.18), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(31,77,58,0.14), transparent 28%),
+        radial-gradient(circle at top left, rgba(212,164,76,.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(30,90,69,.12), transparent 30%),
         var(--bg);
     }
-
-    button, input, textarea {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
 
     .app-shell {
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 290px minmax(0,1fr);
       min-height: 100vh;
     }
 
     .sidebar {
-      background: rgba(255,250,242,0.82);
-      border-right: 1px solid var(--line);
-      padding: 24px 18px;
       position: sticky;
       top: 0;
       height: 100vh;
-      backdrop-filter: blur(8px);
+      padding: var(--space-6);
+      border-right: 1px solid var(--border);
+      background: rgba(255,255,255,.50);
+      backdrop-filter: blur(18px);
       overflow-y: auto;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 28px;
+      gap: 14px;
+      margin-bottom: var(--space-8);
     }
 
     .brand-mark {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--green), #163526);
-      color: white;
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--primary), #173a2d);
+      color: #fff;
       display: grid;
       place-items: center;
+      box-shadow: var(--shadow-lg);
+      font-size: 20px;
       font-weight: 900;
-      box-shadow: var(--shadow);
     }
 
     .brand h1 {
       margin: 0;
-      font-size: 1.3rem;
-      color: var(--green);
+      font-size: 22px;
+      color: var(--primary);
     }
 
-    .brand p {
-      margin: 4px 0 0;
+    .brand p,
+    .nav-label,
+    .subtle,
+    .small-note,
+    .kpi-foot,
+    .meta {
       color: var(--muted);
-      font-size: 0.9rem;
     }
 
+    .brand p { margin: 4px 0 0; font-size: var(--text-sm); }
     .nav-label {
-      margin: 18px 0 10px;
-      color: var(--muted);
-      font-weight: 800;
+      margin: var(--space-6) 0 var(--space-3);
+      font-size: var(--text-xs);
+      letter-spacing: .12em;
       text-transform: uppercase;
-      font-size: 0.78rem;
-      letter-spacing: .08em;
+      font-weight: 900;
     }
 
-    .nav-list {
-      display: grid;
-      gap: 10px;
-    }
+    .nav-list { display: grid; gap: 10px; }
 
     .nav-btn {
-      border: 1px solid var(--line);
-      background: white;
+      width: 100%;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.82);
       color: var(--text);
       border-radius: 18px;
-      padding: 14px;
+      padding: 14px 16px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       font-weight: 800;
+      box-shadow: var(--shadow-sm);
     }
 
     .nav-btn.active,
     .nav-btn:hover {
-      background: #f3ecdf;
-      border-color: rgba(31,77,58,0.24);
-      color: var(--green);
+      background: #f3ede2;
+      color: var(--primary);
+      border-color: rgba(30,90,69,.18);
+      transform: translateY(-1px);
     }
 
     .nav-chip {
-      background: #edf7f1;
-      color: var(--green);
       border-radius: 999px;
-      padding: 5px 9px;
-      font-size: .75rem;
+      background: #edf7f1;
+      color: var(--primary);
+      padding: 5px 10px;
+      font-size: var(--text-xs);
       font-weight: 900;
     }
 
-    .sidebar-note {
-      margin-top: 22px;
-      padding: 16px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, var(--green), #193a2b);
+    .sidebar-card {
+      margin-top: var(--space-8);
+      padding: var(--space-5);
+      border-radius: var(--radius-lg);
       color: white;
+      background: linear-gradient(145deg, #204f3e, #183328);
+      box-shadow: var(--shadow-lg);
     }
 
-    .sidebar-note h2 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-    }
-
-    .sidebar-note p {
-      margin: 0;
-      color: rgba(255,255,255,.82);
-      line-height: 1.5;
-    }
+    .sidebar-card h2 { margin: 0 0 8px; font-size: 18px; }
+    .sidebar-card p { margin: 0; color: rgba(255,255,255,.82); line-height: 1.5; }
 
     .content {
-      padding: 24px; min-height: 100vh;
+      padding: var(--space-6);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--space-6);
+      min-width: 0;
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
       align-items: center;
+      gap: var(--space-4);
       flex-wrap: wrap;
-      margin-bottom: 18px; position: sticky; top: 0; background: var(--bg); z-index: 10; padding-bottom: 18px; margin-bottom: 0;
+      padding: var(--space-5) var(--space-6);
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.72);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(16px);
     }
 
     .topbar h2 {
       margin: 0;
-      color: var(--green);
+      font-size: var(--text-xl);
+      color: var(--primary);
+      line-height: 1.05;
     }
 
-    .topbar p {
-      margin: 4px 0 0;
-      color: var(--muted);
-    }
+    .topbar p { margin: 6px 0 0; }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-    .topbar-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-weight: 900;
-      color: var(--green);
-    }
-
+    .pill,
     .btn {
-      border: 1px solid var(--line);
-      background: white;
-      color: var(--green);
       border-radius: 999px;
-      padding: 12px 16px;
-      font-weight: 900;
+      padding: 11px 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.92);
+      color: var(--primary);
+      font-weight: 800;
     }
 
     .btn.primary {
-      background: var(--green);
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
       color: white;
       border-color: transparent;
+      box-shadow: var(--shadow-sm);
     }
 
     .btn.warn {
-      background: #fff7ed;
+      background: #fff5ed;
       color: var(--warn);
-      border-color: #fed7aa;
+      border-color: rgba(163,74,31,.18);
+    }
+
+    .views {
+      min-width: 0;
     }
 
     .view { display: none; }
-    .view.active { display: block; }
+    .view.active {
+      display: grid;
+      gap: var(--space-6);
+      animation: fade .18s ease;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     .hero-grid,
     .two-col,
     .history-grid,
     .journal-grid,
-    .coach-grid {
+    .coach-grid,
+    .kpis {
       display: grid;
-      gap: 18px;
-      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: var(--space-5);
+    }
+
+    .hero-grid { grid-template-columns: 1.2fr .95fr; }
+    .two-col,
+    .history-grid,
+    .journal-grid,
+    .coach-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .kpis { grid-template-columns: repeat(4, minmax(0,1fr)); }
+
+    .panel,
+    .card,
+    .selected-box,
+    .resource-box,
+    .prompt,
+    .review-item,
+    .field,
+    .kpi {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.78);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(14px);
     }
 
     .panel {
-      background: rgba(255,250,242,0.94);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 20px;
+      padding: var(--space-6);
+      border-radius: 28px;
+      min-width: 0;
     }
 
-    .panel h3 {
-      margin: 0 0 8px;
-      color: var(--green);
-    }
-
-    .subtle {
-      color: var(--muted);
-      line-height: 1.55;
-    }
+    .panel h3 { margin: 0 0 8px; font-size: var(--text-lg); color: var(--primary); }
 
     .score-wrap {
       display: grid;
-      grid-template-columns: 170px 1fr;
-      gap: 18px;
+      grid-template-columns: 180px minmax(0,1fr);
+      gap: var(--space-6);
       align-items: center;
     }
 
     .score-ring {
-      width: 170px;
-      height: 170px;
+      width: 180px;
+      height: 180px;
       border-radius: 50%;
-      background: conic-gradient(var(--gold) 0deg, rgba(255,255,255,.2) 0deg);
-      display: grid;
-      place-items: center;
+      background: conic-gradient(var(--accent) 270deg, rgba(255,255,255,.3) 0deg);
+      padding: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
     }
 
     .score-ring-inner {
-      width: 126px;
-      height: 126px;
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
-      background: rgba(255,250,242,0.96);
       display: grid;
       place-items: center;
+      background: rgba(255,250,242,.96);
+      border: 1px solid var(--border);
       text-align: center;
-      border: 1px solid var(--line);
     }
 
     .score-ring-inner strong {
       display: block;
-      font-size: 2.6rem;
-      color: var(--green);
+      font-size: 52px;
       line-height: 1;
+      color: var(--primary);
     }
 
-    .score-ring-inner span {
-      color: var(--muted);
-      font-weight: 800;
-    }
+    .score-ring-inner span { font-size: var(--text-sm); color: var(--muted); font-weight: 800; }
 
-    .message-badge {
-      display: inline-block;
-      margin-top: 14px;
-      background: #fff;
-      border: 1px solid var(--line);
+    .message-badge,
+    .value-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
       border-radius: 999px;
-      padding: 10px 14px;
+      background: #f4efe7;
+      color: var(--primary);
+      font-size: var(--text-sm);
       font-weight: 800;
+      border: 1px solid rgba(30,90,69,.10);
     }
 
     .insight-list,
     .field-stack,
     .prompt-list,
     .review-list,
-    .coach-thread {
+    .coach-thread,
+    .habit-grid {
       display: grid;
       gap: 12px;
     }
@@ -306,46 +334,24 @@
     .insight,
     .prompt,
     .selected-box,
-    .resource-box {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      line-height: 1.5;
+    .resource-box,
+    .kpi,
+    .field {
+      border-radius: 22px;
+      padding: var(--space-5);
     }
 
-    .kpis {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 12px;
-      margin: 18px 0;
-    }
-
-    .kpi {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
-    }
-
-    .kpi-label,
-    .kpi-foot {
-      color: var(--muted);
-      font-weight: 800;
+    .insight {
+      border: 1px solid rgba(30,90,69,.10);
+      background: linear-gradient(180deg, #fffdfa, #f7f1e8);
     }
 
     .kpi-value {
-      margin: 6px 0;
-      font-size: 2rem;
-      color: var(--green);
+      margin: 10px 0 4px;
+      font-size: 34px;
+      color: var(--primary);
       font-weight: 900;
-    }
-
-    .field {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 16px;
+      font-variant-numeric: tabular-nums;
     }
 
     .field-head {
@@ -353,382 +359,260 @@
       justify-content: space-between;
       gap: 12px;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .field label,
-    .field-title {
-      font-weight: 900;
-    }
-
-    .value-badge {
-      background: #edf7f1;
-      color: var(--green);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-weight: 900;
-      font-size: .84rem;
-    }
+    .field-title { font-weight: 900; }
 
     input[type="range"],
     input[type="text"],
-    input[type="email"],
-    input[type="password"],
     textarea {
       width: 100%;
     }
 
-    input[type="range"] {
-      accent-color: var(--green);
-    }
+    input[type="range"] { accent-color: var(--primary); }
 
     input[type="text"],
-    input[type="email"],
-    input[type="password"],
     textarea {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px 14px;
-      background: #fff;
+      border: 1px solid var(--border);
+      background: #fffefb;
       color: var(--text);
+      border-radius: 16px;
+      padding: 13px 14px;
       outline: none;
     }
 
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    textarea:focus,
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    input[type="password"]:focus {
-      border-color: var(--green-2);
-      box-shadow: 0 0 0 4px rgba(44,106,80,0.12);
-    }
+    textarea { min-height: 120px; resize: vertical; }
 
     .scale-row {
       display: flex;
       justify-content: space-between;
-      color: var(--muted);
-      font-size: .84rem;
-      margin-top: 6px;
+      margin-top: 8px;
+      font-size: var(--text-xs);
       font-weight: 800;
-    }
-
-    .habit-grid {
-      display: grid;
-      gap: 10px;
+      color: var(--muted);
     }
 
     .habit {
       display: flex;
-      gap: 12px;
       align-items: center;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.7);
     }
 
-    .habit input {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--green);
-    }
+    .habit input { width: 20px; height: 20px; accent-color: var(--primary); }
 
     .action-row,
     .coach-actions {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      margin-top: 16px;
+      margin-top: var(--space-5);
     }
 
     .status {
       margin-top: 12px;
-      color: var(--green);
-      font-weight: 900;
-      min-height: 20px;
+      min-height: 22px;
+      color: var(--primary);
+      font-weight: 800;
     }
 
     .bars {
       display: grid;
       grid-template-columns: repeat(7, minmax(0,1fr));
-      gap: 10px;
       align-items: end;
-      min-height: 170px;
-      margin-top: 16px;
+      gap: 10px;
+      min-height: 190px;
+      margin-top: var(--space-5);
     }
 
-    .bar-wrap {
-      display: grid;
-      gap: 8px;
-      justify-items: center;
-    }
-
+    .bar-wrap { display: grid; gap: 10px; justify-items: center; }
     .bar {
       width: 100%;
-      max-width: 34px;
-      border-radius: 14px 14px 8px 8px;
-      background: linear-gradient(180deg, var(--gold), var(--green));
-      min-height: 12px;
+      max-width: 38px;
+      border-radius: 18px 18px 10px 10px;
+      background: linear-gradient(180deg, var(--accent), var(--primary));
+      min-height: 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
     }
 
     .bar-label,
     .bar-score {
-      font-size: .8rem;
-      font-weight: 800;
+      font-size: var(--text-xs);
+      font-weight: 900;
       color: var(--muted);
     }
 
     .calendar {
       display: grid;
       grid-template-columns: repeat(7, minmax(0,1fr));
-      gap: 8px;
-      margin-top: 16px;
+      gap: 10px;
+      margin-top: var(--space-5);
     }
 
     .weekday {
       text-align: center;
-      color: var(--muted);
-      font-size: .75rem;
-      font-weight: 900;
+      font-size: var(--text-xs);
       text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 900;
+      color: var(--muted);
     }
 
     .day {
-      min-height: 70px;
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 8px;
+      min-height: 88px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.86);
+      padding: 10px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      box-shadow: var(--shadow-sm);
     }
 
-    .day.no-data { opacity: .72; }
-    .day.today { border: 2px solid var(--green); }
-    .day.selected { box-shadow: inset 0 0 0 2px var(--gold); }
+    .day.today { border: 2px solid rgba(30,90,69,.45); }
+    .day.selected { box-shadow: inset 0 0 0 2px rgba(212,164,76,.65); }
+    .day-top { display: flex; justify-content: space-between; align-items: center; }
+    .day-dot { width: 10px; height: 10px; border-radius: 999px; background: #d2d7d9; }
+    .day-dot.good { background: var(--success); }
+    .day-dot.mid { background: var(--accent); }
+    .day-dot.bad { background: #c15b26; }
+    .day-score { font-size: var(--text-xs); color: var(--muted); font-weight: 800; }
 
-    .day-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .day-num { font-weight: 900; }
-
-    .day-score {
-      font-size: .74rem;
-      color: var(--muted);
-      font-weight: 800;
-    }
-
-    .day-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: #d1d5db;
-    }
-
-    .day-dot.good { background: #437a22; }
-    .day-dot.mid { background: #d3a64c; }
-    .day-dot.bad { background: #c2410c; }
-
+    .review-list { list-style: none; padding: 0; margin: var(--space-5) 0 0; }
     .review-item {
       display: flex;
       justify-content: space-between;
       gap: 12px;
       align-items: center;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: white;
-      padding: 12px 14px;
+      padding: 14px 16px;
+      border-radius: 18px;
     }
 
-    .review-item span {
-      color: var(--muted);
-      font-weight: 800;
-    }
-
-    .review-item strong {
-      font-weight: 900;
-    }
-
-    .journal-body {
-      white-space: pre-wrap;
-    }
+    .journal-body { white-space: pre-wrap; }
 
     .coach-mode-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0,1fr));
       gap: 10px;
-      margin-top: 14px;
+      margin-top: var(--space-5);
     }
 
     .coach-mode {
-      border: 1px solid var(--line);
-      background: white;
       border-radius: 18px;
-      padding: 14px;
-      text-align: left;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.86);
       font-weight: 900;
+      color: var(--text);
+      text-align: left;
     }
 
     .coach-mode.active,
-    .coach-mode:hover {
-      background: #f3ecdf;
-      border-color: rgba(31,77,58,.24);
-      color: var(--green);
-    }
+    .coach-mode:hover { background: #f1ebdf; color: var(--primary); }
 
     .coach-disclaimer {
-      margin-top: 14px;
-      background: #fff7ed;
-      border: 1px solid #f2cf9f;
-      border-radius: 18px;
-      padding: 14px;
-      color: #7c4a03;
-      line-height: 1.5;
+      margin-top: var(--space-5);
+      padding: var(--space-5);
+      border-radius: 22px;
+      border: 1px solid rgba(163,74,31,.18);
+      background: #fff4ea;
+      color: #7d4317;
+      line-height: 1.55;
     }
 
     .coach-chat {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 14px;
-      min-height: 360px;
-      max-height: 420px;
+      min-height: 380px;
+      max-height: 440px;
       overflow-y: auto;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.76);
+      padding: var(--space-5);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
     }
 
     .chat-bubble {
-      max-width: 90%;
-      border-radius: 18px;
+      max-width: 88%;
       padding: 12px 14px;
+      border-radius: 18px;
+      line-height: 1.55;
       white-space: pre-wrap;
-      line-height: 1.5;
     }
 
     .chat-bubble.ai {
-      background: #f6f1e7;
-      border: 1px solid var(--line);
+      background: #f6f0e5;
+      border: 1px solid var(--border);
     }
 
     .chat-bubble.user {
-      background: var(--green);
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
       color: white;
       margin-left: auto;
     }
 
-    .footer-note {
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: .9rem;
-    }
+    .footer-note { margin-top: var(--space-5); color: var(--muted); font-size: var(--text-sm); }
+    .mobile-menu-btn { display: none; }
 
-    .mobile-menu-btn {
-      display: none;
-    }
-
-    .auth-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(36,49,59,0.4);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 1200;
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 460px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      padding: 24px;
-    }
-
-    .auth-card h3 {
-      margin: 0 0 8px;
-      color: var(--green);
-    }
-
-    .auth-form {
-      display: grid;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    @media (max-width: 980px) {
-      .app-shell {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: fixed;
-        inset: 0 auto 0 0;
-        width: 280px;
-        transform: translateX(-100%);
-        transition: transform .25s ease;
-        z-index: 1000;
-        height: 100vh;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .content {
-        padding: 18px;
-      }
-
+    @media (max-width: 1180px) {
       .hero-grid,
       .two-col,
       .history-grid,
       .journal-grid,
       .coach-grid,
-      .kpis,
-      .coach-mode-grid,
-      .score-wrap {
+      .kpis {
         grid-template-columns: 1fr;
       }
+      .score-wrap { grid-template-columns: 1fr; justify-items: start; }
+    }
 
+    @media (max-width: 980px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 290px;
+        transform: translateX(-100%);
+        transition: transform .2s ease;
+        z-index: 1000;
+      }
+      .sidebar.open { transform: translateX(0); }
       .mobile-menu-btn {
         display: inline-flex;
-        align-items: center;
-        justify-content: center;
         width: 44px;
         height: 44px;
-        border: 1px solid var(--line);
+        align-items: center;
+        justify-content: center;
         border-radius: 14px;
-        background: white;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,.9);
       }
+      .content { padding: var(--space-4); }
+    }
+
+    @media (max-width: 720px) {
+      .topbar,
+      .panel,
+      .field,
+      .kpi,
+      .prompt,
+      .selected-box,
+      .resource-box { padding: var(--space-4); }
+      .calendar { gap: 8px; }
+      .day { min-height: 80px; }
+      .bars { min-height: 160px; }
+      .coach-mode-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="auth-overlay" id="authOverlay">
-    <div class="auth-card">
-      <h3>Sign in to Momentum OS</h3>
-      <p class="subtle">Use Supabase auth or continue in guest mode.</p>
-      <div class="auth-form">
-        <input id="authEmail" type="email" placeholder="Email" />
-        <input id="authPassword" type="password" placeholder="Password" />
-        <div class="action-row" style="margin-top:0;">
-          <button class="btn primary" id="signInBtn" type="button">Sign in</button>
-          <button class="btn" id="signUpBtn" type="button">Create account</button>
-          <button class="btn" id="continueGuestBtn" type="button">Continue as guest</button>
-        </div>
-        <div class="status" id="authStatus"></div>
-      </div>
-    </div>
-  </div>
-
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
@@ -739,23 +623,23 @@
         </div>
       </div>
 
-      <p class="nav-label">Views</p>
+      <div class="nav-label">Views</div>
       <div class="nav-list">
-        <button class="nav-btn active" type="button" data-view-target="dashboardView"><span>Dashboard</span><span class="nav-chip">Live</span></button>
-        <button class="nav-btn" type="button" data-view-target="historyView"><span>History</span><span class="nav-chip">Month</span></button>
-        <button class="nav-btn" type="button" data-view-target="journalView"><span>Journal</span><span class="nav-chip">Write</span></button>
-        <button class="nav-btn" type="button" data-view-target="coachView"><span>Reset Coach</span><span class="nav-chip">Support</span></button>
+        <button class="nav-btn active" data-view-target="dashboardView"><span>Dashboard</span><span class="nav-chip">Today</span></button>
+        <button class="nav-btn" data-view-target="historyView"><span>History</span><span class="nav-chip">Month</span></button>
+        <button class="nav-btn" data-view-target="journalView"><span>Journal</span><span class="nav-chip">Write</span></button>
+        <button class="nav-btn" data-view-target="coachView"><span>Reset Coach</span><span class="nav-chip">Guide</span></button>
       </div>
 
-      <p class="nav-label">Shortcuts</p>
+      <div class="nav-label">Shortcuts</div>
       <div class="nav-list">
-        <button class="nav-btn" type="button" id="jumpCheckin"><span>Today’s check-in</span><span class="nav-chip">Now</span></button>
-        <button class="nav-btn" type="button" id="jumpReview"><span>Weekly review</span><span class="nav-chip">7d</span></button>
-        <button class="nav-btn" type="button" id="jumpJournal"><span>Open journal</span><span class="nav-chip">Mind</span></button>
-        <button class="nav-btn" type="button" id="jumpCoach"><span>Open Reset Coach</span><span class="nav-chip">Help</span></button>
+        <button class="nav-btn" data-jump="checkinSection"><span>Today’s check-in</span><span class="nav-chip">Now</span></button>
+        <button class="nav-btn" data-jump="reviewSection"><span>Weekly review</span><span class="nav-chip">7d</span></button>
+        <button class="nav-btn" data-jump="journalPanel"><span>Open journal</span><span class="nav-chip">Mind</span></button>
+        <button class="nav-btn" data-jump="coachPanel"><span>Open coach</span><span class="nav-chip">Help</span></button>
       </div>
 
-      <div class="sidebar-note">
+      <div class="sidebar-card">
         <h2>Rule for hard days</h2>
         <p>Do not try to fix your life tonight. Win the next hour first.</p>
       </div>
@@ -764,1488 +648,332 @@
     <main class="content">
       <header class="topbar">
         <div style="display:flex;align-items:center;gap:12px;min-width:0;">
-          <button class="mobile-menu-btn" id="menuBtn" type="button" aria-label="Open menu">☰</button>
+          <button class="mobile-menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
           <div>
             <h2>Daily momentum</h2>
-            <p id="todayText">Loading date...</p>
+            <p class="subtle">A calmer, cleaner layout for tracking mood, habits, reflection, and support.</p>
           </div>
         </div>
-
         <div class="topbar-actions">
-          <div class="pill" id="selectedDateLabel">Today</div>
-          <div class="pill" id="userEmailPill">Guest mode</div>
-          <button class="btn" id="openAuthBtn" type="button">Sign in</button>
-          <button class="btn" id="signOutBtn" type="button" style="display:none;">Sign out</button>
-          <button class="btn primary" id="saveDayBtn" type="button">Save day</button>
+          <div class="pill">Thursday, May 14</div>
+          <div class="pill">Guest mode</div>
+          <button class="btn">Sign in</button>
+          <button class="btn primary">Save day</button>
         </div>
       </header>
 
-      <section class="view active" id="dashboardView">
-      <div class="hero-grid">
-        <div class="panel">
-          <div class="score-wrap">
-            <div class="score-ring" id="scoreRing">
-              <div class="score-ring-inner">
-                <strong id="overallScore">0</strong>
-                <span>Score</span>
+      <div class="views">
+        <section class="view active" id="dashboardView">
+          <div class="hero-grid">
+            <div class="panel">
+              <div class="score-wrap">
+                <div class="score-ring">
+                  <div class="score-ring-inner">
+                    <div>
+                      <strong>74</strong>
+                      <span>Daily score</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3>Protect the next few hours.</h3>
+                  <p class="subtle">Your redesign centres the score, strips out wasted vertical space, and keeps the first screen focused on what matters now.</p>
+                  <div class="message-badge" style="margin-top:14px;">Good day. Stay deliberate.</div>
+                </div>
               </div>
             </div>
-            <div>
-              <h3>Win the day first.</h3>
-              <p class="subtle">Track the signal, protect momentum, and keep the next move simple.</p>
-              <div class="message-badge" id="scoreMessage">Start by checking in.</div>
+
+            <div class="panel">
+              <h3>Daily direction</h3>
+              <p class="subtle">Fast signal cards replace the looser spacing and uneven panels in the original build.</p>
+              <div class="insight-list" style="margin-top:14px;">
+                <div class="insight">Energy is solid. Use it on one meaningful task.</div>
+                <div class="insight">Stress is manageable. Protect your evening from drift.</div>
+                <div class="insight">Connection is the biggest lever tonight.</div>
+                <div class="insight">Weekly trend is improving. Stay consistent, not intense.</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="panel">
-          <h3>Daily direction</h3>
-          <p class="subtle">Fast signals that tell you what to protect next.</p>
-          <div class="insight-list" id="insights"></div>
-        </div>
+
+          <div class="kpis">
+            <div class="kpi"><div class="meta">Current streak</div><div class="kpi-value">6</div><div class="kpi-foot">Consecutive saved days</div></div>
+            <div class="kpi"><div class="meta">7-day average</div><div class="kpi-value">68</div><div class="kpi-foot">Recent baseline</div></div>
+            <div class="kpi"><div class="meta">Habit wins</div><div class="kpi-value">4/6</div><div class="kpi-foot">Boxes ticked today</div></div>
+            <div class="kpi"><div class="meta">Saved days</div><div class="kpi-value">29</div><div class="kpi-foot">Tracked this month</div></div>
+          </div>
+
+          <div class="two-col">
+            <div class="panel" id="checkinSection">
+              <h3>Today’s check-in</h3>
+              <p class="subtle">A tighter form stack with consistent spacing and no layout glitches.</p>
+              <div class="field-stack" style="margin-top:14px;">
+                <div class="field">
+                  <div class="field-head"><label>Mood</label><div class="value-badge">7 / 10</div></div>
+                  <input type="range" min="1" max="10" value="7" />
+                  <div class="scale-row"><span>Flat</span><span>Strong</span></div>
+                </div>
+                <div class="field">
+                  <div class="field-head"><label>Stress</label><div class="value-badge">4 / 10</div></div>
+                  <input type="range" min="1" max="10" value="4" />
+                  <div class="scale-row"><span>Calm</span><span>Overloaded</span></div>
+                </div>
+                <div class="field">
+                  <div class="field-head"><label>Energy</label><div class="value-badge">7 / 10</div></div>
+                  <input type="range" min="1" max="10" value="7" />
+                  <div class="scale-row"><span>Flat</span><span>Sharp</span></div>
+                </div>
+                <div class="field">
+                  <div class="field-head"><div class="field-title">Daily signals</div><div class="value-badge">1 / 2 logged</div></div>
+                  <div class="habit-grid">
+                    <label class="habit"><input type="checkbox" /> <span>Alcohol today</span></label>
+                    <label class="habit"><input type="checkbox" checked /> <span>Meaningful connection</span></label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge">4 / 6 done</div></div>
+                  <div class="habit-grid">
+                    <label class="habit"><input type="checkbox" checked /> <span>Protected focus</span></label>
+                    <label class="habit"><input type="checkbox" checked /> <span>Exercise or movement</span></label>
+                    <label class="habit"><input type="checkbox" checked /> <span>Priority task done</span></label>
+                    <label class="habit"><input type="checkbox" /> <span>Quiet minute or prayer</span></label>
+                    <label class="habit"><input type="checkbox" /> <span>Protected sleep routine</span></label>
+                    <label class="habit"><input type="checkbox" checked /> <span>Supportive nutrition</span></label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="field-head"><label>Reflection</label><div class="value-badge">Notes</div></div>
+                  <textarea>Worked well until mid-afternoon. Need a cleaner shutdown routine tonight.</textarea>
+                </div>
+                <div class="field">
+                  <div class="field-head"><label>Tomorrow’s focus</label><div class="value-badge">1 target</div></div>
+                  <input type="text" value="Finish proposal review before 10am" />
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="btn primary">Save today</button>
+                <button class="btn">Load today</button>
+                <button class="btn warn">Clear today</button>
+              </div>
+              <div class="status">Prototype redesign ready for your real data wiring.</div>
+            </div>
+
+            <div class="panel" id="reviewSection">
+              <h3>Last 7 days</h3>
+              <p class="subtle">Trend panel redesigned as a cleaner, lighter review surface.</p>
+              <div class="selected-box" style="margin-top:14px;">
+                <div class="meta">Momentum trend</div>
+                <div class="subtle">Scores across recent saved days</div>
+                <div class="bars">
+                  <div class="bar-wrap"><div class="bar-score">54</div><div class="bar" style="height:65px"></div><div class="bar-label">Fri</div></div>
+                  <div class="bar-wrap"><div class="bar-score">61</div><div class="bar" style="height:78px"></div><div class="bar-label">Sat</div></div>
+                  <div class="bar-wrap"><div class="bar-score">66</div><div class="bar" style="height:90px"></div><div class="bar-label">Sun</div></div>
+                  <div class="bar-wrap"><div class="bar-score">72</div><div class="bar" style="height:112px"></div><div class="bar-label">Mon</div></div>
+                  <div class="bar-wrap"><div class="bar-score">64</div><div class="bar" style="height:84px"></div><div class="bar-label">Tue</div></div>
+                  <div class="bar-wrap"><div class="bar-score">70</div><div class="bar" style="height:106px"></div><div class="bar-label">Wed</div></div>
+                  <div class="bar-wrap"><div class="bar-score">74</div><div class="bar" style="height:122px"></div><div class="bar-label">Thu</div></div>
+                </div>
+              </div>
+              <div class="selected-box" style="margin-top:14px;">
+                <div class="meta">Weekly review</div>
+                <div class="review-list" style="margin-top:12px;">
+                  <div class="review-item"><span>Average score</span><strong>66</strong></div>
+                  <div class="review-item"><span>Mood trend</span><strong>Up</strong></div>
+                  <div class="review-item"><span>Stress trend</span><strong>Easing</strong></div>
+                  <div class="review-item"><span>Best lever</span><strong>Protected focus</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="historyView">
+          <div class="history-grid">
+            <div class="panel">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;">
+                <div>
+                  <h3>Calendar history</h3>
+                  <p class="subtle">Month view with tighter spacing and stronger card structure.</p>
+                </div>
+                <div class="action-row" style="margin-top:0;">
+                  <button class="btn">Previous</button>
+                  <button class="btn">Current</button>
+                  <button class="btn">Next</button>
+                </div>
+              </div>
+              <div class="calendar">
+                <div class="weekday">Sun</div><div class="weekday">Mon</div><div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div>
+                <div></div><div></div><div></div><div class="day"><div class="day-top"><div>1</div><div class="day-dot mid"></div></div><div class="day-score">58 score</div></div>
+                <div class="day"><div class="day-top"><div>2</div><div class="day-dot good"></div></div><div class="day-score">77 score</div></div>
+                <div class="day"><div class="day-top"><div>3</div><div class="day-dot mid"></div></div><div class="day-score">63 score</div></div>
+                <div class="day"><div class="day-top"><div>4</div><div class="day-dot bad"></div></div><div class="day-score">42 score</div></div>
+                <div class="day"><div class="day-top"><div>5</div><div class="day-dot mid"></div></div><div class="day-score">57 score</div></div>
+                <div class="day"><div class="day-top"><div>6</div><div class="day-dot good"></div></div><div class="day-score">75 score</div></div>
+                <div class="day"><div class="day-top"><div>7</div><div class="day-dot good"></div></div><div class="day-score">79 score</div></div>
+                <div class="day"><div class="day-top"><div>8</div><div class="day-dot mid"></div></div><div class="day-score">60 score</div></div>
+                <div class="day"><div class="day-top"><div>9</div><div class="day-dot mid"></div></div><div class="day-score">64 score</div></div>
+                <div class="day today selected"><div class="day-top"><div>14</div><div class="day-dot good"></div></div><div class="day-score">74 score</div></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>Selected day</h3>
+              <p class="subtle">The redesign turns this into a clear detail card instead of a loose stack.</p>
+              <ul class="review-list">
+                <li class="review-item"><span>Date</span><strong>Thursday, May 14</strong></li>
+                <li class="review-item"><span>Score</span><strong>74</strong></li>
+                <li class="review-item"><span>Mood</span><strong>7 / 10</strong></li>
+                <li class="review-item"><span>Stress</span><strong>4 / 10</strong></li>
+                <li class="review-item"><span>Habits done</span><strong>4 / 6</strong></li>
+                <li class="review-item"><span>Tomorrow’s focus</span><strong>Finish proposal review</strong></li>
+              </ul>
+              <div class="selected-box" style="margin-top:14px;">
+                <strong>Notes</strong>
+                <div class="journal-body" style="margin-top:10px;">Good momentum overall. Afternoon drift started when I switched tasks too often. Best move tonight is a calmer shutdown and an early start.</div>
+              </div>
+              <div class="footer-note">In production, this card should load instantly from the selected saved day.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="journalView">
+          <div class="journal-grid">
+            <div class="panel" id="journalPanel">
+              <h3>Journal</h3>
+              <p class="subtle">This layout gives journaling more breathing room and a more editorial feel.</p>
+              <div class="prompt-list" style="margin-top:14px;">
+                <div class="prompt"><strong>What went well today?</strong><div class="small-note" style="margin-top:6px;">Name the wins, even if they were small.</div></div>
+                <div class="prompt"><strong>What threw me off?</strong><div class="small-note" style="margin-top:6px;">Capture the trigger without beating yourself up.</div></div>
+                <div class="prompt"><strong>What is the next right move?</strong><div class="small-note" style="margin-top:6px;">Write the smallest action that still counts.</div></div>
+              </div>
+              <div class="field-stack" style="margin-top:14px;">
+                <div class="field">
+                  <div class="field-head"><label>Entry title</label><div class="value-badge">Optional</div></div>
+                  <input type="text" value="Reset after a decent day" />
+                </div>
+                <div class="field">
+                  <div class="field-head"><label>Tomorrow’s focus</label><div class="value-badge">Carry forward</div></div>
+                  <input type="text" value="Send pricing mark-up before lunch" />
+                </div>
+                <div class="field">
+                  <div class="field-head"><label>Today’s journal</label><div class="value-badge">92 words</div></div>
+                  <textarea style="min-height:280px;">I had a solid day overall, but I noticed how quickly I can lose shape once the main task is done. The redesign should make this section feel calmer and more intentional, not like another settings panel. The best part of today was that I still moved things forward. The part to watch is what happens between 4pm and bedtime.</textarea>
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="btn primary">Save journal</button>
+                <button class="btn">Load selected day</button>
+                <button class="btn warn">Clear journal</button>
+              </div>
+              <div class="status">Journal layout refreshed and ready for content binding.</div>
+            </div>
+
+            <div class="panel">
+              <h3>Journal history</h3>
+              <p class="subtle">Saved writing now sits in a dedicated reading card with stronger hierarchy.</p>
+              <ul class="review-list">
+                <li class="review-item"><span>Selected day</span><strong>Thursday, May 14</strong></li>
+                <li class="review-item"><span>Entry title</span><strong>Reset after a decent day</strong></li>
+                <li class="review-item"><span>Tomorrow’s focus</span><strong>Send pricing mark-up</strong></li>
+                <li class="review-item"><span>Word count</span><strong>92</strong></li>
+              </ul>
+              <div class="selected-box" style="margin-top:14px;">
+                <strong>Saved journal</strong>
+                <div class="journal-body" style="margin-top:10px;">I had a solid day overall, but I noticed how quickly I can lose shape once the main task is done. The best move tonight is to keep things simple, not chase more stimulation, and leave tomorrow a cleaner runway.</div>
+              </div>
+              <div class="review-item" style="margin-top:14px;"><span>Total journal days</span><strong>18</strong></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="coachView">
+          <div class="coach-grid">
+            <div class="panel">
+              <h3>Reset Coach</h3>
+              <p class="subtle">The support side becomes calmer, safer, and easier to scan.</p>
+              <div class="coach-disclaimer">If you feel at risk of harming yourself or someone else, or you feel unable to stay safe, do not use this tool alone. Contact emergency services or a crisis support line now.</div>
+              <div class="coach-mode-grid">
+                <button class="coach-mode active">Talk it through</button>
+                <button class="coach-mode">Calm me down</button>
+                <button class="coach-mode">Reframe this</button>
+              </div>
+              <div class="resource-box" style="margin-top:14px;">
+                <strong>Ground rules</strong>
+                <div class="subtle" style="margin-top:10px; color: var(--text);">The coach can help you slow down, reflect, and choose one next step. It should not act like a therapist and it should escalate to real-world support when safety is an issue.</div>
+              </div>
+              <div class="resource-box" style="margin-top:14px;">
+                <strong>Support options</strong>
+                <div class="review-list" style="margin-top:12px;">
+                  <div class="review-item"><span>Lifeline Australia</span><strong>13 11 14</strong></div>
+                  <div class="review-item"><span>Beyond Blue</span><strong>Resources</strong></div>
+                  <div class="review-item"><span>Emergency</span><strong>Call services now</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel" id="coachPanel">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;">
+                <div>
+                  <h3>Talk it through</h3>
+                  <p class="subtle">Name what happened, what you feel, and what matters most tonight.</p>
+                </div>
+                <div class="value-badge">Using today’s data</div>
+              </div>
+              <div class="coach-chat" style="margin-top:14px;">
+                <div class="coach-thread">
+                  <div class="chat-bubble ai">You have had a better day than your evening mood is telling you. Before you analyse anything bigger, tell me what part of tonight feels most slippery.</div>
+                  <div class="chat-bubble user">I finished work, but now I feel flat and restless.</div>
+                  <div class="chat-bubble ai">That sounds like a transition problem, not a life problem. Pick one calming action for the next 20 minutes: shower, walk, tidy one zone, or write down tomorrow’s first task.</div>
+                </div>
+              </div>
+              <div class="field-stack" style="margin-top:14px;">
+                <div class="field">
+                  <div class="field-head"><label>Your message</label><div class="value-badge">Private in browser</div></div>
+                  <textarea>I had a decent day, but I feel flat tonight and I’m getting in my own head.</textarea>
+                </div>
+              </div>
+              <div class="coach-actions">
+                <button class="btn primary">Get guidance</button>
+                <button class="btn">Use selected day context</button>
+                <button class="btn warn">Clear conversation</button>
+              </div>
+              <div class="status">Coach panel redesigned for readability and calmer pacing.</div>
+            </div>
+          </div>
+        </section>
       </div>
-  <!-- keep your existing check-in form block below this -->
-</section>
-
-        <div class="kpis">
-          <div class="kpi"><div class="kpi-label">Current streak</div><div class="kpi-value" id="streakStat">0</div><div class="kpi-foot">Consecutive saved days</div></div>
-          <div class="kpi"><div class="kpi-label">7-day average</div><div class="kpi-value" id="avgStat">0</div><div class="kpi-foot">Recent baseline</div></div>
-          <div class="kpi"><div class="kpi-label">Habit wins</div><div class="kpi-value"><span id="habitCount">0</span>/6</div><div class="kpi-foot">Today's boxes ticked</div></div>
-          <div class="kpi"><div class="kpi-label">Saved days</div><div class="kpi-value" id="savedStat">0</div><div class="kpi-foot">Total history</div></div>
-        </div>
-
-        <div class="two-col">
-          <div class="panel" id="checkinSection">
-            <h3>Today’s check-in</h3>
-            <p class="subtle">Quick input. High signal. No clutter.</p>
-
-            <div class="field-stack" style="margin-top:14px;">
-              <div class="field">
-                <div class="field-head"><label for="mood">Mood</label><div class="value-badge"><span id="moodValue">5</span>/10</div></div>
-                <input id="mood" type="range" min="1" max="10" value="5" />
-                <div class="scale-row"><span>Flat</span><span>Strong</span></div>
-              </div>
-
-              <div class="field">
-                <div class="field-head"><label for="stress">Stress</label><div class="value-badge"><span id="stressValue">5</span>/10</div></div>
-                <input id="stress" type="range" min="1" max="10" value="5" />
-                <div class="scale-row"><span>Calm</span><span>Overloaded</span></div>
-              </div>
-
-              <div class="field">
-                <div class="field-head"><label for="energy">Energy</label><div class="value-badge"><span id="energyValue">5</span>/10</div></div>
-                <input id="energy" type="range" min="1" max="10" value="5" />
-                <div class="scale-row"><span>Flat</span><span>Sharp</span></div></div><div class="field"><div class="field-head"><label class="field-title">Libido</label><div class="value-badge" id="libidoVal">5 /10</div></div><input id="libido" type="range" min="1" max="10" value="5" oninput="document.getElementById('libidoVal').textContent=this.value+' /10'"/><div class="scale-row"><span>Low</span><span>High</span></div></div><div class="field"><div class="field-head"><label class="field-title">Connection</label><div class="value-badge" id="connectionVal">5 /10</div></div><input id="connection" type="range" min="1" max="10" value="5" oninput="document.getElementById('connectionVal').textContent=this.value+' /10'"/><div class="scale-row"><span>Distant</span><span>Close</span></div></div><div class="field"><div class="field-head"><label class="field-title">Sexual Satisfaction</label><div class="value-badge" id="sexSatisfactionVal">5 /10</div></div><input id="sexSatisfaction" type="range" min="1" max="10" value="5" oninput="document.getElementById('sexSatisfactionVal').textContent=this.value+' /10'"/><div class="scale-row"><span>Unfulfilled</span><span>Satisfied</span></div></div></div>
-              </div>
-
-              <div class="field">
-                <div class="field-head"><div class="field-title">Daily signals</div><div class="value-badge"><span id="signalsCountInline">0</span>/2 logged</div></div>
-                <div class="habit-grid">
-                  <label class="habit"><input id="alcohol" type="checkbox" /><span>Alcohol today</span></label>
-                  <label class="habit"><input id="connection" type="checkbox" /><span>Meaningful connection</span></label>
-                </div>
-              </div>
-
-              <div class="field">
-                <div class="field-head"><div class="field-title">Core habits</div><div class="value-badge"><span id="habitCountInline">0</span>/6 done</div></div>
-                <div class="habit-grid">
-                  <label class="habit"><input id="protectedFocus" type="checkbox" /><span>Protected focus</span></label>
-                  <label class="habit"><input id="exercise" type="checkbox" /><span>Exercise or movement</span></label>
-                  <label class="habit"><input id="priorityTask" type="checkbox" /><span>Priority task done</span></label>
-                  <label class="habit"><input id="meditation" type="checkbox" /><span>Quiet minute or prayer</span></label>
-                  <label class="habit"><input id="sleep" type="checkbox" /><span>Protected sleep routine</span></label>
-                  <label class="habit"><input id="nutrition" type="checkbox" /><span>Supportive nutrition</span></label>
-                </div>
-              </div>
-
-              <div class="field">
-                <div class="field-head"><label for="notes">Reflection</label><div class="value-badge">Notes</div></div>
-                <textarea id="notes" placeholder="What worked, what triggered you, and what is the next right move?"></textarea>
-              </div>
-
-              <div class="field">
-                <div class="field-head"><label for="tomorrowFocus">Tomorrow’s focus</label><div class="value-badge">1 target</div></div>
-                <input id="tomorrowFocus" type="text" placeholder="Example: Finish proposal review before 10am" />
-              </div>
-            </div>
-
-            <div class="action-row">
-              <button class="btn primary" id="saveDayBtnSecondary" type="button">Save today</button>
-              <button class="btn" id="loadTodayBtn" type="button">Load today</button>
-              <button class="btn warn" id="clearTodayBtn" type="button">Clear today</button>
-              <button class="btn warn" id="resetAllBtn" type="button">Reset all</button>
-            </div>
-
-            <div class="status" id="saveStatus"></div>
-          </div>
-
-          <div class="panel" id="reviewSection">
-            <h3>Last 7 days</h3>
-            <p class="subtle">Trends in the middle. Details lower down.</p>
-
-            <div class="selected-box" style="margin-top:14px;">
-              <div class="kpi-label" style="margin-bottom:6px;">Momentum trend</div>
-              <div class="subtle">Scores across recent saved days</div>
-              <div class="bars" id="trendBars"></div>
-            </div>
-
-            <div class="selected-box" style="margin-top:14px;">
-              <div class="kpi-label" style="margin-bottom:6px;">Weekly review</div>
-              <div class="subtle">A quick read on what is helping and what needs attention.</div>
-              <div id="weeklyReview" style="margin-top:12px;"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="view" id="historyView">
-        <div class="history-grid">
-          <div class="panel">
-            <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;">
-              <div>
-                <h3>Calendar history</h3>
-                <p class="subtle" id="monthLabel">This month</p>
-              </div>
-              <div class="action-row" style="margin-top:0;">
-                <button class="btn" id="prevMonthBtn" type="button">Previous</button>
-                <button class="btn" id="currentMonthBtn" type="button">Current</button>
-                <button class="btn" id="nextMonthBtn" type="button">Next</button>
-              </div>
-            </div>
-            <div class="calendar" id="calendarGrid"></div>
-          </div>
-
-          <div class="panel">
-            <h3>Selected day</h3>
-            <p class="subtle">Click any day with data to load it into the dashboard and journal.</p>
-            <ul class="review-list">
-              <li class="review-item"><span>Date</span><strong id="selectedDayDate">Today</strong></li>
-              <li class="review-item"><span>Score</span><strong id="selectedDayScore">—</strong></li>
-              <li class="review-item"><span>Mood</span><strong id="selectedDayMood">—</strong></li>
-              <li class="review-item"><span>Stress</span><strong id="selectedDayStress">—</strong></li>
-              <li class="review-item"><span>Habits done</span><strong id="selectedDayHabits">—</strong></li>
-              <li class="review-item"><span>Tomorrow’s focus</span><strong id="selectedDayFocus">—</strong></li>
-            </ul>
-            <div class="selected-box" style="margin-top:14px;">
-              <strong>Notes</strong>
-              <div id="selectedDayNotes" class="journal-body">No day selected yet.</div>
-            </div>
-            <div class="footer-note">Prototype version stores data locally in this browser.</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="view" id="journalView">
-        <div class="journal-grid">
-          <div class="panel">
-            <h3>Journal</h3>
-            <p class="subtle">Use the prompts when your head is noisy. Keep it honest and practical.</p>
-
-            <div class="prompt-list" style="margin-top:14px;">
-              <div class="prompt"><strong>What went well today?</strong> Name the wins, even if they were small.</div>
-              <div class="prompt"><strong>What threw me off?</strong> Capture the trigger without beating yourself up.</div>
-              <div class="prompt"><strong>What is the next right move?</strong> Write the smallest action that still counts.</div>
-            </div>
-
-            <div class="field-stack" style="margin-top:14px;">
-              <div class="field"><div class="field-head"><label for="journalTitle">Entry title</label><div class="value-badge">Optional</div></div><input id="journalTitle" type="text" placeholder="Example: Reset after a flat afternoon" /></div>
-              <div class="field"><div class="field-head"><label for="journalTomorrowFocus">Tomorrow’s focus</label><div class="value-badge">Carry forward</div></div><input id="journalTomorrowFocus" type="text" placeholder="Example: Send pricing mark-up before lunch" /></div>
-              <div class="field"><div class="field-head"><label for="journalEntry">Today’s journal</label><div class="value-badge" id="journalWordCount">0 words</div></div><textarea id="journalEntry" placeholder="Write honestly. This can be a brain dump, a reflection, or a reset note to yourself." style="min-height:260px;"></textarea></div>
-            </div>
-
-            <div class="action-row">
-              <button class="btn primary" id="saveJournalBtn" type="button">Save journal</button>
-              <button class="btn" id="loadJournalBtn" type="button">Load selected day</button>
-              <button class="btn warn" id="clearJournalBtn" type="button">Clear journal</button>
-            </div>
-
-            <div class="status" id="journalStatus"></div>
-          </div>
-
-          <div class="panel">
-            <h3>Journal history</h3>
-            <p class="subtle">The selected day’s writing appears here.</p>
-            <ul class="review-list">
-              <li class="review-item"><span>Selected day</span><strong id="journalSelectedDate">Today</strong></li>
-              <li class="review-item"><span>Entry title</span><strong id="journalSavedTitle">—</strong></li>
-              <li class="review-item"><span>Tomorrow’s focus</span><strong id="journalSavedFocus">—</strong></li>
-              <li class="review-item"><span>Word count</span><strong id="journalSavedWords">0</strong></li>
-            </ul>
-            <div class="selected-box" style="margin-top:14px;"><strong>Saved journal</strong><div id="journalSavedBody" class="journal-body">No saved journal for this day yet.</div></div>
-            <div class="review-item" style="margin-top:14px;"><span>Total journal days</span><strong id="journalDaysCount">0</strong></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="view" id="coachView">
-        <div class="coach-grid">
-          <div class="panel">
-            <h3>Reset Coach</h3>
-            <p class="subtle">Guided self-help support based on your check-in data. This is not therapy, diagnosis, or crisis care.</p>
-            <div class="coach-disclaimer">If you feel at risk of harming yourself or someone else, or you feel unable to stay safe, do not use this tool alone. Contact emergency services or a crisis support line now.</div>
-
-            <div class="coach-mode-grid">
-              <button class="coach-mode active" type="button" data-coach-mode="talk">Talk it through</button>
-              <button class="coach-mode" type="button" data-coach-mode="calm">Calm me down</button>
-              <button class="coach-mode" type="button" data-coach-mode="reframe">Reframe this</button>
-            </div>
-
-            <div class="resource-box" style="margin-top:14px;">
-              <strong>Ground rules</strong>
-              <div class="subtle" style="margin-top:8px; color: var(--text);">The coach can help you slow down, reflect, and choose a next step. It should not present itself as a therapist, and it should push you toward real-world support if things feel unsafe or too heavy.</div>
-            </div>
-
-            <div class="resource-box" style="margin-top:14px;">
-              <strong>Support options</strong>
-              <div style="margin-top:8px; display:grid; gap:10px;">
-                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><button class="btn" type="button" id="openLifelineBtn">Open Lifeline Australia</button><span>13 11 14</span></div>
-                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"><button class="btn" type="button" id="openBeyondBlueBtn">Open Beyond Blue</button><span>Mental health support and resources</span></div>
-                <div>If there is immediate danger, call emergency services.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel">
-            <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;">
-              <div>
-                <h3 id="coachModeTitle">Talk it through</h3>
-                <p class="subtle" id="coachModeSub">Name what happened, what you feel, and what matters most tonight.</p>
-              </div>
-              <div class="value-badge" id="coachContextTag">Using today’s data</div>
-            </div>
-
-            <div class="coach-chat">
-              <div class="coach-thread" id="coachThread"></div>
-            </div>
-
-            <div class="field-stack" style="margin-top:14px;">
-              <div class="field">
-                <div class="field-head"><label for="coachInput">Your message</label><div class="value-badge">Private in browser</div></div>
-                <textarea id="coachInput" placeholder="Example: I had a decent day, but I feel flat tonight and I’m getting in my own head."></textarea>
-              </div>
-            </div>
-
-            <div class="coach-actions">
-              <button class="btn primary" id="sendCoachBtn" type="button">Get guidance</button>
-              <button class="btn" id="useDayContextBtn" type="button">Use selected day context</button>
-              <button class="btn warn" id="clearCoachBtn" type="button">Clear conversation</button>
-            </div>
-
-            <div class="status" id="coachStatus"></div>
-          </div>
-        </div>
-      </section>
     </main>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const { createClient } = supabase;
-    const SUPABASE_URL = 'https://ajqdlpzrnlloqbdbacxo.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_jHdAPTfcG3eFNASC4SOB_w_6ff_uAcU';
-    const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    const navButtons = document.querySelectorAll('[data-view-target]');
+    const views = document.querySelectorAll('.view');
+    const jumpButtons = document.querySelectorAll('[data-jump]');
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuBtn');
 
-    (function () {
-      'use strict';
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-view-target');
+        navButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        views.forEach(v => v.classList.toggle('active', v.id === target));
+        sidebar.classList.remove('open');
+      });
+    });
 
-      var STORAGE_KEY = 'momentumOSCleanV1';
-      var habitIds = ['protectedFocus', 'exercise', 'priorityTask', 'meditation', 'sleep', 'nutrition'];
-
-      var state = {
-        activeView: 'dashboardView',
-        viewDate: new Date(),
-        selectedKey: getDateKey(new Date()),
-        coachMode: 'talk'
-      };
-
-      function el(id) {
-        return document.getElementById(id);
-      }
-
-      function setText(id, value) {
-        var node = el(id);
-        if (node) node.textContent = value;
-      }
-
-      function getValue(id, fallback) {
-        var node = el(id);
-        return node ? node.value : (fallback || '');
-      }
-
-      function isChecked(id) {
-        var node = el(id);
-        return !!(node && node.checked);
-      }
-
-      function getDateKey(date) {
-        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-      }
-
-      function dateFromKey(key) {
-        var parts = key.split('-');
-        return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-      }
-
-      function addDays(date, amount) {
-        var copy = new Date(date);
-        copy.setDate(copy.getDate() + amount);
-        return copy;
-      }
-
-      function formatLongDate(date) {
-        return date.toLocaleDateString(undefined, {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric'
-        });
-      }
-
-      function formatMonth(date) {
-        return date.toLocaleDateString(undefined, {
-          month: 'long',
-          year: 'numeric'
-        });
-      }
-
-      function countWords(value) {
-        var trimmed = (value || '').trim();
-        return trimmed ? trimmed.split(/\s+/).length : 0;
-      }
-
-      function loadData() {
-        try {
-          return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        } catch (e) {
-          return {};
+    jumpButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.getAttribute('data-jump'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }
-
-      function saveData(data) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      }
-
-      function labelForHabit(id) {
-        var labels = {
-          protectedFocus: 'Protected focus',
-          exercise: 'Exercise / movement',
-          priorityTask: 'Priority task',
-          meditation: 'Quiet minute',
-          sleep: 'Sleep routine',
-          nutrition: 'Supportive nutrition'
-        };
-        return labels[id] || id;
-      }
-
-      function getCheckedCount() {
-        var count = 0;
-        habitIds.forEach(function (id) {
-          if (isChecked(id)) count += 1;
-        });
-        return count;
-      }
-
-      function getHabitMapFromForm() {
-        var habits = {};
-        habitIds.forEach(function (id) {
-          habits[id] = isChecked(id);
-        });
-        return habits;
-      }
-
-      function calculateSignalCount() {
-        var count = 0;
-        if (isChecked('alcohol')) count += 1;
-        if (isChecked('connection')) count += 1;
-        setText('signalsCountInline', count);
-        return count;
-      }
-
-      function getScoreMessage(score) {
-        if (score >= 85) return 'Strong day. Protect the evening.';
-        if (score >= 70) return 'Good day. Stay deliberate.';
-        if (score >= 50) return 'Mixed day. Finish clean.';
-        if (score >= 30) return 'Hard day. Make the next move small.';
-        return 'Reset gently. One next right step.';
-      }
-
-      function updateScoreRing(score) {
-        var ring = el('scoreRing');
-        if (!ring) return;
-        var deg = Math.round((score / 100) * 360);
-        ring.style.background = 'conic-gradient(var(--gold) ' + deg + 'deg, rgba(255,255,255,0.18) ' + deg + 'deg)';
-      }
-
-      function calculateScore() {
-        var mood = Number(getValue('mood', 5));
-        var stress = Number(getValue('stress', 5));
-        var energy = Number(getValue('energy', 5));
-        var habitsDone = getCheckedCount();
-        var noteBonus = getValue('notes').trim() ? 0.4 : 0;
-        var focusBonus = getValue('tomorrowFocus').trim() ? 0.4 : 0;
-        var signalBonus = isChecked('connection') ? 0.3 : 0;
-        var alcoholPenalty = isChecked('alcohol') ? 0.4 : 0;
-
-        setText('moodValue', mood);
-        setText('stressValue', stress);
-        setText('energyValue', energy);
-        setText('habitCountInline', habitsDone);
-        setText('habitCount', habitsDone);
-        calculateSignalCount();
-
-        var raw = (mood * 0.28) + (energy * 0.24) + ((11 - stress) * 0.22) + (habitsDone * 0.85) + noteBonus + focusBonus + signalBonus - alcoholPenalty;
-        var score = Math.round((raw / 9.2) * 100);
-        score = Math.max(0, Math.min(100, score));
-
-        setText('overallScore', score);
-        setText('scoreMessage', getScoreMessage(score));
-        updateScoreRing(score);
-        updateInsights(score);
-
-        return score;
-      }
-
-      function buildEntryFromForm(key) {
-        return {
-          date: key,
-          score: calculateScore(),
-          mood: Number(getValue('mood', 5)),
-          stress: Number(getValue('stress', 5)),
-          energy: Number(getValue('energy', 5)),
-          alcohol: isChecked('alcohol'),
-          connection: isChecked('connection'),
-          habits: getHabitMapFromForm(),
-          notes: getValue('notes').trim(),
-          tomorrowFocus: getValue('tomorrowFocus').trim(),
-          journalTitle: getValue('journalTitle').trim(),
-          journalTomorrowFocus: getValue('journalTomorrowFocus').trim(),
-          journalEntry: getValue('journalEntry').trim(),
-          updatedAt: new Date().toISOString()
-        };
-      }
-
-      function resetDayForm() {
-        if (el('mood')) el('mood').value = 5;
-        if (el('stress')) el('stress').value = 5;
-        if (el('energy')) el('energy').value = 5;
-        if (el('notes')) el('notes').value = '';
-        if (el('tomorrowFocus')) el('tomorrowFocus').value = '';
-        if (el('alcohol')) el('alcohol').checked = false;
-        if (el('connection')) el('connection').checked = false;
-
-        habitIds.forEach(function (id) {
-          if (el(id)) el(id).checked = false;
-        });
-
-        calculateScore();
-      }
-
-      function resetJournalForm() {
-        if (el('journalTitle')) el('journalTitle').value = '';
-        if (el('journalTomorrowFocus')) el('journalTomorrowFocus').value = '';
-        if (el('journalEntry')) el('journalEntry').value = '';
-        updateJournalWordCount();
-      }
-
-      function updateSelectedDayPanel(entry, key) {
-        setText('selectedDayDate', key ? formatLongDate(dateFromKey(key)) : 'Today');
-
-        if (!entry) {
-          setText('selectedDayScore', '—');
-          setText('selectedDayMood', '—');
-          setText('selectedDayStress', '—');
-          setText('selectedDayHabits', '—');
-          setText('selectedDayFocus', '—');
-          setText('selectedDayNotes', 'No saved notes for this day yet.');
-          return;
-        }
-
-        var habitsDone = 0;
-        habitIds.forEach(function (id) {
-          if (entry.habits && entry.habits[id]) habitsDone += 1;
-        });
-
-        setText('selectedDayScore', entry.score != null ? entry.score : '—');
-        setText('selectedDayMood', (entry.mood != null ? entry.mood : '—') + '/10');
-        setText('selectedDayStress', (entry.stress != null ? entry.stress : '—') + '/10');
-        setText('selectedDayHabits', habitsDone + '/6');
-        setText('selectedDayFocus', entry.tomorrowFocus || entry.journalTomorrowFocus || '—');
-        setText('selectedDayNotes', entry.notes || 'No notes recorded.');
-      }
-
-      function updateJournalWordCount() {
-        setText('journalWordCount', countWords(getValue('journalEntry')) + ' words');
-      }
-
-      function updateJournalPanel(entry, key) {
-        setText('journalSelectedDate', key ? formatLongDate(dateFromKey(key)) : 'Today');
-        setText('journalSavedTitle', entry && entry.journalTitle ? entry.journalTitle : '—');
-        setText('journalSavedFocus', entry && (entry.journalTomorrowFocus || entry.tomorrowFocus) ? (entry.journalTomorrowFocus || entry.tomorrowFocus) : '—');
-        setText('journalSavedWords', entry && entry.journalEntry ? countWords(entry.journalEntry) : 0);
-        setText('journalSavedBody', entry && entry.journalEntry ? entry.journalEntry : 'No saved journal for this day yet.');
-      }
-
-      function applyEntryToUI(entry, key) {
-        if (!entry) {
-          resetDayForm();
-          resetJournalForm();
-          updateSelectedDayPanel(null, key);
-          updateJournalPanel(null, key);
-          return;
-        }
-
-        if (el('mood')) el('mood').value = entry.mood != null ? entry.mood : 5;
-        if (el('stress')) el('stress').value = entry.stress != null ? entry.stress : 5;
-        if (el('energy')) el('energy').value = entry.energy != null ? entry.energy : 5;
-        if (el('alcohol')) el('alcohol').checked = !!entry.alcohol;
-        if (el('connection')) el('connection').checked = !!entry.connection;
-        if (el('notes')) el('notes').value = entry.notes || '';
-        if (el('tomorrowFocus')) el('tomorrowFocus').value = entry.tomorrowFocus || entry.journalTomorrowFocus || '';
-
-        habitIds.forEach(function (id) {
-          if (el(id)) el(id).checked = !!(entry.habits && entry.habits[id]);
-        });
-
-        if (el('journalTitle')) el('journalTitle').value = entry.journalTitle || '';
-        if (el('journalTomorrowFocus')) el('journalTomorrowFocus').value = entry.journalTomorrowFocus || entry.tomorrowFocus || '';
-        if (el('journalEntry')) el('journalEntry').value = entry.journalEntry || '';
-
-        updateJournalWordCount();
-        calculateScore();
-        updateSelectedDayPanel(entry, key);
-        updateJournalPanel(entry, key);
-      }
-
-      function getEntriesForRange(data, startOffset, days) {
-        var entries = [];
-        var today = new Date();
-
-        for (var i = startOffset; i < startOffset + days; i += 1) {
-          var key = getDateKey(addDays(today, -i));
-          if (data[key]) entries.push(data[key]);
-        }
-
-        return entries;
-      }
-
-      function averageFromEntries(entries, field) {
-        if (!entries.length) return 0;
-        var total = 0;
-        entries.forEach(function (entry) {
-          total += Number(entry[field] || 0);
-        });
-        return total / entries.length;
-      }
-
-      function habitRateFromEntries(entries, habitId) {
-        if (!entries.length) return 0;
-        var total = 0;
-        entries.forEach(function (entry) {
-          if (entry.habits && entry.habits[habitId]) total += 1;
-        });
-        return total / entries.length;
-      }
-
-      function getTrendDirection(currentValue, previousValue, threshold) {
-        var diff = currentValue - previousValue;
-        if (Math.abs(diff) < threshold) return 'flat';
-        return diff > 0 ? 'up' : 'down';
-      }
-
-      function buildTrendSummary() {
-        var data = loadData();
-        var currentWeek = getEntriesForRange(data, 0, 7);
-        var previousWeek = getEntriesForRange(data, 7, 7);
-
-        if (!currentWeek.length || !previousWeek.length) return null;
-
-        var currentScore = averageFromEntries(currentWeek, 'score');
-        var previousScore = averageFromEntries(previousWeek, 'score');
-        var currentMood = averageFromEntries(currentWeek, 'mood');
-        var previousMood = averageFromEntries(previousWeek, 'mood');
-        var currentStress = averageFromEntries(currentWeek, 'stress');
-        var previousStress = averageFromEntries(previousWeek, 'stress');
-
-        var scoreTrend = getTrendDirection(currentScore, previousScore, 3);
-        var moodTrend = getTrendDirection(currentMood, previousMood, 0.4);
-        var stressTrend = getTrendDirection(previousStress, currentStress, 0.4);
-
-        var strongestHabit = null;
-        var weakestHabit = null;
-        var bestDelta = -999;
-        var worstDelta = 999;
-
-        habitIds.forEach(function (id) {
-          var currentRate = habitRateFromEntries(currentWeek, id);
-          var previousRate = habitRateFromEntries(previousWeek, id);
-          var delta = currentRate - previousRate;
-
-          if (delta > bestDelta) {
-            bestDelta = delta;
-            strongestHabit = id;
-          }
-
-          if (delta < worstDelta) {
-            worstDelta = delta;
-            weakestHabit = id;
-          }
-        });
-
-        return {
-          currentScore: Math.round(currentScore),
-          previousScore: Math.round(previousScore),
-          currentMood: currentMood,
-          previousMood: previousMood,
-          currentStress: currentStress,
-          previousStress: previousStress,
-          scoreTrend: scoreTrend,
-          moodTrend: moodTrend,
-          stressTrend: stressTrend,
-          strongestHabit: strongestHabit,
-          weakestHabit: weakestHabit,
-          strongestDelta: bestDelta,
-          weakestDelta: worstDelta
-        };
-      }
-
-      function updateInsights(score) {
-        var box = el('insights');
-        if (!box) return;
-
-        var messages = [];
-        var stress = Number(getValue('stress', 5));
-        var mood = Number(getValue('mood', 5));
-        var energy = Number(getValue('energy', 5));
-        var habits = getCheckedCount();
-        var trend = buildTrendSummary();
-
-        if (stress >= 8) messages.push('Stress is high today. Make the next goal smaller, not bigger.');
-        if (mood <= 4) messages.push('Mood is low. Prioritise sleep, food, movement, and connection before judging yourself.');
-        if (energy <= 4) messages.push('Energy is low. Protect recovery and avoid pretending this is a push day.');
-        if (isChecked('alcohol')) messages.push('Alcohol logged today. Protect tomorrow morning and keep the evening lighter.');
-        if (!isChecked('connection')) messages.push('You may need human contact more than more thinking tonight.');
-        if (habits >= 4) messages.push('You have good behavioural momentum. Protect it with a calm finish.');
-        if (!isChecked('priorityTask')) messages.push('If the day feels scattered, finish one priority task before adding anything else.');
-        if (score < 50) messages.push('This is a recovery day. Win it by doing one small clean action before bed.');
-
-        if (trend) {
-          if (trend.scoreTrend === 'up') messages.push('Weekly score trend is improving versus the previous 7 days.');
-          if (trend.scoreTrend === 'down') messages.push('Weekly score trend is slipping versus the previous 7 days.');
-          if (trend.moodTrend === 'up') messages.push('Average mood is trending upward this week.');
-          if (trend.stressTrend === 'up') messages.push('Average stress is easing compared with last week.');
-          if (trend.strongestHabit && trend.strongestDelta > 0.15) messages.push(labelForHabit(trend.strongestHabit) + ' is your most improved habit this week.');
-          if (trend.weakestHabit && trend.weakestDelta < -0.15) messages.push(labelForHabit(trend.weakestHabit) + ' has slipped compared with the previous week.');
-        }
-
-        if (!messages.length) messages.push('Steady day. Keep the next move clear and simple.');
-
-        box.innerHTML = '';
-        messages.slice(0, 6).forEach(function (message) {
-          var div = document.createElement('div');
-          div.className = 'insight';
-          div.textContent = message;
-          box.appendChild(div);
-        });
-      }
-
-      function calculateStreak(data) {
-        var streak = 0;
-        var cursor = new Date();
-
-        while (data[getDateKey(cursor)]) {
-          streak += 1;
-          cursor = addDays(cursor, -1);
-        }
-
-        return streak;
-      }
-
-      function calculateSevenDayAverage(data) {
-        var total = 0;
-        var count = 0;
-        var today = new Date();
-
-        for (var i = 0; i < 7; i += 1) {
-          var key = getDateKey(addDays(today, -i));
-          if (data[key]) {
-            total += Number(data[key].score || 0);
-            count += 1;
-          }
-        }
-
-        return count ? Math.round(total / count) : 0;
-      }
-
-      function updateTopStats() {
-        var data = loadData();
-        setText('streakStat', calculateStreak(data));
-        setText('avgStat', calculateSevenDayAverage(data));
-        setText('savedStat', Object.keys(data).length);
-      }
-
-      function renderTrendBars() {
-        var bars = el('trendBars');
-        if (!bars) return;
-
-        var data = loadData();
-        var today = new Date();
-        bars.innerHTML = '';
-
-        for (var i = 6; i >= 0; i -= 1) {
-          var date = addDays(today, -i);
-          var key = getDateKey(date);
-          var entry = data[key];
-          var score = entry ? Number(entry.score || 0) : 0;
-
-          var wrap = document.createElement('div');
-          wrap.className = 'bar-wrap';
-
-          var top = document.createElement('div');
-          top.className = 'bar-score';
-          top.textContent = entry ? score : '—';
-
-          var bar = document.createElement('div');
-          bar.className = 'bar';
-          bar.style.height = Math.max(12, score * 1.2) + 'px';
-          bar.style.opacity = entry ? '1' : '.2';
-
-          var label = document.createElement('div');
-          label.className = 'bar-label';
-          label.textContent = date.toLocaleDateString(undefined, { weekday: 'short' });
-
-          wrap.appendChild(top);
-          wrap.appendChild(bar);
-          wrap.appendChild(label);
-          bars.appendChild(wrap);
-        }
-      }
-
-      function renderWeeklyReview() {
-        var review = el('weeklyReview');
-        if (!review) return;
-
-        var data = loadData();
-        var today = new Date();
-        var entries = [];
-        var trend = buildTrendSummary();
-
-        for (var i = 0; i < 7; i += 1) {
-          var key = getDateKey(addDays(today, -i));
-          if (data[key]) entries.push(data[key]);
-        }
-
-        if (!entries.length) {
-          review.innerHTML = '<div class="review-item"><span>Status</span><strong>No saved entries yet</strong></div>';
-          return;
-        }
-
-        var totalScore = 0;
-        var totalMood = 0;
-        var totalStress = 0;
-        var best = entries[0];
-        var totals = {
-          protectedFocus: 0,
-          exercise: 0,
-          priorityTask: 0,
-          meditation: 0,
-          sleep: 0,
-          nutrition: 0
-        };
-
-        entries.forEach(function (entry) {
-          totalScore += Number(entry.score || 0);
-          totalMood += Number(entry.mood || 0);
-          totalStress += Number(entry.stress || 0);
-          if (Number(entry.score || 0) > Number(best.score || 0)) best = entry;
-          habitIds.forEach(function (id) {
-            if (entry.habits && entry.habits[id]) totals[id] += 1;
-          });
-        });
-
-        var strongest = 'protectedFocus';
-        var weakest = 'protectedFocus';
-
-        habitIds.forEach(function (id) {
-          if (totals[id] > totals[strongest]) strongest = id;
-          if (totals[id] < totals[weakest]) weakest = id;
-        });
-
-        var trendLine = 'Not enough history yet';
-        if (trend) {
-          var scoreText = trend.scoreTrend === 'up' ? 'Improving' : trend.scoreTrend === 'down' ? 'Down' : 'Stable';
-          var moodText = trend.moodTrend === 'up' ? 'Mood up' : trend.moodTrend === 'down' ? 'Mood down' : 'Mood steady';
-          var stressText = trend.stressTrend === 'up' ? 'Stress easing' : trend.stressTrend === 'down' ? 'Stress rising' : 'Stress steady';
-          trendLine = scoreText + ' · ' + moodText + ' · ' + stressText;
-        }
-
-        review.innerHTML = [
-          '<div class="review-item"><span>Saved entries</span><strong>' + entries.length + '/7</strong></div>',
-          '<div class="review-item"><span>Average score</span><strong>' + Math.round(totalScore / entries.length) + '</strong></div>',
-          '<div class="review-item"><span>Average mood</span><strong>' + (totalMood / entries.length).toFixed(1) + '/10</strong></div>',
-          '<div class="review-item"><span>Average stress</span><strong>' + (totalStress / entries.length).toFixed(1) + '/10</strong></div>',
-          '<div class="review-item"><span>Best day</span><strong>' + best.date + ' · ' + best.score + '</strong></div>',
-          '<div class="review-item"><span>Strongest habit</span><strong>' + labelForHabit(strongest) + '</strong></div>',
-          '<div class="review-item"><span>Needs attention</span><strong>' + labelForHabit(weakest) + '</strong></div>',
-          '<div class="review-item"><span>Trend</span><strong>' + trendLine + '</strong></div>'
-        ].join('');
-      }
-
-      function updateJournalStats() {
-        var data = loadData();
-        var count = 0;
-
-        Object.keys(data).forEach(function (key) {
-          if (data[key] && data[key].journalEntry) count += 1;
-        });
-
-        setText('journalDaysCount', count);
-      }
-
-      function renderCalendar() {
-        var grid = el('calendarGrid');
-        if (!grid) return;
-
-        var data = loadData();
-        var todayKey = getDateKey(new Date());
-        grid.innerHTML = '';
-
-        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(function (name) {
-          var div = document.createElement('div');
-          div.className = 'weekday';
-          div.textContent = name;
-          grid.appendChild(div);
-        });
-
-        var year = state.viewDate.getFullYear();
-        var month = state.viewDate.getMonth();
-        var first = new Date(year, month, 1);
-        var last = new Date(year, month + 1, 0);
-        var startOffset = first.getDay();
-
-        setText('monthLabel', formatMonth(state.viewDate));
-
-        for (var i = 0; i < startOffset; i += 1) {
-          var empty = document.createElement('div');
-          empty.className = 'day';
-          empty.style.opacity = '0';
-          grid.appendChild(empty);
-        }
-
-        for (var day = 1; day <= last.getDate(); day += 1) {
-          (function (loopDay) {
-            var date = new Date(year, month, loopDay);
-            var key = getDateKey(date);
-            var entry = data[key];
-
-            var cell = document.createElement('button');
-            cell.type = 'button';
-
-            var classes = 'day';
-            if (!entry) classes += ' no-data';
-            if (key === todayKey) classes += ' today';
-            if (key === state.selectedKey) classes += ' selected';
-            cell.className = classes;
-
-            var dotClass = 'day-dot';
-            if (entry) {
-              if (entry.score >= 75) dotClass += ' good';
-              else if (entry.score >= 50) dotClass += ' mid';
-              else dotClass += ' bad';
-            }
-
-            cell.innerHTML = '<div class="day-top"><div class="day-num">' + loopDay + '</div><div class="' + dotClass + '"></div></div><div class="day-score">' + (entry ? entry.score + ' score' : 'No data') + '</div>';
-
-            cell.addEventListener('click', function () {
-              state.selectedKey = key;
-              setText('selectedDateLabel', key === getDateKey(new Date()) ? 'Today' : 'Viewing ' + key);
-              applyEntryToUI(entry || null, key);
-              setText('saveStatus', entry ? 'Loaded ' + formatLongDate(dateFromKey(key)) + '.' : 'Selected ' + formatLongDate(dateFromKey(key)) + '. No saved data.');
-              setText('journalStatus', entry && entry.journalEntry ? 'Loaded journal for ' + formatLongDate(dateFromKey(key)) + '.' : 'No saved journal for this day yet.');
-              renderCalendar();
-              renderCoachMode();
-            });
-
-            grid.appendChild(cell);
-          })(day);
-        }
-      }
-
-      function switchView(viewId) {
-        state.activeView = viewId;
-
-        document.querySelectorAll('.view').forEach(function (view) {
-          view.classList.toggle('active', view.id === viewId); 
-        });
-
-        document.querySelectorAll('[data-view-target]').forEach(function (button) {
-          button.classList.toggle('active', button.getAttribute('data-view-target') === viewId);
-        });
-
-        if (el('sidebar')) el('sidebar').classList.remove('open');
-            window.scrollTo(0, 0);
-            setTimeout(function(){var c=document.querySelector('main.content');if(c)c.scrollTop=0;document.documentElement.scrollTop=0;document.body.scrollTop=0;window.scrollTo(0,0);},0);
-      }
-
-      function saveSelectedDay() {
-        var key = state.selectedKey || getDateKey(new Date());
-              
-        var data = loadData();
-        data[key] = buildEntryFromForm(key);
-        saveData(data);
-        updateSelectedDayPanel(data[key], key);
-        updateJournalPanel(data[key], key);
-        setText('selectedDateLabel', key === getDateKey(new Date()) ? 'Today saved' : 'Saved ' + key);
-        setText('saveStatus', 'Saved ' + formatLongDate(dateFromKey(key)) + '.');
-        renderAll();
-      }
-
-      function loadToday() {
-        var data = loadData();
-        var key = getDateKey(new Date());
-        state.selectedKey = key;
-        setText('selectedDateLabel', 'Today');
-        applyEntryToUI(data[key] || null, key);
-        setText('saveStatus', data[key] ? 'Loaded today.' : 'No saved entry for today yet.');
-        setText('journalStatus', data[key] && data[key].journalEntry ? 'Loaded journal for today.' : 'No saved journal for today yet.');
-        renderAll();
-      }
-
-      function clearSelectedDay() {
-        var data = loadData();
-        var key = state.selectedKey || getDateKey(new Date());
-        delete data[key];
-        saveData(data);
-        applyEntryToUI(null, key);
-        setText('saveStatus', 'Cleared ' + formatLongDate(dateFromKey(key)) + '.');
-        renderAll();
-      }
-
-      function resetAllData() {
-        if (!window.confirm('Delete all saved dashboard data?')) return;
-        localStorage.removeItem(STORAGE_KEY);
-        state.selectedKey = getDateKey(new Date());
-        loadToday();
-        setText('journalStatus', 'All journal data reset.');
-      }
-
-      function saveJournalOnly() {
-        var key = state.selectedKey || getDateKey(new Date());
-        var data = loadData();
-        var existing = data[key] || buildEntryFromForm(key);
-
-        existing.journalTitle = getValue('journalTitle').trim();
-        existing.journalTomorrowFocus = getValue('journalTomorrowFocus').trim();
-        existing.tomorrowFocus = getValue('journalTomorrowFocus').trim() || existing.tomorrowFocus || '';
-        existing.journalEntry = getValue('journalEntry').trim();
-        existing.updatedAt = new Date().toISOString();
-
-        data[key] = existing;
-        saveData(data);
-
-        updateJournalPanel(existing, key);
-        updateJournalStats();
-        renderCalendar();
-        setText('journalStatus', 'Saved journal for ' + formatLongDate(dateFromKey(key)) + '.');
-      }
-
-      function loadJournalForSelectedDay() {
-        var key = state.selectedKey || getDateKey(new Date());
-        var entry = loadData()[key] || null;
-
-        if (entry) {
-          if (el('journalTitle')) el('journalTitle').value = entry.journalTitle || '';
-          if (el('journalTomorrowFocus')) el('journalTomorrowFocus').value = entry.journalTomorrowFocus || entry.tomorrowFocus || '';
-          if (el('journalEntry')) el('journalEntry').value = entry.journalEntry || '';
-        } else {
-          resetJournalForm();
-        }
-
-        updateJournalWordCount();
-        updateJournalPanel(entry, key);
-        setText('journalStatus', entry && entry.journalEntry ? 'Loaded journal for ' + formatLongDate(dateFromKey(key)) + '.' : 'No saved journal for this day yet.');
-      }
-
-      function clearJournalForSelectedDay() {
-        var key = state.selectedKey || getDateKey(new Date());
-        var data = loadData();
-
-        if (data[key]) {
-          data[key].journalTitle = '';
-          data[key].journalTomorrowFocus = '';
-          data[key].journalEntry = '';
-          data[key].updatedAt = new Date().toISOString();
-          saveData(data);
-        }
-
-        resetJournalForm();
-        updateJournalPanel(data[key] || null, key);
-        updateJournalStats();
-        setText('journalStatus', 'Cleared journal for ' + formatLongDate(dateFromKey(key)) + '.');
-      }
-
-      async function signUp(email, password) {
-        var result = await db.auth.signUp({ email: email, password: password });
-        if (result.error) throw result.error;
-        return result.data;
-      }
-
-      async function signIn(email, password) {
-        var result = await db.auth.signInWithPassword({ email: email, password: password });
-        if (result.error) throw result.error;
-        return result.data;
-      }
-
-      async function signOut() {
-        var result = await db.auth.signOut();
-        if (result.error) throw result.error;
-      }
-
-      async function getCurrentUser() {
-        var result = await db.auth.getUser();
-        if (result.error) throw result.error;
-        return result.data.user;
-      }
-
-      function setAuthStatus(message, isError) {
-        var node = el('authStatus');
-        if (!node) return;
-        node.textContent = message || '';
-        node.style.color = isError ? '#9a3412' : '#1f4d3a';
-      }
-
-      async function refreshAuthUI() {
-        try {
-          var user = await getCurrentUser();
-          var overlay = el('authOverlay');
-          var emailPill = el('userEmailPill');
-          var signOutBtn = el('signOutBtn');
-          var openAuthBtn = el('openAuthBtn');
-
-          if (user) {
-            if (overlay) overlay.style.display = 'none';
-            if (emailPill) emailPill.textContent = user.email || 'Signed in';
-            if (signOutBtn) signOutBtn.style.display = 'inline-flex';
-            if (openAuthBtn) openAuthBtn.style.display = 'none';
-          } else {
-            if (emailPill) emailPill.textContent = 'Guest mode';
-            if (signOutBtn) signOutBtn.style.display = 'none';
-            if (openAuthBtn) openAuthBtn.style.display = 'inline-flex';
-          }
-        } catch (err) {
-          setAuthStatus(err.message || 'Authentication error', true);
-        }
-      }
-
-      async function handleSignUp() {
-        var email = (el('authEmail') && el('authEmail').value || '').trim();
-        var password = (el('authPassword') && el('authPassword').value || '').trim();
-
-        if (!email || !password) {
-          setAuthStatus('Enter your email and password first.', true);
-          return;
-        }
-
-        try {
-          setAuthStatus('Creating account...', false);
-          await signUp(email, password);
-          setAuthStatus('Account created. Check your email if confirmation is enabled, then sign in.', false);
-          await refreshAuthUI();
-        } catch (err) {
-          setAuthStatus(err.message || 'Could not create account.', true);
-        }
-      }
-
-      async function handleSignIn() {
-        var email = (el('authEmail') && el('authEmail').value || '').trim();
-        var password = (el('authPassword') && el('authPassword').value || '').trim();
-
-        if (!email || !password) {
-          setAuthStatus('Enter your email and password first.', true);
-          return;
-        }
-
-        try {
-          setAuthStatus('Signing in...', false);
-          await signIn(email, password);
-          setAuthStatus('Signed in.', false);
-          await refreshAuthUI();
-          loadToday();
-        } catch (err) {
-          setAuthStatus(err.message || 'Could not sign in.', true);
-        }
-      }
-
-      async function handleSignOut() {
-        try {
-          await signOut();
-          await refreshAuthUI();
-          setAuthStatus('');
-          setText('saveStatus', 'Signed out.');
-        } catch (err) {
-          setText('saveStatus', err.message || 'Could not sign out.');
-        }
-      }
-
-      function getCoachModeCopy(mode) {
-        var copy = {
-          talk: {
-            title: 'Talk it through',
-            sub: 'Name what happened, what you feel, and what matters most tonight.'
-          },
-          calm: {
-            title: 'Calm me down',
-            sub: 'Slow the moment down. Reduce overload first, then choose one safe next step.'
-          },
-          reframe: {
-            title: 'Reframe this',
-            sub: 'Challenge the harsh story in your head and replace it with something more useful.'
-          }
-        };
-        return copy[mode] || copy.talk;
-      }
-
-      function getSelectedEntry() {
-        return loadData()[state.selectedKey] || null;
-      }
-
-      function buildCoachContextText(entry) {
-        if (!entry) return 'No saved day selected yet. Work with the message only.';
-
-        var habitsDone = 0;
-        habitIds.forEach(function (id) {
-          if (entry.habits && entry.habits[id]) habitsDone += 1;
-        });
-
-        return [
-          'Selected day: ' + entry.date,
-          'Score: ' + (entry.score || 0),
-          'Mood: ' + (entry.mood || '—') + '/10',
-          'Stress: ' + (entry.stress || '—') + '/10',
-          'Energy: ' + (entry.energy || '—') + '/10',
-          'Habits done: ' + habitsDone + '/6',
-          'Tomorrow focus: ' + (entry.tomorrowFocus || entry.journalTomorrowFocus || 'Not set'),
-          'Notes: ' + (entry.notes || 'None'),
-          'Journal title: ' + (entry.journalTitle || 'None'),
-          'Journal entry: ' + (entry.journalEntry || 'None')
-        ].join('\n');
-      }
-
-      function addCoachMessage(role, textValue) {
-        var thread = el('coachThread');
-        if (!thread) return;
-
-        var div = document.createElement('div');
-        div.className = 'chat-bubble ' + role;
-        div.textContent = textValue;
-        thread.appendChild(div);
-        thread.scrollTop = thread.scrollHeight;
-      }
-
-      function resetCoachThread() {
-        if (!el('coachThread')) return;
-        el('coachThread').innerHTML = '';
-        addCoachMessage('ai', 'I can help you slow down, reflect, and pick one next step. I am not a therapist, and I am not the right place for crisis support. If safety is a concern, contact emergency services or Lifeline now.');
-        var copy = getCoachModeCopy(state.coachMode);
-        addCoachMessage('ai', copy.title + ': ' + copy.sub);
-      }
-
-      function detectCrisisSignals(textValue) {
-        var text = (textValue || '').toLowerCase();
-        var flags = ['suicide', 'kill myself', 'end it', 'self harm', 'hurt myself', 'want to die', 'cant go on', "can't go on", 'harm someone', 'voices', 'manic'];
-        return flags.some(function (flag) {
-          return text.indexOf(flag) !== -1;
-        });
-      }
-
-      function generateCoachReply(mode, userText, entry) {
-        if (detectCrisisSignals(userText)) {
-          return 'I\'m really glad you said that. This tool is not enough for this moment. Please contact emergency services now if there is immediate danger, or call Lifeline Australia on 13 11 14 for immediate support. If you can, move toward another person right now and tell them you need help staying safe.';
-        }
-
-        var mood = entry && entry.mood ? Number(entry.mood) : null;
-        var stress = entry && entry.stress ? Number(entry.stress) : null;
-        var focus = entry && (entry.tomorrowFocus || entry.journalTomorrowFocus) ? (entry.tomorrowFocus || entry.journalTomorrowFocus) : '';
-
-        var replies = {
-          talk: [
-            'Let\'s make this simpler. In one sentence: what happened, what are you feeling, and what matters most before sleep?',
-            stress !== null && stress >= 8 ? 'Your stress looks high. Tonight is not for solving everything. Reduce the load and decide on one contained win.' : 'Try separating facts from the story in your head. Facts first, interpretation second.',
-            focus ? 'You already named tomorrow\'s focus: ' + focus + '. That matters because you do not need ten goals, only one clear target.' : 'Before bed, choose one clear target for tomorrow so the morning feels lighter.',
-            'A useful next move could be: put the phone down, drink water, write one honest sentence in the journal, and stop there.'
-          ],
-          calm: [
-            'We are going to lower the temperature first. Unclench your jaw, drop your shoulders, and take five slow breaths with a longer exhale than inhale.',
-            mood !== null && mood <= 4 ? 'Because your mood is low, keep the next action very small and physical: water, shower, short walk, or lie down without scrolling.' : 'Pick one grounding action for the next ten minutes: a short walk, cold water on your face, breathing, or tidy one surface.',
-            stress !== null && stress >= 8 ? 'Do not make big decisions in a high-stress state. The job right now is to get from overloaded to steady.' : 'Once your body settles a little, choose one gentle task and finish it completely.'
-          ],
-          reframe: [
-            'Let\'s challenge the harsh version of the story. What are you telling yourself right now that may be too absolute or unfair?',
-            'Try this format: “The fact is ... The fear is ... A more balanced view is ...”',
-            focus ? 'A balanced thought might be: “I do not need to fix everything tonight. I only need to set up tomorrow around ' + focus + '.”' : 'A balanced thought might be: “This day was mixed, not ruined. I can still recover by choosing one next step.”',
-            'Now finish with one sentence you would actually believe, not a fake positive one.'
-          ]
-        };
-
-        return replies[mode].join('\n\n');
-      }
-
-      function renderCoachMode() {
-        var copy = getCoachModeCopy(state.coachMode);
-        setText('coachModeTitle', copy.title);
-        setText('coachModeSub', copy.sub);
-
-        document.querySelectorAll('[data-coach-mode]').forEach(function (btn) {
-          btn.classList.toggle('active', btn.getAttribute('data-coach-mode') === state.coachMode);
-        });
-
-        var entry = getSelectedEntry();
-        setText('coachContextTag', entry ? ('Using ' + state.selectedKey) : 'Using message only');
-      }
-
-      async function sendCoachMessage() {
-        var input = el('coachInput');
-        if (!input) return;
-
-        var userText = input.value.trim();
-        if (!userText) {
-          setText('coachStatus', 'Write a short message first.');
-          return;
-        }
-
-        var entry = getSelectedEntry();
-        addCoachMessage('user', userText);
-        setText('coachStatus', 'Getting guidance...');
-        input.value = '';
-
-        try {
-          var payload = {
-            message: userText,
-            mode: state.coachMode,
-            context: entry || {
-              score: Number(el('overallScore') ? el('overallScore').textContent : 0),
-              mood: Number(el('mood') ? el('mood').value : 0),
-              stress: Number(el('stress') ? el('stress').value : 0),
-              energy: Number(el('energy') ? el('energy').value : 0),
-              notes: el('notes') ? el('notes').value : ''
-            }
-          };
-
-          var replyText = '';
-
-          try {
-            var response = await fetch('/api/coach', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-              var data = await response.json();
-              replyText = data.reply || '';
-            }
-          } catch (apiError) {}
-
-          if (!replyText) {
-            replyText = generateCoachReply(state.coachMode, userText, entry);
-          }
-
-          addCoachMessage('ai', replyText);
-          setText('coachStatus', detectCrisisSignals(userText) ? 'Crisis guidance shown.' : 'Guided response ready.');
-        } catch (error) {
-          addCoachMessage('ai', 'Sorry, something went wrong while contacting Reset Coach. Please try again.');
-          setText('coachStatus', 'Could not reach the coach service.');
-        }
-      }
-
-      function useSelectedDayContext() {
-        var entry = getSelectedEntry();
-        if (!entry) {
-          setText('coachStatus', 'No saved day selected yet. Save or select a day first.');
-          return;
-        }
-
-        if (el('coachInput')) {
-          el('coachInput').value = 'Use this context to help me.\n\n' + buildCoachContextText(entry);
-        }
-
-        setText('coachStatus', 'Selected day context inserted.');
-      }
-
-      function renderAll() {
-        calculateScore();
-        updateTopStats();
-        updateJournalStats();
-        updateJournalWordCount();
-        renderTrendBars();
-        renderCalendar();
-        renderWeeklyReview();
-        renderCoachMode();
-      }
-
-      function bindEvents() {
-        if (el('signUpBtn')) el('signUpBtn').addEventListener('click', handleSignUp);
-        if (el('signInBtn')) el('signInBtn').addEventListener('click', handleSignIn);
-        if (el('signOutBtn')) el('signOutBtn').addEventListener('click', handleSignOut);
-
-        if (el('continueGuestBtn')) {
-          el('continueGuestBtn').addEventListener('click', function () {
-            if (el('authOverlay')) el('authOverlay').style.display = 'none';
-            setAuthStatus('');
-          });
-        }
-
-        if (el('openAuthBtn')) {
-          el('openAuthBtn').addEventListener('click', function () {
-            if (el('authOverlay')) el('authOverlay').style.display = 'flex';
-          });
-        }
-
-        if (el('saveDayBtn')) el('saveDayBtn').addEventListener('click', saveSelectedDay);
-        if (el('saveDayBtnSecondary')) el('saveDayBtnSecondary').addEventListener('click', saveSelectedDay);
-        if (el('loadTodayBtn')) el('loadTodayBtn').addEventListener('click', loadToday);
-        if (el('clearTodayBtn')) el('clearTodayBtn').addEventListener('click', clearSelectedDay);
-        if (el('resetAllBtn')) el('resetAllBtn').addEventListener('click', resetAllData);
-
-        if (el('saveJournalBtn')) el('saveJournalBtn').addEventListener('click', saveJournalOnly);
-        if (el('loadJournalBtn')) el('loadJournalBtn').addEventListener('click', loadJournalForSelectedDay);
-        if (el('clearJournalBtn')) el('clearJournalBtn').addEventListener('click', clearJournalForSelectedDay);
-
-        if (el('journalEntry')) el('journalEntry').addEventListener('input', updateJournalWordCount);
-
-        if (el('mood')) el('mood').addEventListener('input', calculateScore);
-        if (el('stress')) el('stress').addEventListener('input', calculateScore);
-        if (el('energy')) el('energy').addEventListener('input', calculateScore);
-        if (el('alcohol')) el('alcohol').addEventListener('change', calculateScore);
-        if (el('connection')) el('connection').addEventListener('change', calculateScore);
-        if (el('notes')) el('notes').addEventListener('input', calculateScore);
-
-        if (el('tomorrowFocus')) {
-          el('tomorrowFocus').addEventListener('input', function () {
-            if (el('journalTomorrowFocus') && document.activeElement !== el('journalTomorrowFocus')) {
-              el('journalTomorrowFocus').value = el('tomorrowFocus').value;
-            }
-          });
-        }
-
-        if (el('journalTomorrowFocus')) {
-          el('journalTomorrowFocus').addEventListener('input', function () {
-            if (el('tomorrowFocus') && document.activeElement !== el('tomorrowFocus')) {
-              el('tomorrowFocus').value = el('journalTomorrowFocus').value;
-            }
-          });
-        }
-
-        habitIds.forEach(function (id) {
-          if (el(id)) el(id).addEventListener('change', calculateScore);
-        });
-
-        if (el('prevMonthBtn')) {
-          el('prevMonthBtn').addEventListener('click', function () {
-            state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() - 1, 1);
-            renderCalendar();
-          });
-        }
-
-        if (el('currentMonthBtn')) {
-          el('currentMonthBtn').addEventListener('click', function () {
-            state.viewDate = new Date();
-            renderCalendar();
-          });
-        }
-
-        if (el('nextMonthBtn')) {
-          el('nextMonthBtn').addEventListener('click', function () {
-            state.viewDate = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() + 1, 1);
-            renderCalendar();
-          });
-        }
-
-        document.querySelectorAll('[data-view-target]').forEach(function (button) {
-          button.addEventListener('click', function () {
-            switchView(button.getAttribute('data-view-target'));
-          });
-        });
-
-        if (el('jumpCheckin')) {
-          el('jumpCheckin').addEventListener('click', function () {
-            switchView('dashboardView');
-            if (el('checkinSection')) el('checkinSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-          });
-        }
-
-        if (el('jumpReview')) {
-          el('jumpReview').addEventListener('click', function () {
-            switchView('dashboardView');
-            if (el('reviewSection')) el('reviewSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-          });
-        }
-
-        if (el('jumpJournal')) {
-          el('jumpJournal').addEventListener('click', function () {
-            switchView('journalView');
-          });
-        }
-
-        if (el('jumpCoach')) {
-          el('jumpCoach').addEventListener('click', function () {
-            switchView('coachView');
-          });
-        }
-
-        document.querySelectorAll('[data-coach-mode]').forEach(function (button) {
-          button.addEventListener('click', function () {
-            state.coachMode = button.getAttribute('data-coach-mode');
-            renderCoachMode();
-            resetCoachThread();
-            setText('coachStatus', 'Mode changed to ' + getCoachModeCopy(state.coachMode).title + '.');
-          });
-        });
-
-        if (el('sendCoachBtn')) el('sendCoachBtn').addEventListener('click', sendCoachMessage);
-        if (el('useDayContextBtn')) el('useDayContextBtn').addEventListener('click', useSelectedDayContext);
-
-        if (el('clearCoachBtn')) {
-          el('clearCoachBtn').addEventListener('click', function () {
-            if (el('coachInput')) el('coachInput').value = '';
-            resetCoachThread();
-            setText('coachStatus', 'Conversation cleared.');
-          });
-        }
-
-        if (el('openLifelineBtn')) {
-          el('openLifelineBtn').addEventListener('click', function () {
-            window.open('https://www.lifeline.org.au/', '_blank', 'noopener,noreferrer');
-          });
-        }
-
-        if (el('openBeyondBlueBtn')) {
-          el('openBeyondBlueBtn').addEventListener('click', function () {
-            window.open('https://www.beyondblue.org.au/', '_blank', 'noopener,noreferrer');
-          });
-        }
-
-        if (el('menuBtn')) {
-          el('menuBtn').addEventListener('click', function () {
-            if (el('sidebar')) el('sidebar').classList.toggle('open');
-          });
-        }
-      }
-
-      function init() {
-        setText('todayText', formatLongDate(new Date()));
-        bindEvents();
-        loadToday();
-        switchView('dashboardView');
-        renderAll();
-        resetCoachThread();
-        refreshAuthUI();
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-      } else {
-        init();
-      }
-    })();
-      </script>
-    </body>
-  </html>
+        sidebar.classList.remove('open');
+      });
+    });
+
+    if (menuBtn) {
+      menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+    }
+  </script>
+</body>
+</html>
