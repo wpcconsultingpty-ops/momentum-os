@@ -217,6 +217,9 @@
     .view { display: none; }
     .view.active { display: block; }
         .view:not(.active) { display: none !important; }
+        main.content { display: flex; flex-direction: column; gap: 0; padding-top: 18px; }
+        main.content > .view.active { margin-top: 0; }
+        main.content > .view > *:first-child { margin-top: 0; }
 
     .hero-grid,
     .two-col,
