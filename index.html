@@ -33,13 +33,8 @@
       --content: 1320px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -49,11 +44,7 @@
       line-height: 1.45;
     }
 
-    button,
-    input,
-    textarea {
-      font: inherit;
-    }
+    button, input, textarea { font: inherit; }
 
     button {
       cursor: pointer;
@@ -207,17 +198,17 @@
       box-shadow: var(--shadow);
     }
 
-    .hero {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: var(--space-6);
-    }
-
     .card {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: var(--space-6);
     }
 
     .hero-panel {
@@ -448,7 +439,10 @@
     .signal-card,
     .detail-card,
     .support-card,
-    .reset-card {
+    .reset-card,
+    .journal-compose,
+    .journal-history,
+    .signal-list {
       border-radius: 16px;
       background: var(--panel-2);
       border: 1px solid var(--line);
@@ -472,25 +466,44 @@
       accent-color: var(--accent);
     }
 
+    .check-list,
     .habit-list {
       display: grid;
       gap: 12px;
     }
 
+    .check-item,
     .habit-item {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 12px 14px;
       border-radius: 14px;
-      background: var(--panel-2);
+      background: white;
       border: 1px solid var(--line);
     }
 
+    .check-item input,
     .habit-item input {
       width: 18px;
       height: 18px;
       accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .check-copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .check-copy strong {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .check-copy span {
+      font-size: 13px;
+      color: var(--muted);
     }
 
     .field-group {
@@ -514,7 +527,7 @@
     }
 
     textarea {
-      min-height: 120px;
+      min-height: 140px;
       resize: vertical;
     }
 
@@ -560,7 +573,8 @@
 
     .review-grid,
     .details-grid,
-    .support-grid {
+    .support-grid,
+    .journal-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--space-4);
@@ -604,9 +618,7 @@
       padding: 6px 0;
     }
 
-    .day-empty {
-      min-height: 88px;
-    }
+    .day-empty { min-height: 88px; }
 
     .day {
       min-height: 88px;
@@ -651,21 +663,18 @@
       background: #c9c2b8;
     }
 
-    .day-dot.good {
-      background: var(--good);
-    }
-
-    .day-dot.mid {
-      background: var(--mid);
-    }
-
-    .day-dot.bad {
-      background: var(--bad);
-    }
+    .day-dot.good { background: var(--good); }
+    .day-dot.mid { background: var(--mid); }
+    .day-dot.bad { background: var(--bad); }
 
     .day-score {
       font-size: 13px;
       color: var(--muted);
+    }
+
+    .journal-shell {
+      display: grid;
+      gap: var(--space-5);
     }
 
     .journal-list {
@@ -692,6 +701,14 @@
       color: var(--muted);
     }
 
+    .journal-empty {
+      border-radius: 16px;
+      padding: 18px;
+      background: var(--panel-2);
+      border: 1px dashed var(--line);
+      color: var(--muted);
+    }
+
     .coach-steps {
       display: grid;
       gap: 14px;
@@ -712,7 +729,8 @@
 
     @media (max-width: 1180px) {
       .hero,
-      .section-grid {
+      .section-grid,
+      .journal-grid {
         grid-template-columns: 1fr;
       }
 
@@ -722,9 +740,7 @@
     }
 
     @media (max-width: 980px) {
-      .app-shell {
-        grid-template-columns: 1fr;
-      }
+      .app-shell { grid-template-columns: 1fr; }
 
       .sidebar {
         position: fixed;
@@ -735,17 +751,9 @@
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
       }
 
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .mobile-topbar {
-        display: flex;
-      }
-
-      .main {
-        padding: var(--space-4);
-      }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-topbar { display: flex; }
+      .main { padding: var(--space-4); }
     }
 
     @media (max-width: 720px) {
@@ -753,17 +761,13 @@
       .signal-grid,
       .review-grid,
       .details-grid,
-      .support-grid {
+      .support-grid,
+      .journal-grid {
         grid-template-columns: 1fr;
       }
 
-      .kpi-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .trend-bars {
-        gap: 8px;
-      }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .trend-bars { gap: 8px; }
 
       .hero-panel,
       .panel {
@@ -772,17 +776,9 @@
     }
 
     @media (max-width: 520px) {
-      .kpi-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .action-row {
-        flex-direction: column;
-      }
-
-      .btn {
-        width: 100%;
-      }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .action-row { flex-direction: column; }
+      .btn { width: 100%; }
     }
   </style>
 </head>
@@ -802,7 +798,7 @@
         <div class="nav-list">
           <button class="nav-btn active" data-view-target="dashboardView">Dashboard</button>
           <button class="nav-btn" data-view-target="historyView">Live History</button>
-          <button class="nav-btn" data-view-target="journalView">Month Journal</button>
+          <button class="nav-btn" data-view-target="journalView">Journal</button>
           <button class="nav-btn" data-view-target="resetView">Reset Coach</button>
           <button class="nav-btn" data-view-target="supportView">Support</button>
         </div>
@@ -891,6 +887,7 @@
                     <div class="action-row">
                       <button class="btn primary" id="topSaveBtn">Save day</button>
                       <button class="btn secondary" data-jump="checkInSection">Today’s check-in</button>
+                      <button class="btn secondary" data-jump="journalSection">Open journal</button>
                     </div>
                   </div>
                 </div>
@@ -968,10 +965,37 @@
                     <div class="signal-value" id="energyValue">5 / 10</div>
                   </div>
 
-                  <div class="signal-card">
-                    <label>Daily signals</label>
-                    <div class="signal-value" id="signalsValue">0 / 0 logged</div>
-                    <div class="field-help">Fast behavioural checks that affect your score.</div>
+                  <div class="signal-list">
+                    <div class="section-heading">
+                      <h3>Daily signals</h3>
+                      <p><span id="signalsValue">0 / 3 logged</span></p>
+                    </div>
+
+                    <div class="check-list">
+                      <label class="check-item">
+                        <input class="daily-signal" type="checkbox" />
+                        <span class="check-copy">
+                          <strong>Stayed on plan</strong>
+                          <span>Protected the intended shape of the day.</span>
+                        </span>
+                      </label>
+
+                      <label class="check-item">
+                        <input class="daily-signal" type="checkbox" />
+                        <span class="check-copy">
+                          <strong>Kept distractions down</strong>
+                          <span>Reduced drift, noise, and reactive switching.</span>
+                        </span>
+                      </label>
+
+                      <label class="check-item">
+                        <input class="daily-signal" type="checkbox" />
+                        <span class="check-copy">
+                          <strong>Finished clean</strong>
+                          <span>Closed loops and set up tomorrow properly.</span>
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -986,28 +1010,23 @@
                   <label class="habit-item"><input class="core-habit" type="checkbox" /> Priority task done</label>
                   <label class="habit-item"><input class="core-habit" type="checkbox" /> Quiet minute or prayer</label>
                   <label class="habit-item"><input class="core-habit" type="checkbox" /> Protected sleep routine</label>
-                  <label class="habit-item"><input class="core-habit" type="checkbox" /> Supportive nutrition</label>
+                  <label class="core-habit habit-item"><input class="core-habit" type="checkbox" /> Supportive nutrition</label>
                 </div>
               </div>
 
               <div class="card panel">
                 <div class="section-heading">
-                  <h3>Daily notes</h3>
-                  <p>Capture today clearly, then set one target for tomorrow.</p>
+                  <h3>Journal flow</h3>
+                  <p>Write in the Journal tab, then save the day when the picture is clear.</p>
                 </div>
 
-                <div class="field-group">
-                  <label for="reflectionInput">Reflection</label>
-                  <textarea id="reflectionInput" placeholder="What helped, what hurt, and what mattered most today?"></textarea>
-                </div>
-
-                <div class="field-group">
-                  <label for="tomorrowFocusInput">Tomorrow’s focus</label>
-                  <input id="tomorrowFocusInput" type="text" placeholder="One important target" />
+                <div class="detail-card">
+                  <div class="detail-label">How it works</div>
+                  <div class="detail-text">1. Check in here. 2. Open Journal to write reflection and tomorrow’s focus. 3. Save day.</div>
                 </div>
 
                 <div class="action-row">
-                  <button class="btn primary" id="saveTodayBtn">Save today</button>
+                  <button class="btn primary" data-view-target="journalView">Go to Journal</button>
                   <button class="btn secondary" id="loadTodayBtn">Load today</button>
                   <button class="btn secondary" id="clearTodayBtn">Reset all</button>
                 </div>
@@ -1097,11 +1116,75 @@
           <section class="view" id="journalView">
             <div class="card panel" id="journalSection">
               <div class="section-heading">
-                <h3>Month journal</h3>
-                <p>Review the tone of recent days without overcomplicating it.</p>
+                <h3>Journal</h3>
+                <p>Write today clearly, then keep the saved entries below for context.</p>
               </div>
 
-              <div class="journal-list" id="journalList"></div>
+              <div class="journal-shell">
+                <div class="journal-grid">
+                  <div class="journal-compose">
+                    <div class="section-heading">
+                      <h3>Write today</h3>
+                      <p>Capture what helped, what hurt, and what matters next.</p>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="reflectionInput">Reflection</label>
+                      <textarea id="reflectionInput" placeholder="What helped, what hurt, and what mattered most today?"></textarea>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="tomorrowFocusInput">Tomorrow’s focus</label>
+                      <input id="tomorrowFocusInput" type="text" placeholder="One important target" />
+                    </div>
+
+                    <div class="action-row">
+                      <button class="btn primary" id="saveTodayBtn">Save today</button>
+                      <button class="btn secondary" id="journalLoadBtn">Load today</button>
+                      <button class="btn secondary" id="journalClearBtn">Reset journal</button>
+                    </div>
+
+                    <div class="status-line">Write it plain. Keep it honest. Keep it useful.</div>
+                  </div>
+
+                  <div class="journal-history">
+                    <div class="section-heading">
+                      <h3>Selected day</h3>
+                      <p>Quick context while you write.</p>
+                    </div>
+
+                    <div class="details-grid">
+                      <div class="detail-card">
+                        <div class="detail-label">Date</div>
+                        <div class="detail-value" id="journalSelectedDate">-</div>
+                        <div class="detail-text">Day currently in focus.</div>
+                      </div>
+                      <div class="detail-card">
+                        <div class="detail-label">Score</div>
+                        <div class="detail-value" id="journalSelectedScore">-</div>
+                        <div class="detail-text">Momentum rating.</div>
+                      </div>
+                    </div>
+
+                    <div class="detail-card">
+                      <div class="detail-label">Tomorrow’s focus</div>
+                      <div class="detail-text" id="journalSelectedFocus">-</div>
+                    </div>
+
+                    <div class="detail-card">
+                      <div class="detail-label">Notes</div>
+                      <div class="detail-text" id="journalSelectedNotes">-</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="section-heading">
+                  <h3>Saved entries</h3>
+                  <p>Recent entries first.</p>
+                </div>
+
+                <div class="journal-list" id="journalList"></div>
+              </div>
             </div>
           </section>
 
@@ -1190,7 +1273,8 @@
           habitsDone: 4,
           focus: "Avoid reactive work",
           notes: "Better than it felt in the moment.",
-          habitHits: [1, 0, 1, 0, 1, 1]
+          habitHits: [1, 0, 1, 0, 1, 1],
+          signalHits: [1, 0, 1]
         },
         {
           date: new Date(2026, 4, 13),
@@ -1201,7 +1285,8 @@
           habitsDone: 6,
           focus: "Finish proposal review",
           notes: "Excellent day. Good structure and clean decisions.",
-          habitHits: [1, 1, 1, 1, 1, 1]
+          habitHits: [1, 1, 1, 1, 1, 1],
+          signalHits: [1, 1, 1]
         },
         {
           date: new Date(2026, 4, 15),
@@ -1212,7 +1297,8 @@
           habitsDone: 4,
           focus: "Finish clean",
           notes: "Mixed day. Finish clean.",
-          habitHits: [1, 0, 1, 0, 1, 1]
+          habitHits: [1, 0, 1, 0, 1, 1],
+          signalHits: [1, 0, 1]
         }
       ];
 
@@ -1233,7 +1319,8 @@
           stressValue: day.stress,
           energyValue: day.energy,
           habitsDone: day.habitsDone,
-          habitHits: day.habitHits
+          habitHits: day.habitHits,
+          signalHits: day.signalHits || [0, 0, 0]
         };
       });
 
@@ -1265,6 +1352,7 @@
       const scoreRing = qs("#scoreRing");
       const messageBadge = qs("#messageBadge");
       const statusEl = qs("#dayStatus");
+
       const avgScoreEl = qs("#avgScore");
       const weeklyAverageDisplay = qs("#weeklyAverageDisplay");
       const habitWinsEl = qs("#habitWins");
@@ -1277,6 +1365,8 @@
       const saveTodayBtn = qs("#saveTodayBtn");
       const loadTodayBtn = qs("#loadTodayBtn");
       const clearTodayBtn = qs("#clearTodayBtn");
+      const journalLoadBtn = qs("#journalLoadBtn");
+      const journalClearBtn = qs("#journalClearBtn");
       const topSaveBtn = qs("#topSaveBtn");
       const topDateLabel = qs("#topDateLabel");
 
@@ -1287,6 +1377,11 @@
       const selectedHabitsEl = qs("#selectedHabits");
       const selectedFocusEl = qs("#selectedFocus");
       const selectedNotesEl = qs("#selectedNotes");
+
+      const journalSelectedDate = qs("#journalSelectedDate");
+      const journalSelectedScore = qs("#journalSelectedScore");
+      const journalSelectedFocus = qs("#journalSelectedFocus");
+      const journalSelectedNotes = qs("#journalSelectedNotes");
 
       const weekBars = qsa(".bar-wrap[data-score]");
       const calendar = qs(".calendar");
@@ -1421,6 +1516,7 @@
         const date = new Date(today);
         const key = toDateKey(date);
         const habitHits = habitInputs.map(input => (input.checked ? 1 : 0));
+        const signalHits = signalInputs.map(input => (input.checked ? 1 : 0));
 
         return {
           dateKey: key,
@@ -1437,7 +1533,8 @@
           stressValue: data.stress,
           energyValue: data.energy,
           habitsDone: data.habitsDone,
-          habitHits
+          habitHits,
+          signalHits
         };
       }
 
@@ -1452,12 +1549,17 @@
         setText(selectedFocusEl, payload.focus || "-");
         setText(selectedNotesEl, payload.notes || "-");
         setText(topDateLabel, payload.date || "Today");
+
+        setText(journalSelectedDate, payload.date || "-");
+        setText(journalSelectedScore, payload.score ?? "-");
+        setText(journalSelectedFocus, payload.focus || "-");
+        setText(journalSelectedNotes, payload.notes || "-");
       }
 
       function parseBarScores() {
         return weekBars
           .map(bar => Number(bar.dataset.score))
-          .filter(score => !Number.isNaN(score) && score > 0);
+          .filter(score => !Number.isNaN(score));
       }
 
       function calculateAverage(values) {
@@ -1556,6 +1658,14 @@
           .sort((a, b) => b.isoDate.localeCompare(a.isoDate));
 
         journalList.innerHTML = "";
+
+        if (!entries.length) {
+          const empty = document.createElement("div");
+          empty.className = "journal-empty";
+          empty.textContent = "No saved entries yet. Write today, then save it.";
+          journalList.appendChild(empty);
+          return;
+        }
 
         entries.forEach(entry => {
           const item = document.createElement("article");
@@ -1724,6 +1834,10 @@
         if (stressRange) stressRange.value = saved.stressValue || 5;
         if (energyRange) energyRange.value = saved.energyValue || 5;
 
+        signalInputs.forEach((input, index) => {
+          input.checked = !!saved.signalHits?.[index];
+        });
+
         habitInputs.forEach((input, index) => {
           input.checked = !!saved.habitHits?.[index];
         });
@@ -1750,13 +1864,8 @@
         if (stressRange) stressRange.value = 5;
         if (energyRange) energyRange.value = 5;
 
-        signalInputs.forEach(input => {
-          input.checked = false;
-        });
-
-        habitInputs.forEach(input => {
-          input.checked = false;
-        });
+        signalInputs.forEach(input => { input.checked = false; });
+        habitInputs.forEach(input => { input.checked = false; });
 
         if (reflectionInput) reflectionInput.value = "";
         if (tomorrowFocusInput) tomorrowFocusInput.value = "";
@@ -1784,6 +1893,10 @@
         button.addEventListener("click", () => {
           showView(button.dataset.viewTarget);
         });
+      });
+
+      qsa('[data-view-target="journalView"]').forEach(button => {
+        button.addEventListener("click", () => showView("journalView"));
       });
 
       jumpButtons.forEach(button => {
@@ -1822,7 +1935,9 @@
       if (saveTodayBtn) saveTodayBtn.addEventListener("click", saveToday);
       if (topSaveBtn) topSaveBtn.addEventListener("click", saveToday);
       if (loadTodayBtn) loadTodayBtn.addEventListener("click", loadToday);
+      if (journalLoadBtn) journalLoadBtn.addEventListener("click", loadToday);
       if (clearTodayBtn) clearTodayBtn.addEventListener("click", clearToday);
+      if (journalClearBtn) journalClearBtn.addEventListener("click", clearToday);
 
       if (previousMonthBtn) {
         previousMonthBtn.addEventListener("click", () => {
@@ -1869,6 +1984,23 @@
       const initialPayload = state.savedDays[state.selectedDateKey];
       if (initialPayload) {
         updateSelectedDayPanel(initialPayload);
+
+        if (tomorrowFocusInput) tomorrowFocusInput.value = initialPayload.focus !== "-" ? initialPayload.focus : "";
+        if (reflectionInput) reflectionInput.value = initialPayload.notes !== "-" ? initialPayload.notes : "";
+
+        if (moodRange) moodRange.value = initialPayload.moodValue || 5;
+        if (stressRange) stressRange.value = initialPayload.stressValue || 5;
+        if (energyRange) energyRange.value = initialPayload.energyValue || 5;
+
+        signalInputs.forEach((input, index) => {
+          input.checked = !!initialPayload.signalHits?.[index];
+        });
+
+        habitInputs.forEach((input, index) => {
+          input.checked = !!initialPayload.habitHits?.[index];
+        });
+
+        updateScoreUI();
       }
 
       setStatus("Ready. Reset. Refocus. Move.");
