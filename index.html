@@ -919,7 +919,7 @@
                 <div class="value-badge">Using today’s data</div>
               </div>
               <div class="coach-chat" style="margin-top:14px;">
-                <div class="coach-thread">
+                <div class="coach-thread" id="coachThread">
                   <div class="chat-bubble ai">You have had a better day than your evening mood is telling you. Before you analyse anything bigger, tell me what part of tonight feels most slippery.</div>
                   <div class="chat-bubble user">I finished work, but now I feel flat and restless.</div>
                   <div class="chat-bubble ai">That sounds like a transition problem, not a life problem. Pick one calming action for the next 20 minutes: shower, walk, tidy one zone, or write down tomorrow’s first task.</div>
@@ -928,15 +928,15 @@
               <div class="field-stack" style="margin-top:14px;">
                 <div class="field">
                   <div class="field-head"><label>Your message</label><div class="value-badge">Private in browser</div></div>
-                  <textarea>I had a decent day, but I feel flat tonight and I’m getting in my own head.</textarea>
+                  <textarea id="coachInput">I had a decent day, but I feel flat tonight and I’m getting in my own head.</textarea>
                 </div>
               </div>
               <div class="coach-actions">
-                <button class="btn primary">Get guidance</button>
+                <button class="btn primary" id="sendCoachBtn">Get guidance</button>
                 <button class="btn">Use selected day context</button>
                 <button class="btn warn">Clear conversation</button>
               </div>
-              <div class="status">Coach panel redesigned for readability and calmer pacing.</div>
+              <div class="status" id="coachStatus">Coach panel redesigned for readability and calmer pacing.</div>
             </div>
           </div>
         </section>
