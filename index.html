@@ -2251,47 +2251,45 @@
         init();
       }
     })();
-      // voice-to-text v1
-  (function initVoiceToText() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    [['coachInput','Coach']].forEach(function(t) {
-      var ta = document.getElementById(t[0]);
-      if (!ta) return;
-      var p = ta.parentNode;
-      var w = document.createElement('div');
-      w.className = 'mic-wrap';
-      p.insertBefore(w, ta);
-      w.appendChild(ta);
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'mic-btn';
-      b.title = 'Speak to type (' + t[1] + ')';
-      b.innerHTML = '&#127908;';
-      w.appendChild(b);
-      var rec = null, on = false;
-      b.addEventListener('click', function() {
-        if (on) { rec && rec.stop(); return; }
-        rec = new SR();
-        rec.lang = 'en-AU';
-        rec.continuous = true;
-        rec.interimResults = true;
-        var base = ta.value;
-        rec.onstart = function() { on = true; b.classList.add('listening'); };
-        rec.onend = function() { on = false; b.classList.remove('listening'); base = ta.value; };
-        rec.onerror = function() { on = false; b.classList.remove('listening'); };
-        rec.onresult = function(e) {
-          var f = '', i = '';
-          for (var x = e.resultIndex; x < e.results.length; x++) {
-            if (e.results[x].isFinal) f += e.results[x][0].transcript;
-            else i += e.results[x][0].transcript;
-          }
-          ta.value = base + f + i;
-          ta.dispatchEvent(new Event('input'));
-        };
-        rec.start();
-      });
-    });
-  })();
-  </script>
-</body>
-</html>
+        // voice-to-text v1
+        (function initVoiceToText() {
+          if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+          var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          var ta = document.getElementById('coachInput');
+          if (!ta) return;
+          var fieldDiv = ta.parentNode;
+          if (!fieldDiv) return;
+          fieldDiv.style.position = 'relative';
+          ta.style.paddingBottom = '48px';
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'mic-btn';
+          b.title = 'Speak to type';
+          b.innerHTML = '&#127908;';
+          fieldDiv.appendChild(b);
+          var rec = null, on = false;
+          b.addEventListener('click', function() {
+            if (on) { rec && rec.stop(); return; }
+            rec = new SR();
+            rec.lang = 'en-AU';
+            rec.continuous = true;
+            rec.interimResults = true;
+            var base = ta.value;
+            rec.onstart = function() { on = true; b.classList.add('listening'); };
+            rec.onend = function() { on = false; b.classList.remove('listening'); base = ta.value; };
+            rec.onerror = function() { on = false; b.classList.remove('listening'); };
+            rec.onresult = function(e) {
+              var f = '', i = '';
+              for (var x = e.resultIndex; x < e.results.length; x++) {
+                if (e.results[x].isFinal) f += e.results[x][0].transcript;
+                else i += e.results[x][0].transcript;
+              }
+              ta.value = base + f + i;
+              ta.dispatchEvent(new Event('input'));
+            };
+            rec.start();
+          });
+        })();
+      </script>
+    </body>
+  </html>
