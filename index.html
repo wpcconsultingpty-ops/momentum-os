@@ -1678,7 +1678,7 @@
         state.activeView = viewId;
 
         document.querySelectorAll('.view').forEach(function (view) {
-          view.classList.toggle('active', view.id === viewId);
+          view.classList.toggle('active', view.id === viewId); view.style.display = (view.id === viewId) ? 'block' : 'none';('active', view.id === viewId);
         });
 
         document.querySelectorAll('[data-view-target]').forEach(function (button) {
