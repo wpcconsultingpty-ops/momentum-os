@@ -1679,7 +1679,7 @@
           button.classList.toggle('active', button.getAttribute('data-view-target') === viewId);
         });
 
-        if (el('sidebar')) el('sidebar').classList.remove('open');
+        if (el('sidebar')) el('sidebar').classList.remove('open'); if (el('reviewSection')) el('reviewSection').style.display = (viewId === 'dashboardView') ? '' : 'none';
       }
 
       function saveSelectedDay() {
