@@ -20,7 +20,7 @@
       --shadow: 0 18px 45px rgba(31, 77, 58, 0.12);
     }
 
-    <!-- voice-to-text v1 -->
+    <!-- voice-to-text v1 -->     .mic-wrap { position: relative; }     .mic-btn { position: absolute; bottom: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: white; color: var(--green); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; z-index: 2; transition: background .15s, color .15s; }     .mic-btn:hover { background: #edf7f1; }     .mic-btn.listening { background: #fee2e2; border-color: #f87171; color: #b91c1c; animation: mic-pulse 1s infinite; }     @keyframes mic-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(185,28,28,.3); } 50% { box-shadow: 0 0 0 6px rgba(185,28,28,0); } }     .mic-wrap textarea, .mic-wrap input[type="text"] { padding-right: 48px; }
     * { box-sizing: border-box; }
 
     html, body {
@@ -2243,6 +2243,47 @@
         init();
       }
     })();
+      // voice-to-text v1
+  (function initVoiceToText() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    [['notes','Notes'],['journalEntry','Journal'],['coachInput','Coach']].forEach(function(t) {
+      var ta = document.getElementById(t[0]);
+      if (!ta) return;
+      var p = ta.parentNode;
+      var w = document.createElement('div');
+      w.className = 'mic-wrap';
+      p.insertBefore(w, ta);
+      w.appendChild(ta);
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'mic-btn';
+      b.title = 'Speak to type (' + t[1] + ')';
+      b.innerHTML = '&#127908;';
+      w.appendChild(b);
+      var rec = null, on = false;
+      b.addEventListener('click', function() {
+        if (on) { rec && rec.stop(); return; }
+        rec = new SR();
+        rec.lang = 'en-AU';
+        rec.continuous = true;
+        rec.interimResults = true;
+        var base = ta.value;
+        rec.onstart = function() { on = true; b.classList.add('listening'); };
+        rec.onend = function() { on = false; b.classList.remove('listening'); base = ta.value; };
+        rec.onerror = function() { on = false; b.classList.remove('listening'); };
+        rec.onresult = function(e) {
+          var f = '', i = '';
+          for (var x = e.resultIndex; x < e.results.length; x++) {
+            if (e.results[x].isFinal) f += e.results[x][0].transcript;
+            else i += e.results[x][0].transcript;
+          }
+          ta.value = base + f + i;
+          ta.dispatchEvent(new Event('input'));
+        };
+        rec.start();
+      });
+    });
+  })();
   </script>
 </body>
 </html>
