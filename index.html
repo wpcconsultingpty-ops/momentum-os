@@ -175,6 +175,7 @@
       width: 100%; max-width: 44px; min-height: 8px; border-radius: 999px 999px 12px 12px; background: linear-gradient(180deg, var(--accent), #3f9698);
     }
     .bar.private-bar { background: linear-gradient(180deg, var(--private), #a86fdf); }
+    .bar.muted-bar { background: linear-gradient(180deg, #d8d1c5, #c8beae); }
     .bar-label, .bar-value { font-size: 13px; color: var(--muted); }
     .calendar-header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
     .calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
@@ -210,10 +211,13 @@
     .private-note { background: var(--private-2); border-color: #d9c8f3; }
     .private-heading { color: var(--private); }
     .span-2 { grid-column: span 2; }
+    .reset-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:16px; }
+    .reset-response-card { display:none; white-space:pre-wrap; line-height:1.65; }
 
     @media (max-width: 1180px) {
       .hero, .section-grid, .journal-grid { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .reset-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 980px) {
       .app-shell { grid-template-columns: 1fr; }
@@ -730,10 +734,50 @@
                 <h3>Reset coach</h3>
                 <p>Use this when the day is slipping and you need a smaller next move.</p>
               </div>
-              <div class="coach-steps">
-                <div class="coach-step"><strong>1. Stop the bleed</strong>Remove one open loop, one demand, or one source of noise.</div>
-                <div class="coach-step"><strong>2. Refocus the target</strong>Pick one meaningful action that would make tonight easier.</div>
-                <div class="coach-step"><strong>3. Move without drama</strong>Start small, finish one thing, and close the day cleanly.</div>
+
+              <div class="reset-grid">
+                <div class="coach-step">
+                  <strong>1. Stop the bleed</strong>
+                  <p style="margin:0 0 12px; color:var(--muted);">Remove one open loop, one demand, or one source of noise.</p>
+                  <div class="field-group">
+                    <label for="resetBleedInput">What is creating the most pressure right now?</label>
+                    <textarea id="resetBleedInput" placeholder="Example: too many open tasks, inbox noise, family stress, unfinished work"></textarea>
+                  </div>
+                </div>
+
+                <div class="coach-step">
+                  <strong>2. Refocus the target</strong>
+                  <p style="margin:0 0 12px; color:var(--muted);">Pick one meaningful action that would make tonight easier.</p>
+                  <div class="field-group">
+                    <label for="resetTargetInput">What is the one thing that matters most next?</label>
+                    <textarea id="resetTargetInput" placeholder="Example: finish the bid review, send one email, plan tomorrow"></textarea>
+                  </div>
+                </div>
+
+                <div class="coach-step">
+                  <strong>3. Move without drama</strong>
+                  <p style="margin:0 0 12px; color:var(--muted);">Start small, finish one thing, and close the day cleanly.</p>
+                  <div class="field-group">
+                    <label for="resetCapacityInput">What capacity do you realistically have right now?</label>
+                    <select id="resetCapacityInput">
+                      <option value="low">Low — I can only do something very small</option>
+                      <option value="medium" selected>Medium — I can do one focused task</option>
+                      <option value="high">High — I still have enough for a solid push</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="action-row">
+                <button class="btn primary" id="askResetCoachBtn">Talk to Reset Coach</button>
+                <button class="btn secondary" id="clearResetCoachBtn">Clear</button>
+              </div>
+
+              <div class="status-line" id="resetCoachStatus">The coach will return one reflection, one next action, and one shutdown instruction.</div>
+
+              <div class="detail-card reset-response-card" id="resetCoachResponseCard">
+                <div class="detail-label">AI reset response</div>
+                <div id="resetCoachResponse" class="detail-text"></div>
               </div>
             </div>
           </section>
@@ -759,7 +803,7 @@
 
   <script>
     (() => {
-      const today = new Date(2026, 4, 15);
+      const today = new Date();
       let visibleMonth = today.getMonth();
       let visibleYear = today.getFullYear();
 
@@ -774,19 +818,10 @@
 
       const state = {
         selectedDateKey: toDateKey(today),
-        savedDays: {}
+        savedDays: loadSavedDays()
       };
 
-      const sampleDays = [
-        { date: new Date(2026, 4, 9), mood: 6, stress: 4, energy: 6, signals:[1,0,1], habits:[1,0,1,0,1,1], focus:'Avoid reactive work', notes:'Better than it felt in the moment.', reflection:'Pulled things back late.',
-          sleepHours: 7.0, sleepQuality: 3, movementMinutes: 35, recovery: 3, healthHabits:[1,1,0,1], libido: 3, connection: 3, confidence: 3, privateHabits:[1,0,1,1], privateNote:'Steady enough.' },
-        { date: new Date(2026, 4, 13), mood: 8, stress: 2, energy: 9, signals:[1,1,1], habits:[1,1,1,1,1,1], focus:'Finish proposal review', notes:'Excellent day. Good structure and clean decisions.', reflection:'Strong day with clean execution.',
-          sleepHours: 8.0, sleepQuality: 4, movementMinutes: 45, recovery: 4, healthHabits:[1,1,1,1], libido: 4, connection: 4, confidence: 4, privateHabits:[1,1,1,1], privateNote:'Good connection.' },
-        { date: new Date(2026, 4, 15), mood: 5, stress: 5, energy: 5, signals:[1,0,1], habits:[1,0,1,0,1,1], focus:'Finish clean', notes:'Mixed day. Finish clean.', reflection:'Need a cleaner shutdown tonight.',
-          sleepHours: 6.5, sleepQuality: 3, movementMinutes: 30, recovery: 3, healthHabits:[1,0,1,1], libido: 3, connection: 2, confidence: 3, privateHabits:[0,1,0,1], privateNote:'A little flat.' }
-      ];
-
-      sampleDays.forEach(seedDay);
+      seedSampleDays();
 
       const els = {
         sidebar: document.getElementById('sidebar'),
@@ -873,7 +908,15 @@
         calendarGrid: document.getElementById('calendarGrid'),
         previousMonthBtn: document.getElementById('previousMonthBtn'),
         currentMonthBtn: document.getElementById('currentMonthBtn'),
-        nextMonthBtn: document.getElementById('nextMonthBtn')
+        nextMonthBtn: document.getElementById('nextMonthBtn'),
+        resetBleedInput: document.getElementById('resetBleedInput'),
+        resetTargetInput: document.getElementById('resetTargetInput'),
+        resetCapacityInput: document.getElementById('resetCapacityInput'),
+        askResetCoachBtn: document.getElementById('askResetCoachBtn'),
+        clearResetCoachBtn: document.getElementById('clearResetCoachBtn'),
+        resetCoachStatus: document.getElementById('resetCoachStatus'),
+        resetCoachResponseCard: document.getElementById('resetCoachResponseCard'),
+        resetCoachResponse: document.getElementById('resetCoachResponse')
       };
 
       bindUi();
@@ -915,6 +958,30 @@
         els.previousMonthBtn.addEventListener('click', () => shiftMonth(-1));
         els.nextMonthBtn.addEventListener('click', () => shiftMonth(1));
         els.currentMonthBtn.addEventListener('click', () => { visibleMonth = today.getMonth(); visibleYear = today.getFullYear(); renderCalendar(); });
+
+        els.askResetCoachBtn?.addEventListener('click', runResetCoach);
+        els.clearResetCoachBtn?.addEventListener('click', () => {
+          els.resetBleedInput.value = '';
+          els.resetTargetInput.value = '';
+          els.resetCapacityInput.value = 'medium';
+          els.resetCoachResponse.textContent = '';
+          els.resetCoachResponseCard.style.display = 'none';
+          els.resetCoachStatus.textContent = 'The coach will return one reflection, one next action, and one shutdown instruction.';
+        });
+      }
+
+      function seedSampleDays() {
+        if (Object.keys(state.savedDays).length) return;
+        const sampleDays = [
+          { date: offsetDate(-6), mood: 6, stress: 4, energy: 6, signals:[1,0,1], habits:[1,0,1,0,1,1], focus:'Avoid reactive work', notes:'Better than it felt in the moment.', reflection:'Pulled things back late.',
+            sleepHours: 7.0, sleepQuality: 3, movementMinutes: 35, recovery: 3, healthHabits:[1,1,0,1], libido: 3, connection: 3, confidence: 3, privateHabits:[1,0,1,1], privateNote:'Steady enough.' },
+          { date: offsetDate(-2), mood: 8, stress: 2, energy: 8, signals:[1,1,1], habits:[1,1,1,1,1,0], focus:'Finish proposal review', notes:'Excellent day. Good structure and clean decisions.', reflection:'Strong day with clean execution.',
+            sleepHours: 8.0, sleepQuality: 4, movementMinutes: 45, recovery: 4, healthHabits:[1,1,1,1], libido: 4, connection: 4, confidence: 4, privateHabits:[1,1,1,1], privateNote:'Good connection.' },
+          { date: offsetDate(0), mood: 5, stress: 5, energy: 5, signals:[1,0,1], habits:[1,0,1,0,1,1], focus:'Finish clean', notes:'Mixed day. Finish clean.', reflection:'Need a cleaner shutdown tonight.',
+            sleepHours: 6.5, sleepQuality: 3, movementMinutes: 30, recovery: 3, healthHabits:[1,0,1,1], libido: 3, connection: 2, confidence: 3, privateHabits:[0,1,0,1], privateNote:'A little flat.' }
+        ];
+        sampleDays.forEach(seedDay);
+        persistSavedDays();
       }
 
       function seedDay(day) {
@@ -951,31 +1018,7 @@
       function hydrateToday() {
         const entry = state.savedDays[state.selectedDateKey] || state.savedDays[toDateKey(today)];
         if (!entry) return clearTodayInputs();
-        els.moodRange.value = entry.mood;
-        els.stressRange.value = entry.stress;
-        els.energyRange.value = entry.energy;
-        els.moodValue.textContent = `${entry.mood} / 10`;
-        els.stressValue.textContent = `${entry.stress} / 10`;
-        els.energyValue.textContent = `${entry.energy} / 10`;
-        els.signals.forEach((el, i) => el.checked = !!entry.signals?.[i]);
-        els.habits.forEach((el, i) => el.checked = !!entry.habits?.[i]);
-        els.reflectionInput.value = entry.reflection || entry.notes || '';
-        els.tomorrowFocusInput.value = entry.focus || '';
-        els.sleepHoursInput.value = entry.sleepHours ?? 7;
-        els.sleepQualityRange.value = entry.sleepQuality ?? 3;
-        els.sleepQualityValue.textContent = `${els.sleepQualityRange.value} / 5`;
-        els.trainingMinutesInput.value = entry.movementMinutes ?? 30;
-        els.recoveryRange.value = entry.recovery ?? 3;
-        els.recoveryValue.textContent = `${els.recoveryRange.value} / 5`;
-        els.healthHabits.forEach((el, i) => el.checked = !!entry.healthHabits?.[i]);
-        els.libidoRange.value = entry.libido ?? 3;
-        els.connectionRange.value = entry.connection ?? 3;
-        els.confidenceRange.value = entry.confidence ?? 3;
-        els.libidoValue.textContent = `${els.libidoRange.value} / 5`;
-        els.connectionValue.textContent = `${els.connectionRange.value} / 5`;
-        els.confidenceValue.textContent = `${els.confidenceRange.value} / 5`;
-        els.privateHabits.forEach((el, i) => el.checked = !!entry.privateHabits?.[i]);
-        els.privacyNotesInput.value = entry.privateNote || '';
+        hydrateFromEntry(entry);
       }
 
       function clearTodayInputs() {
@@ -994,6 +1037,7 @@
         const current = captureCurrentDay();
         state.savedDays[current.dateKey] = current;
         state.selectedDateKey = current.dateKey;
+        persistSavedDays();
         renderAll(true);
       }
 
@@ -1030,29 +1074,98 @@
         const habitCount = sum(day.habits || []);
         const healthHabitCount = sum(day.healthHabits || []);
         const privateHabitCount = sum(day.privateHabits || []);
-        const sleepScore = clamp((Number(day.sleepHours) / 8) * 100, 0, 100);
-        const movementScore = clamp((Number(day.movementMinutes) / 45) * 100, 0, 100);
+
+        const moodPct = clamp((Number(day.mood) / 10) * 100, 0, 100);
+        const stressPct = clamp(((11 - Number(day.stress)) / 10) * 100, 0, 100);
+        const energyPct = clamp((Number(day.energy) / 10) * 100, 0, 100);
+        const sleepPct = clamp((Number(day.sleepHours) / 8) * 100, 0, 100);
+        const movePct = clamp((Number(day.movementMinutes) / 45) * 100, 0, 100);
+        const sleepQualityPct = clamp((Number(day.sleepQuality) / 5) * 100, 0, 100);
+        const recoveryPct = clamp((Number(day.recovery) / 5) * 100, 0, 100);
+        const libidoPct = clamp((Number(day.libido) / 5) * 100, 0, 100);
+        const connectionPct = clamp((Number(day.connection) / 5) * 100, 0, 100);
+        const confidencePct = clamp((Number(day.confidence) / 5) * 100, 0, 100);
+
         const momentumScore = Math.round(clamp(
-          (day.mood * 6) + ((11 - day.stress) * 5) + (day.energy * 5) + (signalCount * 7) + (habitCount * 4), 0, 100
+          (moodPct * 0.22) +
+          (stressPct * 0.20) +
+          (energyPct * 0.22) +
+          (((signalCount / 3) * 100) * 0.18) +
+          (((habitCount / 6) * 100) * 0.18),
+          0, 100
         ));
+
         const healthScore = Math.round(clamp(
-          (sleepScore * 0.25) + ((day.sleepQuality / 5) * 100 * 0.2) + (movementScore * 0.2) + ((day.recovery / 5) * 100 * 0.15) + ((day.energy / 10) * 100 * 0.1) + ((healthHabitCount / 4) * 100 * 0.1), 0, 100
+          (sleepPct * 0.28) +
+          (sleepQualityPct * 0.18) +
+          (movePct * 0.18) +
+          (recoveryPct * 0.16) +
+          (energyPct * 0.10) +
+          (((healthHabitCount / 4) * 100) * 0.10),
+          0, 100
         ));
+
         const privateScore = Math.round(clamp(
-          ((day.libido / 5) * 100 * 0.3) + ((day.connection / 5) * 100 * 0.35) + ((day.confidence / 5) * 100 * 0.15) + ((privateHabitCount / 4) * 100 * 0.2), 0, 100
+          (libidoPct * 0.28) +
+          (connectionPct * 0.32) +
+          (confidencePct * 0.18) +
+          (((privateHabitCount / 4) * 100) * 0.22),
+          0, 100
         ));
+
         return { momentumScore, healthScore, privateScore };
+      }
+
+      async function runResetCoach() {
+        const bleed = els.resetBleedInput.value.trim();
+        const target = els.resetTargetInput.value.trim();
+        const capacity = els.resetCapacityInput.value;
+
+        if (!bleed || !target) {
+          els.resetCoachStatus.textContent = 'Please fill in both the pressure point and the next target.';
+          return;
+        }
+
+        els.resetCoachStatus.textContent = 'Thinking...';
+        els.resetCoachResponseCard.style.display = 'none';
+        els.askResetCoachBtn.disabled = true;
+
+        try {
+          const response = await fetch('/api/reset-coach', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bleed, target, capacity })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data?.error || 'Reset Coach request failed.');
+          }
+
+          els.resetCoachResponse.textContent = data.output || 'No response returned.';
+          els.resetCoachResponseCard.style.display = 'block';
+          els.resetCoachStatus.textContent = 'Reset Coach is ready.';
+        } catch (error) {
+          els.resetCoachStatus.textContent = 'Could not reach Reset Coach. Check your API route and environment key.';
+          els.resetCoachResponse.textContent = '';
+          els.resetCoachResponseCard.style.display = 'none';
+        } finally {
+          els.askResetCoachBtn.disabled = false;
+        }
       }
 
       function renderAll(saved) {
         const preview = captureCurrentDay();
         const savedDays = getSortedEntries();
         const recent = getRecentEntries(7);
+
         els.topDateLabel.textContent = formatFullDate(today);
         els.dailyScore.textContent = preview.score;
         els.scoreRing.style.background = `conic-gradient(var(--accent) ${preview.score * 3.6}deg, rgba(13,107,111,0.12) 0deg)`;
         els.messageBadge.textContent = saved ? 'Day saved. Keep moving.' : getStatusMessage(preview.score);
         els.dayStatus.textContent = `${getStatusMessage(preview.score)} Health ${preview.healthScore}. Private ${preview.privateScore}.`;
+
         els.signalsValue.textContent = `${sum(preview.signals)} / 3 logged`;
         els.habitsValue.textContent = `${sum(preview.habits)} / 6 done`;
         els.healthHabitsValue.textContent = `${sum(preview.healthHabits)} / 4 done`;
@@ -1067,6 +1180,7 @@
         els.selectedPrivateScore.textContent = selected.privateScore;
         els.selectedFocus.textContent = selected.focus || '-';
         els.selectedNotes.textContent = selected.notes || '-';
+
         els.journalSelectedDate.textContent = selected.date;
         els.journalSelectedScore.textContent = selected.score;
         els.journalSelectedFocus.textContent = selected.focus || '-';
@@ -1076,43 +1190,49 @@
         els.avgScore.textContent = average(recent.map(d => d.score));
         els.healthAvgKpi.textContent = average(recent.map(d => d.healthScore));
         els.privateAvgKpi.textContent = average(recent.map(d => d.privateScore));
-        els.savedEntrySummary.textContent = `${recent.length} / 7`;
-        els.weeklyAverageDisplay.textContent = average(recent.map(d => d.score));
-        els.avgMood.textContent = recent.length ? `${average(recent.map(d => d.mood))} / 10` : '-';
-        els.avgStress.textContent = recent.length ? `${average(recent.map(d => d.stress))} / 10` : '-';
-        els.bestDay.textContent = recent.length ? `${recent.slice().sort((a,b)=>b.score-a.score)[0].date}` : '-';
-        els.strongestHabit.textContent = strongestHabit(recent);
 
-        els.healthTrendSummary.textContent = average(recent.map(d => d.healthScore));
-        els.privateTrendSummary.textContent = average(recent.map(d => d.privateScore));
-        els.trendReadText.textContent = trendRead(recent);
+        els.savedEntrySummary.textContent = `${recent.filter(Boolean).length} / 7`;
+        els.weeklyAverageDisplay.textContent = recent.some(Boolean) ? average(recent.filter(Boolean).map(d => d.score)) : '0';
+        els.avgMood.textContent = recent.some(Boolean) ? `${average(recent.filter(Boolean).map(d => d.mood))} / 10` : '-';
+        els.avgStress.textContent = recent.some(Boolean) ? `${average(recent.filter(Boolean).map(d => d.stress))} / 10` : '-';
+        els.bestDay.textContent = recent.filter(Boolean).length ? `${recent.filter(Boolean).slice().sort((a,b)=>b.score-a.score)[0].date}` : '-';
+        els.strongestHabit.textContent = strongestHabit(recent.filter(Boolean));
 
-        els.healthWeeklyAvg.textContent = average(recent.map(d => d.healthScore));
-        els.sleepWeeklyAvg.textContent = recent.length ? average(recent.map(d => d.sleepHours), 1) : 0;
-        els.movementWeeklyAvg.textContent = recent.length ? average(recent.map(d => d.movementMinutes)) : 0;
-        els.bestRecoveryDay.textContent = recent.length ? recent.slice().sort((a,b)=>b.healthScore-a.healthScore)[0].date : '-';
+        els.healthTrendSummary.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.healthScore)) : '-';
+        els.privateTrendSummary.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.privateScore)) : '-';
+        els.trendReadText.textContent = trendRead(recent.filter(Boolean));
 
-        els.privateWeeklyAvg.textContent = average(recent.map(d => d.privateScore));
-        els.libidoWeeklyAvg.textContent = recent.length ? `${average(recent.map(d => d.libido), 1)} / 5` : '-';
-        els.connectionWeeklyAvg.textContent = recent.length ? `${average(recent.map(d => d.connection), 1)} / 5` : '-';
-        els.bestPrivateDay.textContent = recent.length ? recent.slice().sort((a,b)=>b.privateScore-a.privateScore)[0].date : '-';
+        els.healthWeeklyAvg.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.healthScore)) : '0';
+        els.sleepWeeklyAvg.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.sleepHours), 1) : '0';
+        els.movementWeeklyAvg.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.movementMinutes)) : '0';
+        els.bestRecoveryDay.textContent = recent.filter(Boolean).length ? recent.filter(Boolean).slice().sort((a,b)=>b.healthScore-a.healthScore)[0].date : '-';
 
-        renderBars(els.momentumBars, recent, 'score');
-        renderBars(els.healthBars, recent, 'healthScore');
-        renderBars(els.privateBars, recent, 'privateScore', true);
+        els.privateWeeklyAvg.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.privateScore)) : '0';
+        els.libidoWeeklyAvg.textContent = recent.filter(Boolean).length ? `${average(recent.filter(Boolean).map(d => d.libido), 1)} / 5` : '-';
+        els.connectionWeeklyAvg.textContent = recent.filter(Boolean).length ? `${average(recent.filter(Boolean).map(d => d.connection), 1)} / 5` : '-';
+        els.bestPrivateDay.textContent = recent.filter(Boolean).length ? recent.filter(Boolean).slice().sort((a,b)=>b.privateScore-a.privateScore)[0].date : '-';
+
+        renderBars(els.momentumBars, getLast7DayKeys(), 'score');
+        renderBars(els.healthBars, getLast7DayKeys(), 'healthScore');
+        renderBars(els.privateBars, getLast7DayKeys(), 'privateScore', true);
         renderCalendar();
         renderJournal(savedDays);
       }
 
-      function renderBars(container, entries, metric, isPrivate = false) {
+      function renderBars(container, days, metric, isPrivate = false) {
         container.innerHTML = '';
-        const days = getLast7DayKeys();
         days.forEach(({key, label}) => {
           const entry = state.savedDays[key];
-          const value = entry ? entry[metric] : 0;
+          const value = entry ? entry[metric] : null;
           const wrap = document.createElement('div');
           wrap.className = 'bar-wrap';
-          wrap.innerHTML = `<div class="bar ${isPrivate ? 'private-bar' : ''}" style="height:${Math.max(value, 8)}%;"></div><div class="bar-value">${value || 0}</div><div class="bar-label">${label}</div>`;
+          const className = value === null ? 'bar muted-bar' : `bar ${isPrivate ? 'private-bar' : ''}`;
+          const height = value === null ? 14 : Math.max(value, 10);
+          wrap.innerHTML = `
+            <div class="${className}" style="height:${height}%"></div>
+            <div class="bar-value">${value === null ? '—' : value}</div>
+            <div class="bar-label">${label}</div>
+          `;
           container.appendChild(wrap);
         });
       }
@@ -1122,13 +1242,21 @@
         document.querySelector('#historyView .section-heading h3').textContent = `Calendar history — ${monthNames[visibleMonth]} ${visibleYear}`;
         els.calendarGrid.innerHTML = '';
         ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day => {
-          const el = document.createElement('div'); el.className = 'weekday'; el.textContent = day; els.calendarGrid.appendChild(el);
+          const el = document.createElement('div');
+          el.className = 'weekday';
+          el.textContent = day;
+          els.calendarGrid.appendChild(el);
         });
+
         const first = new Date(visibleYear, visibleMonth, 1);
         const last = new Date(visibleYear, visibleMonth + 1, 0);
+
         for (let i = 0; i < first.getDay(); i++) {
-          const blank = document.createElement('div'); blank.className = 'day-empty'; els.calendarGrid.appendChild(blank);
+          const blank = document.createElement('div');
+          blank.className = 'day-empty';
+          els.calendarGrid.appendChild(blank);
         }
+
         for (let d = 1; d <= last.getDate(); d++) {
           const date = new Date(visibleYear, visibleMonth, d);
           const key = toDateKey(date);
@@ -1139,18 +1267,29 @@
           if (key === state.selectedDateKey) day.classList.add('selected');
           const tier = !entry ? '' : entry.score >= 75 ? 'good' : entry.score >= 55 ? 'mid' : 'bad';
           day.innerHTML = `<div class="day-top"><span>${d}</span><span class="day-dot ${tier}"></span></div><div class="day-score">${entry ? entry.score : '—'}</div>`;
-          day.addEventListener('click', () => { state.selectedDateKey = key; if (entry) hydrateFromEntry(entry); renderAll(false); });
+          day.addEventListener('click', () => {
+            state.selectedDateKey = key;
+            if (entry) hydrateFromEntry(entry);
+            renderAll(false);
+          });
           els.calendarGrid.appendChild(day);
         }
       }
 
       function hydrateFromEntry(entry) {
-        els.moodRange.value = entry.mood; els.stressRange.value = entry.stress; els.energyRange.value = entry.energy;
-        els.moodValue.textContent = `${entry.mood} / 10`; els.stressValue.textContent = `${entry.stress} / 10`; els.energyValue.textContent = `${entry.energy} / 10`;
+        els.moodRange.value = entry.mood ?? 5;
+        els.stressRange.value = entry.stress ?? 5;
+        els.energyRange.value = entry.energy ?? 5;
+        els.moodValue.textContent = `${els.moodRange.value} / 10`;
+        els.stressValue.textContent = `${els.stressRange.value} / 10`;
+        els.energyValue.textContent = `${els.energyRange.value} / 10`;
+
         els.signals.forEach((el, i) => el.checked = !!entry.signals?.[i]);
         els.habits.forEach((el, i) => el.checked = !!entry.habits?.[i]);
+
         els.reflectionInput.value = entry.reflection || entry.notes || '';
         els.tomorrowFocusInput.value = entry.focus || '';
+
         els.sleepHoursInput.value = entry.sleepHours ?? 7;
         els.sleepQualityRange.value = entry.sleepQuality ?? 3;
         els.sleepQualityValue.textContent = `${els.sleepQualityRange.value} / 5`;
@@ -1158,8 +1297,13 @@
         els.recoveryRange.value = entry.recovery ?? 3;
         els.recoveryValue.textContent = `${els.recoveryRange.value} / 5`;
         els.healthHabits.forEach((el, i) => el.checked = !!entry.healthHabits?.[i]);
-        els.libidoRange.value = entry.libido ?? 3; els.connectionRange.value = entry.connection ?? 3; els.confidenceRange.value = entry.confidence ?? 3;
-        els.libidoValue.textContent = `${els.libidoRange.value} / 5`; els.connectionValue.textContent = `${els.connectionRange.value} / 5`; els.confidenceValue.textContent = `${els.confidenceRange.value} / 5`;
+
+        els.libidoRange.value = entry.libido ?? 3;
+        els.connectionRange.value = entry.connection ?? 3;
+        els.confidenceRange.value = entry.confidence ?? 3;
+        els.libidoValue.textContent = `${els.libidoRange.value} / 5`;
+        els.connectionValue.textContent = `${els.connectionRange.value} / 5`;
+        els.confidenceValue.textContent = `${els.confidenceRange.value} / 5`;
         els.privateHabits.forEach((el, i) => el.checked = !!entry.privateHabits?.[i]);
         els.privacyNotesInput.value = entry.privateNote || '';
       }
@@ -1173,7 +1317,12 @@
         entries.slice().reverse().forEach(entry => {
           const item = document.createElement('div');
           item.className = 'journal-entry';
-          item.innerHTML = `<h4>${entry.date}</h4><p><strong>Score:</strong> ${entry.score} · <strong>Health:</strong> ${entry.healthScore} · <strong>Private:</strong> ${entry.privateScore}</p><p>${escapeHtml(entry.notes || 'No note saved.')}</p><p><strong>Focus:</strong> ${escapeHtml(entry.focus || '-')}</p>`;
+          item.innerHTML = `
+            <h4>${entry.date}</h4>
+            <p><strong>Score:</strong> ${entry.score} · <strong>Health:</strong> ${entry.healthScore} · <strong>Private:</strong> ${entry.privateScore}</p>
+            <p>${escapeHtml(entry.notes || 'No note saved.')}</p>
+            <p><strong>Focus:</strong> ${escapeHtml(entry.focus || '-')}</p>
+          `;
           els.journalList.appendChild(item);
         });
       }
@@ -1191,14 +1340,14 @@
         for (let i = 0; i < 30; i++) {
           const date = new Date(today);
           date.setDate(today.getDate() - i);
-          if (state.savedDays[toDateKey(date)]) streak += 1; else break;
+          if (state.savedDays[toDateKey(date)]) streak += 1;
+          else break;
         }
         return streak;
       }
 
-      function getRecentEntries(days) {
-        const keys = getLast7DayKeys(days).map(d => d.key);
-        return keys.map(key => state.savedDays[key]).filter(Boolean);
+      function getRecentEntries(days = 7) {
+        return getLast7DayKeys(days).map(d => state.savedDays[d.key] || null);
       }
 
       function getLast7DayKeys(days = 7) {
@@ -1206,7 +1355,10 @@
         for (let i = days - 1; i >= 0; i--) {
           const date = new Date(today);
           date.setDate(today.getDate() - i);
-          items.push({ key: toDateKey(date), label: date.toLocaleDateString('en-AU', { weekday: 'short' }) });
+          items.push({
+            key: toDateKey(date),
+            label: date.toLocaleDateString('en-AU', { weekday: 'short' })
+          });
         }
         return items;
       }
@@ -1220,10 +1372,11 @@
         const momentum = Number(average(recent.map(d => d.score)));
         const health = Number(average(recent.map(d => d.healthScore)));
         const priv = Number(average(recent.map(d => d.privateScore)));
-        if (health >= 70 && priv >= 70) return 'Health and private trends are both supporting daily momentum.';
-        if (health < 60 && priv >= 60) return 'Body recovery looks like the main lever to improve next.';
+        if (momentum >= 70 && health >= 70 && priv >= 65) return 'Momentum, recovery, and private rhythm are all supporting each other.';
+        if (health < 60 && priv >= 60) return 'Recovery looks like the clearest lever to improve next.';
         if (health >= 60 && priv < 60) return 'Connection and private rhythm need more attention than physical baseline.';
-        return 'Keep the next week simple and look for sleep, stress, and connection patterns.';
+        if (momentum < 60) return 'Keep the next week simple and rebuild consistency before chasing intensity.';
+        return 'Build consistency first, then watch what improves together.';
       }
 
       function shiftMonth(delta) {
@@ -1231,6 +1384,26 @@
         if (visibleMonth < 0) { visibleMonth = 11; visibleYear -= 1; }
         if (visibleMonth > 11) { visibleMonth = 0; visibleYear += 1; }
         renderCalendar();
+      }
+
+      function loadSavedDays() {
+        try {
+          return JSON.parse(localStorage.getItem('momentum-os-saved-days') || '{}');
+        } catch {
+          return {};
+        }
+      }
+
+      function persistSavedDays() {
+        try {
+          localStorage.setItem('momentum-os-saved-days', JSON.stringify(state.savedDays));
+        } catch {}
+      }
+
+      function offsetDate(days) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + days);
+        return d;
       }
 
       function toDateKey(date) {
@@ -1241,7 +1414,12 @@
       }
 
       function formatFullDate(date) {
-        return date.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        return date.toLocaleDateString('en-AU', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
       }
 
       function average(values, fixed = 0) {
@@ -1250,14 +1428,21 @@
         return result.toFixed(fixed).replace(/\.0$/, '');
       }
 
-      function sum(items) { return items.reduce((a, b) => a + Number(b || 0), 0); }
-      function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+      function sum(items) {
+        return items.reduce((a, b) => a + Number(b || 0), 0);
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
       function getStatusMessage(score) {
         if (score >= 80) return 'Strong day. Protect the rhythm.';
         if (score >= 65) return 'Solid day. Refocus and keep moving.';
         if (score >= 50) return 'Mixed day. Win the next hour first.';
         return 'Low signal day. Simplify and stabilize.';
       }
+
       function escapeHtml(str) {
         return String(str).replace(/[&<>"]/g, s => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[s]));
       }
