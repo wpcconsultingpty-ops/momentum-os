@@ -963,7 +963,7 @@
         navButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         views.forEach(v => v.classList.toggle('active', v.id === target));
-        sidebar.classList.remove('open');
+        sidebar.classList.remove('open');         var titles = {dashboardView:'Daily momentum',historyView:'History',journalView:'Journal',coachView:'Reset Coach'};         var topH = document.querySelector('.topbar h2');         if(topH) topH.textContent = titles[target] || 'Momentum OS';
       });
     });
 
