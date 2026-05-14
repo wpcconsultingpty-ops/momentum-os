@@ -883,10 +883,43 @@
       </section>
 
       <section class="view" id="historyView">
+              <div class="panel history-summary" style="margin-bottom:18px;">
+        <div class="summary-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:12px;">
+          <div><span class="subtle">This month</span> <strong id="summaryMonthLabel">May 2026</strong></div>
+          <div class="action-row" style="margin-top:0;">
+            <button class="btn" id="summaryPrevBtn" type="button">‹ Prev</button>
+            <button class="btn" id="summaryCurrentBtn" type="button">Current</button>
+            <button class="btn" id="summaryNextBtn" type="button">Next ›</button>
+          </div>
+        </div>
+        <div class="kpis">
+          <div class="kpi">
+            <div class="kpi-label">Days logged</div>
+            <strong id="kpiDaysLogged">0 / 0</strong>
+            <div class="subtle" id="kpiDaysLoggedPct">0%</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Avg momentum</div>
+            <strong id="kpiAvgMomentum">—</strong>
+            <div class="subtle" id="kpiAvgDelta">vs last week</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Current streak</div>
+            <strong id="kpiCurrentStreak">0 days</strong>
+            <div class="subtle" id="kpiBestStreak">Best: 0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Best day</div>
+            <strong id="kpiBestDay">—</strong>
+            <div class="subtle" id="kpiBestDayScore">Score —</div>
+          </div>
+        </div>
+      </div>
         <div class="panel" id="reviewSection">
             <h3>Last 7 days</h3>
             <p class="subtle">Trends in the middle. Details lower down.</p>
 
+          
             <div class="selected-box" style="margin-top:14px;">
               <div class="kpi-label" style="margin-bottom:6px;">Momentum trend</div>
               <div class="subtle">Scores across recent saved days</div>
@@ -2077,7 +2110,103 @@
         renderCalendar();
         renderWeeklyReview();
         renderCoachMode();
+              renderHistorySummary();
       }
+
+          function renderHistorySummary() {
+      var data = loadData();
+      var keys = Object.keys(data).sort();
+      var now = new Date();
+      var year = now.getFullYear();
+      var month = now.getMonth();
+      var first = new Date(year, month, 1);
+      var last = new Date(year, month + 1, 0);
+      var daysInMonth = last.getDate();
+      var daysElapsed = Math.min(daysInMonth, now.getDate());
+      var monthLabel = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      setText('summaryMonthLabel', monthLabel);
+
+      var monthEntries = [];
+      var scores = [];
+      var bestDay = null;
+      var bestScore = -1;
+      keys.forEach(function (k) {
+        var entry = data[k];
+        if (!entry) return;
+        var d = new Date(k);
+        if (d.getFullYear() === year && d.getMonth() === month) {
+          monthEntries.push({ key: k, entry: entry, date: d });
+          if (typeof entry.score === 'number') {
+            scores.push(entry.score);
+            if (entry.score > bestScore) {
+              bestScore = entry.score;
+              bestDay = { key: k, date: d, score: entry.score };
+            }
+          }
+        }
+      });
+
+      setText('kpiDaysLogged', monthEntries.length + ' / ' + daysElapsed);
+      var pct = daysElapsed ? Math.round((monthEntries.length / daysElapsed) * 100) : 0;
+      setText('kpiDaysLoggedPct', pct + '% consistency');
+
+      if (scores.length) {
+        var avg = Math.round(scores.reduce(function (a, b) { return a + b; }, 0) / scores.length);
+        setText('kpiAvgMomentum', String(avg));
+        var last7 = [];
+        var prev7 = [];
+        var msDay = 86400000;
+        keys.forEach(function (k) {
+          var entry = data[k];
+          if (!entry || typeof entry.score !== 'number') return;
+          var diff = (now - new Date(k)) / msDay;
+          if (diff >= 0 && diff < 7) last7.push(entry.score);
+          else if (diff >= 7 && diff < 14) prev7.push(entry.score);
+        });
+        if (last7.length && prev7.length) {
+          var a1 = last7.reduce(function (a, b) { return a + b; }, 0) / last7.length;
+          var a2 = prev7.reduce(function (a, b) { return a + b; }, 0) / prev7.length;
+          var delta = Math.round(a1 - a2);
+          var sign = delta > 0 ? '▲ +' : (delta < 0 ? '▼ ' : '— ');
+          setText('kpiAvgDelta', sign + Math.abs(delta) + ' vs last week');
+        } else {
+          setText('kpiAvgDelta', 'vs last week');
+        }
+      } else {
+        setText('kpiAvgMomentum', '—');
+        setText('kpiAvgDelta', 'No data yet');
+      }
+
+      var current = 0;
+      var best = 0;
+      var running = 0;
+      var dateCursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var msDay2 = 86400000;
+      for (var i = 0; i < 365; i++) {
+        var k2 = getDateKey(dateCursor);
+        if (data[k2]) {
+          running += 1;
+          if (i === current) current = running;
+        } else {
+          if (i === 0) current = 0;
+          if (running > best) best = running;
+          running = 0;
+        }
+        dateCursor = new Date(dateCursor.getTime() - msDay2);
+      }
+      if (running > best) best = running;
+      setText('kpiCurrentStreak', current + (current === 1 ? ' day' : ' days'));
+      setText('kpiBestStreak', 'Best: ' + best);
+
+      if (bestDay) {
+        var label = bestDay.date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+        setText('kpiBestDay', label);
+        setText('kpiBestDayScore', 'Score ' + bestDay.score);
+      } else {
+        setText('kpiBestDay', '—');
+        setText('kpiBestDayScore', 'Score —');
+      }
+    }
 
       function bindEvents() {
         if (el('signUpBtn')) el('signUpBtn').addEventListener('click', handleSignUp);
