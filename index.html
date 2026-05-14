@@ -787,64 +787,28 @@
       </header>
 
       <section class="view active" id="dashboardView">
-  <div class="hero-grid">
-    <!-- existing hero panels stay as they are -->
-  </div>
-
-  <div class="kpis">
-    <!-- existing KPI cards stay as they are -->
-  </div>
-
-  <div class="two-col">
-    <div class="panel">
-      <h3>Calendar history</h3>
-      <p class="subtle">This month</p>
-      <div class="action-row">
-        <button class="btn" id="prevMonthBtn" type="button">Previous</button>
-        <button class="btn" id="currentMonthBtn" type="button">Current</button>
-        <button class="btn" id="nextMonthBtn" type="button">Next</button>
+      <div class="hero-grid">
+        <div class="panel">
+          <div class="score-wrap">
+            <div class="score-ring" id="scoreRing">
+              <div class="score-ring-inner">
+                <strong id="overallScore">0</strong>
+                <span>Score</span>
+              </div>
+            </div>
+            <div>
+              <h3>Win the day first.</h3>
+              <p class="subtle">Track the signal, protect momentum, and keep the next move simple.</p>
+              <div class="message-badge" id="scoreMessage">Start by checking in.</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Daily direction</h3>
+          <p class="subtle">Fast signals that tell you what to protect next.</p>
+          <div class="insight-list" id="insights"></div>
+        </div>
       </div>
-      <div id="monthLabel" class="message-badge"></div>
-      <div class="calendar" id="calendarGrid"></div>
-    </div>
-
-    <div class="panel">
-      <h3>Selected day</h3>
-      <p class="subtle">Click any day with data to load it into the dashboard and journal.</p>
-      <div class="selected-box">
-        <ul class="prompt-list" style="margin:0; padding-left:18px;">
-          <li>Date <strong id="selectedDayDate">Today</strong></li>
-          <li>Score <strong id="selectedDayScore">—</strong></li>
-          <li>Mood <strong id="selectedDayMood">—</strong></li>
-          <li>Stress <strong id="selectedDayStress">—</strong></li>
-          <li>Habits done <strong id="selectedDayHabits">—</strong></li>
-          <li>Tomorrow’s focus <strong id="selectedDayFocus">—</strong></li>
-        </ul>
-      </div>
-      <div class="selected-box" style="margin-top:12px;">
-        <strong>Notes</strong><br />
-        <span id="selectedDayNotes">No day selected yet.</span>
-      </div>
-      <p class="footer-note">Prototype version stores data locally in this browser.</p>
-    </div>
-  </div>
-
-  <div class="two-col">
-    <div class="panel">
-      <h3>Last 7 days</h3>
-      <p class="subtle">Trends in the middle. Details lower down.</p>
-      <h3 style="margin-top:18px;">Momentum trend</h3>
-      <p class="subtle">Scores across recent saved days</p>
-      <div class="bars" id="trendBars"></div>
-    </div>
-
-    <div class="panel" id="reviewSection">
-      <h3>Weekly review</h3>
-      <p class="subtle">A quick read on what is helping and what needs attention.</p>
-      <div class="review-list" id="weeklyReview"></div>
-    </div>
-  </div>
-
   <!-- keep your existing check-in form block below this -->
 </section>
 
