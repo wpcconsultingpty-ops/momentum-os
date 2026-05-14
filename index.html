@@ -1687,7 +1687,7 @@
 
         if (el('sidebar')) el('sidebar').classList.remove('open');
             window.scrollTo(0, 0);
-            var c = document.querySelector('main.content'); if (c) c.scrollTop = 0;
+            setTimeout(function(){var c=document.querySelector('main.content');if(c)c.scrollTop=0;window.scrollTo(0,0);},10);('main.content'); if (c) c.scrollTop = 0;
       }
 
       function saveSelectedDay() {
