@@ -2247,7 +2247,7 @@
   (function initVoiceToText() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    [['notes','Notes'],['journalEntry','Journal'],['coachInput','Coach']].forEach(function(t) {
+    [['coachInput','Coach']].forEach(function(t) {
       var ta = document.getElementById(t[0]);
       if (!ta) return;
       var p = ta.parentNode;
