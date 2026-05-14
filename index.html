@@ -1,75 +1,213 @@
 <script>
   (() => {
+    const today = new Date(2026, 4, 14); // May 14, 2026
+    let visibleMonth = today.getMonth();
+    let visibleYear = today.getFullYear();
+
     const state = {
-      selectedDate: 'Thursday, May 14',
+      selectedDateKey: toDateKey(today),
       savedDays: {}
     };
+
+    const sampleDays = [
+      {
+        date: new Date(2026, 4, 1),
+        score: 58,
+        mood: "5 / 10",
+        stress: "6 / 10",
+        habits: "3 / 6",
+        focus: "Reset workflow",
+        notes: "A stop-start day. Better once I reduced task switching."
+      },
+      {
+        date: new Date(2026, 4, 2),
+        score: 77,
+        mood: "8 / 10",
+        stress: "3 / 10",
+        habits: "5 / 6",
+        focus: "Close open actions",
+        notes: "Strong energy and good structure."
+      },
+      {
+        date: new Date(2026, 4, 3),
+        score: 63,
+        mood: "6 / 10",
+        stress: "4 / 10",
+        habits: "4 / 6",
+        focus: "Family time first",
+        notes: "Decent day with a softer pace."
+      },
+      {
+        date: new Date(2026, 4, 4),
+        score: 42,
+        mood: "4 / 10",
+        stress: "8 / 10",
+        habits: "2 / 6",
+        focus: "Recover early",
+        notes: "Low-energy day. Needed less pressure, not more."
+      },
+      {
+        date: new Date(2026, 4, 5),
+        score: 57,
+        mood: "5 / 10",
+        stress: "5 / 10",
+        habits: "3 / 6",
+        focus: "Do first hard thing early",
+        notes: "Recovered some momentum once priorities were clearer."
+      },
+      {
+        date: new Date(2026, 4, 6),
+        score: 75,
+        mood: "7 / 10",
+        stress: "4 / 10",
+        habits: "5 / 6",
+        focus: "Protect focus blocks",
+        notes: "A good day with fewer interruptions."
+      },
+      {
+        date: new Date(2026, 4, 7),
+        score: 79,
+        mood: "8 / 10",
+        stress: "3 / 10",
+        habits: "5 / 6",
+        focus: "Keep morning simple",
+        notes: "High-quality output and strong discipline."
+      },
+      {
+        date: new Date(2026, 4, 8),
+        score: 60,
+        mood: "6 / 10",
+        stress: "5 / 10",
+        habits: "4 / 6",
+        focus: "Finish one job fully",
+        notes: "Solid enough, but scattered late."
+      },
+      {
+        date: new Date(2026, 4, 9),
+        score: 64,
+        mood: "6 / 10",
+        stress: "4 / 10",
+        habits: "4 / 6",
+        focus: "Avoid reactive work",
+        notes: "Better than it felt in the moment."
+      },
+      {
+        date: new Date(2026, 4, 14),
+        score: 74,
+        mood: "7 / 10",
+        stress: "4 / 10",
+        habits: "4 / 6",
+        focus: "Finish proposal review",
+        notes: "Good momentum overall. Afternoon drift started when I switched tasks too often. Best move tonight is a calmer shutdown and an early start."
+      }
+    ];
+
+    sampleDays.forEach(day => {
+      const key = toDateKey(day.date);
+      state.savedDays[key] = {
+        dateKey: key,
+        date: formatFullDate(day.date),
+        score: day.score,
+        mood: day.mood,
+        stress: day.stress,
+        habits: day.habits,
+        focus: day.focus,
+        notes: day.notes
+      };
+    });
 
     const qs = (selector, scope = document) => scope.querySelector(selector);
     const qsa = (selector, scope = document) => [...scope.querySelectorAll(selector)];
 
-    const navButtons = qsa('[data-view-target]');
-    const views = qsa('.view');
-    const jumpButtons = qsa('[data-jump]');
-    const sidebar = qs('#sidebar');
-    const menuBtn = qs('#menuBtn');
+    const navButtons = qsa("[data-view-target]");
+    const views = qsa(".view");
+    const jumpButtons = qsa("[data-jump]");
+    const sidebar = qs("#sidebar");
+    const menuBtn = qs("#menuBtn");
 
-    const moodRange = qs('#moodRange');
-    const stressRange = qs('#stressRange');
-    const energyRange = qs('#energyRange');
+    const moodRange = qs("#moodRange");
+    const stressRange = qs("#stressRange");
+    const energyRange = qs("#energyRange");
 
-    const moodValue = qs('#moodValue');
-    const stressValue = qs('#stressValue');
-    const energyValue = qs('#energyValue');
+    const moodValue = qs("#moodValue");
+    const stressValue = qs("#stressValue");
+    const energyValue = qs("#energyValue");
 
-    const signalInputs = qsa('.daily-signal');
-    const habitInputs = qsa('.core-habit');
+    const signalInputs = qsa(".daily-signal");
+    const habitInputs = qsa(".core-habit");
 
-    const signalsValue = qs('#signalsValue');
-    const habitsValue = qs('#habitsValue');
+    const signalsValue = qs("#signalsValue");
+    const habitsValue = qs("#habitsValue");
 
-    const dailyScore = qs('#dailyScore');
-    const scoreRing = qs('#scoreRing');
-    const messageBadge = qs('#messageBadge');
-    const statusEl = qs('#dayStatus');
+    const dailyScore = qs("#dailyScore");
+    const scoreRing = qs("#scoreRing");
+    const messageBadge = qs("#messageBadge");
+    const statusEl = qs("#dayStatus");
 
-    const avgScoreEl = qs('#avgScore');
-    const weeklyAverageDisplay = qs('#weeklyAverageDisplay');
-    const habitWinsEl = qs('#habitWins');
-    const currentStreakEl = qs('#currentStreak');
-    const savedDaysEl = qs('#savedDaysCount');
+    const avgScoreEl = qs("#avgScore");
+    const weeklyAverageDisplay = qs("#weeklyAverageDisplay");
+    const habitWinsEl = qs("#habitWins");
+    const currentStreakEl = qs("#currentStreak");
+    const savedDaysEl = qs("#savedDaysCount");
 
-    const reflectionInput = qs('#reflectionInput');
-    const tomorrowFocusInput = qs('#tomorrowFocusInput');
+    const reflectionInput = qs("#reflectionInput");
+    const tomorrowFocusInput = qs("#tomorrowFocusInput");
 
-    const saveTodayBtn = qs('#saveTodayBtn');
-    const loadTodayBtn = qs('#loadTodayBtn');
-    const clearTodayBtn = qs('#clearTodayBtn');
-    const topSaveBtn = qs('#topSaveBtn');
-    const topDateLabel = qs('#topDateLabel');
+    const saveTodayBtn = qs("#saveTodayBtn");
+    const loadTodayBtn = qs("#loadTodayBtn");
+    const clearTodayBtn = qs("#clearTodayBtn");
+    const topSaveBtn = qs("#topSaveBtn");
+    const topDateLabel = qs("#topDateLabel");
 
-    const selectedDateEl = qs('#selectedDate');
-    const selectedScoreEl = qs('#selectedScore');
-    const selectedMoodEl = qs('#selectedMood');
-    const selectedStressEl = qs('#selectedStress');
-    const selectedHabitsEl = qs('#selectedHabits');
-    const selectedFocusEl = qs('#selectedFocus');
-    const selectedNotesEl = qs('#selectedNotes');
+    const selectedDateEl = qs("#selectedDate");
+    const selectedScoreEl = qs("#selectedScore");
+    const selectedMoodEl = qs("#selectedMood");
+    const selectedStressEl = qs("#selectedStress");
+    const selectedHabitsEl = qs("#selectedHabits");
+    const selectedFocusEl = qs("#selectedFocus");
+    const selectedNotesEl = qs("#selectedNotes");
 
-    const calendar = qs('.calendar');
-    const weekBars = qsa('.bar-wrap[data-score]');
+    const weekBars = qsa(".bar-wrap[data-score]");
+    const calendar = qs(".calendar");
+
+    const monthButtons = qsa("#historyView .action-row .btn");
+    const previousMonthBtn = monthButtons[0];
+    const currentMonthBtn = monthButtons[1];
+    const nextMonthBtn = monthButtons[2];
+
+    function toDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatFullDate(date) {
+      return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function formatMonthTitle(year, month) {
+      return new Date(year, month, 1).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric"
+      });
+    }
 
     function showView(targetId) {
       views.forEach(view => {
-        view.classList.toggle('active', view.id === targetId);
+        view.classList.toggle("active", view.id === targetId);
       });
 
       navButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.viewTarget === targetId);
+        btn.classList.toggle("active", btn.dataset.viewTarget === targetId);
       });
 
       if (window.innerWidth <= 980 && sidebar) {
-        sidebar.classList.remove('open');
+        sidebar.classList.remove("open");
       }
     }
 
@@ -77,20 +215,25 @@
       const target = document.getElementById(targetId);
       if (!target) return;
 
-      const parentView = target.closest('.view');
+      const parentView = target.closest(".view");
+
       if (parentView) {
         showView(parentView.id);
+
         setTimeout(() => {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
         }, 100);
       }
     }
 
     function formatScoreMessage(score) {
-      if (score >= 80) return 'Strong day. Keep the night simple and protected.';
-      if (score >= 65) return 'Good day. Stay deliberate.';
-      if (score >= 50) return 'Mixed day. Simplify the next hour.';
-      return 'Low day. Make the next step small and kind.';
+      if (score >= 80) return "Strong day. Keep the night simple and protected.";
+      if (score >= 65) return "Good day. Stay deliberate.";
+      if (score >= 50) return "Mixed day. Simplify the next hour.";
+      return "Low day. Make the next step small and kind.";
     }
 
     function clampScore(score) {
@@ -126,60 +269,59 @@
     }
 
     function updateScoreUI() {
-      if (!moodRange || !stressRange || !energyRange) return null;
+      if (!moodRange || !stressRange || !energyRange) return;
 
       const data = calculateScore();
 
-      if (moodValue) moodValue.textContent = `${data.mood} / 10`;
-      if (stressValue) stressValue.textContent = `${data.stress} / 10`;
-      if (energyValue) energyValue.textContent = `${data.energy} / 10`;
+      moodValue.textContent = `${data.mood} / 10`;
+      stressValue.textContent = `${data.stress} / 10`;
+      energyValue.textContent = `${data.energy} / 10`;
 
-      if (signalsValue) signalsValue.textContent = `${data.signalsDone} / ${signalInputs.length} logged`;
-      if (habitsValue) habitsValue.textContent = `${data.habitsDone} / ${habitInputs.length} done`;
+      signalsValue.textContent = `${data.signalsDone} / ${signalInputs.length} logged`;
+      habitsValue.textContent = `${data.habitsDone} / ${habitInputs.length} done`;
 
-      if (dailyScore) dailyScore.textContent = data.score;
-      if (messageBadge) messageBadge.textContent = formatScoreMessage(data.score);
+      dailyScore.textContent = data.score;
+      messageBadge.textContent = formatScoreMessage(data.score);
 
-      if (scoreRing) {
-        const degrees = Math.round((data.score / 100) * 360);
-        scoreRing.style.background = `conic-gradient(var(--accent) ${degrees}deg, rgba(255,255,255,.3) 0deg)`;
-      }
+      const degrees = Math.round((data.score / 100) * 360);
+      scoreRing.style.background = `conic-gradient(var(--accent) ${degrees}deg, rgba(255,255,255,.3) 0deg)`;
 
-      if (habitWinsEl) habitWinsEl.textContent = `${data.habitsDone}/${habitInputs.length}`;
+      habitWinsEl.textContent = `${data.habitsDone}/${habitInputs.length}`;
 
       return data;
     }
 
     function getTodayPayload() {
       const data = calculateScore();
+      const date = new Date(today);
+      const key = toDateKey(date);
 
       return {
-        date: state.selectedDate,
+        dateKey: key,
+        date: formatFullDate(date),
         score: data.score,
         mood: `${data.mood} / 10`,
         stress: `${data.stress} / 10`,
         habits: `${data.habitsDone} / ${habitInputs.length}`,
-        focus: tomorrowFocusInput?.value.trim() || '-',
-        notes: reflectionInput?.value.trim() || '-'
+        focus: tomorrowFocusInput.value.trim() || "-",
+        notes: reflectionInput.value.trim() || "-"
       };
     }
 
     function updateSelectedDayPanel(payload) {
       if (!payload) return;
 
-      if (selectedDateEl) selectedDateEl.textContent = payload.date || '-';
-      if (selectedScoreEl) selectedScoreEl.textContent = payload.score ?? '-';
-      if (selectedMoodEl) selectedMoodEl.textContent = payload.mood || '-';
-      if (selectedStressEl) selectedStressEl.textContent = payload.stress || '-';
-      if (selectedHabitsEl) selectedHabitsEl.textContent = payload.habits || '-';
-      if (selectedFocusEl) selectedFocusEl.textContent = payload.focus || '-';
-      if (selectedNotesEl) selectedNotesEl.textContent = payload.notes || '-';
+      selectedDateEl.textContent = payload.date || "-";
+      selectedScoreEl.textContent = payload.score ?? "-";
+      selectedMoodEl.textContent = payload.mood || "-";
+      selectedStressEl.textContent = payload.stress || "-";
+      selectedHabitsEl.textContent = payload.habits || "-";
+      selectedFocusEl.textContent = payload.focus || "-";
+      selectedNotesEl.textContent = payload.notes || "-";
 
-      if (topDateLabel) topDateLabel.textContent = payload.date || 'Today';
-    }
-
-    function setStatus(message) {
-      if (statusEl) statusEl.textContent = message;
+      if (topDateLabel) {
+        topDateLabel.textContent = payload.date || "Today";
+      }
     }
 
     function parseBarScores() {
@@ -188,7 +330,9 @@
         .filter(score => !Number.isNaN(score));
 
       Object.values(state.savedDays).forEach(day => {
-        if (typeof day.score === 'number') scores.push(day.score);
+        if (typeof day.score === "number") {
+          scores.push(day.score);
+        }
       });
 
       return scores;
@@ -196,134 +340,209 @@
 
     function calculateAverage(scores) {
       if (!scores.length) return 0;
-      return Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length);
+
+      return Math.round(
+        scores.reduce((sum, value) => sum + value, 0) / scores.length
+      );
     }
 
     function calculateStreak() {
-      const savedCount = Object.keys(state.savedDays).length;
-      return savedCount ? 6 + savedCount : 6;
+      const keys = Object.keys(state.savedDays).sort();
+      if (!keys.length) return 0;
+
+      let streak = 0;
+      let cursor = new Date(today);
+
+      while (true) {
+        const key = toDateKey(cursor);
+
+        if (state.savedDays[key]) {
+          streak += 1;
+          cursor.setDate(cursor.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      return streak;
     }
 
     function updateKpis() {
       const scores = parseBarScores();
       const avg = calculateAverage(scores);
-      const savedCount = 29 + Object.keys(state.savedDays).length;
+      const savedCount = Object.keys(state.savedDays).length;
       const streak = calculateStreak();
 
-      if (avgScoreEl) avgScoreEl.textContent = avg;
-      if (weeklyAverageDisplay) weeklyAverageDisplay.textContent = avg;
-      if (savedDaysEl) savedDaysEl.textContent = savedCount;
-      if (currentStreakEl) currentStreakEl.textContent = streak;
+      avgScoreEl.textContent = avg;
+      weeklyAverageDisplay.textContent = avg;
+      savedDaysEl.textContent = savedCount;
+      currentStreakEl.textContent = streak;
     }
 
-    function markSelectedCalendarDay(dayEl) {
-      qsa('.day[data-date]').forEach(day => day.classList.remove('selected'));
-      if (dayEl) dayEl.classList.add('selected');
+    function setStatus(message) {
+      if (statusEl) {
+        statusEl.textContent = message;
+      }
     }
 
-    function payloadFromDayElement(dayEl) {
-      return {
-        date: dayEl.dataset.date || '-',
-        score: dayEl.dataset.score || '-',
-        mood: dayEl.dataset.mood || '-',
-        stress: dayEl.dataset.stress || '-',
-        habits: dayEl.dataset.habits || '-',
-        focus: dayEl.dataset.focus || '-',
-        notes: dayEl.dataset.notes || '-'
-      };
+    function dotClassForScore(score) {
+      if (score >= 70) return "good";
+      if (score >= 50) return "mid";
+      return "bad";
     }
 
-    function updateDayAppearance(dayEl) {
-      if (!dayEl) return;
+    function renderCalendar() {
+      if (!calendar) return;
 
-      const score = Number(dayEl.dataset.score);
-      const scoreEl = qs('.day-score', dayEl);
-      const dot = qs('.day-dot', dayEl);
+      calendar.innerHTML = "";
 
-      if (scoreEl) {
-        scoreEl.textContent = Number.isNaN(score) ? 'No entry' : `${score} score`;
+      const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+      weekdays.forEach(day => {
+        const el = document.createElement("div");
+        el.className = "weekday";
+        el.textContent = day;
+        calendar.appendChild(el);
+      });
+
+      const firstDay = new Date(visibleYear, visibleMonth, 1);
+      const daysInMonth = new Date(visibleYear, visibleMonth + 1, 0).getDate();
+      const startOffset = firstDay.getDay();
+
+      for (let i = 0; i < startOffset; i += 1) {
+        const spacer = document.createElement("div");
+        spacer.className = "day-empty";
+        calendar.appendChild(spacer);
       }
 
-      if (dot) {
-        dot.classList.remove('good', 'mid', 'bad');
-        if (!Number.isNaN(score)) {
-          if (score >= 70) dot.classList.add('good');
-          else if (score >= 50) dot.classList.add('mid');
-          else dot.classList.add('bad');
+      for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
+        const date = new Date(visibleYear, visibleMonth, dayNumber);
+        const key = toDateKey(date);
+        const saved = state.savedDays[key];
+
+        const dayEl = document.createElement("div");
+        dayEl.className = "day";
+        dayEl.dataset.dateKey = key;
+        dayEl.setAttribute("role", "button");
+        dayEl.setAttribute("tabindex", "0");
+
+        if (key === toDateKey(today)) {
+          dayEl.classList.add("today");
         }
-      }
-    }
 
-    function bindCalendarDays() {
-      qsa('.day[data-date]').forEach(day => {
-        day.setAttribute('role', 'button');
-        day.setAttribute('tabindex', '0');
+        if (key === state.selectedDateKey) {
+          dayEl.classList.add("selected");
+        }
+
+        const top = document.createElement("div");
+        top.className = "day-top";
+
+        const number = document.createElement("div");
+        number.textContent = dayNumber;
+
+        const dot = document.createElement("div");
+        dot.className = "day-dot";
+
+        if (saved && typeof saved.score === "number") {
+          dot.classList.add(dotClassForScore(saved.score));
+        }
+
+        top.appendChild(number);
+        top.appendChild(dot);
+
+        const score = document.createElement("div");
+        score.className = "day-score";
+        score.textContent = saved ? `${saved.score} score` : "No entry";
+
+        dayEl.appendChild(top);
+        dayEl.appendChild(score);
 
         const activate = () => {
-          markSelectedCalendarDay(day);
-          const payload = payloadFromDayElement(day);
-          updateSelectedDayPanel(payload);
-          state.selectedDate = payload.date;
-          setStatus(`Loaded ${state.selectedDate}.`);
+          state.selectedDateKey = key;
+          renderCalendar();
+
+          if (saved) {
+            updateSelectedDayPanel(saved);
+            setStatus(`Loaded ${saved.date}.`);
+          } else {
+            const emptyPayload = {
+              dateKey: key,
+              date: formatFullDate(date),
+              score: "-",
+              mood: "-",
+              stress: "-",
+              habits: "-",
+              focus: "-",
+              notes: "No saved notes for this day."
+            };
+
+            updateSelectedDayPanel(emptyPayload);
+            setStatus(`No saved entry for ${emptyPayload.date}.`);
+          }
         };
 
-        day.addEventListener('click', activate);
-        day.addEventListener('keydown', event => {
-          if (event.key === 'Enter' || event.key === ' ') {
+        dayEl.addEventListener("click", activate);
+
+        dayEl.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             activate();
           }
         });
 
-        updateDayAppearance(day);
-      });
+        calendar.appendChild(dayEl);
+      }
+
+      const heading = qs("#historyView h3");
+      if (heading) {
+        heading.textContent = `Calendar history — ${formatMonthTitle(visibleYear, visibleMonth)}`;
+      }
     }
 
     function saveToday() {
       const payload = getTodayPayload();
-      state.savedDays[payload.date] = payload;
+
+      state.savedDays[payload.dateKey] = payload;
+      state.selectedDateKey = payload.dateKey;
+
       updateSelectedDayPanel(payload);
       updateKpis();
-      setStatus(`Saved ${payload.date} with score ${payload.score}.`);
 
-      const matchingDay = qsa('.day[data-date]').find(day => day.dataset.date === payload.date);
-      if (matchingDay) {
-        matchingDay.dataset.score = String(payload.score);
-        matchingDay.dataset.mood = payload.mood;
-        matchingDay.dataset.stress = payload.stress;
-        matchingDay.dataset.habits = payload.habits;
-        matchingDay.dataset.focus = payload.focus;
-        matchingDay.dataset.notes = payload.notes;
-        updateDayAppearance(matchingDay);
-        markSelectedCalendarDay(matchingDay);
-      }
+      visibleMonth = today.getMonth();
+      visibleYear = today.getFullYear();
+
+      renderCalendar();
+
+      setStatus(`Saved ${payload.date} with score ${payload.score}.`);
     }
 
     function loadToday() {
-      const saved = state.savedDays[state.selectedDate];
+      const saved = state.savedDays[toDateKey(today)];
+
       if (!saved) {
-        setStatus(`No saved entry found for ${state.selectedDate}.`);
+        setStatus(`No saved entry found for ${formatFullDate(today)}.`);
         return;
       }
 
-      if (selectedDateEl) selectedDateEl.textContent = saved.date;
-      if (selectedScoreEl) selectedScoreEl.textContent = saved.score;
-      if (selectedMoodEl) selectedMoodEl.textContent = saved.mood;
-      if (selectedStressEl) selectedStressEl.textContent = saved.stress;
-      if (selectedHabitsEl) selectedHabitsEl.textContent = saved.habits;
-      if (selectedFocusEl) selectedFocusEl.textContent = saved.focus;
-      if (selectedNotesEl) selectedNotesEl.textContent = saved.notes;
+      state.selectedDateKey = saved.dateKey;
 
-      if (tomorrowFocusInput) tomorrowFocusInput.value = saved.focus !== '-' ? saved.focus : '';
-      if (reflectionInput) reflectionInput.value = saved.notes !== '-' ? saved.notes : '';
+      updateSelectedDayPanel(saved);
+
+      tomorrowFocusInput.value = saved.focus !== "-" ? saved.focus : "";
+      reflectionInput.value = saved.notes !== "-" ? saved.notes : "";
+
+      visibleMonth = today.getMonth();
+      visibleYear = today.getFullYear();
+
+      renderCalendar();
 
       setStatus(`Loaded saved entry for ${saved.date}.`);
     }
 
     function clearToday() {
-      if (moodRange) moodRange.value = 1;
-      if (stressRange) stressRange.value = 1;
-      if (energyRange) energyRange.value = 1;
+      moodRange.value = 1;
+      stressRange.value = 1;
+      energyRange.value = 1;
 
       signalInputs.forEach(input => {
         input.checked = false;
@@ -333,151 +552,131 @@
         input.checked = false;
       });
 
-      if (reflectionInput) reflectionInput.value = '';
-      if (tomorrowFocusInput) tomorrowFocusInput.value = '';
+      reflectionInput.value = "";
+      tomorrowFocusInput.value = "";
 
-      markSelectedCalendarDay(null);
       updateScoreUI();
       updateKpis();
 
       updateSelectedDayPanel({
-        date: 'No day selected',
-        score: '-',
-        mood: '-',
-        stress: '-',
-        habits: '-',
-        focus: '-',
-        notes: '-'
+        date: "No day selected",
+        score: "-",
+        mood: "-",
+        stress: "-",
+        habits: "-",
+        focus: "-",
+        notes: "-"
       });
+
+      state.selectedDateKey = "";
 
       if (topDateLabel) {
-        topDateLabel.textContent = 'No day selected';
+        topDateLabel.textContent = "No day selected";
       }
 
-      setStatus('Cleared all dashboard inputs.');
-    }
+      renderCalendar();
 
-    function createDayElement(dayNumber, monthIndex, year) {
-      const date = new Date(year, monthIndex, dayNumber);
-      const label = date.toLocaleDateString('en-AU', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-      });
-
-      const day = document.createElement('div');
-      day.className = 'day';
-      day.dataset.date = label;
-      day.dataset.score = '-';
-      day.dataset.mood = '-';
-      day.dataset.stress = '-';
-      day.dataset.habits = '-';
-      day.dataset.focus = '-';
-      day.dataset.notes = '-';
-
-      day.innerHTML = `
-        <div class="day-top">
-          <div>${dayNumber}</div>
-          <div class="day-dot"></div>
-        </div>
-        <div class="day-score">No entry</div>
-      `;
-
-      return day;
-    }
-
-    function ensureFullMonthCalendar() {
-      if (!calendar) return;
-
-      const weekdays = qsa('.weekday', calendar);
-      if (weekdays.length !== 7) return;
-
-      const existingDays = qsa('.day[data-date]', calendar);
-      const existingNumbers = new Set(
-        existingDays.map(day => {
-          const dayNumberEl = qs('.day-top div:first-child', day);
-          return Number(dayNumberEl?.textContent || 0);
-        }).filter(Boolean)
-      );
-
-      const monthIndex = 4;
-      const year = 2026;
-      const totalDays = new Date(year, monthIndex + 1, 0).getDate();
-
-      for (let dayNum = 1; dayNum <= totalDays; dayNum += 1) {
-        if (!existingNumbers.has(dayNum)) {
-          calendar.appendChild(createDayElement(dayNum, monthIndex, year));
-        }
-      }
-
-      const totalChildren = calendar.children.length;
-      const remainder = totalChildren % 7;
-      if (remainder !== 0) {
-        const needed = 7 - remainder;
-        for (let i = 0; i < needed; i += 1) {
-          const spacer = document.createElement('div');
-          calendar.appendChild(spacer);
-        }
-      }
+      setStatus("Cleared all dashboard inputs.");
     }
 
     navButtons.forEach(button => {
-      button.addEventListener('click', () => {
+      button.addEventListener("click", () => {
         showView(button.dataset.viewTarget);
       });
     });
 
     jumpButtons.forEach(button => {
-      button.addEventListener('click', () => {
+      button.addEventListener("click", () => {
         jumpToTarget(button.dataset.jump);
       });
     });
 
     if (menuBtn) {
-      menuBtn.addEventListener('click', () => {
-        if (sidebar) sidebar.classList.toggle('open');
+      menuBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
       });
     }
 
-    document.addEventListener('click', event => {
+    document.addEventListener("click", event => {
       if (
         window.innerWidth <= 980 &&
         sidebar &&
-        sidebar.classList.contains('open') &&
+        sidebar.classList.contains("open") &&
         !sidebar.contains(event.target) &&
         menuBtn &&
         !menuBtn.contains(event.target)
       ) {
-        sidebar.classList.remove('open');
+        sidebar.classList.remove("open");
       }
     });
 
     [moodRange, stressRange, energyRange].forEach(input => {
-      if (input) input.addEventListener('input', updateScoreUI);
+      if (input) {
+        input.addEventListener("input", updateScoreUI);
+      }
     });
 
     [...signalInputs, ...habitInputs].forEach(input => {
-      input.addEventListener('change', updateScoreUI);
+      input.addEventListener("change", updateScoreUI);
     });
 
-    if (saveTodayBtn) saveTodayBtn.addEventListener('click', saveToday);
-    if (topSaveBtn) topSaveBtn.addEventListener('click', saveToday);
-    if (loadTodayBtn) loadTodayBtn.addEventListener('click', loadToday);
-    if (clearTodayBtn) clearTodayBtn.addEventListener('click', clearToday);
+    if (saveTodayBtn) saveTodayBtn.addEventListener("click", saveToday);
+    if (topSaveBtn) topSaveBtn.addEventListener("click", saveToday);
+    if (loadTodayBtn) loadTodayBtn.addEventListener("click", loadToday);
+    if (clearTodayBtn) clearTodayBtn.addEventListener("click", clearToday);
 
-    ensureFullMonthCalendar();
-    bindCalendarDays();
-    updateScoreUI();
-    updateKpis();
+    if (previousMonthBtn) {
+      previousMonthBtn.addEventListener("click", () => {
+        visibleMonth -= 1;
 
-    const allCalendarDays = qsa('.day[data-date]');
-    const initialSelectedDay = qs('.day.selected[data-date]') || allCalendarDays[allCalendarDays.length - 1];
+        if (visibleMonth < 0) {
+          visibleMonth = 11;
+          visibleYear -= 1;
+        }
 
-    if (initialSelectedDay) {
-      state.selectedDate = initialSelectedDay.dataset.date || state.selectedDate;
-      updateSelectedDayPanel(payloadFromDayElement(initialSelectedDay));
+        renderCalendar();
+      });
     }
 
-    setStatus('Ready.');
+    if (currentMonthBtn) {
+      currentMonthBtn.addEventListener("click", () => {
+        visibleMonth = today.getMonth();
+        visibleYear = today.getFullYear();
+        state.selectedDateKey = toDateKey(today);
+
+        const saved = state.savedDays[state.selectedDateKey];
+
+        if (saved) {
+          updateSelectedDayPanel(saved);
+        }
+
+        renderCalendar();
+      });
+    }
+
+    if (nextMonthBtn) {
+      nextMonthBtn.addEventListener("click", () => {
+        visibleMonth += 1;
+
+        if (visibleMonth > 11) {
+          visibleMonth = 0;
+          visibleYear += 1;
+        }
+
+        renderCalendar();
+      });
+    }
+
+    updateScoreUI();
+    updateKpis();
+    renderCalendar();
+
+    const initialPayload = state.savedDays[state.selectedDateKey];
+
+    if (initialPayload) {
+      updateSelectedDayPanel(initialPayload);
+    }
+
+    setStatus("Ready.");
   })();
 </script>
