@@ -771,36 +771,38 @@
               <div class="card panel" id="checkInSection">
                 <div class="section-heading">
                   <h3>Today’s check-in</h3>
+                  <h3>Today’s check-in</h3>
                   <p>Quick input. High signal. No clutter.</p>
-                </div>
-
-                <div class="signal-grid">
-                  <div class="signal-list">
-                    <div class="section-heading">
-                      <h3>Daily state</h3>
-                      <p>Fast body and head signals.</p>
-                    </div>
-
+                  
+                 <div class="signal-grid">
+                  <div class="signal-list signal-box">
                     <div class="slider-stack">
                       <div class="slider-row">
-                        <label for="moodRange">Mood</label>
+                        <div class="slider-row__top">
+                          <label for="moodRange">Mood</label>
+                          <div class="signal-value" id="moodValue">5 / 10</div>
+                        </div>
                         <input id="moodRange" type="range" min="1" max="10" value="5" aria-label="Mood" />
-                        <div class="signal-value" id="moodValue">5 / 10</div>
                       </div>
-
+                
                       <div class="slider-row">
-                        <label for="stressRange">Stress</label>
+                        <div class="slider-row__top">
+                          <label for="stressRange">Stress</label>
+                          <div class="signal-value" id="stressValue">5 / 10</div>
+                        </div>
                         <input id="stressRange" type="range" min="1" max="10" value="5" aria-label="Stress" />
-                        <div class="signal-value" id="stressValue">5 / 10</div>
                       </div>
-
+                
                       <div class="slider-row">
-                        <label for="energyRange">Energy</label>
+                        <div class="slider-row__top">
+                          <label for="energyRange">Energy</label>
+                          <div class="signal-value" id="energyValue">5 / 10</div>
+                        </div>
                         <input id="energyRange" type="range" min="1" max="10" value="5" aria-label="Energy" />
-                        <div class="signal-value" id="energyValue">5 / 10</div>
                       </div>
                     </div>
                   </div>
+                </div>
 
                   <div class="signal-list">
                     <div class="section-heading">
