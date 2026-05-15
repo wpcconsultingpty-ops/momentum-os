@@ -29,6 +29,7 @@
 
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
       font-family: Inter, Arial, sans-serif;
@@ -209,13 +210,8 @@
       color: var(--muted);
     }
 
-    .view {
-      display: none;
-    }
-
-    .view.active {
-      display: block;
-    }
+    .view { display: none; }
+    .view.active { display: block; }
 
     .hero,
     .section-card {
@@ -252,7 +248,8 @@
     .section-header p,
     .card-note,
     .foot-note,
-    .range-row span:last-child {
+    .range-row span:last-child,
+    .response-text {
       color: var(--muted);
     }
 
@@ -273,11 +270,7 @@
       font-weight: 700;
     }
 
-    .grid {
-      display: grid;
-      gap: 16px;
-    }
-
+    .grid { display: grid; gap: 16px; }
     .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -307,9 +300,7 @@
       cursor: pointer;
     }
 
-    .metric-card input[type="range"] {
-      margin-top: auto;
-    }
+    .metric-card input[type="range"] { margin-top: auto; }
 
     .private-signals-grid {
       display: grid;
@@ -379,6 +370,7 @@
       flex-wrap: wrap;
       gap: 12px;
       margin-top: 18px;
+      align-items: center;
     }
 
     .btn {
@@ -510,13 +502,13 @@
       resize: vertical;
     }
 
-    .mobile-nav {
-      display: none;
+    .response-text {
+      white-space: pre-wrap;
+      line-height: 1.6;
     }
 
-    .sidebar-backdrop {
-      display: none;
-    }
+    .mobile-nav { display: none; }
+    .sidebar-backdrop { display: none; }
 
     @media (max-width: 1080px) {
       .grid-4,
@@ -526,18 +518,12 @@
       .private-signals-grid {
         grid-template-columns: 1fr 1fr;
       }
-
-      .grid-main-side {
-        grid-template-columns: 1fr;
-      }
+      .grid-main-side { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 860px) {
       .app-shell { grid-template-columns: 1fr; }
-
-      .topbar {
-        display: flex;
-      }
+      .topbar { display: flex; }
 
       .sidebar {
         display: block;
@@ -552,9 +538,7 @@
         box-shadow: 18px 0 40px rgba(32, 26, 22, 0.12);
       }
 
-      body.sidebar-open .sidebar {
-        transform: translateX(0);
-      }
+      body.sidebar-open .sidebar { transform: translateX(0); }
 
       .sidebar-backdrop {
         display: block;
@@ -685,7 +669,7 @@
             </article>
             <article class="card">
               <div class="card-label">Notes</div>
-              <div class="card-value" style="font-size:1.05rem;">No note saved</div>
+              <div class="card-value" id="dashboardJournalPreview" style="font-size:1.05rem;">No note saved</div>
               <div class="card-note">Add a short reflection to lock in the signal.</div>
             </article>
           </div>
@@ -766,10 +750,11 @@
             <label class="habit-chip"><input type="checkbox" />Protected sleep routine</label>
             <label class="habit-chip"><input type="checkbox" checked />Supportive nutrition</label>
           </div>
-<div class="button-row">
-  <button class="btn btn-primary" type="button" id="saveHealthBtn">Save Health</button>
-  <span class="foot-note" id="saveHealthStatus">Not saved yet.</span>
-</div>
+
+          <div class="button-row">
+            <button class="btn btn-primary" type="button" id="saveHealthBtn">Save Health</button>
+            <span class="foot-note" id="saveHealthStatus">Not saved yet.</span>
+          </div>
         </div>
       </section>
 
@@ -911,10 +896,11 @@
               <div class="card-note" style="margin-bottom:8px;">What did I notice, what made things worse, and what helped me recover faster?</div>
               <textarea id="privateNotes" rows="5" placeholder="Write a private note..."></textarea>
             </div>
-<div class="button-row">
-  <button class="btn btn-primary" type="button" id="savePrivateBtn">Save Private</button>
-  <span class="foot-note" id="savePrivateStatus">Not saved yet.</span>
-</div>
+
+            <div class="button-row">
+              <button class="btn btn-primary" type="button" id="savePrivateBtn">Save Private</button>
+              <span class="foot-note" id="savePrivateStatus">Not saved yet.</span>
+            </div>
           </div>
         </div>
       </section>
@@ -993,22 +979,22 @@
       </section>
 
       <section id="journalView" class="view">
-  <div class="section-card">
-    <div class="section-header">
-      <h2>Journal</h2>
-      <p>Capture the note behind the day before it disappears.</p>
-    </div>
+        <div class="section-card">
+          <div class="section-header">
+            <h2>Journal</h2>
+            <p>Capture the note behind the day before it disappears.</p>
+          </div>
 
-    <textarea id="journalNotes" placeholder="Write a short note about what mattered today..."></textarea>
+          <textarea id="journalNotes" placeholder="Write a short note about what mattered today..."></textarea>
 
-    <div class="button-row">
-      <button class="btn btn-primary" type="button" id="saveJournalBtn">Save Journal</button>
-      <span class="foot-note" id="saveJournalStatus">Not saved yet.</span>
-    </div>
+          <div class="button-row">
+            <button class="btn btn-primary" type="button" id="saveJournalBtn">Save Journal</button>
+            <span class="foot-note" id="saveJournalStatus">Not saved yet.</span>
+          </div>
 
-    <p class="foot-note">Current state from the page: no note saved.</p>
-  </div>
-</section>
+          <p class="foot-note" id="journalStateText">Current state from the page: no note saved.</p>
+        </div>
+      </section>
 
       <section id="coachView" class="view">
         <div class="section-card">
@@ -1017,7 +1003,7 @@
             <p>When the day gets noisy, reduce the target and win the next hour.</p>
           </div>
 
-          <div class="trend-note">Do not try to fix your life tonight. Win the next hour first.</div>
+          <div class="trend-note" id="coachMomentumPrompt">Do not try to fix your life tonight. Win the next hour first.</div>
 
           <div class="grid grid-2" style="margin-top:16px;">
             <article class="card">
@@ -1030,6 +1016,29 @@
               <div class="card-value" style="font-size:1.05rem;">Close one loop</div>
               <div class="card-note">Pick one clean action for the next hour.</div>
             </article>
+          </div>
+
+          <div class="card card-stack" style="margin-top:18px;">
+            <div class="section-header">
+              <h3>Ask AI coach</h3>
+              <p>Use your saved signal, note, and scores to get one practical next-step response.</p>
+            </div>
+
+            <div>
+              <label for="coachPrompt" class="card-label" style="display:block; margin-bottom:8px;">Prompt</label>
+              <textarea id="coachPrompt" rows="5" placeholder="What do I need to hear right now?"></textarea>
+            </div>
+
+            <div class="button-row">
+              <button class="btn btn-primary" type="button" id="askCoachBtn">Ask AI Coach</button>
+              <button class="btn" type="button" id="loadCoachContextBtn">Load today into prompt</button>
+              <span class="foot-note" id="coachStatus">Ready.</span>
+            </div>
+
+            <div class="card">
+              <div class="card-label">Coach response</div>
+              <div class="response-text" id="coachResponse">No response yet.</div>
+            </div>
           </div>
 
           <div class="button-row">
@@ -1094,7 +1103,7 @@
       item.addEventListener('click', closeSidebar);
     });
 
-    window.addEventListener('keydown', (event) => {
+    window.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeSidebar();
     });
 
@@ -1193,6 +1202,17 @@
       return checked[0].textContent.trim();
     }
 
+    function updateJournalPreview() {
+      const notes = document.getElementById('journalNotes')?.value?.trim() || '';
+      const preview = document.getElementById('dashboardJournalPreview');
+      const state = document.getElementById('journalStateText');
+
+      const shortText = notes ? notes.slice(0, 80) + (notes.length > 80 ? '…' : '') : 'No note saved';
+
+      if (preview) preview.textContent = shortText;
+      if (state) state.textContent = notes ? `Current state from the page: ${shortText}` : 'Current state from the page: no note saved.';
+    }
+
     function renderScores() {
       const health = calculateHealthScore();
       const privateScore = calculatePrivateScore();
@@ -1218,6 +1238,7 @@
       const strongestHabit = document.getElementById('strongestHabit');
       const historyTrendRead = document.getElementById('historyTrendRead');
       const privateTrendRead = document.getElementById('privateTrendRead');
+      const coachMomentumPrompt = document.getElementById('coachMomentumPrompt');
 
       if (dashboardHealthScore) dashboardHealthScore.textContent = health.score;
       if (dashboardPrivateScore) dashboardPrivateScore.textContent = privateScore;
@@ -1243,6 +1264,213 @@
       if (strongestHabit) strongestHabit.textContent = getStrongestHabit();
       if (historyTrendRead) historyTrendRead.textContent = getTrendText(selectedScore);
       if (privateTrendRead) privateTrendRead.textContent = getPrivateTrendText(privateScore);
+      if (coachMomentumPrompt) coachMomentumPrompt.textContent = getTrendText(selectedScore);
+
+      updateJournalPreview();
+    }
+
+    function refreshSliderLabels() {
+      sliderPairs.forEach(([sliderId, valueId]) => {
+        const slider = document.getElementById(sliderId);
+        const value = document.getElementById(valueId);
+        if (slider && value) {
+          value.textContent = `${slider.value} / 10`;
+        }
+      });
+    }
+
+    function timeStamp() {
+      return new Date().toLocaleString();
+    }
+
+    function setStatus(id, message) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = message;
+    }
+
+    function saveHealthData() {
+      const healthData = {
+        mood: document.getElementById('mood')?.value || '',
+        stress: document.getElementById('stress')?.value || '',
+        energy: document.getElementById('energy')?.value || '',
+        dailySignals: [...document.querySelectorAll('#healthView .check-grid input[type="checkbox"]')].map(input => input.checked),
+        coreHabits: [...document.querySelectorAll('#healthView .habit-grid input[type="checkbox"]')].map(input => input.checked)
+      };
+
+      localStorage.setItem('momentum-health', JSON.stringify(healthData));
+      setStatus('saveHealthStatus', `Saved ${timeStamp()}`);
+      renderScores();
+    }
+
+    function savePrivateData() {
+      const privateData = {
+        privateDesire: document.getElementById('privateDesire')?.value || '',
+        privateConnection: document.getElementById('privateConnection')?.value || '',
+        privateUrge: document.getElementById('privateUrge')?.value || '',
+        privatePornUse: document.getElementById('privatePornUse')?.value || '',
+        privateMasturbation: document.getElementById('privateMasturbation')?.value || '',
+        privateControl: document.getElementById('privateControl')?.value || '',
+        privateRecovery: document.getElementById('privateRecovery')?.value || '',
+        privateNotes: document.getElementById('privateNotes')?.value || ''
+      };
+
+      localStorage.setItem('momentum-private', JSON.stringify(privateData));
+      setStatus('savePrivateStatus', `Saved ${timeStamp()}`);
+      renderScores();
+    }
+
+    function saveJournalData() {
+      const journalData = {
+        journalNotes: document.getElementById('journalNotes')?.value || ''
+      };
+
+      localStorage.setItem('momentum-journal', JSON.stringify(journalData));
+      setStatus('saveJournalStatus', `Saved ${timeStamp()}`);
+      updateJournalPreview();
+    }
+
+    function loadHealthData() {
+      const saved = JSON.parse(localStorage.getItem('momentum-health') || 'null');
+      if (!saved) return;
+
+      if (saved.mood !== undefined) document.getElementById('mood').value = saved.mood;
+      if (saved.stress !== undefined) document.getElementById('stress').value = saved.stress;
+      if (saved.energy !== undefined) document.getElementById('energy').value = saved.energy;
+
+      const dailySignals = document.querySelectorAll('#healthView .check-grid input[type="checkbox"]');
+      const coreHabits = document.querySelectorAll('#healthView .habit-grid input[type="checkbox"]');
+
+      if (saved.dailySignals) {
+        dailySignals.forEach((input, index) => {
+          input.checked = !!saved.dailySignals[index];
+        });
+      }
+
+      if (saved.coreHabits) {
+        coreHabits.forEach((input, index) => {
+          input.checked = !!saved.coreHabits[index];
+        });
+      }
+    }
+
+    function loadPrivateData() {
+      const saved = JSON.parse(localStorage.getItem('momentum-private') || 'null');
+      if (!saved) return;
+
+      const privateIds = [
+        'privateDesire',
+        'privateConnection',
+        'privateUrge',
+        'privatePornUse',
+        'privateMasturbation',
+        'privateControl',
+        'privateRecovery'
+      ];
+
+      privateIds.forEach(id => {
+        if (saved[id] !== undefined) {
+          const el = document.getElementById(id);
+          if (el) el.value = saved[id];
+        }
+      });
+
+      if (saved.privateNotes !== undefined) {
+        const notes = document.getElementById('privateNotes');
+        if (notes) notes.value = saved.privateNotes;
+      }
+    }
+
+    function loadJournalData() {
+      const saved = JSON.parse(localStorage.getItem('momentum-journal') || 'null');
+      if (!saved) return;
+
+      const journal = document.getElementById('journalNotes');
+      if (journal && saved.journalNotes !== undefined) {
+        journal.value = saved.journalNotes;
+      }
+    }
+
+    function buildCoachContext() {
+      const health = calculateHealthScore();
+      const privateScore = calculatePrivateScore();
+      const selectedScore = clampScore((health.score + privateScore) / 2);
+      const journalNotes = document.getElementById('journalNotes')?.value?.trim() || '';
+      const privateNotes = document.getElementById('privateNotes')?.value?.trim() || '';
+
+      return [
+        `Selected score: ${selectedScore}/100`,
+        `Health score: ${health.score}/100`,
+        `Private score: ${privateScore}/100`,
+        `Mood: ${health.mood}/10`,
+        `Stress: ${health.stress}/10`,
+        `Energy: ${health.energy}/10`,
+        `Daily signals completed: ${health.dailySignalsChecked}/${health.dailySignalsTotal}`,
+        `Core habits completed: ${health.coreHabitsChecked}/${health.coreHabitsTotal}`,
+        `Private desire: ${document.getElementById('privateDesire')?.value || 0}/10`,
+        `Private connection: ${document.getElementById('privateConnection')?.value || 0}/10`,
+        `Private urge: ${document.getElementById('privateUrge')?.value || 0}/10`,
+        `Porn use logged: ${document.getElementById('privatePornUse')?.value || 0}/10`,
+        `Masturbation logged: ${document.getElementById('privateMasturbation')?.value || 0}/10`,
+        `Control: ${document.getElementById('privateControl')?.value || 0}/10`,
+        `Recovery: ${document.getElementById('privateRecovery')?.value || 0}/10`,
+        `Journal note: ${journalNotes || 'None'}`,
+        `Private note: ${privateNotes || 'None'}`
+      ].join('\n');
+    }
+
+    function loadCoachPromptFromToday() {
+      const promptBox = document.getElementById('coachPrompt');
+      if (!promptBox) return;
+
+      const context = buildCoachContext();
+      promptBox.value =
+`You are my practical momentum coach.
+
+Use the data below and give me:
+1. A short read on what kind of day this is.
+2. The biggest risk in the next 2 hours.
+3. The single best next action.
+4. One encouraging but honest sentence.
+
+Today's context:
+${context}`;
+    }
+
+    async function askCoach() {
+      const prompt = document.getElementById('coachPrompt')?.value?.trim();
+      const coachStatus = document.getElementById('coachStatus');
+      const coachResponse = document.getElementById('coachResponse');
+
+      if (!prompt) {
+        if (coachStatus) coachStatus.textContent = 'Enter a prompt first.';
+        return;
+      }
+
+      if (coachStatus) coachStatus.textContent = 'Thinking...';
+      if (coachResponse) coachResponse.textContent = 'Loading response...';
+
+      try {
+        const response = await fetch('/api/coach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const reply = data.reply || 'No reply returned.';
+
+        if (coachResponse) coachResponse.textContent = reply;
+        if (coachStatus) coachStatus.textContent = 'Done.';
+      } catch (error) {
+        if (coachResponse) {
+          coachResponse.textContent = 'Something went wrong getting the coach response. Check your backend endpoint and API key setup.';
+        }
+        if (coachStatus) coachStatus.textContent = 'Error.';
+      }
     }
 
     sliderPairs.forEach(([sliderId, valueId]) => {
@@ -1264,6 +1492,17 @@
       input.addEventListener('change', renderScores);
     });
 
+    document.getElementById('journalNotes')?.addEventListener('input', updateJournalPreview);
+    document.getElementById('saveHealthBtn')?.addEventListener('click', saveHealthData);
+    document.getElementById('savePrivateBtn')?.addEventListener('click', savePrivateData);
+    document.getElementById('saveJournalBtn')?.addEventListener('click', saveJournalData);
+    document.getElementById('loadCoachContextBtn')?.addEventListener('click', loadCoachPromptFromToday);
+    document.getElementById('askCoachBtn')?.addEventListener('click', askCoach);
+
+    loadHealthData();
+    loadPrivateData();
+    loadJournalData();
+    refreshSliderLabels();
     renderScores();
   </script>
 </body>
