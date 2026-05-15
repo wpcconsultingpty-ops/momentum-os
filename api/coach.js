@@ -10,11 +10,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { freeText, bleed, target, capacity } = req.body || {};
+   const { prompt, freeText, bleed, target, capacity } = req.body || {};
 
-    if (!freeText && !bleed && !target) {
-      return res.status(400).json({ error: "Please provide some context." });
-    }
+const finalFreeText = prompt || freeText;
+
+if (!finalFreeText && !bleed && !target) {
+  return res.status(400).json({ error: "Please provide some context." });
+}
 
     const prompt = `
 You are Reset Coach for Momentum OS.
