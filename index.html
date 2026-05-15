@@ -481,14 +481,7 @@
     </aside>
 
     <main class="main">
-      <div class="mobile-nav" aria-label="Mobile navigation">
-        <button class="mobile-tab active" data-view-target="dashboardView">Dashboard</button>
-        <button class="mobile-tab" data-view-target="healthView">Health</button>
-        <button class="mobile-tab" data-view-target="privateView">Private</button>
-        <button class="mobile-tab" data-view-target="historyView">History</button>
-        <button class="mobile-tab" data-view-target="journalView">Journal</button>
-        <button class="mobile-tab" data-view-target="coachView">Coach</button>
-      </div>
+      
 
       <section id="dashboardView" class="view active">
         <header class="hero">
@@ -623,23 +616,127 @@
         <div class="section-card">
           <div class="section-header">
             <h2>Private</h2>
-            <p>Connection and desire, alongside the personal rhythm of the week.</p>
+            <p>Connection, desire, sexual health, and the personal rhythm behind the week.</p>
           </div>
 
-          <div class="grid grid-2">
+          <div class="grid grid-3">
             <article class="card">
               <div class="card-label">Private avg</div>
               <div class="card-value">47</div>
-              <div class="card-note">Connection and desire.</div>
+              <div class="card-note">Connection, desire, and sexual health.</div>
             </article>
             <article class="card">
               <div class="card-label">Trend read</div>
               <div class="card-value" style="font-size:1.05rem;">Needs more attention</div>
               <div class="card-note">Private rhythm is trailing physical baseline.</div>
             </article>
+            <article class="card">
+              <div class="card-label">Current focus</div>
+              <div class="card-value" style="font-size:1.05rem;">Protect control</div>
+              <div class="card-note">Reduce compulsive loops and support steadier recovery.</div>
+            </article>
           </div>
 
-          <div class="trend-note">Connection and private rhythm need more attention than physical baseline.</div>
+          <div class="grid grid-main-side" style="margin-top:18px;">
+            <article class="card card-stack">
+              <div class="section-header" style="margin-bottom:12px;">
+                <h3>Private check-in</h3>
+                <p>Score the private side of the day the same way the rest of the app is scored.</p>
+              </div>
+
+              <div class="grid grid-3">
+                <label class="card metric-card" for="privateDesire">
+                  <div class="card-label">Desire</div>
+                  <div class="card-value" style="font-size:1.1rem;">5 / 10</div>
+                  <div class="card-note">Below baseline.</div>
+                  <input id="privateDesire" type="range" min="0" max="10" value="5" />
+                </label>
+
+                <label class="card metric-card" for="privateConnection">
+                  <div class="card-label">Connection</div>
+                  <div class="card-value" style="font-size:1.1rem;">4 / 10</div>
+                  <div class="card-note">Needs attention.</div>
+                  <input id="privateConnection" type="range" min="0" max="10" value="4" />
+                </label>
+
+                <label class="card metric-card" for="privateUrge">
+                  <div class="card-label">Urge intensity</div>
+                  <div class="card-value" style="font-size:1.1rem;">7 / 10</div>
+                  <div class="card-note">Elevated.</div>
+                  <input id="privateUrge" type="range" min="0" max="10" value="7" />
+                </label>
+              </div>
+            </article>
+
+            <article class="card card-stack">
+              <div class="section-header" style="margin-bottom:12px;">
+                <h3>Private signals</h3>
+                <p>2 / 4 logged</p>
+              </div>
+
+              <label class="check-row">
+                <input type="checkbox" checked />
+                <span>
+                  <strong>Porn use logged</strong>
+                  <em>Use was present and worth noting.</em>
+                </span>
+              </label>
+
+              <label class="check-row">
+                <input type="checkbox" checked />
+                <span>
+                  <strong>Masturbation logged</strong>
+                  <em>Tracked without framing it as failure.</em>
+                </span>
+              </label>
+
+              <label class="check-row">
+                <input type="checkbox" />
+                <span>
+                  <strong>Felt fully in control</strong>
+                  <em>Control was mixed rather than steady.</em>
+                </span>
+              </label>
+
+              <label class="check-row">
+                <input type="checkbox" />
+                <span>
+                  <strong>Recovery response completed</strong>
+                  <em>No full reset action completed yet.</em>
+                </span>
+              </label>
+            </article>
+          </div>
+
+          <div class="card card-stack" style="margin-top:18px;">
+            <div class="section-header">
+              <h3>Sexual health, triggers, recovery, and notes</h3>
+              <p>Keep the deeper read practical, honest, and useful for pattern recognition.</p>
+            </div>
+
+            <div class="grid grid-3">
+              <article class="card">
+                <div class="card-label">Sexual health signals</div>
+                <div class="card-note">Libido lower this week. Confidence and performance feel inconsistent. No physical discomfort logged.</div>
+              </article>
+
+              <article class="card">
+                <div class="card-label">Triggers and influences</div>
+                <div class="card-note">Stress, isolation, late-night phone use, poor sleep, and fatigue are the main influences.</div>
+              </article>
+
+              <article class="card">
+                <div class="card-label">Recovery actions</div>
+                <div class="card-note">No-porn window, move the body, reduce isolation, and protect sleep.</div>
+              </article>
+            </div>
+
+            <div style="margin-top:16px;">
+              <label for="privateNotes" class="card-label" style="display:block; margin-bottom:8px;">Private notes</label>
+              <div class="card-note" style="margin-bottom:8px;">What did I notice, what made things worse, and what helped me recover faster?</div>
+              <textarea id="privateNotes" rows="5" placeholder="Write a private note..."></textarea>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -768,7 +865,7 @@
         view.classList.toggle('active', view.id === targetId);
       });
 
-      document.querySelectorAll('.nav-link, .mobile-tab').forEach(tab => {
+      document.querySelectorAll('.nav-link').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.viewTarget === targetId);
       });
 
