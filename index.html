@@ -738,86 +738,86 @@
           </section>
 
           <section class="view" id="resetView">
-          <div class="card panel" id="resetCoachSection">
-            <div class="section-heading">
-              <h3>Reset coach</h3>
-              <p>Use this when the day is slipping and you need a smaller next move.</p>
-            </div>
-        
-            <div class="detail-card reset-chat-box" style="background:var(--panel-2);">
-              <div class="detail-label">Talk it out</div>
-              <div class="field-group">
-                <label for="resetFreeTextInput">What’s going on right now?</label>
-                <textarea id="resetFreeTextInput" placeholder="Write freely. What happened, how you feel, what is pressing on you, and what you need help with right now."></textarea>
+            <div class="card panel" id="resetCoachSection">
+              <div class="section-heading">
+                <h3>Reset coach</h3>
+                <p>Use this when the day is slipping and you need a smaller next move.</p>
               </div>
-            </div>
-        
-            <div class="action-row reset-action-row">
-              <button class="btn primary" id="askResetCoachBtn">Talk</button>
-              <button class="btn secondary" id="clearResetCoachBtn">Clear</button>
-            </div>
-        
-            <div class="status-line" id="resetCoachStatus">The coach will return one reflection, one next action, and one shutdown instruction.</div>
-        
-            <div class="reset-grid">
-              <div class="coach-step">
-                <strong>1. Stop the bleed</strong>
-                <p style="margin:0 0 12px; color:var(--muted);">Remove one open loop, one demand, or one source of noise.</p>
-                <div class="field-group">
-                  <label for="resetBleedInput">What is creating the most pressure right now?</label>
-                  <textarea id="resetBleedInput" placeholder="Example: too many open tasks, inbox noise, family stress, unfinished work"></textarea>
-                </div>
-              </div>
-        
-              <div class="coach-step">
-                <strong>2. Refocus the target</strong>
-                <p style="margin:0 0 12px; color:var(--muted);">Pick one meaningful action that would make tonight easier.</p>
-                <div class="field-group">
-                  <label for="resetTargetInput">What is the one thing that matters most next?</label>
-                  <textarea id="resetTargetInput" placeholder="Example: finish the bid review, send one email, plan tomorrow"></textarea>
-                </div>
-              </div>
-        
-              <div class="coach-step">
-                <strong>3. Move without drama</strong>
-                <p style="margin:0 0 12px; color:var(--muted);">Start small, finish one thing, and close the day cleanly.</p>
-                <div class="field-group">
-                  <label for="resetCapacityInput">What capacity do you realistically have right now?</label>
-                  <select id="resetCapacityInput">
-                    <option value="low">Low — I can only do something very small</option>
-                    <option value="medium" selected>Medium — I can do one focused task</option>
-                    <option value="high">High — I still have enough for a solid push</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-        
-            <div class="detail-card reset-response-card" id="resetCoachResponseCard">
-              <div class="detail-label">AI reset response</div>
-              <div id="resetCoachResponse" class="detail-text"></div>
-            </div>
-          </div>
-        </section>
 
-                 <section class="view" id="supportView">
-          <div class="card panel" id="supportSection">
-            <div class="section-heading">
-              <h3>Support</h3>
-              <p>Ground rules and backup reminders for harder days.</p>
+              <div class="detail-card reset-chat-box" style="background:var(--panel-2);">
+                <div class="detail-label">Talk it out</div>
+                <div class="field-group">
+                  <label for="resetFreeTextInput">What’s going on right now?</label>
+                  <textarea id="resetFreeTextInput" placeholder="Write freely. What happened, how you feel, what is pressing on you, and what you need help with right now."></textarea>
+                </div>
+              </div>
+
+              <div class="action-row reset-action-row">
+                <button class="btn primary" id="askResetCoachBtn">Talk</button>
+                <button class="btn secondary" id="clearResetCoachBtn">Clear</button>
+              </div>
+
+              <div class="status-line" id="resetCoachStatus">The coach will return one reflection, one next action, and one shutdown instruction.</div>
+
+              <div class="reset-grid">
+                <div class="coach-step">
+                  <strong>1. Stop the bleed</strong>
+                  <p style="margin:0 0 12px; color:var(--muted);">Remove one open loop, one demand, or one source of noise.</p>
+                  <div class="field-group">
+                    <label for="resetBleedInput">What is creating the most pressure right now?</label>
+                    <textarea id="resetBleedInput" placeholder="Example: too many open tasks, inbox noise, family stress, unfinished work"></textarea>
+                  </div>
+                </div>
+
+                <div class="coach-step">
+                  <strong>2. Refocus the target</strong>
+                  <p style="margin:0 0 12px; color:var(--muted);">Pick one meaningful action that would make tonight easier.</p>
+                  <div class="field-group">
+                    <label for="resetTargetInput">What is the one thing that matters most next?</label>
+                    <textarea id="resetTargetInput" placeholder="Example: finish the bid review, send one email, plan tomorrow"></textarea>
+                  </div>
+                </div>
+
+                <div class="coach-step">
+                  <strong>3. Move without drama</strong>
+                  <p style="margin:0 0 12px; color:var(--muted);">Start small, finish one thing, and close the day cleanly.</p>
+                  <div class="field-group">
+                    <label for="resetCapacityInput">What capacity do you realistically have right now?</label>
+                    <select id="resetCapacityInput">
+                      <option value="low">Low — I can only do something very small</option>
+                      <option value="medium" selected>Medium — I can do one focused task</option>
+                      <option value="high">High — I still have enough for a solid push</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-card reset-response-card" id="resetCoachResponseCard">
+                <div class="detail-label">AI reset response</div>
+                <div id="resetCoachResponse" class="detail-text"></div>
+              </div>
             </div>
-        
-            <div class="support-grid">
-              <div class="support-card"><div class="detail-label">Low day rule</div><div class="detail-text">Do not chase intensity. Reduce noise and protect the next hour.</div></div>
-              <div class="support-card"><div class="detail-label">Shutdown rule</div><div class="detail-text">Finish clean, write tomorrow’s target, and stop negotiating with the day.</div></div>
-              <div class="support-card"><div class="detail-label">Stress reminder</div><div class="detail-text">High stress makes everything feel urgent. It rarely means everything is urgent.</div></div>
-              <div class="support-card"><div class="detail-label">Momentum reminder</div><div class="detail-text">Small honest actions beat dramatic resets.</div></div>
+          </section>
+
+          <section class="view" id="supportView">
+            <div class="card panel" id="supportSection">
+              <div class="section-heading">
+                <h3>Support</h3>
+                <p>Ground rules and backup reminders for harder days.</p>
+              </div>
+
+              <div class="support-grid">
+                <div class="support-card"><div class="detail-label">Low day rule</div><div class="detail-text">Do not chase intensity. Reduce noise and protect the next hour.</div></div>
+                <div class="support-card"><div class="detail-label">Shutdown rule</div><div class="detail-text">Finish clean, write tomorrow’s target, and stop negotiating with the day.</div></div>
+                <div class="support-card"><div class="detail-label">Stress reminder</div><div class="detail-text">High stress makes everything feel urgent. It rarely means everything is urgent.</div></div>
+                <div class="support-card"><div class="detail-label">Momentum reminder</div><div class="detail-text">Small honest actions beat dramatic resets.</div></div>
+              </div>
+
+              <div class="action-row">
+                <button class="btn secondary" id="clearDemoDataBtn">Clear demo data</button>
+              </div>
             </div>
-        
-            <div class="action-row">
-              <button class="btn secondary" id="clearDemoDataBtn">Clear demo data</button>
-            </div>
-          </div>
-        </section>
+          </section>
         </div>
       </div>
     </main>
@@ -844,16 +844,17 @@
         selectedDateKey: toDateKey(today),
         savedDays: loadSavedDays()
       };
-      
+
       if (DEMO_MODE) {
         seedSampleDays();
-    }
+      }
 
       const els = {
         sidebar: document.getElementById('sidebar'),
         menuBtn: document.getElementById('menuBtn'),
         navBtns: [...document.querySelectorAll('[data-view-target]')],
         jumpBtns: [...document.querySelectorAll('[data-jump]')],
+
         moodRange: document.getElementById('moodRange'),
         stressRange: document.getElementById('stressRange'),
         energyRange: document.getElementById('energyRange'),
@@ -864,15 +865,18 @@
         habits: [...document.querySelectorAll('.core-habit')],
         signalsValue: document.getElementById('signalsValue'),
         habitsValue: document.getElementById('habitsValue'),
+
         reflectionInput: document.getElementById('reflectionInput'),
         tomorrowFocusInput: document.getElementById('tomorrowFocusInput'),
         privacyNotesInput: document.getElementById('privacyNotesInput'),
+
         saveTodayBtn: document.getElementById('saveTodayBtn'),
         topSaveBtn: document.getElementById('topSaveBtn'),
         loadTodayBtn: document.getElementById('loadTodayBtn'),
         clearTodayBtn: document.getElementById('clearTodayBtn'),
         journalLoadBtn: document.getElementById('journalLoadBtn'),
         journalClearBtn: document.getElementById('journalClearBtn'),
+
         topDateLabel: document.getElementById('topDateLabel'),
         dailyScore: document.getElementById('dailyScore'),
         scoreRing: document.getElementById('scoreRing'),
@@ -881,6 +885,7 @@
         avgScore: document.getElementById('avgScore'),
         healthAvgKpi: document.getElementById('healthAvgKpi'),
         privateAvgKpi: document.getElementById('privateAvgKpi'),
+
         selectedDate: document.getElementById('selectedDate'),
         selectedScore: document.getElementById('selectedScore'),
         selectedHealthScore: document.getElementById('selectedHealthScore'),
@@ -888,23 +893,27 @@
         selectedFocus: document.getElementById('selectedFocus'),
         selectedNotes: document.getElementById('selectedNotes'),
         dayStatus: document.getElementById('dayStatus'),
+
         savedEntrySummary: document.getElementById('savedEntrySummary'),
         weeklyAverageDisplay: document.getElementById('weeklyAverageDisplay'),
         avgMood: document.getElementById('avgMood'),
         avgStress: document.getElementById('avgStress'),
         bestDay: document.getElementById('bestDay'),
         strongestHabit: document.getElementById('strongestHabit'),
+
         journalSelectedDate: document.getElementById('journalSelectedDate'),
         journalSelectedScore: document.getElementById('journalSelectedScore'),
         journalSelectedFocus: document.getElementById('journalSelectedFocus'),
         journalSelectedNotes: document.getElementById('journalSelectedNotes'),
         journalList: document.getElementById('journalList'),
+
         momentumBars: document.getElementById('momentumBars'),
         healthBars: document.getElementById('healthBars'),
         privateBars: document.getElementById('privateBars'),
         healthTrendSummary: document.getElementById('healthTrendSummary'),
         privateTrendSummary: document.getElementById('privateTrendSummary'),
         trendReadText: document.getElementById('trendReadText'),
+
         sleepHoursInput: document.getElementById('sleepHoursInput'),
         sleepQualityRange: document.getElementById('sleepQualityRange'),
         sleepQualityValue: document.getElementById('sleepQualityValue'),
@@ -918,6 +927,7 @@
         sleepWeeklyAvg: document.getElementById('sleepWeeklyAvg'),
         movementWeeklyAvg: document.getElementById('movementWeeklyAvg'),
         bestRecoveryDay: document.getElementById('bestRecoveryDay'),
+
         libidoRange: document.getElementById('libidoRange'),
         connectionRange: document.getElementById('connectionRange'),
         confidenceRange: document.getElementById('confidenceRange'),
@@ -931,10 +941,12 @@
         libidoWeeklyAvg: document.getElementById('libidoWeeklyAvg'),
         connectionWeeklyAvg: document.getElementById('connectionWeeklyAvg'),
         bestPrivateDay: document.getElementById('bestPrivateDay'),
+
         calendarGrid: document.getElementById('calendarGrid'),
         previousMonthBtn: document.getElementById('previousMonthBtn'),
         currentMonthBtn: document.getElementById('currentMonthBtn'),
         nextMonthBtn: document.getElementById('nextMonthBtn'),
+
         resetFreeTextInput: document.getElementById('resetFreeTextInput'),
         resetBleedInput: document.getElementById('resetBleedInput'),
         resetTargetInput: document.getElementById('resetTargetInput'),
@@ -944,6 +956,7 @@
         resetCoachStatus: document.getElementById('resetCoachStatus'),
         resetCoachResponseCard: document.getElementById('resetCoachResponseCard'),
         resetCoachResponse: document.getElementById('resetCoachResponse'),
+
         clearDemoDataBtn: document.getElementById('clearDemoDataBtn')
       };
 
@@ -952,52 +965,86 @@
       renderAll();
 
       function bindUi() {
-      els.menuBtn?.addEventListener('click', () => els.sidebar.classList.toggle('open'));
-    
-      els.navBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const target = btn.dataset.viewTarget;
-          if (!target) return;
-          document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === target));
-          document.querySelectorAll('.nav-btn').forEach(nav => nav.classList.toggle('active', nav === btn));
-          els.sidebar.classList.remove('open');
+        els.menuBtn?.addEventListener('click', () => els.sidebar.classList.toggle('open'));
+
+        els.navBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const target = btn.dataset.viewTarget;
+            if (!target) return;
+
+            document.querySelectorAll('.view').forEach(view => {
+              view.classList.toggle('active', view.id === target);
+            });
+
+            document.querySelectorAll('.nav-btn').forEach(nav => {
+              nav.classList.toggle('active', nav === btn);
+            });
+
+            els.sidebar.classList.remove('open');
           });
         });
 
-        // ...other listeners...
-      
-        els.clearDemoDataBtn?.addEventListener('click', clearAllSavedData);
-}
-
-        els.jumpBtns.forEach(btn => btn.addEventListener('click', () => {
-          const target = document.getElementById(btn.dataset.jump);
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          els.sidebar.classList.remove('open');
-        }));
-
-        [['moodRange', 'moodValue', 10], ['stressRange', 'stressValue', 10], ['energyRange', 'energyValue', 10], ['sleepQualityRange', 'sleepQualityValue', 5], ['recoveryRange', 'recoveryValue', 5], ['libidoRange', 'libidoValue', 5], ['connectionRange', 'connectionValue', 5], ['confidenceRange', 'confidenceValue', 5]].forEach(([rangeId, textId, max]) => {
-          const range = els[rangeId];
-          const text = els[textId];
-          range.addEventListener('input', () => { text.textContent = `${range.value} / ${max}`; renderAll(false); });
+        els.jumpBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const target = document.getElementById(btn.dataset.jump);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            els.sidebar.classList.remove('open');
+          });
         });
 
-        [...els.signals, ...els.habits, ...els.healthHabits, ...els.privateHabits].forEach(input => input.addEventListener('change', () => renderAll(false)));
-        [els.sleepHoursInput, els.trainingMinutesInput, els.reflectionInput, els.tomorrowFocusInput, els.privacyNotesInput].forEach(input => input.addEventListener('input', () => renderAll(false)));
+        [
+          ['moodRange', 'moodValue', 10],
+          ['stressRange', 'stressValue', 10],
+          ['energyRange', 'energyValue', 10],
+          ['sleepQualityRange', 'sleepQualityValue', 5],
+          ['recoveryRange', 'recoveryValue', 5],
+          ['libidoRange', 'libidoValue', 5],
+          ['connectionRange', 'connectionValue', 5],
+          ['confidenceRange', 'confidenceValue', 5]
+        ].forEach(([rangeId, textId, max]) => {
+          const range = els[rangeId];
+          const text = els[textId];
+          if (!range || !text) return;
 
-        [els.saveTodayBtn, els.topSaveBtn].forEach(btn => btn.addEventListener('click', saveCurrentDay));
-        [els.loadTodayBtn, els.journalLoadBtn].forEach(btn => btn.addEventListener('click', hydrateToday));
-        [els.clearTodayBtn, els.journalClearBtn].forEach(btn => btn.addEventListener('click', clearTodayInputs));
+          range.addEventListener('input', () => {
+            text.textContent = `${range.value} / ${max}`;
+            renderAll(false);
+          });
+        });
 
-        els.previousMonthBtn.addEventListener('click', () => shiftMonth(-1));
-        els.nextMonthBtn.addEventListener('click', () => shiftMonth(1));
-        els.currentMonthBtn.addEventListener('click', () => {
+        [...els.signals, ...els.habits, ...els.healthHabits, ...els.privateHabits].forEach(input => {
+          input.addEventListener('change', () => renderAll(false));
+        });
+
+        [
+          els.sleepHoursInput,
+          els.trainingMinutesInput,
+          els.reflectionInput,
+          els.tomorrowFocusInput,
+          els.privacyNotesInput
+        ].forEach(input => {
+          input?.addEventListener('input', () => renderAll(false));
+        });
+
+        [els.saveTodayBtn, els.topSaveBtn].forEach(btn => {
+          btn?.addEventListener('click', saveCurrentDay);
+        });
+
+        [els.loadTodayBtn, els.journalLoadBtn].forEach(btn => {
+          btn?.addEventListener('click', hydrateToday);
+        });
+
+        [els.clearTodayBtn, els.journalClearBtn].forEach(btn => {
+          btn?.addEventListener('click', clearTodayInputs);
+        });
+
+        els.previousMonthBtn?.addEventListener('click', () => shiftMonth(-1));
+        els.nextMonthBtn?.addEventListener('click', () => shiftMonth(1));
+        els.currentMonthBtn?.addEventListener('click', () => {
           visibleMonth = today.getMonth();
           visibleYear = today.getFullYear();
           renderCalendar();
         });
-        els.clearDemoDataBtn?.addEventListener('click', clearAllSavedData);
-        });
-        els.clearDemoDataBtn?.addEventListener('click', clearAllSavedData);
 
         els.askResetCoachBtn?.addEventListener('click', runResetCoach);
         els.clearResetCoachBtn?.addEventListener('click', () => {
@@ -1009,18 +1056,79 @@
           els.resetCoachResponseCard.style.display = 'none';
           els.resetCoachStatus.textContent = 'The coach will return one reflection, one next action, and one shutdown instruction.';
         });
+
+        els.clearDemoDataBtn?.addEventListener('click', clearAllSavedData);
       }
 
       function seedSampleDays() {
         if (Object.keys(state.savedDays).length) return;
+
         const sampleDays = [
-          { date: offsetDate(-6), mood: 6, stress: 4, energy: 6, signals:[1,0,1], habits:[1,0,1,0,1,1], focus:'Avoid reactive work', notes:'Better than it felt in the moment.', reflection:'Pulled things back late.',
-            sleepHours: 7.0, sleepQuality: 3, movementMinutes: 35, recovery: 3, healthHabits:[1,1,0,1], libido: 3, connection: 3, confidence: 3, privateHabits:[1,0,1,1], privateNote:'Steady enough.' },
-          { date: offsetDate(-2), mood: 8, stress: 2, energy: 8, signals:[1,1,1], habits:[1,1,1,1,1,0], focus:'Finish proposal review', notes:'Excellent day. Good structure and clean decisions.', reflection:'Strong day with clean execution.',
-            sleepHours: 8.0, sleepQuality: 4, movementMinutes: 45, recovery: 4, healthHabits:[1,1,1,1], libido: 4, connection: 4, confidence: 4, privateHabits:[1,1,1,1], privateNote:'Good connection.' },
-          { date: offsetDate(0), mood: 5, stress: 5, energy: 5, signals:[1,0,1], habits:[1,0,1,0,1,1], focus:'Finish clean', notes:'Mixed day. Finish clean.', reflection:'Need a cleaner shutdown tonight.',
-            sleepHours: 6.5, sleepQuality: 3, movementMinutes: 30, recovery: 3, healthHabits:[1,0,1,1], libido: 3, connection: 2, confidence: 3, privateHabits:[0,1,0,1], privateNote:'A little flat.' }
+          {
+            date: offsetDate(-6),
+            mood: 6,
+            stress: 4,
+            energy: 6,
+            signals: [1, 0, 1],
+            habits: [1, 0, 1, 0, 1, 1],
+            focus: 'Avoid reactive work',
+            notes: 'Better than it felt in the moment.',
+            reflection: 'Pulled things back late.',
+            sleepHours: 7.0,
+            sleepQuality: 3,
+            movementMinutes: 35,
+            recovery: 3,
+            healthHabits: [1, 1, 0, 1],
+            libido: 3,
+            connection: 3,
+            confidence: 3,
+            privateHabits: [1, 0, 1, 1],
+            privateNote: 'Steady enough.'
+          },
+          {
+            date: offsetDate(-2),
+            mood: 8,
+            stress: 2,
+            energy: 8,
+            signals: [1, 1, 1],
+            habits: [1, 1, 1, 1, 1, 0],
+            focus: 'Finish proposal review',
+            notes: 'Excellent day. Good structure and clean decisions.',
+            reflection: 'Strong day with clean execution.',
+            sleepHours: 8.0,
+            sleepQuality: 4,
+            movementMinutes: 45,
+            recovery: 4,
+            healthHabits: [1, 1, 1, 1],
+            libido: 4,
+            connection: 4,
+            confidence: 4,
+            privateHabits: [1, 1, 1, 1],
+            privateNote: 'Good connection.'
+          },
+          {
+            date: offsetDate(0),
+            mood: 5,
+            stress: 5,
+            energy: 5,
+            signals: [1, 0, 1],
+            habits: [1, 0, 1, 0, 1, 1],
+            focus: 'Finish clean',
+            notes: 'Mixed day. Finish clean.',
+            reflection: 'Need a cleaner shutdown tonight.',
+            sleepHours: 6.5,
+            sleepQuality: 3,
+            movementMinutes: 30,
+            recovery: 3,
+            healthHabits: [1, 0, 1, 1],
+            libido: 3,
+            connection: 2,
+            confidence: 3,
+            privateHabits: [0, 1, 0, 1],
+            privateNote: 'A little flat.'
+          }
         ];
+
         sampleDays.forEach(seedDay);
         persistSavedDays();
       }
@@ -1028,6 +1136,7 @@
       function seedDay(day) {
         const key = toDateKey(day.date);
         const computed = computeScores(day);
+
         state.savedDays[key] = {
           dateKey: key,
           isoDate: key,
@@ -1063,14 +1172,38 @@
       }
 
       function clearTodayInputs() {
-        els.moodRange.value = 5; els.stressRange.value = 5; els.energyRange.value = 5;
-        els.sleepHoursInput.value = 7; els.sleepQualityRange.value = 3; els.trainingMinutesInput.value = 30; els.recoveryRange.value = 3;
-        els.libidoRange.value = 3; els.connectionRange.value = 3; els.confidenceRange.value = 3;
-        els.reflectionInput.value = ''; els.tomorrowFocusInput.value = ''; els.privacyNotesInput.value = '';
-        [els.signals, els.habits, els.healthHabits, els.privateHabits].forEach(group => group.forEach(el => el.checked = false));
-        els.moodValue.textContent = '5 / 10'; els.stressValue.textContent = '5 / 10'; els.energyValue.textContent = '5 / 10';
-        els.sleepQualityValue.textContent = '3 / 5'; els.recoveryValue.textContent = '3 / 5';
-        els.libidoValue.textContent = '3 / 5'; els.connectionValue.textContent = '3 / 5'; els.confidenceValue.textContent = '3 / 5';
+        els.moodRange.value = 5;
+        els.stressRange.value = 5;
+        els.energyRange.value = 5;
+
+        els.sleepHoursInput.value = 7;
+        els.sleepQualityRange.value = 3;
+        els.trainingMinutesInput.value = 30;
+        els.recoveryRange.value = 3;
+
+        els.libidoRange.value = 3;
+        els.connectionRange.value = 3;
+        els.confidenceRange.value = 3;
+
+        els.reflectionInput.value = '';
+        els.tomorrowFocusInput.value = '';
+        els.privacyNotesInput.value = '';
+
+        [els.signals, els.habits, els.healthHabits, els.privateHabits].forEach(group => {
+          group.forEach(el => {
+            el.checked = false;
+          });
+        });
+
+        els.moodValue.textContent = '5 / 10';
+        els.stressValue.textContent = '5 / 10';
+        els.energyValue.textContent = '5 / 10';
+        els.sleepQualityValue.textContent = '3 / 5';
+        els.recoveryValue.textContent = '3 / 5';
+        els.libidoValue.textContent = '3 / 5';
+        els.connectionValue.textContent = '3 / 5';
+        els.confidenceValue.textContent = '3 / 5';
+
         renderAll(false);
       }
 
@@ -1106,8 +1239,15 @@
           privateHabits: els.privateHabits.map(el => el.checked ? 1 : 0),
           privateNote: els.privacyNotesInput.value.trim()
         };
+
         const computed = computeScores(base);
-        return { ...base, score: computed.momentumScore, healthScore: computed.healthScore, privateScore: computed.privateScore };
+
+        return {
+          ...base,
+          score: computed.momentumScore,
+          healthScore: computed.healthScore,
+          privateScore: computed.privateScore
+        };
       }
 
       function computeScores(day) {
@@ -1197,7 +1337,7 @@
         }
       }
 
-      function renderAll(saved) {
+      function renderAll(saved = false) {
         const preview = captureCurrentDay();
         const savedDays = getSortedEntries();
         const recent = getRecentEntries(7);
@@ -1228,31 +1368,33 @@
         els.journalSelectedFocus.textContent = selected.focus || '-';
         els.journalSelectedNotes.textContent = selected.notes || '-';
 
+        const recentSaved = recent.filter(Boolean);
+
         els.currentStreak.textContent = calculateStreak();
-        els.avgScore.textContent = average(recent.filter(Boolean).map(d => d.score));
-        els.healthAvgKpi.textContent = average(recent.filter(Boolean).map(d => d.healthScore));
-        els.privateAvgKpi.textContent = average(recent.filter(Boolean).map(d => d.privateScore));
+        els.avgScore.textContent = average(recentSaved.map(d => d.score));
+        els.healthAvgKpi.textContent = average(recentSaved.map(d => d.healthScore));
+        els.privateAvgKpi.textContent = average(recentSaved.map(d => d.privateScore));
 
-        els.savedEntrySummary.textContent = `${recent.filter(Boolean).length} / 7`;
-        els.weeklyAverageDisplay.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.score)) : '0';
-        els.avgMood.textContent = recent.filter(Boolean).length ? `${average(recent.filter(Boolean).map(d => d.mood))} / 10` : '-';
-        els.avgStress.textContent = recent.filter(Boolean).length ? `${average(recent.filter(Boolean).map(d => d.stress))} / 10` : '-';
-        els.bestDay.textContent = recent.filter(Boolean).length ? `${recent.filter(Boolean).slice().sort((a,b)=>b.score-a.score)[0].date}` : '-';
-        els.strongestHabit.textContent = strongestHabit(recent.filter(Boolean));
+        els.savedEntrySummary.textContent = `${recentSaved.length} / 7`;
+        els.weeklyAverageDisplay.textContent = recentSaved.length ? average(recentSaved.map(d => d.score)) : '0';
+        els.avgMood.textContent = recentSaved.length ? `${average(recentSaved.map(d => d.mood))} / 10` : '-';
+        els.avgStress.textContent = recentSaved.length ? `${average(recentSaved.map(d => d.stress))} / 10` : '-';
+        els.bestDay.textContent = recentSaved.length ? recentSaved.slice().sort((a, b) => b.score - a.score)[0].date : '-';
+        els.strongestHabit.textContent = strongestHabit(recentSaved);
 
-        els.healthTrendSummary.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.healthScore)) : '-';
-        els.privateTrendSummary.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.privateScore)) : '-';
-        els.trendReadText.textContent = trendRead(recent.filter(Boolean));
+        els.healthTrendSummary.textContent = recentSaved.length ? average(recentSaved.map(d => d.healthScore)) : '-';
+        els.privateTrendSummary.textContent = recentSaved.length ? average(recentSaved.map(d => d.privateScore)) : '-';
+        els.trendReadText.textContent = trendRead(recentSaved);
 
-        els.healthWeeklyAvg.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.healthScore)) : '0';
-        els.sleepWeeklyAvg.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.sleepHours), 1) : '0';
-        els.movementWeeklyAvg.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.movementMinutes)) : '0';
-        els.bestRecoveryDay.textContent = recent.filter(Boolean).length ? recent.filter(Boolean).slice().sort((a,b)=>b.healthScore-a.healthScore)[0].date : '-';
+        els.healthWeeklyAvg.textContent = recentSaved.length ? average(recentSaved.map(d => d.healthScore)) : '0';
+        els.sleepWeeklyAvg.textContent = recentSaved.length ? average(recentSaved.map(d => d.sleepHours), 1) : '0';
+        els.movementWeeklyAvg.textContent = recentSaved.length ? average(recentSaved.map(d => d.movementMinutes)) : '0';
+        els.bestRecoveryDay.textContent = recentSaved.length ? recentSaved.slice().sort((a, b) => b.healthScore - a.healthScore)[0].date : '-';
 
-        els.privateWeeklyAvg.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.privateScore)) : '0';
-        els.libidoWeeklyAvg.textContent = recent.filter(Boolean).length ? `${average(recent.filter(Boolean).map(d => d.libido), 1)} / 5` : '-';
-        els.connectionWeeklyAvg.textContent = recent.filter(Boolean).length ? `${average(recent.filter(Boolean).map(d => d.connection), 1)} / 5` : '-';
-        els.bestPrivateDay.textContent = recent.filter(Boolean).length ? recent.filter(Boolean).slice().sort((a,b)=>b.privateScore-a.privateScore)[0].date : '-';
+        els.privateWeeklyAvg.textContent = recentSaved.length ? average(recentSaved.map(d => d.privateScore)) : '0';
+        els.libidoWeeklyAvg.textContent = recentSaved.length ? `${average(recentSaved.map(d => d.libido), 1)} / 5` : '-';
+        els.connectionWeeklyAvg.textContent = recentSaved.length ? `${average(recentSaved.map(d => d.connection), 1)} / 5` : '-';
+        els.bestPrivateDay.textContent = recentSaved.length ? recentSaved.slice().sort((a, b) => b.privateScore - a.privateScore)[0].date : '-';
 
         renderBars(els.momentumBars, getLast7DayKeys(), 'score');
         renderBars(els.healthBars, getLast7DayKeys(), 'healthScore');
@@ -1263,7 +1405,7 @@
 
       function renderBars(container, days, metric, isPrivate = false) {
         container.innerHTML = '';
-        days.forEach(({key, label}) => {
+        days.forEach(({ key, label }) => {
           const entry = state.savedDays[key];
           const value = entry ? entry[metric] : null;
           const wrap = document.createElement('div');
@@ -1281,8 +1423,13 @@
 
       function renderCalendar() {
         const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-        document.querySelector('#historyView .section-heading h3').textContent = `Calendar history — ${monthNames[visibleMonth]} ${visibleYear}`;
+        const historyHeading = document.querySelector('#historyView .section-heading h3');
+        if (historyHeading) {
+          historyHeading.textContent = `Calendar history — ${monthNames[visibleMonth]} ${visibleYear}`;
+        }
+
         els.calendarGrid.innerHTML = '';
+
         ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day => {
           const el = document.createElement('div');
           el.className = 'weekday';
@@ -1305,15 +1452,26 @@
           const entry = state.savedDays[key];
           const day = document.createElement('button');
           day.className = 'day';
+
           if (key === toDateKey(today)) day.classList.add('today');
           if (key === state.selectedDateKey) day.classList.add('selected');
+
           const tier = !entry ? '' : entry.score >= 75 ? 'good' : entry.score >= 55 ? 'mid' : 'bad';
-          day.innerHTML = `<div class="day-top"><span>${d}</span><span class="day-dot ${tier}"></span></div><div class="day-score">${entry ? entry.score : '—'}</div>`;
+
+          day.innerHTML = `
+            <div class="day-top">
+              <span>${d}</span>
+              <span class="day-dot ${tier}"></span>
+            </div>
+            <div class="day-score">${entry ? entry.score : '—'}</div>
+          `;
+
           day.addEventListener('click', () => {
             state.selectedDateKey = key;
             if (entry) hydrateFromEntry(entry);
             renderAll(false);
           });
+
           els.calendarGrid.appendChild(day);
         }
       }
@@ -1352,10 +1510,12 @@
 
       function renderJournal(entries) {
         els.journalList.innerHTML = '';
+
         if (!entries.length) {
           els.journalList.innerHTML = '<div class="journal-empty">No entries yet. Save a day to build your record.</div>';
           return;
         }
+
         entries.slice().reverse().forEach(entry => {
           const item = document.createElement('div');
           item.className = 'journal-entry';
@@ -1414,6 +1574,7 @@
         const momentum = Number(average(recent.map(d => d.score)));
         const health = Number(average(recent.map(d => d.healthScore)));
         const priv = Number(average(recent.map(d => d.privateScore)));
+
         if (momentum >= 70 && health >= 70 && priv >= 65) return 'Momentum, recovery, and private rhythm are all supporting each other.';
         if (health < 60 && priv >= 60) return 'Recovery looks like the clearest lever to improve next.';
         if (health >= 60 && priv < 60) return 'Connection and private rhythm need more attention than physical baseline.';
@@ -1423,9 +1584,25 @@
 
       function shiftMonth(delta) {
         visibleMonth += delta;
-        if (visibleMonth < 0) { visibleMonth = 11; visibleYear -= 1; }
-        if (visibleMonth > 11) { visibleMonth = 0; visibleYear += 1; }
+        if (visibleMonth < 0) {
+          visibleMonth = 11;
+          visibleYear -= 1;
+        }
+        if (visibleMonth > 11) {
+          visibleMonth = 0;
+          visibleYear += 1;
+        }
         renderCalendar();
+      }
+
+      function clearAllSavedData() {
+        state.savedDays = {};
+        state.selectedDateKey = toDateKey(today);
+        try {
+          localStorage.removeItem('momentum-os-saved-days');
+        } catch {}
+        clearTodayInputs();
+        renderAll(false);
       }
 
       function loadSavedDays() {
@@ -1486,7 +1663,12 @@
       }
 
       function escapeHtml(str) {
-        return String(str).replace(/[&<>"]/g, s => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[s]));
+        return String(str).replace(/[&<>"]/g, s => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;'
+        }[s]));
       }
     })();
   </script>
