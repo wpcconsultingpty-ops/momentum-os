@@ -738,66 +738,66 @@
           </section>
 
           <section class="view" id="resetView">
-            <div class="card panel" id="resetCoachSection">
-              <div class="section-heading">
-                <h3>Reset coach</h3>
-                <p>Use this when the day is slipping and you need a smaller next move.</p>
-              </div>
-
-              <div class="detail-card reset-chat-box" style="background:var(--panel-2);">
-                <div class="detail-label">Talk it out</div>
-                <div class="field-group">
-                  <label for="resetFreeTextInput">What’s going on right now?</label>
-                  <textarea id="resetFreeTextInput" placeholder="Write freely. What happened, how you feel, what is pressing on you, and what you need help with right now."></textarea>
-                </div>
-              </div>
-
-              <div class="reset-grid">
-                <div class="coach-step">
-                  <strong>1. Stop the bleed</strong>
-                  <p style="margin:0 0 12px; color:var(--muted);">Remove one open loop, one demand, or one source of noise.</p>
-                  <div class="field-group">
-                    <label for="resetBleedInput">What is creating the most pressure right now?</label>
-                    <textarea id="resetBleedInput" placeholder="Example: too many open tasks, inbox noise, family stress, unfinished work"></textarea>
-                  </div>
-                </div>
-
-                <div class="coach-step">
-                  <strong>2. Refocus the target</strong>
-                  <p style="margin:0 0 12px; color:var(--muted);">Pick one meaningful action that would make tonight easier.</p>
-                  <div class="field-group">
-                    <label for="resetTargetInput">What is the one thing that matters most next?</label>
-                    <textarea id="resetTargetInput" placeholder="Example: finish the bid review, send one email, plan tomorrow"></textarea>
-                  </div>
-                </div>
-
-                <div class="coach-step">
-                  <strong>3. Move without drama</strong>
-                  <p style="margin:0 0 12px; color:var(--muted);">Start small, finish one thing, and close the day cleanly.</p>
-                  <div class="field-group">
-                    <label for="resetCapacityInput">What capacity do you realistically have right now?</label>
-                    <select id="resetCapacityInput">
-                      <option value="low">Low — I can only do something very small</option>
-                      <option value="medium" selected>Medium — I can do one focused task</option>
-                      <option value="high">High — I still have enough for a solid push</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="action-row">
-                <button class="btn primary" id="askResetCoachBtn">Talk to Reset Coach</button>
-                <button class="btn secondary" id="clearResetCoachBtn">Clear</button>
-              </div>
-
-              <div class="status-line" id="resetCoachStatus">The coach will return one reflection, one next action, and one shutdown instruction.</div>
-
-              <div class="detail-card reset-response-card" id="resetCoachResponseCard">
-                <div class="detail-label">AI reset response</div>
-                <div id="resetCoachResponse" class="detail-text"></div>
+          <div class="card panel" id="resetCoachSection">
+            <div class="section-heading">
+              <h3>Reset coach</h3>
+              <p>Use this when the day is slipping and you need a smaller next move.</p>
+            </div>
+        
+            <div class="detail-card reset-chat-box" style="background:var(--panel-2);">
+              <div class="detail-label">Talk it out</div>
+              <div class="field-group">
+                <label for="resetFreeTextInput">What’s going on right now?</label>
+                <textarea id="resetFreeTextInput" placeholder="Write freely. What happened, how you feel, what is pressing on you, and what you need help with right now."></textarea>
               </div>
             </div>
-          </section>
+        
+            <div class="action-row reset-action-row">
+              <button class="btn primary" id="askResetCoachBtn">Talk</button>
+              <button class="btn secondary" id="clearResetCoachBtn">Clear</button>
+            </div>
+        
+            <div class="status-line" id="resetCoachStatus">The coach will return one reflection, one next action, and one shutdown instruction.</div>
+        
+            <div class="reset-grid">
+              <div class="coach-step">
+                <strong>1. Stop the bleed</strong>
+                <p style="margin:0 0 12px; color:var(--muted);">Remove one open loop, one demand, or one source of noise.</p>
+                <div class="field-group">
+                  <label for="resetBleedInput">What is creating the most pressure right now?</label>
+                  <textarea id="resetBleedInput" placeholder="Example: too many open tasks, inbox noise, family stress, unfinished work"></textarea>
+                </div>
+              </div>
+        
+              <div class="coach-step">
+                <strong>2. Refocus the target</strong>
+                <p style="margin:0 0 12px; color:var(--muted);">Pick one meaningful action that would make tonight easier.</p>
+                <div class="field-group">
+                  <label for="resetTargetInput">What is the one thing that matters most next?</label>
+                  <textarea id="resetTargetInput" placeholder="Example: finish the bid review, send one email, plan tomorrow"></textarea>
+                </div>
+              </div>
+        
+              <div class="coach-step">
+                <strong>3. Move without drama</strong>
+                <p style="margin:0 0 12px; color:var(--muted);">Start small, finish one thing, and close the day cleanly.</p>
+                <div class="field-group">
+                  <label for="resetCapacityInput">What capacity do you realistically have right now?</label>
+                  <select id="resetCapacityInput">
+                    <option value="low">Low — I can only do something very small</option>
+                    <option value="medium" selected>Medium — I can do one focused task</option>
+                    <option value="high">High — I still have enough for a solid push</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+        
+            <div class="detail-card reset-response-card" id="resetCoachResponseCard">
+              <div class="detail-label">AI reset response</div>
+              <div id="resetCoachResponse" class="detail-text"></div>
+            </div>
+          </div>
+        </section>
 
           <section class="view" id="supportView">
             <div class="card panel" id="supportSection">
