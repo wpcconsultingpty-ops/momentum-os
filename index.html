@@ -84,12 +84,14 @@
 
     .main { min-width: 0; padding: var(--space-6); }
     .main-inner { max-width: var(--content); margin: 0 auto; display: grid; gap: var(--space-6); }
+
     .mobile-topbar {
       display: none; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4);
     }
     .menu-btn {
       width: 44px; height: 44px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow);
     }
+
     .card {
       background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
     }
@@ -119,9 +121,11 @@
     .status-badge {
       padding: 10px 12px; border-radius: 999px; background: var(--accent-2); color: #174b4d; font-weight: 600; text-align: center; font-size: 14px;
     }
+
     .direction-block, .section-heading { display: grid; gap: 8px; }
     .direction-block h3, .section-heading h3 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
     .direction-block p, .section-heading p, .detail-text, .status-line, .micro-copy { margin: 0; color: var(--muted); }
+
     .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
     .kpi, .detail-card, .signal-card, .signal-list, .support-card, .reset-card, .journal-compose, .journal-history, .trend-card {
       border-radius: 16px; padding: 16px; background: var(--panel-2); border: 1px solid var(--line);
@@ -146,9 +150,11 @@
     .signal-grid, .review-grid, .details-grid, .support-grid, .journal-grid, .health-grid, .private-grid, .trend-grid {
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4);
     }
+
     .signal-card label, .field-group label { display: block; margin-bottom: 10px; font-weight: 600; }
     .signal-value { margin-top: 8px; color: var(--muted); font-size: 14px; }
     input[type="range"] { width: 100%; accent-color: var(--accent); }
+
     .check-list, .habit-list, .toggle-list { display: grid; gap: 12px; }
     .check-item, .habit-item, .toggle-item {
       display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: white; border: 1px solid var(--line);
@@ -160,6 +166,7 @@
     .check-copy { display: grid; gap: 2px; }
     .check-copy strong { font-size: 14px; font-weight: 600; }
     .check-copy span { font-size: 13px; color: var(--muted); }
+
     .field-group { display: grid; gap: 10px; }
     textarea, input[type="text"], input[type="number"], select {
       width: 100%; border-radius: 14px; border: 1px solid var(--line); background: white; color: var(--text); padding: 14px; outline: none;
@@ -168,7 +175,9 @@
     textarea:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus {
       border-color: var(--accent); box-shadow: 0 0 0 3px rgba(13,107,111,0.12);
     }
+
     .status-line { font-size: 14px; min-height: 21px; }
+
     .trend-bars { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; align-items: end; min-height: 220px; }
     .bar-wrap { display: grid; gap: 10px; justify-items: center; }
     .bar {
@@ -177,6 +186,7 @@
     .bar.private-bar { background: linear-gradient(180deg, var(--private), #a86fdf); }
     .bar.muted-bar { background: linear-gradient(180deg, #d8d1c5, #c8beae); }
     .bar-label, .bar-value { font-size: 13px; color: var(--muted); }
+
     .calendar-header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
     .calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
     .weekday {
@@ -196,6 +206,7 @@
     .day-dot.mid { background: var(--mid); }
     .day-dot.bad { background: var(--bad); }
     .day-score { font-size: 13px; color: var(--muted); }
+
     .journal-shell, .coach-steps, .journal-list { display: grid; gap: 14px; }
     .journal-entry {
       border-radius: 16px; padding: 16px; background: var(--panel-2); border: 1px solid var(--line); display: grid; gap: 8px;
@@ -1140,7 +1151,7 @@
         els.askResetCoachBtn.disabled = true;
 
         try {
-          const response = await fetch('/api/coach.js', {
+          const response = await fetch('/api/coach', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ freeText, bleed, target, capacity })
@@ -1156,7 +1167,7 @@
           els.resetCoachResponseCard.style.display = 'block';
           els.resetCoachStatus.textContent = 'Reset Coach is ready.';
         } catch (error) {
-          els.resetCoachStatus.textContent = 'Could not reach Reset Coach. Check your API route and environment key.';
+          els.resetCoachStatus.textContent = `Reset Coach error: ${error.message || 'Could not reach coach.'}`;
           els.resetCoachResponse.textContent = '';
           els.resetCoachResponseCard.style.display = 'none';
         } finally {
