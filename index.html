@@ -191,7 +191,8 @@
     }
 
     .hero h2,
-    .section-header h2 {
+    .section-header h2,
+    .section-header h3 {
       margin: 0 0 8px;
       line-height: 1.08;
       letter-spacing: -0.03em;
@@ -199,6 +200,7 @@
 
     .hero h2 { font-size: 2.15rem; }
     .section-header h2 { font-size: 1.55rem; }
+    .section-header h3 { font-size: 1.22rem; }
 
     .hero p,
     .section-header p,
@@ -232,12 +234,80 @@
     .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-main-side { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: stretch; }
 
     .card {
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       padding: 18px;
+    }
+
+    .card-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      height: 100%;
+    }
+
+    .metric-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: space-between;
+      min-height: 170px;
+      cursor: pointer;
+    }
+
+    .metric-card input[type="range"] {
+      margin-top: auto;
+    }
+
+    .private-signals-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      width: 100%;
+    }
+
+    .signal-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 172px;
+      gap: 12px;
+    }
+
+    .signal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .signal-top strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.96rem;
+    }
+
+    .signal-top em {
+      display: block;
+      color: var(--muted);
+      font-style: normal;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .signal-value {
+      flex-shrink: 0;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid rgba(12,106,111,0.12);
+      padding: 6px 10px;
+      border-radius: 999px;
     }
 
     .card-label {
@@ -418,8 +488,13 @@
       .grid-4,
       .grid-3,
       .grid-2,
-      .habit-grid {
+      .habit-grid,
+      .private-signals-grid {
         grid-template-columns: 1fr 1fr;
+      }
+
+      .grid-main-side {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -431,10 +506,13 @@
       .grid-4,
       .grid-3,
       .grid-2,
-      .habit-grid { grid-template-columns: 1fr; }
+      .habit-grid,
+      .private-signals-grid { grid-template-columns: 1fr; }
       .chart { gap: 8px; }
       .hero, .section-card { padding: 20px; border-radius: 22px; }
       .hero h2 { font-size: 1.8rem; }
+      .signal-top { flex-direction: column; }
+      .signal-value { align-self: flex-start; }
     }
   </style>
 </head>
@@ -481,7 +559,14 @@
     </aside>
 
     <main class="main">
-      
+      <div class="mobile-nav" aria-label="Mobile section navigation">
+        <button class="mobile-tab active" data-view-target="dashboardView">Dashboard</button>
+        <button class="mobile-tab" data-view-target="healthView">Health</button>
+        <button class="mobile-tab" data-view-target="privateView">Private</button>
+        <button class="mobile-tab" data-view-target="historyView">History</button>
+        <button class="mobile-tab" data-view-target="journalView">Journal</button>
+        <button class="mobile-tab" data-view-target="coachView">Coach</button>
+      </div>
 
       <section id="dashboardView" class="view active">
         <header class="hero">
@@ -647,21 +732,21 @@
               <div class="grid grid-3">
                 <label class="card metric-card" for="privateDesire">
                   <div class="card-label">Desire</div>
-                  <div class="card-value" style="font-size:1.1rem;">5 / 10</div>
+                  <div class="card-value" id="privateDesireValue" style="font-size:1.1rem;">5 / 10</div>
                   <div class="card-note">Below baseline.</div>
                   <input id="privateDesire" type="range" min="0" max="10" value="5" />
                 </label>
 
                 <label class="card metric-card" for="privateConnection">
                   <div class="card-label">Connection</div>
-                  <div class="card-value" style="font-size:1.1rem;">4 / 10</div>
+                  <div class="card-value" id="privateConnectionValue" style="font-size:1.1rem;">4 / 10</div>
                   <div class="card-note">Needs attention.</div>
                   <input id="privateConnection" type="range" min="0" max="10" value="4" />
                 </label>
 
                 <label class="card metric-card" for="privateUrge">
                   <div class="card-label">Urge intensity</div>
-                  <div class="card-value" style="font-size:1.1rem;">7 / 10</div>
+                  <div class="card-value" id="privateUrgeValue" style="font-size:1.1rem;">7 / 10</div>
                   <div class="card-note">Elevated.</div>
                   <input id="privateUrge" type="range" min="0" max="10" value="7" />
                 </label>
@@ -671,40 +756,54 @@
             <article class="card card-stack">
               <div class="section-header" style="margin-bottom:12px;">
                 <h3>Private signals</h3>
-                <p>2 / 4 logged</p>
+                <p>Each signal now uses a slider and the panel is evenly distributed.</p>
               </div>
 
-              <label class="check-row">
-                <input type="checkbox" checked />
-                <span>
-                  <strong>Porn use logged</strong>
-                  <em>Use was present and worth noting.</em>
-                </span>
-              </label>
+              <div class="private-signals-grid">
+                <label class="card signal-card" for="privatePornUse">
+                  <div class="signal-top">
+                    <div>
+                      <strong>Porn use logged</strong>
+                      <em>Use was present and worth noting.</em>
+                    </div>
+                    <span class="signal-value" id="privatePornUseValue">2 / 10</span>
+                  </div>
+                  <input id="privatePornUse" type="range" min="0" max="10" value="2" />
+                </label>
 
-              <label class="check-row">
-                <input type="checkbox" checked />
-                <span>
-                  <strong>Masturbation logged</strong>
-                  <em>Tracked without framing it as failure.</em>
-                </span>
-              </label>
+                <label class="card signal-card" for="privateMasturbation">
+                  <div class="signal-top">
+                    <div>
+                      <strong>Masturbation logged</strong>
+                      <em>Tracked without framing it as failure.</em>
+                    </div>
+                    <span class="signal-value" id="privateMasturbationValue">3 / 10</span>
+                  </div>
+                  <input id="privateMasturbation" type="range" min="0" max="10" value="3" />
+                </label>
 
-              <label class="check-row">
-                <input type="checkbox" />
-                <span>
-                  <strong>Felt fully in control</strong>
-                  <em>Control was mixed rather than steady.</em>
-                </span>
-              </label>
+                <label class="card signal-card" for="privateControl">
+                  <div class="signal-top">
+                    <div>
+                      <strong>Felt fully in control</strong>
+                      <em>Control was mixed rather than steady.</em>
+                    </div>
+                    <span class="signal-value" id="privateControlValue">4 / 10</span>
+                  </div>
+                  <input id="privateControl" type="range" min="0" max="10" value="4" />
+                </label>
 
-              <label class="check-row">
-                <input type="checkbox" />
-                <span>
-                  <strong>Recovery response completed</strong>
-                  <em>No full reset action completed yet.</em>
-                </span>
-              </label>
+                <label class="card signal-card" for="privateRecovery">
+                  <div class="signal-top">
+                    <div>
+                      <strong>Recovery response completed</strong>
+                      <em>No full reset action completed yet.</em>
+                    </div>
+                    <span class="signal-value" id="privateRecoveryValue">2 / 10</span>
+                  </div>
+                  <input id="privateRecovery" type="range" min="0" max="10" value="2" />
+                </label>
+              </div>
             </article>
           </div>
 
@@ -869,6 +968,10 @@
         tab.classList.toggle('active', tab.dataset.viewTarget === targetId);
       });
 
+      document.querySelectorAll('.mobile-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.viewTarget === targetId);
+      });
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -879,7 +982,14 @@
     const sliderPairs = [
       ['mood', 'moodValue'],
       ['stress', 'stressValue'],
-      ['energy', 'energyValue']
+      ['energy', 'energyValue'],
+      ['privateDesire', 'privateDesireValue'],
+      ['privateConnection', 'privateConnectionValue'],
+      ['privateUrge', 'privateUrgeValue'],
+      ['privatePornUse', 'privatePornUseValue'],
+      ['privateMasturbation', 'privateMasturbationValue'],
+      ['privateControl', 'privateControlValue'],
+      ['privateRecovery', 'privateRecoveryValue']
     ];
 
     sliderPairs.forEach(([sliderId, valueId]) => {
