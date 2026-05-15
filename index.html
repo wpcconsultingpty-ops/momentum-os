@@ -99,30 +99,15 @@
       font-size: 14px;
     }
 
-    .nav-group h2, .shortcut-group h2 {
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      color: var(--soft);
-      text-transform: uppercase;
-      margin: 0 0 var(--space-3);
-    }
+      .nav-group h2 {
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        color: var(--soft);
+        text-transform: uppercase;
+        margin: 0 0 var(--space-3);
+}
 
-    .nav-list, .shortcut-list { display: grid; gap: var(--space-2); }
-
-    .nav-btn, .jump-btn {
-      width: 100%;
-      text-align: left;
-      border-radius: 14px;
-      padding: 12px 14px;
-      background: transparent;
-      color: var(--text);
-      transition: 180ms ease;
-    }
-
-    .nav-btn:hover, .jump-btn:hover { background: var(--panel-2); }
-    .nav-btn.active { background: var(--accent); color: white; }
-
-    .sidebar-note {
+     .sidebar-note {
       margin-top: auto;
       padding: var(--space-4);
       border-radius: 16px;
@@ -660,17 +645,6 @@
           <button class="nav-btn" data-view-target="journalView">Journal</button>
           <button class="nav-btn" data-view-target="resetView">Reset Coach</button>
           <button class="nav-btn" data-view-target="supportView">Support</button>
-        </div>
-      </div>
-
-      <div class="shortcut-group">
-        <h2>Shortcuts</h2>
-        <div class="shortcut-list">
-          <button class="jump-btn" data-jump="checkInSection">Today’s check-in</button>
-          <button class="jump-btn" data-jump="healthCheckSection">Health check</button>
-          <button class="jump-btn" data-jump="privateCheckSection">Private check</button>
-          <button class="jump-btn" data-jump="weeklyReviewSection">Weekly review</button>
-          <button class="jump-btn" data-jump="journalSection">Open journal</button>
         </div>
       </div>
 
