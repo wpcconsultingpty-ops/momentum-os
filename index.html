@@ -205,14 +205,12 @@
     .journal-empty { border-radius: 16px; padding: 18px; background: var(--panel-2); border: 1px dashed var(--line); color: var(--muted); }
     .coach-step { padding: 16px; border-radius: 16px; background: var(--panel-2); border: 1px solid var(--line); }
     .coach-step strong { display: block; margin-bottom: 8px; font-size: 15px; }
-    .metric-chip {
-      display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: white; border: 1px solid var(--line); font-size: 13px; color: var(--muted);
-    }
     .private-note { background: var(--private-2); border-color: #d9c8f3; }
     .private-heading { color: var(--private); }
     .span-2 { grid-column: span 2; }
     .reset-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:16px; }
     .reset-response-card { display:none; white-space:pre-wrap; line-height:1.65; }
+    .reset-chat-box textarea { min-height: 180px; }
 
     @media (max-width: 1180px) {
       .hero, .section-grid, .journal-grid { grid-template-columns: 1fr; }
@@ -735,6 +733,14 @@
                 <p>Use this when the day is slipping and you need a smaller next move.</p>
               </div>
 
+              <div class="detail-card reset-chat-box" style="background:var(--panel-2);">
+                <div class="detail-label">Talk it out</div>
+                <div class="field-group">
+                  <label for="resetFreeTextInput">What’s going on right now?</label>
+                  <textarea id="resetFreeTextInput" placeholder="Write freely. What happened, how you feel, what is pressing on you, and what you need help with right now."></textarea>
+                </div>
+              </div>
+
               <div class="reset-grid">
                 <div class="coach-step">
                   <strong>1. Stop the bleed</strong>
@@ -909,6 +915,7 @@
         previousMonthBtn: document.getElementById('previousMonthBtn'),
         currentMonthBtn: document.getElementById('currentMonthBtn'),
         nextMonthBtn: document.getElementById('nextMonthBtn'),
+        resetFreeTextInput: document.getElementById('resetFreeTextInput'),
         resetBleedInput: document.getElementById('resetBleedInput'),
         resetTargetInput: document.getElementById('resetTargetInput'),
         resetCapacityInput: document.getElementById('resetCapacityInput'),
@@ -961,6 +968,7 @@
 
         els.askResetCoachBtn?.addEventListener('click', runResetCoach);
         els.clearResetCoachBtn?.addEventListener('click', () => {
+          els.resetFreeTextInput.value = '';
           els.resetBleedInput.value = '';
           els.resetTargetInput.value = '';
           els.resetCapacityInput.value = 'medium';
@@ -1117,12 +1125,13 @@
       }
 
       async function runResetCoach() {
+        const freeText = els.resetFreeTextInput.value.trim();
         const bleed = els.resetBleedInput.value.trim();
         const target = els.resetTargetInput.value.trim();
         const capacity = els.resetCapacityInput.value;
 
-        if (!bleed || !target) {
-          els.resetCoachStatus.textContent = 'Please fill in both the pressure point and the next target.';
+        if (!freeText && !bleed && !target) {
+          els.resetCoachStatus.textContent = 'Please write something in the free-text box or fill in the guided fields.';
           return;
         }
 
@@ -1134,7 +1143,7 @@
           const response = await fetch('/api/reset-coach', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bleed, target, capacity })
+            body: JSON.stringify({ freeText, bleed, target, capacity })
           });
 
           const data = await response.json();
@@ -1187,14 +1196,14 @@
         els.journalSelectedNotes.textContent = selected.notes || '-';
 
         els.currentStreak.textContent = calculateStreak();
-        els.avgScore.textContent = average(recent.map(d => d.score));
-        els.healthAvgKpi.textContent = average(recent.map(d => d.healthScore));
-        els.privateAvgKpi.textContent = average(recent.map(d => d.privateScore));
+        els.avgScore.textContent = average(recent.filter(Boolean).map(d => d.score));
+        els.healthAvgKpi.textContent = average(recent.filter(Boolean).map(d => d.healthScore));
+        els.privateAvgKpi.textContent = average(recent.filter(Boolean).map(d => d.privateScore));
 
         els.savedEntrySummary.textContent = `${recent.filter(Boolean).length} / 7`;
-        els.weeklyAverageDisplay.textContent = recent.some(Boolean) ? average(recent.filter(Boolean).map(d => d.score)) : '0';
-        els.avgMood.textContent = recent.some(Boolean) ? `${average(recent.filter(Boolean).map(d => d.mood))} / 10` : '-';
-        els.avgStress.textContent = recent.some(Boolean) ? `${average(recent.filter(Boolean).map(d => d.stress))} / 10` : '-';
+        els.weeklyAverageDisplay.textContent = recent.filter(Boolean).length ? average(recent.filter(Boolean).map(d => d.score)) : '0';
+        els.avgMood.textContent = recent.filter(Boolean).length ? `${average(recent.filter(Boolean).map(d => d.mood))} / 10` : '-';
+        els.avgStress.textContent = recent.filter(Boolean).length ? `${average(recent.filter(Boolean).map(d => d.stress))} / 10` : '-';
         els.bestDay.textContent = recent.filter(Boolean).length ? `${recent.filter(Boolean).slice().sort((a,b)=>b.score-a.score)[0].date}` : '-';
         els.strongestHabit.textContent = strongestHabit(recent.filter(Boolean));
 
