@@ -1140,7 +1140,7 @@
         els.askResetCoachBtn.disabled = true;
 
         try {
-          const response = await fetch('/api/reset-coach', {
+          const response = await fetch('/api/coach', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ freeText, bleed, target, capacity })
