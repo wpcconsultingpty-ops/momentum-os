@@ -591,7 +591,7 @@
   <div class="sidebar-backdrop" data-close-sidebar></div>
 
   <div class="app-shell">
-    <aside class="sidebar" aria-label="Primary navigation">
+    <aside class="sidebar" aria-label="Primary navigation" id="sidebar">
       <div class="brand">
         <div class="brand-badge">M</div>
         <div class="brand-copy">
@@ -603,27 +603,27 @@
       <div class="nav-group" aria-labelledby="views-heading">
         <h2 id="views-heading">Views</h2>
         <nav class="nav-list" aria-label="Section navigation">
-          <button class="nav-link active" data-view-target="dashboardView">
+          <button class="nav-link active" data-view-target="dashboardView" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy"><strong>Dashboard</strong><span>Today at a glance</span></span>
           </button>
-          <button class="nav-link" data-view-target="healthView">
+          <button class="nav-link" data-view-target="healthView" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy"><strong>Health</strong><span>Sleep, energy, movement</span></span>
           </button>
-          <button class="nav-link" data-view-target="privateView">
+          <button class="nav-link" data-view-target="privateView" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy"><strong>Private</strong><span>Connection and desire</span></span>
           </button>
-          <button class="nav-link" data-view-target="historyView">
+          <button class="nav-link" data-view-target="historyView" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy"><strong>History</strong><span>Trends and weekly review</span></span>
           </button>
-          <button class="nav-link" data-view-target="journalView">
+          <button class="nav-link" data-view-target="journalView" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy"><strong>Journal</strong><span>Notes and reflection</span></span>
           </button>
-          <button class="nav-link" data-view-target="coachView">
+          <button class="nav-link" data-view-target="coachView" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy"><strong>Coach</strong><span>Recover the next hour</span></span>
           </button>
@@ -651,7 +651,7 @@
         <div class="section-card">
           <div class="section-header">
             <h2>Dashboard</h2>
-            <p>Mixed day. Win the next hour first. Health 64. Private 47.</p>
+            <p id="dashboardSummaryText">Mixed day. Win the next hour first. Health 64. Private 47.</p>
           </div>
 
           <div class="grid grid-4">
@@ -662,17 +662,17 @@
             </article>
             <article class="card">
               <div class="card-label">Selected score</div>
-              <div class="card-value">57</div>
+              <div class="card-value" id="dashboardSelectedScore">57</div>
               <div class="card-note">Momentum rating for that day.</div>
             </article>
             <article class="card">
               <div class="card-label">Health score</div>
-              <div class="card-value">64</div>
+              <div class="card-value" id="dashboardHealthScore">64</div>
               <div class="card-note">Recovery and body signal.</div>
             </article>
             <article class="card">
               <div class="card-label">Private score</div>
-              <div class="card-value">47</div>
+              <div class="card-value" id="dashboardPrivateScore">47</div>
               <div class="card-note">Connection and personal rhythm.</div>
             </article>
           </div>
@@ -691,9 +691,9 @@
           </div>
 
           <div class="button-row">
-            <button class="btn btn-primary" data-view-target="healthView">Open Health</button>
-            <button class="btn" data-view-target="privateView">Open Private</button>
-            <button class="btn" data-view-target="journalView">Go to Journal</button>
+            <button class="btn btn-primary" data-view-target="healthView" type="button">Open Health</button>
+            <button class="btn" data-view-target="privateView" type="button">Open Private</button>
+            <button class="btn" data-view-target="journalView" type="button">Go to Journal</button>
           </div>
         </div>
       </section>
@@ -718,7 +718,7 @@
             </article>
             <article class="card">
               <div class="card-label">Health avg</div>
-              <div class="card-value">64</div>
+              <div class="card-value" id="healthAvg">64</div>
               <div class="card-note">Sleep, energy, movement.</div>
             </article>
           </div>
@@ -740,7 +740,7 @@
           </div>
 
           <h3 class="subsection-title">Daily signals</h3>
-          <p class="foot-note">2 / 3 logged</p>
+          <p class="foot-note"><span id="dailySignalsCount">2</span> / 3 logged</p>
           <div class="check-grid">
             <label class="check-item">
               <input type="checkbox" checked />
@@ -757,7 +757,7 @@
           </div>
 
           <h3 class="subsection-title">Core habits</h3>
-          <p class="foot-note">2 / 6 done</p>
+          <p class="foot-note"><span id="coreHabitsCount">2</span> / 6 done</p>
           <div class="habit-grid">
             <label class="habit-chip"><input type="checkbox" />Protected focus</label>
             <label class="habit-chip"><input type="checkbox" />Exercise or movement</label>
@@ -766,6 +766,10 @@
             <label class="habit-chip"><input type="checkbox" />Protected sleep routine</label>
             <label class="habit-chip"><input type="checkbox" checked />Supportive nutrition</label>
           </div>
+<div class="button-row">
+  <button class="btn btn-primary" type="button" id="saveHealthBtn">Save Health</button>
+  <span class="foot-note" id="saveHealthStatus">Not saved yet.</span>
+</div>
         </div>
       </section>
 
@@ -779,12 +783,12 @@
           <div class="grid grid-3">
             <article class="card">
               <div class="card-label">Private avg</div>
-              <div class="card-value">47</div>
+              <div class="card-value" id="privateAvg">47</div>
               <div class="card-note">Connection, desire, and sexual health.</div>
             </article>
             <article class="card">
               <div class="card-label">Trend read</div>
-              <div class="card-value" style="font-size:1.05rem;">Needs more attention</div>
+              <div class="card-value" style="font-size:1.05rem;" id="privateTrendRead">Needs more attention</div>
               <div class="card-note">Private rhythm is trailing physical baseline.</div>
             </article>
             <article class="card">
@@ -907,6 +911,10 @@
               <div class="card-note" style="margin-bottom:8px;">What did I notice, what made things worse, and what helped me recover faster?</div>
               <textarea id="privateNotes" rows="5" placeholder="Write a private note..."></textarea>
             </div>
+<div class="button-row">
+  <button class="btn btn-primary" type="button" id="savePrivateBtn">Save Private</button>
+  <span class="foot-note" id="savePrivateStatus">Not saved yet.</span>
+</div>
           </div>
         </div>
       </section>
@@ -921,17 +929,17 @@
           <div class="grid grid-3">
             <article class="card">
               <div class="card-label">Health trend</div>
-              <div class="card-value">64</div>
+              <div class="card-value" id="historyHealthTrend">64</div>
               <div class="card-note">Past 7 days average.</div>
             </article>
             <article class="card">
               <div class="card-label">Private trend</div>
-              <div class="card-value">47</div>
+              <div class="card-value" id="historyPrivateTrend">47</div>
               <div class="card-note">Past 7 days average.</div>
             </article>
             <article class="card">
               <div class="card-label">Trend read</div>
-              <div class="card-value" style="font-size:1rem;">Your day can be rough without being wasted.</div>
+              <div class="card-value" style="font-size:1rem;" id="historyTrendRead">Your day can be rough without being wasted.</div>
               <div class="card-note">Protect direction before trying to fix everything.</div>
             </article>
           </div>
@@ -945,7 +953,7 @@
             <div class="chart-col"><div class="chart-value">—</div><div class="chart-bar" style="height:8px;"></div><div class="chart-day">Tue</div></div>
             <div class="chart-col"><div class="chart-value">—</div><div class="chart-bar" style="height:8px;"></div><div class="chart-day">Wed</div></div>
             <div class="chart-col"><div class="chart-value">—</div><div class="chart-bar" style="height:8px;"></div><div class="chart-day">Thu</div></div>
-            <div class="chart-col"><div class="chart-value">57</div><div class="chart-bar" style="height:57%;"></div><div class="chart-day">Fri</div></div>
+            <div class="chart-col"><div class="chart-value" id="historySelectedScore">57</div><div class="chart-bar" id="historySelectedBar" style="height:57%;"></div><div class="chart-day">Fri</div></div>
           </div>
 
           <h3 class="subsection-title">Weekly review</h3>
@@ -957,17 +965,17 @@
             </article>
             <article class="card">
               <div class="card-label">Average score</div>
-              <div class="card-value">57</div>
+              <div class="card-value" id="weeklyAverageScore">57</div>
               <div class="card-note">Recent momentum baseline.</div>
             </article>
             <article class="card">
               <div class="card-label">Average mood</div>
-              <div class="card-value">7 / 10</div>
+              <div class="card-value" id="weeklyAverageMood">7 / 10</div>
               <div class="card-note">General emotional tone.</div>
             </article>
             <article class="card">
               <div class="card-label">Average stress</div>
-              <div class="card-value">7 / 10</div>
+              <div class="card-value" id="weeklyAverageStress">7 / 10</div>
               <div class="card-note">Load across the week.</div>
             </article>
             <article class="card">
@@ -977,7 +985,7 @@
             </article>
             <article class="card">
               <div class="card-label">Strongest habit</div>
-              <div class="card-value" style="font-size:1rem;">Priority task done</div>
+              <div class="card-value" style="font-size:1rem;" id="strongestHabit">Priority task done</div>
               <div class="card-note">Most consistent box.</div>
             </article>
           </div>
@@ -985,15 +993,22 @@
       </section>
 
       <section id="journalView" class="view">
-        <div class="section-card">
-          <div class="section-header">
-            <h2>Journal</h2>
-            <p>Capture the note behind the day before it disappears.</p>
-          </div>
-          <textarea placeholder="Write a short note about what mattered today..."></textarea>
-          <p class="foot-note">Current state from the page: no note saved.</p>
-        </div>
-      </section>
+  <div class="section-card">
+    <div class="section-header">
+      <h2>Journal</h2>
+      <p>Capture the note behind the day before it disappears.</p>
+    </div>
+
+    <textarea id="journalNotes" placeholder="Write a short note about what mattered today..."></textarea>
+
+    <div class="button-row">
+      <button class="btn btn-primary" type="button" id="saveJournalBtn">Save Journal</button>
+      <span class="foot-note" id="saveJournalStatus">Not saved yet.</span>
+    </div>
+
+    <p class="foot-note">Current state from the page: no note saved.</p>
+  </div>
+</section>
 
       <section id="coachView" class="view">
         <div class="section-card">
@@ -1018,9 +1033,9 @@
           </div>
 
           <div class="button-row">
-            <button class="btn btn-primary" data-view-target="dashboardView">Load today</button>
-            <button class="btn" data-view-target="historyView">Review history</button>
-            <button class="btn" data-view-target="journalView">Add note</button>
+            <button class="btn btn-primary" data-view-target="dashboardView" type="button">Load today</button>
+            <button class="btn" data-view-target="historyView" type="button">Review history</button>
+            <button class="btn" data-view-target="journalView" type="button">Add note</button>
           </div>
         </div>
       </section>
@@ -1096,15 +1111,160 @@
       ['privateRecovery', 'privateRecoveryValue']
     ];
 
+    function clampScore(value) {
+      return Math.max(0, Math.min(100, Math.round(value)));
+    }
+
+    function getCheckedCount(selector) {
+      return [...document.querySelectorAll(selector)].filter(input => input.checked).length;
+    }
+
+    function calculateHealthScore() {
+      const mood = Number(document.getElementById('mood')?.value || 0);
+      const stress = Number(document.getElementById('stress')?.value || 0);
+      const energy = Number(document.getElementById('energy')?.value || 0);
+
+      const dailySignals = document.querySelectorAll('#healthView .check-grid input[type="checkbox"]');
+      const coreHabits = document.querySelectorAll('#healthView .habit-grid input[type="checkbox"]');
+
+      const dailySignalsChecked = getCheckedCount('#healthView .check-grid input[type="checkbox"]');
+      const coreHabitsChecked = getCheckedCount('#healthView .habit-grid input[type="checkbox"]');
+
+      const sliderScore = ((mood + energy + (11 - stress)) / 3) * 10;
+      const dailySignalsScore = (dailySignalsChecked / Math.max(dailySignals.length, 1)) * 100;
+      const coreHabitsScore = (coreHabitsChecked / Math.max(coreHabits.length, 1)) * 100;
+
+      const score =
+        (sliderScore * 0.55) +
+        (dailySignalsScore * 0.20) +
+        (coreHabitsScore * 0.25);
+
+      return {
+        score: clampScore(score),
+        mood,
+        stress,
+        energy,
+        dailySignalsChecked,
+        dailySignalsTotal: dailySignals.length,
+        coreHabitsChecked,
+        coreHabitsTotal: coreHabits.length
+      };
+    }
+
+    function calculatePrivateScore() {
+      const desire = Number(document.getElementById('privateDesire')?.value || 0);
+      const connection = Number(document.getElementById('privateConnection')?.value || 0);
+      const urge = Number(document.getElementById('privateUrge')?.value || 0);
+      const pornUse = Number(document.getElementById('privatePornUse')?.value || 0);
+      const masturbation = Number(document.getElementById('privateMasturbation')?.value || 0);
+      const control = Number(document.getElementById('privateControl')?.value || 0);
+      const recovery = Number(document.getElementById('privateRecovery')?.value || 0);
+
+      const score = (
+        desire * 0.18 +
+        connection * 0.18 +
+        (10 - urge) * 0.16 +
+        (10 - pornUse) * 0.12 +
+        (10 - masturbation) * 0.10 +
+        control * 0.16 +
+        recovery * 0.10
+      ) * 10;
+
+      return clampScore(score);
+    }
+
+    function getTrendText(selectedScore) {
+      if (selectedScore >= 75) return 'Strong day. Keep the rhythm steady.';
+      if (selectedScore >= 60) return 'Solid enough. Protect the next move.';
+      if (selectedScore >= 45) return 'Mixed day. Win the next hour first.';
+      return 'Heavy day. Reduce the target and stay simple.';
+    }
+
+    function getPrivateTrendText(privateScore) {
+      if (privateScore >= 70) return 'Steadier and more controlled';
+      if (privateScore >= 50) return 'Holding with some wobble';
+      return 'Needs more attention';
+    }
+
+    function getStrongestHabit() {
+      const habitLabels = [...document.querySelectorAll('#healthView .habit-grid label')];
+      const checked = habitLabels.filter(label => label.querySelector('input')?.checked);
+      if (!checked.length) return 'None logged yet';
+      return checked[0].textContent.trim();
+    }
+
+    function renderScores() {
+      const health = calculateHealthScore();
+      const privateScore = calculatePrivateScore();
+      const selectedScore = clampScore((health.score + privateScore) / 2);
+
+      const dashboardHealthScore = document.getElementById('dashboardHealthScore');
+      const dashboardPrivateScore = document.getElementById('dashboardPrivateScore');
+      const dashboardSelectedScore = document.getElementById('dashboardSelectedScore');
+      const dashboardSummaryText = document.getElementById('dashboardSummaryText');
+
+      const healthAvg = document.getElementById('healthAvg');
+      const privateAvg = document.getElementById('privateAvg');
+      const dailySignalsCount = document.getElementById('dailySignalsCount');
+      const coreHabitsCount = document.getElementById('coreHabitsCount');
+
+      const historyHealthTrend = document.getElementById('historyHealthTrend');
+      const historyPrivateTrend = document.getElementById('historyPrivateTrend');
+      const historySelectedScore = document.getElementById('historySelectedScore');
+      const historySelectedBar = document.getElementById('historySelectedBar');
+      const weeklyAverageScore = document.getElementById('weeklyAverageScore');
+      const weeklyAverageMood = document.getElementById('weeklyAverageMood');
+      const weeklyAverageStress = document.getElementById('weeklyAverageStress');
+      const strongestHabit = document.getElementById('strongestHabit');
+      const historyTrendRead = document.getElementById('historyTrendRead');
+      const privateTrendRead = document.getElementById('privateTrendRead');
+
+      if (dashboardHealthScore) dashboardHealthScore.textContent = health.score;
+      if (dashboardPrivateScore) dashboardPrivateScore.textContent = privateScore;
+      if (dashboardSelectedScore) dashboardSelectedScore.textContent = selectedScore;
+
+      if (dashboardSummaryText) {
+        dashboardSummaryText.textContent = `${getTrendText(selectedScore)} Health ${health.score}. Private ${privateScore}.`;
+      }
+
+      if (healthAvg) healthAvg.textContent = health.score;
+      if (privateAvg) privateAvg.textContent = privateScore;
+      if (dailySignalsCount) dailySignalsCount.textContent = health.dailySignalsChecked;
+      if (coreHabitsCount) coreHabitsCount.textContent = health.coreHabitsChecked;
+
+      if (historyHealthTrend) historyHealthTrend.textContent = health.score;
+      if (historyPrivateTrend) historyPrivateTrend.textContent = privateScore;
+      if (historySelectedScore) historySelectedScore.textContent = selectedScore;
+      if (historySelectedBar) historySelectedBar.style.height = `${selectedScore}%`;
+
+      if (weeklyAverageScore) weeklyAverageScore.textContent = selectedScore;
+      if (weeklyAverageMood) weeklyAverageMood.textContent = `${health.mood} / 10`;
+      if (weeklyAverageStress) weeklyAverageStress.textContent = `${health.stress} / 10`;
+      if (strongestHabit) strongestHabit.textContent = getStrongestHabit();
+      if (historyTrendRead) historyTrendRead.textContent = getTrendText(selectedScore);
+      if (privateTrendRead) privateTrendRead.textContent = getPrivateTrendText(privateScore);
+    }
+
     sliderPairs.forEach(([sliderId, valueId]) => {
       const slider = document.getElementById(sliderId);
       const value = document.getElementById(valueId);
+
       if (slider && value) {
-        slider.addEventListener('input', () => {
+        const update = () => {
           value.textContent = `${slider.value} / 10`;
-        });
+          renderScores();
+        };
+
+        slider.addEventListener('input', update);
+        slider.addEventListener('change', update);
       }
     });
+
+    document.querySelectorAll('#healthView input[type="checkbox"]').forEach(input => {
+      input.addEventListener('change', renderScores);
+    });
+
+    renderScores();
   </script>
 </body>
 </html>
