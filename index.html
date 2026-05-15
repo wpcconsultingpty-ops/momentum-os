@@ -799,20 +799,25 @@
           </div>
         </section>
 
-          <section class="view" id="supportView">
-            <div class="card panel" id="supportSection">
-              <div class="section-heading">
-                <h3>Support</h3>
-                <p>Ground rules and backup reminders for harder days.</p>
-              </div>
-              <div class="support-grid">
-                <div class="support-card"><div class="detail-label">Low day rule</div><div class="detail-text">Do not chase intensity. Reduce noise and protect the next hour.</div></div>
-                <div class="support-card"><div class="detail-label">Shutdown rule</div><div class="detail-text">Finish clean, write tomorrow’s target, and stop negotiating with the day.</div></div>
-                <div class="support-card"><div class="detail-label">Stress reminder</div><div class="detail-text">High stress makes everything feel urgent. It rarely means everything is urgent.</div></div>
-                <div class="support-card"><div class="detail-label">Momentum reminder</div><div class="detail-text">Small honest actions beat dramatic resets.</div></div>
-              </div>
+                 <section class="view" id="supportView">
+          <div class="card panel" id="supportSection">
+            <div class="section-heading">
+              <h3>Support</h3>
+              <p>Ground rules and backup reminders for harder days.</p>
             </div>
-          </section>
+        
+            <div class="support-grid">
+              <div class="support-card"><div class="detail-label">Low day rule</div><div class="detail-text">Do not chase intensity. Reduce noise and protect the next hour.</div></div>
+              <div class="support-card"><div class="detail-label">Shutdown rule</div><div class="detail-text">Finish clean, write tomorrow’s target, and stop negotiating with the day.</div></div>
+              <div class="support-card"><div class="detail-label">Stress reminder</div><div class="detail-text">High stress makes everything feel urgent. It rarely means everything is urgent.</div></div>
+              <div class="support-card"><div class="detail-label">Momentum reminder</div><div class="detail-text">Small honest actions beat dramatic resets.</div></div>
+            </div>
+        
+            <div class="action-row">
+              <button class="btn secondary" id="clearDemoDataBtn">Clear demo data</button>
+            </div>
+          </div>
+        </section>
         </div>
       </div>
     </main>
@@ -833,12 +838,16 @@
         'Supportive nutrition'
       ];
 
+      const DEMO_MODE = false;
+
       const state = {
         selectedDateKey: toDateKey(today),
         savedDays: loadSavedDays()
       };
-
-      seedSampleDays();
+      
+      if (DEMO_MODE) {
+        seedSampleDays();
+    }
 
       const els = {
         sidebar: document.getElementById('sidebar'),
@@ -934,7 +943,8 @@
         clearResetCoachBtn: document.getElementById('clearResetCoachBtn'),
         resetCoachStatus: document.getElementById('resetCoachStatus'),
         resetCoachResponseCard: document.getElementById('resetCoachResponseCard'),
-        resetCoachResponse: document.getElementById('resetCoachResponse')
+        resetCoachResponse: document.getElementById('resetCoachResponse'),
+        clearDemoDataBtn: document.getElementById('clearDemoDataBtn')
       };
 
       bindUi();
@@ -942,17 +952,22 @@
       renderAll();
 
       function bindUi() {
-        els.menuBtn?.addEventListener('click', () => els.sidebar.classList.toggle('open'));
-
-        els.navBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const target = btn.dataset.viewTarget;
-            if (!target) return;
-            document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === target));
-            document.querySelectorAll('.nav-btn').forEach(nav => nav.classList.toggle('active', nav === btn));
-            els.sidebar.classList.remove('open');
+      els.menuBtn?.addEventListener('click', () => els.sidebar.classList.toggle('open'));
+    
+      els.navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.viewTarget;
+          if (!target) return;
+          document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === target));
+          document.querySelectorAll('.nav-btn').forEach(nav => nav.classList.toggle('active', nav === btn));
+          els.sidebar.classList.remove('open');
           });
         });
+
+        // ...other listeners...
+      
+        els.clearDemoDataBtn?.addEventListener('click', clearAllSavedData);
+}
 
         els.jumpBtns.forEach(btn => btn.addEventListener('click', () => {
           const target = document.getElementById(btn.dataset.jump);
@@ -975,7 +990,14 @@
 
         els.previousMonthBtn.addEventListener('click', () => shiftMonth(-1));
         els.nextMonthBtn.addEventListener('click', () => shiftMonth(1));
-        els.currentMonthBtn.addEventListener('click', () => { visibleMonth = today.getMonth(); visibleYear = today.getFullYear(); renderCalendar(); });
+        els.currentMonthBtn.addEventListener('click', () => {
+          visibleMonth = today.getMonth();
+          visibleYear = today.getFullYear();
+          renderCalendar();
+        });
+        els.clearDemoDataBtn?.addEventListener('click', clearAllSavedData);
+        });
+        els.clearDemoDataBtn?.addEventListener('click', clearAllSavedData);
 
         els.askResetCoachBtn?.addEventListener('click', runResetCoach);
         els.clearResetCoachBtn?.addEventListener('click', () => {
