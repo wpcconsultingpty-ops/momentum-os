@@ -365,9 +365,7 @@
       z-index: 1;
     }
 
-    .score-heading {
-      min-width: 0;
-    }
+    .score-heading { min-width: 0; }
 
     .score-heading .card-label {
       margin-bottom: 10px;
@@ -574,6 +572,26 @@
     }
 
     .metric-card input[type="range"] { margin-top: auto; }
+
+    #privateView .metric-card.score-card {
+      min-height: 190px;
+    }
+
+    #privateView .metric-card .score-value {
+      font-size: 1.15rem;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      text-shadow: none;
+      margin-bottom: 4px;
+      color: var(--accent);
+    }
+
+    #privateView .metric-card .score-subtext {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-top: 0;
+      min-height: 2.6em;
+    }
 
     .private-signals-grid {
       display: grid;
@@ -806,9 +824,7 @@
     .sidebar-backdrop { display: none; }
 
     @media (max-width: 1180px) {
-      .score-overview {
-        grid-template-columns: 1fr;
-      }
+      .score-overview { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 1080px) {
@@ -820,9 +836,7 @@
         grid-template-columns: 1fr 1fr;
       }
 
-      .grid-main-side {
-        grid-template-columns: 1fr;
-      }
+      .grid-main-side { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 860px) {
@@ -888,12 +902,11 @@
         gap: 10px;
       }
 
-      .score-number {
-        font-size: 4.2rem;
-      }
+      .score-number { font-size: 4.2rem; }
+      .score-value { font-size: 3rem; }
 
-      .score-value {
-        font-size: 3rem;
+      #privateView .metric-card .score-value {
+        font-size: 1.05rem;
       }
     }
   </style>
@@ -1064,16 +1077,22 @@
           </div>
 
           <div class="grid grid-3">
-            <article class="card">
-              <div class="card-label">Current streak</div>
-              <div class="card-value">1</div>
-              <div class="card-note">Consecutive saved days.</div>
+            <article class="card score-card">
+              <div>
+                <div class="card-label">Current streak</div>
+                <div class="score-value" id="healthStreak">1</div>
+              </div>
+              <div class="score-subtext">Consecutive saved days.</div>
             </article>
-            <article class="card">
-              <div class="card-label">7-day average</div>
-              <div class="card-value">57</div>
-              <div class="card-note">Recent baseline.</div>
+
+            <article class="card score-card">
+              <div>
+                <div class="card-label">7-day average</div>
+                <div class="score-value" id="health7DayAverage">64</div>
+              </div>
+              <div class="score-subtext">Recent baseline.</div>
             </article>
+
             <article class="card score-card">
               <div>
                 <div class="card-label">Health avg</div>
@@ -1169,24 +1188,24 @@
               </div>
 
               <div class="grid grid-3">
-                <label class="card metric-card" for="privateDesire">
+                <label class="card score-card metric-card" for="privateDesire">
                   <div class="card-label">Desire</div>
-                  <div class="card-value" id="privateDesireValue" style="font-size:1.1rem;">5 / 10</div>
-                  <div class="card-note">Below baseline.</div>
+                  <div class="score-value" id="privateDesireValue">5 / 10</div>
+                  <div class="score-subtext">Below baseline.</div>
                   <input id="privateDesire" type="range" min="0" max="10" value="5" />
                 </label>
 
-                <label class="card metric-card" for="privateConnection">
+                <label class="card score-card metric-card" for="privateConnection">
                   <div class="card-label">Connection</div>
-                  <div class="card-value" id="privateConnectionValue" style="font-size:1.1rem;">4 / 10</div>
-                  <div class="card-note">Needs attention.</div>
+                  <div class="score-value" id="privateConnectionValue">4 / 10</div>
+                  <div class="score-subtext">Needs attention.</div>
                   <input id="privateConnection" type="range" min="0" max="10" value="4" />
                 </label>
 
-                <label class="card metric-card" for="privateUrge">
+                <label class="card score-card metric-card" for="privateUrge">
                   <div class="card-label">Urge intensity</div>
-                  <div class="card-value" id="privateUrgeValue" style="font-size:1.1rem;">7 / 10</div>
-                  <div class="card-note">Elevated.</div>
+                  <div class="score-value" id="privateUrgeValue">7 / 10</div>
+                  <div class="score-subtext">Elevated.</div>
                   <input id="privateUrge" type="range" min="0" max="10" value="7" />
                 </label>
               </div>
@@ -1640,8 +1659,9 @@
       const dashboardPrivateMini = document.getElementById('dashboardPrivateMini');
       const dashboardHealthFill = document.getElementById('dashboardHealthFill');
       const dashboardPrivateFill = document.getElementById('dashboardPrivateFill');
-
       const healthAvg = document.getElementById('healthAvg');
+      const healthStreak = document.getElementById('healthStreak');
+      const health7DayAverage = document.getElementById('health7DayAverage');
       const privateAvg = document.getElementById('privateAvg');
       const dailySignalsCount = document.getElementById('dailySignalsCount');
       const coreHabitsCount = document.getElementById('coreHabitsCount');
@@ -1679,13 +1699,8 @@
         `;
       }
 
-      if (dashboardScoreRead) {
-        dashboardScoreRead.textContent = trendText;
-      }
-
-      if (dashboardDeltaText) {
-        dashboardDeltaText.textContent = getDeltaText(selectedScore);
-      }
+      if (dashboardScoreRead) dashboardScoreRead.textContent = trendText;
+      if (dashboardDeltaText) dashboardDeltaText.textContent = getDeltaText(selectedScore);
 
       if (dashboardScoreContext) {
         dashboardScoreContext.textContent = `Momentum rating for the selected day. Health is ${health.score} and private is ${privateScore}, so the next move should stay practical and simple.`;
@@ -1697,6 +1712,8 @@
       }
 
       if (healthAvg) healthAvg.textContent = health.score;
+      if (health7DayAverage) health7DayAverage.textContent = health.score;
+      if (healthStreak) healthStreak.textContent = 1;
       if (privateAvg) privateAvg.textContent = privateScore;
       if (dailySignalsCount) dailySignalsCount.textContent = health.dailySignalsChecked;
       if (coreHabitsCount) coreHabitsCount.textContent = health.coreHabitsChecked;
