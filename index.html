@@ -15,16 +15,21 @@
       --muted: #6d655d;
       --faint: #8e857b;
       --accent: #0c6a6f;
-      --accent-soft: rgba(12, 106, 111, 0.1);
+      --accent-soft: rgba(12, 106, 111, 0.10);
       --accent-strong: rgba(12, 106, 111, 0.18);
       --success: #417b3d;
+      --success-soft: rgba(65, 123, 61, 0.12);
+      --warning: #9a6a22;
+      --warning-soft: rgba(154, 106, 34, 0.12);
       --danger: #9a4c35;
+      --danger-soft: rgba(154, 76, 53, 0.12);
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 16px;
       --radius-sm: 12px;
       --shadow: 0 10px 30px rgba(32, 26, 22, 0.08);
       --shadow-soft: 0 4px 18px rgba(32, 26, 22, 0.05);
+      --shadow-score: 0 18px 40px rgba(12, 106, 111, 0.10);
     }
 
     * { box-sizing: border-box; }
@@ -244,12 +249,23 @@
     .section-header h2 { font-size: 1.55rem; }
     .section-header h3 { font-size: 1.22rem; }
 
+    .hero-lead {
+      margin: 10px 0 0;
+      max-width: 42ch;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+      color: var(--text);
+    }
+
     .hero p,
     .section-header p,
     .card-note,
     .foot-note,
     .range-row span:last-child,
-    .response-text {
+    .response-text,
+    .score-context,
+    .score-subtext {
       color: var(--muted);
     }
 
@@ -289,6 +305,255 @@
       flex-direction: column;
       gap: 14px;
       height: 100%;
+    }
+
+    .card-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+
+    .card-value {
+      font-size: 1.7rem;
+      line-height: 1.1;
+      font-weight: 800;
+      margin-bottom: 6px;
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .score-overview {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+      align-items: stretch;
+    }
+
+    .score-hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(12,106,111,0.14), transparent 42%),
+        linear-gradient(180deg, #fffdf9 0%, var(--surface-2) 100%);
+      border: 1px solid rgba(12,106,111,0.16);
+      box-shadow: var(--shadow-score);
+    }
+
+    .score-hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -60px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      background: rgba(12,106,111,0.08);
+      filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .score-topline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .score-heading {
+      min-width: 0;
+    }
+
+    .score-heading .card-label {
+      margin-bottom: 10px;
+    }
+
+    .score-heading h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .score-pill {
+      flex-shrink: 0;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+    }
+
+    .score-pill.is-strong {
+      color: var(--success);
+      background: var(--success-soft);
+      border-color: rgba(65,123,61,0.18);
+    }
+
+    .score-pill.is-mixed {
+      color: var(--warning);
+      background: var(--warning-soft);
+      border-color: rgba(154,106,34,0.18);
+    }
+
+    .score-pill.is-heavy {
+      color: var(--danger);
+      background: var(--danger-soft);
+      border-color: rgba(154,76,53,0.18);
+    }
+
+    .score-main-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .score-main {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      line-height: 1;
+    }
+
+    .score-number {
+      font-size: clamp(4rem, 7vw, 5.8rem);
+      line-height: 0.9;
+      font-weight: 900;
+      letter-spacing: -0.08em;
+      color: var(--text);
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .score-denominator {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--faint);
+      padding-bottom: 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .score-delta {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(12,106,111,0.12);
+      color: var(--accent);
+    }
+
+    .score-context {
+      margin: 0 0 18px;
+      max-width: 52ch;
+      position: relative;
+      z-index: 1;
+    }
+
+    .score-bars {
+      display: grid;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .score-bar-row {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr) 44px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .score-bar-row span,
+    .score-bar-row strong {
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .score-bar-row span:first-child {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .score-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(32,26,22,0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .score-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #53a1a3);
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .score-bar-row strong {
+      text-align: right;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .score-side {
+      display: grid;
+      gap: 16px;
+    }
+
+    .score-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 182px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(180deg, #fffdf9 0%, var(--surface-2) 100%);
+      border: 1px solid rgba(12,106,111,0.12);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .score-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), rgba(12,106,111,0.3));
+    }
+
+    .score-card .card-label {
+      margin-bottom: 10px;
+    }
+
+    .score-value {
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      line-height: 0.95;
+      font-weight: 900;
+      letter-spacing: -0.06em;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .score-subtext {
+      font-size: 0.92rem;
+      margin-top: auto;
     }
 
     .metric-card {
@@ -347,22 +612,42 @@
       border: 1px solid rgba(12,106,111,0.12);
       padding: 6px 10px;
       border-radius: 999px;
+      font-variant-numeric: tabular-nums lining-nums;
     }
 
-    .card-label {
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--faint);
-      margin-bottom: 8px;
-      font-weight: 800;
+    .binary-toggle {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      width: 100%;
+      margin-top: auto;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(32, 26, 22, 0.06);
+      border: 1px solid rgba(12,106,111,0.08);
     }
 
-    .card-value {
-      font-size: 1.7rem;
-      line-height: 1.1;
+    .binary-option {
+      min-height: 42px;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
       font-weight: 800;
-      margin-bottom: 6px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    }
+
+    .binary-option.is-active {
+      background: #fff;
+      color: var(--accent);
+      box-shadow: 0 2px 8px rgba(32, 26, 22, 0.08);
+    }
+
+    .binary-option:focus-visible {
+      outline: 2px solid rgba(12,106,111,0.24);
+      outline-offset: 2px;
     }
 
     .button-row {
@@ -471,11 +756,13 @@
     }
 
     .chart-col { text-align: center; }
+
     .chart-value {
       font-size: 0.82rem;
       font-weight: 800;
       color: var(--muted);
       margin-bottom: 8px;
+      font-variant-numeric: tabular-nums lining-nums;
     }
 
     .chart-bar {
@@ -510,6 +797,12 @@
     .mobile-nav { display: none; }
     .sidebar-backdrop { display: none; }
 
+    @media (max-width: 1180px) {
+      .score-overview {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 1080px) {
       .grid-4,
       .grid-3,
@@ -518,7 +811,10 @@
       .private-signals-grid {
         grid-template-columns: 1fr 1fr;
       }
-      .grid-main-side { grid-template-columns: 1fr; }
+
+      .grid-main-side {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 860px) {
@@ -558,16 +854,39 @@
 
       .mobile-nav { display: none; }
       .main { padding: 16px; }
+
       .grid-4,
       .grid-3,
       .grid-2,
       .habit-grid,
-      .private-signals-grid { grid-template-columns: 1fr; }
+      .private-signals-grid {
+        grid-template-columns: 1fr;
+      }
+
       .chart { gap: 8px; }
       .hero, .section-card { padding: 20px; border-radius: 22px; }
       .hero h2 { font-size: 1.8rem; }
       .signal-top { flex-direction: column; }
       .signal-value { align-self: flex-start; }
+
+      .score-main-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .score-bar-row {
+        grid-template-columns: 76px minmax(0, 1fr) 38px;
+        gap: 10px;
+      }
+
+      .score-number {
+        font-size: 4.2rem;
+      }
+
+      .score-value {
+        font-size: 2.7rem;
+      }
     }
   </style>
 </head>
@@ -628,7 +947,7 @@
         <header class="hero">
           <p class="eyebrow">Daily momentum</p>
           <h2>Win the day first.</h2>
-          <p>Track the signal, protect momentum, and keep the next move simple.</p>
+          <p class="hero-lead">Track the signal, protect momentum, and keep the next move simple.</p>
           <div class="rule">Rule for hard days: Do not try to fix your life tonight. Win the next hour first.</div>
         </header>
 
@@ -638,26 +957,72 @@
             <p id="dashboardSummaryText">Mixed day. Win the next hour first. Health 64. Private 47.</p>
           </div>
 
-          <div class="grid grid-4">
+          <div class="score-overview">
+            <article class="card score-hero">
+              <div class="score-topline">
+                <div class="score-heading">
+                  <div class="card-label">Selected score</div>
+                  <h3>Today’s momentum</h3>
+                </div>
+                <div class="score-pill is-mixed" id="dashboardScoreState">Mixed day</div>
+              </div>
+
+              <div class="score-main-row">
+                <div class="score-main">
+                  <div class="score-number" id="dashboardSelectedScore">57</div>
+                  <div class="score-denominator">/100</div>
+                </div>
+                <div class="score-delta" id="dashboardDeltaText">Protect the next hour</div>
+              </div>
+
+              <p class="score-context" id="dashboardScoreContext">
+                Momentum rating for the selected day. Keep the target simple and protect direction before trying to fix everything.
+              </p>
+
+              <div class="score-bars" aria-label="Score breakdown">
+                <div class="score-bar-row">
+                  <span>Health</span>
+                  <div class="score-track"><div class="score-fill" id="dashboardHealthFill" style="width:64%"></div></div>
+                  <strong id="dashboardHealthMini">64</strong>
+                </div>
+                <div class="score-bar-row">
+                  <span>Private</span>
+                  <div class="score-track"><div class="score-fill" id="dashboardPrivateFill" style="width:47%"></div></div>
+                  <strong id="dashboardPrivateMini">47</strong>
+                </div>
+              </div>
+            </article>
+
+            <div class="score-side">
+              <article class="card score-card">
+                <div>
+                  <div class="card-label">Health score</div>
+                  <div class="score-value" id="dashboardHealthScore">64</div>
+                </div>
+                <div class="score-subtext">Recovery, energy, and body signal across the day.</div>
+              </article>
+
+              <article class="card score-card">
+                <div>
+                  <div class="card-label">Private score</div>
+                  <div class="score-value" id="dashboardPrivateScore">47</div>
+                </div>
+                <div class="score-subtext">Connection, control, and personal rhythm.</div>
+              </article>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="margin-top:16px;">
             <article class="card">
               <div class="card-label">Selected day</div>
               <div class="card-value" style="font-size:1.05rem;">Friday 15 May 2026</div>
               <div class="card-note">Current day in focus.</div>
             </article>
+
             <article class="card">
-              <div class="card-label">Selected score</div>
-              <div class="card-value" id="dashboardSelectedScore">57</div>
-              <div class="card-note">Momentum rating for that day.</div>
-            </article>
-            <article class="card">
-              <div class="card-label">Health score</div>
-              <div class="card-value" id="dashboardHealthScore">64</div>
-              <div class="card-note">Recovery and body signal.</div>
-            </article>
-            <article class="card">
-              <div class="card-label">Private score</div>
-              <div class="card-value" id="dashboardPrivateScore">47</div>
-              <div class="card-note">Connection and personal rhythm.</div>
+              <div class="card-label">Notes</div>
+              <div class="card-value" id="dashboardJournalPreview" style="font-size:1.05rem;">No note saved</div>
+              <div class="card-note">Add a short reflection to lock in the signal.</div>
             </article>
           </div>
 
@@ -667,10 +1032,11 @@
               <div class="card-value" style="font-size:1.05rem;">Keep the next move simple</div>
               <div class="card-note">Main target or direction.</div>
             </article>
+
             <article class="card">
-              <div class="card-label">Notes</div>
-              <div class="card-value" id="dashboardJournalPreview" style="font-size:1.05rem;">No note saved</div>
-              <div class="card-note">Add a short reflection to lock in the signal.</div>
+              <div class="card-label">Score read</div>
+              <div class="card-value" id="dashboardScoreRead" style="font-size:1.05rem;">Mixed day. Win the next hour first.</div>
+              <div class="card-note">Use the score to reduce noise, not create pressure.</div>
             </article>
           </div>
 
@@ -700,10 +1066,12 @@
               <div class="card-value">57</div>
               <div class="card-note">Recent baseline.</div>
             </article>
-            <article class="card">
-              <div class="card-label">Health avg</div>
-              <div class="card-value" id="healthAvg">64</div>
-              <div class="card-note">Sleep, energy, movement.</div>
+            <article class="card score-card">
+              <div>
+                <div class="card-label">Health avg</div>
+                <div class="score-value" id="healthAvg">64</div>
+              </div>
+              <div class="score-subtext">Sleep, energy, movement.</div>
             </article>
           </div>
 
@@ -766,10 +1134,12 @@
           </div>
 
           <div class="grid grid-3">
-            <article class="card">
-              <div class="card-label">Private avg</div>
-              <div class="card-value" id="privateAvg">47</div>
-              <div class="card-note">Connection, desire, and sexual health.</div>
+            <article class="card score-card">
+              <div>
+                <div class="card-label">Private avg</div>
+                <div class="score-value" id="privateAvg">47</div>
+              </div>
+              <div class="score-subtext">Connection, desire, and sexual health.</div>
             </article>
             <article class="card">
               <div class="card-label">Trend read</div>
@@ -821,27 +1191,39 @@
               </div>
 
               <div class="private-signals-grid">
-                <label class="card signal-card" for="privatePornUse">
+                <div class="card signal-card">
                   <div class="signal-top">
                     <div>
                       <strong>Porn use logged</strong>
-                      <em>Use was present and worth noting.</em>
+                      <em>Simple yes or no for the day.</em>
                     </div>
-                    <span class="signal-value" id="privatePornUseValue">2 / 10</span>
+                    <span class="signal-value" id="privatePornUseValue">No</span>
                   </div>
-                  <input id="privatePornUse" type="range" min="0" max="10" value="2" />
-                </label>
 
-                <label class="card signal-card" for="privateMasturbation">
+                  <div class="binary-toggle" data-binary-group="privatePornUse">
+                    <button type="button" class="binary-option is-active" data-value="0">No</button>
+                    <button type="button" class="binary-option" data-value="1">Yes</button>
+                  </div>
+
+                  <input id="privatePornUse" type="hidden" value="0" />
+                </div>
+
+                <div class="card signal-card">
                   <div class="signal-top">
                     <div>
                       <strong>Masturbation logged</strong>
-                      <em>Tracked without framing it as failure.</em>
+                      <em>Simple yes or no for the day.</em>
                     </div>
-                    <span class="signal-value" id="privateMasturbationValue">3 / 10</span>
+                    <span class="signal-value" id="privateMasturbationValue">No</span>
                   </div>
-                  <input id="privateMasturbation" type="range" min="0" max="10" value="3" />
-                </label>
+
+                  <div class="binary-toggle" data-binary-group="privateMasturbation">
+                    <button type="button" class="binary-option is-active" data-value="0">No</button>
+                    <button type="button" class="binary-option" data-value="1">Yes</button>
+                  </div>
+
+                  <input id="privateMasturbation" type="hidden" value="0" />
+                </div>
 
                 <label class="card signal-card" for="privateControl">
                   <div class="signal-top">
@@ -913,15 +1295,19 @@
           </div>
 
           <div class="grid grid-3">
-            <article class="card">
-              <div class="card-label">Health trend</div>
-              <div class="card-value" id="historyHealthTrend">64</div>
-              <div class="card-note">Past 7 days average.</div>
+            <article class="card score-card">
+              <div>
+                <div class="card-label">Health trend</div>
+                <div class="score-value" id="historyHealthTrend">64</div>
+              </div>
+              <div class="score-subtext">Past 7 days average.</div>
             </article>
-            <article class="card">
-              <div class="card-label">Private trend</div>
-              <div class="card-value" id="historyPrivateTrend">47</div>
-              <div class="card-note">Past 7 days average.</div>
+            <article class="card score-card">
+              <div>
+                <div class="card-label">Private trend</div>
+                <div class="score-value" id="historyPrivateTrend">47</div>
+              </div>
+              <div class="score-subtext">Past 7 days average.</div>
             </article>
             <article class="card">
               <div class="card-label">Trend read</div>
@@ -949,10 +1335,12 @@
               <div class="card-value">1 / 7</div>
               <div class="card-note">Days recorded this week.</div>
             </article>
-            <article class="card">
-              <div class="card-label">Average score</div>
-              <div class="card-value" id="weeklyAverageScore">57</div>
-              <div class="card-note">Recent momentum baseline.</div>
+            <article class="card score-card">
+              <div>
+                <div class="card-label">Average score</div>
+                <div class="score-value" id="weeklyAverageScore">57</div>
+              </div>
+              <div class="score-subtext">Recent momentum baseline.</div>
             </article>
             <article class="card">
               <div class="card-label">Average mood</div>
@@ -1114,8 +1502,6 @@
       ['privateDesire', 'privateDesireValue'],
       ['privateConnection', 'privateConnectionValue'],
       ['privateUrge', 'privateUrgeValue'],
-      ['privatePornUse', 'privatePornUseValue'],
-      ['privateMasturbation', 'privateMasturbationValue'],
       ['privateControl', 'privateControlValue'],
       ['privateRecovery', 'privateRecoveryValue']
     ];
@@ -1164,8 +1550,8 @@
       const desire = Number(document.getElementById('privateDesire')?.value || 0);
       const connection = Number(document.getElementById('privateConnection')?.value || 0);
       const urge = Number(document.getElementById('privateUrge')?.value || 0);
-      const pornUse = Number(document.getElementById('privatePornUse')?.value || 0);
-      const masturbation = Number(document.getElementById('privateMasturbation')?.value || 0);
+      const pornUse = Number(document.getElementById('privatePornUse')?.value || 0) * 10;
+      const masturbation = Number(document.getElementById('privateMasturbation')?.value || 0) * 10;
       const control = Number(document.getElementById('privateControl')?.value || 0);
       const recovery = Number(document.getElementById('privateRecovery')?.value || 0);
 
@@ -1202,6 +1588,20 @@
       return checked[0].textContent.trim();
     }
 
+    function getScoreState(selectedScore) {
+      if (selectedScore >= 75) return { text: 'Strong day', className: 'is-strong' };
+      if (selectedScore >= 60) return { text: 'Solid day', className: 'is-strong' };
+      if (selectedScore >= 45) return { text: 'Mixed day', className: 'is-mixed' };
+      return { text: 'Heavy day', className: 'is-heavy' };
+    }
+
+    function getDeltaText(selectedScore) {
+      if (selectedScore >= 75) return 'Keep the rhythm steady';
+      if (selectedScore >= 60) return 'Protect the next move';
+      if (selectedScore >= 45) return 'Win the next hour';
+      return 'Reduce the target';
+    }
+
     function updateJournalPreview() {
       const notes = document.getElementById('journalNotes')?.value?.trim() || '';
       const preview = document.getElementById('dashboardJournalPreview');
@@ -1217,17 +1617,26 @@
       const health = calculateHealthScore();
       const privateScore = calculatePrivateScore();
       const selectedScore = clampScore((health.score + privateScore) / 2);
+      const trendText = getTrendText(selectedScore);
+      const scoreState = getScoreState(selectedScore);
 
       const dashboardHealthScore = document.getElementById('dashboardHealthScore');
       const dashboardPrivateScore = document.getElementById('dashboardPrivateScore');
       const dashboardSelectedScore = document.getElementById('dashboardSelectedScore');
       const dashboardSummaryText = document.getElementById('dashboardSummaryText');
+      const dashboardScoreRead = document.getElementById('dashboardScoreRead');
+      const dashboardDeltaText = document.getElementById('dashboardDeltaText');
+      const dashboardScoreContext = document.getElementById('dashboardScoreContext');
+      const dashboardScoreState = document.getElementById('dashboardScoreState');
+      const dashboardHealthMini = document.getElementById('dashboardHealthMini');
+      const dashboardPrivateMini = document.getElementById('dashboardPrivateMini');
+      const dashboardHealthFill = document.getElementById('dashboardHealthFill');
+      const dashboardPrivateFill = document.getElementById('dashboardPrivateFill');
 
       const healthAvg = document.getElementById('healthAvg');
       const privateAvg = document.getElementById('privateAvg');
       const dailySignalsCount = document.getElementById('dailySignalsCount');
       const coreHabitsCount = document.getElementById('coreHabitsCount');
-
       const historyHealthTrend = document.getElementById('historyHealthTrend');
       const historyPrivateTrend = document.getElementById('historyPrivateTrend');
       const historySelectedScore = document.getElementById('historySelectedScore');
@@ -1244,8 +1653,39 @@
       if (dashboardPrivateScore) dashboardPrivateScore.textContent = privateScore;
       if (dashboardSelectedScore) dashboardSelectedScore.textContent = selectedScore;
 
+      if (dashboardHealthMini) dashboardHealthMini.textContent = health.score;
+      if (dashboardPrivateMini) dashboardPrivateMini.textContent = privateScore;
+      if (dashboardHealthFill) dashboardHealthFill.style.width = `${health.score}%`;
+      if (dashboardPrivateFill) dashboardPrivateFill.style.width = `${privateScore}%`;
+
       if (dashboardSummaryText) {
-        dashboardSummaryText.textContent = `${getTrendText(selectedScore)} Health ${health.score}. Private ${privateScore}.`;
+        let summaryLine = getTrendText(selectedScore);
+
+        if (selectedScore >= 45 && selectedScore < 60) {
+          summaryLine = 'Mixed day. Protect momentum, not perfection.';
+        }
+
+        dashboardSummaryText.innerHTML = `
+          <strong>${summaryLine}</strong><br>
+          Health ${health.score} · Private ${privateScore}
+        `;
+      }
+
+      if (dashboardScoreRead) {
+        dashboardScoreRead.textContent = trendText;
+      }
+
+      if (dashboardDeltaText) {
+        dashboardDeltaText.textContent = getDeltaText(selectedScore);
+      }
+
+      if (dashboardScoreContext) {
+        dashboardScoreContext.textContent = `Momentum rating for the selected day. Health is ${health.score} and private is ${privateScore}, so the next move should stay practical and simple.`;
+      }
+
+      if (dashboardScoreState) {
+        dashboardScoreState.textContent = scoreState.text;
+        dashboardScoreState.className = `score-pill ${scoreState.className}`;
       }
 
       if (healthAvg) healthAvg.textContent = health.score;
@@ -1262,9 +1702,9 @@
       if (weeklyAverageMood) weeklyAverageMood.textContent = `${health.mood} / 10`;
       if (weeklyAverageStress) weeklyAverageStress.textContent = `${health.stress} / 10`;
       if (strongestHabit) strongestHabit.textContent = getStrongestHabit();
-      if (historyTrendRead) historyTrendRead.textContent = getTrendText(selectedScore);
+      if (historyTrendRead) historyTrendRead.textContent = trendText;
       if (privateTrendRead) privateTrendRead.textContent = getPrivateTrendText(privateScore);
-      if (coachMomentumPrompt) coachMomentumPrompt.textContent = getTrendText(selectedScore);
+      if (coachMomentumPrompt) coachMomentumPrompt.textContent = trendText;
 
       updateJournalPreview();
     }
@@ -1390,6 +1830,34 @@
       }
     }
 
+    function setupBinaryToggle(groupId, valueId) {
+      const hiddenInput = document.getElementById(groupId);
+      const valueBadge = document.getElementById(valueId);
+      const toggle = document.querySelector(`[data-binary-group="${groupId}"]`);
+
+      if (!hiddenInput || !valueBadge || !toggle) return;
+
+      const buttons = toggle.querySelectorAll('.binary-option');
+
+      function renderBinaryState() {
+        const currentValue = hiddenInput.value;
+        buttons.forEach(button => {
+          button.classList.toggle('is-active', button.dataset.value === currentValue);
+        });
+        valueBadge.textContent = currentValue === '1' ? 'Yes' : 'No';
+      }
+
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          hiddenInput.value = button.dataset.value;
+          renderBinaryState();
+          renderScores();
+        });
+      });
+
+      renderBinaryState();
+    }
+
     function buildCoachContext() {
       const health = calculateHealthScore();
       const privateScore = calculatePrivateScore();
@@ -1409,8 +1877,8 @@
         `Private desire: ${document.getElementById('privateDesire')?.value || 0}/10`,
         `Private connection: ${document.getElementById('privateConnection')?.value || 0}/10`,
         `Private urge: ${document.getElementById('privateUrge')?.value || 0}/10`,
-        `Porn use logged: ${document.getElementById('privatePornUse')?.value || 0}/10`,
-        `Masturbation logged: ${document.getElementById('privateMasturbation')?.value || 0}/10`,
+        `Porn use logged: ${document.getElementById('privatePornUse')?.value === '1' ? 'Yes' : 'No'}`,
+        `Masturbation logged: ${document.getElementById('privateMasturbation')?.value === '1' ? 'Yes' : 'No'}`,
         `Control: ${document.getElementById('privateControl')?.value || 0}/10`,
         `Recovery: ${document.getElementById('privateRecovery')?.value || 0}/10`,
         `Journal note: ${journalNotes || 'None'}`,
@@ -1503,6 +1971,8 @@ ${context}`;
     loadPrivateData();
     loadJournalData();
     refreshSliderLabels();
+    setupBinaryToggle('privatePornUse', 'privatePornUseValue');
+    setupBinaryToggle('privateMasturbation', 'privateMasturbationValue');
     renderScores();
   </script>
 </body>
