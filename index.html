@@ -476,17 +476,18 @@
 
     .score-side { display: grid; gap: 16px; }
 
-    .score-card {
-      position: relative;
-      overflow: hidden;
-      min-height: 182px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: #ffffff;
-      border: 1px solid rgba(12,106,111,0.16);
-      box-shadow: 0 6px 24px rgba(12,106,111,0.10), 0 1px 4px rgba(32,26,22,0.06);
-    }
+   .score-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 150px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid rgba(12,106,111,0.16);
+  box-shadow: 0 6px 24px rgba(12,106,111,0.10), 0 1px 4px rgba(32,26,22,0.06);
+}
 
     .score-card::before {
       content: "";
@@ -505,24 +506,29 @@
     }
 
     .score-value {
-      font-size: clamp(2.8rem, 5.5vw, 4rem);
-      line-height: 0.88;
-      font-weight: 900;
-      letter-spacing: -0.07em;
-      margin-bottom: 10px;
-      color: var(--accent);
-      font-variant-numeric: tabular-nums lining-nums;
-      text-shadow: 0 1px 0 rgba(12,106,111,0.12);
-    }
+  font-size: clamp(2.4rem, 4.8vw, 3.4rem);
+  line-height: 0.9;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  margin-bottom: 6px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums lining-nums;
+  text-shadow: 0 1px 0 rgba(12,106,111,0.12);
+}
+
+.score-subtext {
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
 
     .metric-card {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      justify-content: space-between;
-      min-height: 170px;
-      cursor: pointer;
-    }
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: space-between;
+  min-height: 150px;
+  cursor: pointer;
+}
 
     .metric-card input[type="range"] { margin-top: auto; }
 
@@ -552,12 +558,12 @@
     }
 
     .signal-card {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 172px;
-      gap: 12px;
-    }
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+  gap: 10px;
+}
 
     .signal-top {
       display: flex;
@@ -997,7 +1003,9 @@
 
       .score-number { font-size: 4.2rem; }
       .score-value { font-size: 3rem; }
-      #privateView .metric-card .score-value { font-size: 1.05rem; }
+      #privateView .metric-card.score-card {
+  min-height: 165px;
+}
       .history-item { grid-template-columns: 1fr; }
     }
   </style>
