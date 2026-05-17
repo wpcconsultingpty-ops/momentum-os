@@ -1173,15 +1173,19 @@
     }
 
     function computePrivateScore() {
-      const desireScore = Number(privateDesire.value) * 10;
-      const connectionScore = Number(privateConnection.value) * 10;
-      const urgeRelief = (10 - Number(privateUrge.value)) * 8;
-      const controlScore = Number(privateControl.value) * 9;
-      const recoveryScore = Number(privateRecovery.value) * 8;
-      const pornPenalty = Number(document.getElementById('privatePornUse').value) ? 12 : 0;
-      const masturbationPenalty = Number(document.getElementById('privateMasturbation').value) ? 8 : 0;
-      return clamp(Math.round((desireScore + connectionScore + urgeRelief + controlScore + recoveryScore - pornPenalty - masturbationPenalty) / 4.2), 0, 100);
-    }
+  const connectionScore = Number(privateConnection.value) * 10;
+  const controlScore = Number(privateControl.value) * 10;
+  const recoveryScore = Number(privateRecovery.value) * 10;
+  const pornPenalty = Number(document.getElementById('privatePornUse').value) ? 25 : 0;
+  const masturbationPenalty = Number(document.getElementById('privateMasturbation').value) ? 15 : 0;
+
+  const baseScore =
+    (connectionScore * 0.30) +
+    (controlScore * 0.35) +
+    (recoveryScore * 0.35);
+
+  return clamp(Math.round(baseScore - pornPenalty - masturbationPenalty), 0, 100);
+}
 
     function computeSelectedScore() {
       return Math.round((computeHealthScore() + computePrivateScore()) / 2);
