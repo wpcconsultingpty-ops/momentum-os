@@ -321,15 +321,28 @@
       box-shadow: var(--shadow-score);
     }
 
-    .score-topline {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 1;
-    }
+   .score-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.score-date-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.82);
+  border: 1px solid rgba(12,106,111,0.10);
+  color: var(--accent);
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 10px rgba(32,26,22,0.04);
+}
 
     .score-heading { min-width: 0; }
     .score-heading .card-label { margin-bottom: 10px; }
@@ -1008,12 +1021,14 @@
           <div class="score-overview">
             <article class="card score-hero">
               <div class="score-topline">
-                <div class="score-heading">
-                  <div class="card-label">Selected score</div>
-                  <h3>Today’s momentum</h3>
-                </div>
-                <div class="score-pill is-mixed" id="dashboardScoreState">Mixed day</div>
-              </div>
+  <div class="score-heading">
+    <div class="card-label">Selected score</div>
+    <h3>Today's momentum</h3>
+  </div>
+  <div class="score-top-actions">
+  <div class="score-date-badge" id="dashboardDateBadge">Monday, 18 May 2026</div>
+  <div class="score-pill is-mixed" id="dashboardScoreState">Mixed day</div>
+</div>
 
               <div class="score-main-row">
                 <div class="score-main">
@@ -1461,13 +1476,22 @@
     }
 
     function formatDate(iso) {
-      const date = new Date(iso);
-      return date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
-    }
+  const date = new Date(iso);
+  return date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+}
 
-    function clamp(num, min, max) {
-      return Math.min(max, Math.max(min, num));
-    }
+function formatTodayLong() {
+  return new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
+
+function clamp(num, min, max) {
+  return Math.min(max, Math.max(min, num));
+}
 
     function getCheckedLabels(selector) {
       return [...document.querySelectorAll(selector)]
