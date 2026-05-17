@@ -1379,9 +1379,34 @@
       return clamp(Math.round(baseScore - pornPenalty - masturbationPenalty), 0, 100);
     }
 
-    function computeSelectedScore() {
-      return Math.round((computeHealthScore() + computePrivateScore()) / 2);
-    }
+    function computePrivateScore() {
+  const desire = Number(privateDesire.value) * 10;
+  const connection = Number(privateConnection.value) * 10;
+  const urge = Number(privateUrge.value) * 10;
+  const control = Number(privateControl.value) * 10;
+  const recovery = Number(privateRecovery.value) * 10;
+
+  const triggerCount = getCheckedLabels('#privateTriggersList input[type="checkbox"]').length;
+  const recoveryActionCount = getCheckedLabels('#privateRecoveryActionsList input[type="checkbox"]').length;
+
+  const pornUsed = Number(document.getElementById('privatePornUse').value) === 1;
+  const masturbationLogged = Number(document.getElementById('privateMasturbation').value) === 1;
+
+  const positiveBase =
+    (connection * 0.28) +
+    (control * 0.30) +
+    (recovery * 0.22) +
+    (desire * 0.08) +
+    (recoveryActionCount * 6);
+
+  const negativeLoad =
+    (urge * 0.18) +
+    (triggerCount * 5) +
+    (pornUsed ? 18 : 0) +
+    (masturbationLogged ? 10 : 0);
+
+  return clamp(Math.round(positiveBase - negativeLoad + 22), 0, 100);
+}
 
     function scoreState(score) {
       if (score >= 70) return { label: 'Strong day', klass: 'is-strong', read: 'Strong day. Stay steady and protect the base.' };
