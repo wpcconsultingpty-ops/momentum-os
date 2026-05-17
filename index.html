@@ -4,9 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Momentum OS</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #f5f1ea;
@@ -44,9 +41,7 @@
       color: var(--text);
       line-height: 1.5;
     }
-    button, input, textarea, select { font: inherit; }
-    button { border: 0; }
-
+    button, input, textarea { font: inherit; }
     .app-shell {
       display: grid;
       grid-template-columns: 280px minmax(0, 1fr);
@@ -244,7 +239,6 @@
     .grid { display: grid; gap: 16px; }
     .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .grid-main-side { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: stretch; }
     .card {
       background: var(--surface-2);
@@ -298,6 +292,7 @@
       position: relative;
       z-index: 1;
     }
+    .score-heading { min-width: 0; }
     .score-heading .card-label { margin-bottom: 10px; }
     .score-heading h3 {
       margin: 0;
@@ -441,16 +436,12 @@
       margin-top: 0;
       min-height: 2.6em;
     }
-    .private-signals-grid,
-    .private-context-grid,
-    .chip-select-grid {
+    .private-signals-grid {
       display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
       width: 100%;
     }
-    .private-signals-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .private-context-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .chip-select-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
     .signal-card {
       display: flex;
       flex-direction: column;
@@ -498,35 +489,25 @@
       background: rgba(32, 26, 22, 0.06);
       border: 1px solid rgba(12,106,111,0.08);
     }
-    .binary-option,
-    .chip-toggle {
+    .binary-option {
       min-height: 42px;
+      border: none;
       border-radius: 999px;
       background: transparent;
       color: var(--muted);
       font-weight: 800;
       font-size: 0.92rem;
       cursor: pointer;
-      transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
     }
-    .binary-option.is-active,
-    .chip-toggle.is-active {
+    .binary-option.is-active {
       background: #fff;
       color: var(--accent);
       box-shadow: 0 2px 8px rgba(32, 26, 22, 0.08);
     }
-    .chip-toggle {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      background: #fff;
-    }
-    .chip-toggle.is-active {
-      background: var(--accent-soft);
-      border-color: rgba(12,106,111,0.18);
-      box-shadow: inset 0 0 0 1px rgba(12,106,111,0.04);
+    .binary-option:focus-visible {
+      outline: 2px solid rgba(12,106,111,0.24);
+      outline-offset: 2px;
     }
     .button-row {
       display: flex;
@@ -551,9 +532,7 @@
       cursor: pointer;
       transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
     }
-    .btn:hover, .btn:focus-visible,
-    .chip-toggle:hover, .chip-toggle:focus-visible,
-    .binary-option:focus-visible {
+    .btn:hover, .btn:focus-visible {
       transform: translateY(-1px);
       border-color: rgba(12,106,111,0.18);
       outline: none;
@@ -574,7 +553,7 @@
       font-size: 1.1rem;
       font-weight: 800;
     }
-    .range-list, .check-grid, .stacked-toggle-list { display: grid; gap: 14px; }
+    .range-list, .check-grid { display: grid; gap: 14px; }
     .range-row label {
       display: flex;
       justify-content: space-between;
@@ -586,7 +565,7 @@
       width: 100%;
       accent-color: var(--accent);
     }
-    .check-item, .habit-chip, .inline-check {
+    .check-item, .habit-chip {
       display: flex;
       gap: 12px;
       align-items: flex-start;
@@ -595,7 +574,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
     }
-    .check-item input, .habit-chip input, .inline-check input {
+    .check-item input, .habit-chip input {
       margin-top: 4px;
       accent-color: var(--accent);
     }
@@ -609,17 +588,14 @@
       align-items: center;
       font-weight: 700;
     }
-    select, textarea {
+    textarea {
       width: 100%;
+      min-height: 160px;
       padding: 14px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border);
       background: #fff;
       color: var(--text);
-    }
-    select { min-height: 50px; }
-    textarea {
-      min-height: 160px;
       resize: vertical;
     }
     .analysis-box {
@@ -674,7 +650,7 @@
 
     @media (max-width: 1180px) { .score-overview { grid-template-columns: 1fr; } }
     @media (max-width: 1080px) {
-      .grid-4, .grid-3, .grid-2, .habit-grid, .private-signals-grid, .chip-select-grid, .private-context-grid { grid-template-columns: 1fr 1fr; }
+      .grid-3, .grid-2, .habit-grid, .private-signals-grid { grid-template-columns: 1fr 1fr; }
       .grid-main-side { grid-template-columns: 1fr; }
       .history-item { grid-template-columns: 1fr 1fr; }
     }
@@ -709,7 +685,7 @@
         pointer-events: auto;
       }
       .main { padding: 16px; }
-      .grid-4, .grid-3, .grid-2, .habit-grid, .private-signals-grid, .chip-select-grid, .private-context-grid { grid-template-columns: 1fr; }
+      .grid-3, .grid-2, .habit-grid, .private-signals-grid { grid-template-columns: 1fr; }
       .hero, .section-card { padding: 20px; border-radius: 22px; }
       .hero h2 { font-size: 1.8rem; }
       .signal-top { flex-direction: column; }
@@ -817,7 +793,7 @@
           </div>
 
           <div class="grid grid-2" style="margin-top:16px;">
-            <article class="card"><div class="card-label">Focus</div><div class="card-value" id="dashboardFocusText" style="font-size:1.05rem;">Keep the next move simple</div><div class="card-note">Main target or direction.</div></article>
+            <article class="card"><div class="card-label">Focus</div><div class="card-value" style="font-size:1.05rem;">Keep the next move simple</div><div class="card-note">Main target or direction.</div></article>
             <article class="card"><div class="card-label">Score read</div><div class="card-value" id="dashboardScoreRead" style="font-size:1.05rem;">Mixed day. Win the next hour first.</div><div class="card-note">Use the score to reduce noise, not create pressure.</div></article>
           </div>
 
@@ -885,7 +861,7 @@
           <div class="grid grid-3">
             <article class="card score-card"><div><div class="card-label">Private avg</div><div class="score-value" id="privateAvg">47</div></div><div class="score-subtext">Connection, desire, and sexual health.</div></article>
             <article class="card"><div class="card-label">Trend read</div><div class="card-value" style="font-size:1.05rem;" id="privateTrendRead">Needs more attention</div><div class="card-note">Private rhythm is trailing physical baseline.</div></article>
-            <article class="card"><div class="card-label">Current focus</div><div class="card-value" style="font-size:1.05rem;" id="privateCurrentFocus">Protect control</div><div class="card-note">Reduce compulsive loops and support steadier recovery.</div></article>
+            <article class="card"><div class="card-label">Current focus</div><div class="card-value" style="font-size:1.05rem;">Protect control</div><div class="card-note">Reduce compulsive loops and support steadier recovery.</div></article>
           </div>
 
           <div class="grid grid-main-side" style="margin-top:18px;">
@@ -896,16 +872,16 @@
               </div>
 
               <div class="grid grid-3">
-                <label class="card score-card metric-card" for="privateDesire"><div class="card-label">Desire</div><div class="score-value" id="privateDesireValue">5 / 10</div><div class="score-subtext" id="privateDesireNote">Below baseline.</div><input id="privateDesire" type="range" min="0" max="10" value="5" /></label>
-                <label class="card score-card metric-card" for="privateConnection"><div class="card-label">Connection</div><div class="score-value" id="privateConnectionValue">4 / 10</div><div class="score-subtext" id="privateConnectionNote">Needs attention.</div><input id="privateConnection" type="range" min="0" max="10" value="4" /></label>
-                <label class="card score-card metric-card" for="privateUrge"><div class="card-label">Urge intensity</div><div class="score-value" id="privateUrgeValue">7 / 10</div><div class="score-subtext" id="privateUrgeNote">Elevated.</div><input id="privateUrge" type="range" min="0" max="10" value="7" /></label>
+                <label class="card score-card metric-card" for="privateDesire"><div class="card-label">Desire</div><div class="score-value" id="privateDesireValue">5 / 10</div><div class="score-subtext">Below baseline.</div><input id="privateDesire" type="range" min="0" max="10" value="5" /></label>
+                <label class="card score-card metric-card" for="privateConnection"><div class="card-label">Connection</div><div class="score-value" id="privateConnectionValue">4 / 10</div><div class="score-subtext">Needs attention.</div><input id="privateConnection" type="range" min="0" max="10" value="4" /></label>
+                <label class="card score-card metric-card" for="privateUrge"><div class="card-label">Urge intensity</div><div class="score-value" id="privateUrgeValue">7 / 10</div><div class="score-subtext">Elevated.</div><input id="privateUrge" type="range" min="0" max="10" value="7" /></label>
               </div>
             </article>
 
             <article class="card card-stack">
               <div class="section-header" style="margin-bottom:12px;">
                 <h3>Private signals</h3>
-                <p>Use simple day-level markers to track drift and recovery.</p>
+                <p>Each signal now uses a slider and the panel is evenly distributed.</p>
               </div>
 
               <div class="private-signals-grid">
@@ -921,97 +897,26 @@
                   <input id="privateMasturbation" type="hidden" value="0" />
                 </div>
 
-                <label class="card signal-card" for="privateControl"><div class="signal-top"><div><strong>Felt fully in control</strong><em id="privateControlNote">Control was mixed rather than steady.</em></div><span class="signal-value" id="privateControlValue">4 / 10</span></div><input id="privateControl" type="range" min="0" max="10" value="4" /></label>
-                <label class="card signal-card" for="privateRecovery"><div class="signal-top"><div><strong>Recovery response completed</strong><em id="privateRecoveryNote">No full reset action completed yet.</em></div><span class="signal-value" id="privateRecoveryValue">2 / 10</span></div><input id="privateRecovery" type="range" min="0" max="10" value="2" /></label>
+                <label class="card signal-card" for="privateControl"><div class="signal-top"><div><strong>Felt fully in control</strong><em>Control was mixed rather than steady.</em></div><span class="signal-value" id="privateControlValue">4 / 10</span></div><input id="privateControl" type="range" min="0" max="10" value="4" /></label>
+                <label class="card signal-card" for="privateRecovery"><div class="signal-top"><div><strong>Recovery response completed</strong><em>No full reset action completed yet.</em></div><span class="signal-value" id="privateRecoveryValue">2 / 10</span></div><input id="privateRecovery" type="range" min="0" max="10" value="2" /></label>
               </div>
             </article>
           </div>
 
           <div class="card card-stack" style="margin-top:18px;">
             <div class="section-header">
-              <h3>Triggers, recovery, context, and notes</h3>
-              <p>Track what tends to precede weaker moments, what helps recovery, and where resilience is holding.</p>
+              <h3>Sexual health, triggers, recovery, and notes</h3>
+              <p>Keep the deeper read practical, honest, and useful for pattern recognition.</p>
             </div>
 
             <div class="grid grid-3">
-              <article class="card">
-                <div class="card-label">Top trigger</div>
-                <div class="card-value" id="privateTopTrigger" style="font-size:1.05rem;">None logged yet</div>
-                <div class="card-note">Most common trigger tag in saved entries.</div>
-              </article>
-              <article class="card">
-                <div class="card-label">Best recovery action</div>
-                <div class="card-value" id="privateBestRecoveryAction" style="font-size:1.05rem;">None logged yet</div>
-                <div class="card-note">Most frequent reset action used on recorded days.</div>
-              </article>
-              <article class="card">
-                <div class="card-label">High-urge / no-acting rate</div>
-                <div class="card-value" id="privateResilienceRate" style="font-size:1.05rem;">0%</div>
-                <div class="card-note">How often high urge did not lead to porn or masturbation.</div>
-              </article>
+              <article class="card"><div class="card-label">Sexual health signals</div><div class="card-note">Libido lower this week. Confidence and performance feel inconsistent. No physical discomfort logged.</div></article>
+              <article class="card"><div class="card-label">Triggers and influences</div><div class="card-note">Stress, isolation, late-night phone use, poor sleep, and fatigue are the main influences.</div></article>
+              <article class="card"><div class="card-label">Recovery actions</div><div class="card-note">No-porn window, move the body, reduce isolation, and protect sleep.</div></article>
             </div>
 
-            <div>
-              <label class="card-label" style="display:block; margin-bottom:10px;">Trigger tags</label>
-              <div class="chip-select-grid" id="privateTriggerTags">
-                <button type="button" class="chip-toggle" data-chip-group="triggerTags" data-value="Stress">Stress</button>
-                <button type="button" class="chip-toggle" data-chip-group="triggerTags" data-value="Fatigue">Fatigue</button>
-                <button type="button" class="chip-toggle" data-chip-group="triggerTags" data-value="Boredom">Boredom</button>
-                <button type="button" class="chip-toggle" data-chip-group="triggerTags" data-value="Isolation">Isolation</button>
-                <button type="button" class="chip-toggle" data-chip-group="triggerTags" data-value="Conflict">Conflict</button>
-                <button type="button" class="chip-toggle" data-chip-group="triggerTags" data-value="Late-night phone">Late-night phone</button>
-                <button type="button" class="chip-toggle" data-chip-group="triggerTags" data-value="Travel">Travel</button>
-                <button type="button" class="chip-toggle" data-chip-group="triggerTags" data-value="Alcohol">Alcohol</button>
-              </div>
-            </div>
-
-            <div>
-              <label class="card-label" style="display:block; margin-bottom:10px;">Recovery actions used</label>
-              <div class="chip-select-grid" id="privateRecoveryActions">
-                <button type="button" class="chip-toggle" data-chip-group="recoveryActions" data-value="Walk">Walk</button>
-                <button type="button" class="chip-toggle" data-chip-group="recoveryActions" data-value="Shower">Shower</button>
-                <button type="button" class="chip-toggle" data-chip-group="recoveryActions" data-value="Prayer">Prayer</button>
-                <button type="button" class="chip-toggle" data-chip-group="recoveryActions" data-value="Breathing reset">Breathing reset</button>
-                <button type="button" class="chip-toggle" data-chip-group="recoveryActions" data-value="Phone away">Phone away</button>
-                <button type="button" class="chip-toggle" data-chip-group="recoveryActions" data-value="Texted someone">Texted someone</button>
-                <button type="button" class="chip-toggle" data-chip-group="recoveryActions" data-value="Early bed">Early bed</button>
-                <button type="button" class="chip-toggle" data-chip-group="recoveryActions" data-value="Workout">Workout</button>
-              </div>
-            </div>
-
-            <div class="private-context-grid">
-              <div class="card card-stack">
-                <label for="privateTimeRisk" class="card-label" style="display:block;">Risk window</label>
-                <select id="privateTimeRisk">
-                  <option value="">Select</option>
-                  <option value="Morning">Morning</option>
-                  <option value="Afternoon">Afternoon</option>
-                  <option value="Evening">Evening</option>
-                  <option value="Late-night">Late-night</option>
-                </select>
-                <div class="card-note">Most exposed time window for the day.</div>
-              </div>
-
-              <div class="card card-stack">
-                <div class="card-label">Context markers</div>
-                <div class="stacked-toggle-list">
-                  <label class="inline-check"><input type="checkbox" id="privateScreenUseLate" />Late-night screen use</label>
-                  <label class="inline-check"><input type="checkbox" id="privateAlcoholInvolved" />Alcohol involved</label>
-                </div>
-              </div>
-
-              <div class="card card-stack">
-                <div class="card-label">Resilience marker</div>
-                <div class="stacked-toggle-list">
-                  <label class="inline-check"><input type="checkbox" id="privateHighUrgeNoActing" />High urge, no acting</label>
-                </div>
-                <div class="card-note">Track strong days where urge rose but behaviour stayed aligned.</div>
-              </div>
-            </div>
-
-            <div style="margin-top:4px;">
+            <div style="margin-top:16px;">
               <label for="privateNotes" class="card-label" style="display:block; margin-bottom:8px;">Private notes</label>
-              <div class="card-note" style="margin-bottom:8px;">What happened, what made it harder, and what helped you recover faster?</div>
               <textarea id="privateNotes" placeholder="What happened, what triggered it, what helped, and what needs adjusting tomorrow?"></textarea>
             </div>
 
@@ -1037,6 +942,7 @@
           </div>
 
           <div class="trend-note" id="historyTrendNote">No history yet. Save a few days and the pattern read will sharpen.</div>
+
           <div id="historyList" class="history-list">
             <div class="history-empty">No entries saved yet.</div>
           </div>
@@ -1054,7 +960,7 @@
             <article class="card card-stack">
               <div>
                 <div class="card-label">Daily reflection</div>
-                <p class="foot-note">This note is saved into a dated daily entry alongside scores, habits, and private signals.</p>
+                <p class="foot-note">This note will now be saved into a dated daily entry alongside scores, habits, and private signals.</p>
               </div>
               <div>
                 <label for="journalText" class="card-label" style="display:block; margin-bottom:8px;">Journal note</label>
@@ -1085,29 +991,23 @@
         <div class="section-card">
           <div class="section-header">
             <h2>Coach</h2>
-            <p>Recover the next hour with a grounded, supportive read based on today’s inputs and recent patterns.</p>
+            <p>Use the current day plus your note to recover the next hour with a calm, practical response.</p>
           </div>
 
-          <div class="grid grid-2">
-            <article class="card card-stack">
-              <div>
-                <div class="card-label">Coach brief</div>
-                <p class="foot-note">The coach should support reflection, avoid diagnosis, and focus on the next practical step.</p>
-              </div>
-              <div class="button-row" style="margin-top:0;">
-                <button class="btn btn-primary" type="button" id="askCoachBtn">Ask Coach</button>
-                <span class="foot-note" id="coachStatus">Ready.</span>
-              </div>
-              <div class="trend-note" id="coachInputPreview">Today’s score and the last few entries will be used for the response.</div>
-            </article>
-
-            <article class="card card-stack">
-              <div>
-                <div class="card-label">Coach response</div>
-                <p class="foot-note">Use this to recover direction, not to create pressure.</p>
-              </div>
-              <div id="coachResponseOutput" class="analysis-box">No coach response yet.</div>
-            </article>
+          <div class="card card-stack">
+            <div>
+              <div class="card-label">Ask Reset Coach</div>
+              <p class="foot-note">Ground the reply in today’s score, habits, and notes. This should support reflection, not replace real help.</p>
+            </div>
+            <div>
+              <label for="coachPrompt" class="card-label" style="display:block; margin-bottom:8px;">Prompt</label>
+              <textarea id="coachPrompt" placeholder="I feel off-track tonight. Help me reset the next hour."></textarea>
+            </div>
+            <div class="button-row">
+              <button class="btn btn-primary" type="button" id="askCoachBtn">Ask Coach</button>
+              <span class="foot-note" id="coachStateText">Ready.</span>
+            </div>
+            <div id="coachResponse" class="analysis-box response-text">No response yet.</div>
           </div>
         </div>
       </section>
@@ -1115,8 +1015,18 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'momentum-os-entries-v2';
+    const STORAGE_KEYS = {
+      entries: 'momentum-daily-entries',
+      coachDraft: 'momentum-coach-draft'
+    };
 
+    const navButtons = [...document.querySelectorAll('[data-view-target]')];
+    const views = [...document.querySelectorAll('.view')];
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarBackdrop = document.querySelector('[data-close-sidebar]');
+
+    const dailySignalsCount = document.getElementById('dailySignalsCount');
+    const coreHabitsCount = document.getElementById('coreHabitsCount');
     const mood = document.getElementById('mood');
     const stress = document.getElementById('stress');
     const energy = document.getElementById('energy');
@@ -1129,134 +1039,167 @@
     const privateUrge = document.getElementById('privateUrge');
     const privateControl = document.getElementById('privateControl');
     const privateRecovery = document.getElementById('privateRecovery');
+    const privateDesireValue = document.getElementById('privateDesireValue');
+    const privateConnectionValue = document.getElementById('privateConnectionValue');
+    const privateUrgeValue = document.getElementById('privateUrgeValue');
+    const privateControlValue = document.getElementById('privateControlValue');
+    const privateRecoveryValue = document.getElementById('privateRecoveryValue');
     const privateNotes = document.getElementById('privateNotes');
-    const journalText = document.getElementById('journalText');
 
-    const saveHealthStatus = document.getElementById('saveHealthStatus');
-    const savePrivateStatus = document.getElementById('savePrivateStatus');
+    const journalText = document.getElementById('journalText');
+    const saveJournalBtn = document.getElementById('saveJournalBtn');
     const journalStateText = document.getElementById('journalStateText');
-    const coachStatus = document.getElementById('coachStatus');
-    const coachResponseOutput = document.getElementById('coachResponseOutput');
+    const analyzeJournalBtn = document.getElementById('analyzeJournalBtn');
     const journalAnalysisStatus = document.getElementById('journalAnalysisStatus');
     const journalAnalysisOutput = document.getElementById('journalAnalysisOutput');
 
-    function formatDayLabel(dateString) {
-      const d = new Date(dateString);
-      if (Number.isNaN(d.getTime())) return 'Unknown';
-      return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+    const saveHealthBtn = document.getElementById('saveHealthBtn');
+    const savePrivateBtn = document.getElementById('savePrivateBtn');
+    const saveHealthStatus = document.getElementById('saveHealthStatus');
+    const savePrivateStatus = document.getElementById('savePrivateStatus');
+
+    const dashboardSelectedScore = document.getElementById('dashboardSelectedScore');
+    const dashboardHealthScore = document.getElementById('dashboardHealthScore');
+    const dashboardPrivateScore = document.getElementById('dashboardPrivateScore');
+    const dashboardHealthMini = document.getElementById('dashboardHealthMini');
+    const dashboardPrivateMini = document.getElementById('dashboardPrivateMini');
+    const dashboardHealthFill = document.getElementById('dashboardHealthFill');
+    const dashboardPrivateFill = document.getElementById('dashboardPrivateFill');
+    const dashboardScoreState = document.getElementById('dashboardScoreState');
+    const dashboardSummaryText = document.getElementById('dashboardSummaryText');
+    const dashboardScoreRead = document.getElementById('dashboardScoreRead');
+    const dashboardJournalPreview = document.getElementById('dashboardJournalPreview');
+    const dashboardSelectedDay = document.getElementById('dashboardSelectedDay');
+    const dashboardDeltaText = document.getElementById('dashboardDeltaText');
+    const dashboardScoreContext = document.getElementById('dashboardScoreContext');
+
+    const healthAvg = document.getElementById('healthAvg');
+    const health7DayAverage = document.getElementById('health7DayAverage');
+    const healthStreak = document.getElementById('healthStreak');
+    const privateAvg = document.getElementById('privateAvg');
+    const privateTrendRead = document.getElementById('privateTrendRead');
+
+    const entriesSavedCount = document.getElementById('entriesSavedCount');
+    const historyAverageScore = document.getElementById('historyAverageScore');
+    const historyBestHabit = document.getElementById('historyBestHabit');
+    const historyTrendNote = document.getElementById('historyTrendNote');
+    const historyList = document.getElementById('historyList');
+
+    const coachPrompt = document.getElementById('coachPrompt');
+    const askCoachBtn = document.getElementById('askCoachBtn');
+    const coachStateText = document.getElementById('coachStateText');
+    const coachResponse = document.getElementById('coachResponse');
+
+    function setActiveView(viewId) {
+      views.forEach(view => view.classList.toggle('active', view.id === viewId));
+      navButtons.forEach(button => button.classList.toggle('active', button.dataset.viewTarget === viewId));
+      document.body.classList.remove('sidebar-open');
+      if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
     }
 
-    function updateRangeLabel(input, output) {
-      output.textContent = `${input.value} / 10`;
-    }
+    navButtons.forEach(button => {
+      button.addEventListener('click', () => setActiveView(button.dataset.viewTarget));
+    });
 
-    function getCheckedLabels(selector) {
-      return [...document.querySelectorAll(selector)].filter(input => input.checked).map(input => input.dataset.label || input.value || 'Checked');
-    }
-
-    function getSelectedChips(groupName) {
-      return [...document.querySelectorAll(`[data-chip-group="${groupName}"].is-active`)].map(button => button.dataset.value);
-    }
-
-    function setSelectedChips(groupName, values = []) {
-      document.querySelectorAll(`[data-chip-group="${groupName}"]`).forEach(button => {
-        button.classList.toggle('is-active', values.includes(button.dataset.value));
+    if (menuToggle) {
+      menuToggle.addEventListener('click', () => {
+        const isOpen = document.body.classList.toggle('sidebar-open');
+        menuToggle.setAttribute('aria-expanded', String(isOpen));
       });
     }
-
-    function setupChipToggles() {
-      document.querySelectorAll('[data-chip-group]').forEach(button => {
-        button.addEventListener('click', () => {
-          button.classList.toggle('is-active');
-          renderPrivateTrends();
-          updateDashboard();
-        });
-      });
-    }
-
-    function setupBinaryToggles() {
-      document.querySelectorAll('[data-binary-group]').forEach(group => {
-        const targetId = group.dataset.binaryGroup;
-        const hiddenInput = document.getElementById(targetId);
-        const valueLabel = document.getElementById(`${targetId}Value`);
-        group.querySelectorAll('.binary-option').forEach(button => {
-          button.addEventListener('click', () => {
-            group.querySelectorAll('.binary-option').forEach(opt => opt.classList.remove('is-active'));
-            button.classList.add('is-active');
-            hiddenInput.value = button.dataset.value;
-            if (valueLabel) valueLabel.textContent = button.dataset.value === '1' ? 'Yes' : 'No';
-            updateDashboard();
-          });
-        });
+    if (sidebarBackdrop) {
+      sidebarBackdrop.addEventListener('click', () => {
+        document.body.classList.remove('sidebar-open');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
       });
     }
 
     function readEntries() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
+        return JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
       } catch {
         return [];
       }
     }
 
     function writeEntries(entries) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
     }
 
-    function getTodayKey(date = new Date()) {
-      return new Date(date).toISOString().slice(0, 10);
+    function formatDate(iso) {
+      const date = new Date(iso);
+      return date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
-    function getCurrentDateLabel() {
-      return formatDayLabel(new Date().toISOString());
+    function clamp(num, min, max) {
+      return Math.min(max, Math.max(min, num));
+    }
+
+    function getCheckedLabels(selector) {
+      return [...document.querySelectorAll(selector)]
+        .filter(input => input.checked)
+        .map(input => input.dataset.label || input.closest('label')?.innerText.trim() || 'Item');
+    }
+
+    function average(values) {
+      if (!values.length) return 0;
+      return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+    }
+
+    function updateRangeLabel(input, el, suffix = '/ 10') {
+      el.textContent = `${input.value} ${suffix}`;
+    }
+
+    function updateHealthCounts() {
+      dailySignalsCount.textContent = getCheckedLabels('#dailySignalsList input[type="checkbox"]').length;
+      coreHabitsCount.textContent = getCheckedLabels('#coreHabitsList input[type="checkbox"]').length;
+    }
+
+    function updatePrivateLabels() {
+      privateDesireValue.textContent = `${privateDesire.value} / 10`;
+      privateConnectionValue.textContent = `${privateConnection.value} / 10`;
+      privateUrgeValue.textContent = `${privateUrge.value} / 10`;
+      privateControlValue.textContent = `${privateControl.value} / 10`;
+      privateRecoveryValue.textContent = `${privateRecovery.value} / 10`;
     }
 
     function computeHealthScore() {
-      const moodScore = Number(mood.value) * 3;
-      const stressInverted = (11 - Number(stress.value)) * 2.5;
-      const energyScore = Number(energy.value) * 3;
-      const dailySignalsScore = (getCheckedLabels('#dailySignalsList input[type="checkbox"]').length / 3) * 20;
-      const coreHabitsScore = (getCheckedLabels('#coreHabitsList input[type="checkbox"]').length / 6) * 25;
-      return Math.max(0, Math.min(100, Math.round(moodScore + stressInverted + energyScore + dailySignalsScore + coreHabitsScore - 15)));
+      const moodScore = Number(mood.value) * 10;
+      const energyScore = Number(energy.value) * 10;
+      const stressRelief = (11 - Number(stress.value)) * 10;
+      const dailyBonus = getCheckedLabels('#dailySignalsList input[type="checkbox"]').length * 7;
+      const habitBonus = getCheckedLabels('#coreHabitsList input[type="checkbox"]').length * 4;
+      return clamp(Math.round((moodScore + energyScore + stressRelief + dailyBonus + habitBonus) / 4), 0, 100);
     }
 
     function computePrivateScore() {
-      const desireScore = Number(privateDesire.value) * 2.2;
-      const connectionScore = Number(privateConnection.value) * 2.6;
-      const controlScore = Number(privateControl.value) * 2.7;
-      const recoveryScore = Number(privateRecovery.value) * 2.2;
-      const urgePenalty = Number(privateUrge.value) * 2.4;
-      const pornPenalty = document.getElementById('privatePornUse').value === '1' ? 14 : 0;
-      const masturbationPenalty = document.getElementById('privateMasturbation').value === '1' ? 8 : 0;
-      const resilienceBonus = document.getElementById('privateHighUrgeNoActing').checked ? 8 : 0;
-      return Math.max(0, Math.min(100, Math.round(25 + desireScore + connectionScore + controlScore + recoveryScore + resilienceBonus - urgePenalty - pornPenalty - masturbationPenalty)));
-    }
+  const connectionScore = Number(privateConnection.value) * 10;
+  const controlScore = Number(privateControl.value) * 10;
+  const recoveryScore = Number(privateRecovery.value) * 10;
+  const pornPenalty = Number(document.getElementById('privatePornUse').value) ? 25 : 0;
+  const masturbationPenalty = Number(document.getElementById('privateMasturbation').value) ? 15 : 0;
+
+  const baseScore =
+    (connectionScore * 0.30) +
+    (controlScore * 0.35) +
+    (recoveryScore * 0.35);
+
+  return clamp(Math.round(baseScore - pornPenalty - masturbationPenalty), 0, 100);
+}
 
     function computeSelectedScore() {
       return Math.round((computeHealthScore() + computePrivateScore()) / 2);
     }
 
     function scoreState(score) {
-      if (score >= 75) return { label: 'Strong day', className: 'is-strong', delta: 'Keep momentum steady', context: 'The day is holding together. Protect the basics and avoid overcomplicating it.' };
-      if (score >= 50) return { label: 'Mixed day', className: 'is-mixed', delta: 'Protect the next hour', context: 'Momentum is still available, but the next move matters more than big plans.' };
-      return { label: 'Heavy day', className: 'is-heavy', delta: 'Reduce pressure fast', context: 'Keep the next step small, remove noise, and stabilise before trying to solve everything.' };
-    }
-
-    function getMostCommonItem(items) {
-      if (!items.length) return 'None logged yet';
-      const counts = items.reduce((acc, item) => {
-        acc[item] = (acc[item] || 0) + 1;
-        return acc;
-      }, {});
-      return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+      if (score >= 70) return { label: 'Strong day', klass: 'is-strong', read: 'Strong day. Stay steady and protect the base.' };
+      if (score >= 45) return { label: 'Mixed day', klass: 'is-mixed', read: 'Mixed day. Win the next hour first.' };
+      return { label: 'Heavy day', klass: 'is-heavy', read: 'Heavy day. Reduce pressure and go smaller.' };
     }
 
     function buildDailyEntry() {
       return {
         date: new Date().toISOString(),
-        dayKey: getTodayKey(),
         selectedScore: computeSelectedScore(),
         healthScore: computeHealthScore(),
         privateScore: computePrivateScore(),
@@ -1272,336 +1215,240 @@
         masturbation: document.getElementById('privateMasturbation').value === '1',
         control: Number(privateControl.value),
         recovery: Number(privateRecovery.value),
-        triggerTags: getSelectedChips('triggerTags'),
-        recoveryActions: getSelectedChips('recoveryActions'),
-        privateTimeRisk: document.getElementById('privateTimeRisk').value,
-        privateScreenUseLate: document.getElementById('privateScreenUseLate').checked,
-        privateAlcoholInvolved: document.getElementById('privateAlcoholInvolved').checked,
-        highUrgeNoActing: document.getElementById('privateHighUrgeNoActing').checked,
         journalNote: journalText.value.trim(),
         privateNote: privateNotes.value.trim()
       };
     }
 
-    function saveCurrentEntry(source = 'general') {
+    function saveCurrentEntry(sourceLabel) {
+      const entry = buildDailyEntry();
       const entries = readEntries();
-      const current = buildDailyEntry();
-      const idx = entries.findIndex(entry => entry.dayKey === current.dayKey);
-      if (idx >= 0) {
-        entries[idx] = { ...entries[idx], ...current };
-      } else {
-        entries.unshift(current);
-      }
-      entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-      writeEntries(entries);
-
-      const stamp = `Saved ${new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}`;
-      if (source === 'health') saveHealthStatus.textContent = stamp;
-      if (source === 'private') savePrivateStatus.textContent = stamp;
-      if (source === 'journal') journalStateText.textContent = stamp;
-
+      entries.unshift(entry);
+      writeEntries(entries.slice(0, 60));
+      const savedAt = new Date(entry.date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      saveHealthStatus.textContent = sourceLabel === 'health' ? `Saved ${savedAt}.` : saveHealthStatus.textContent;
+      savePrivateStatus.textContent = sourceLabel === 'private' ? `Saved ${savedAt}.` : savePrivateStatus.textContent;
+      journalStateText.textContent = `Saved full daily entry at ${savedAt}.`;
       renderAll();
-      return current;
+      return entry;
     }
 
-    function average(values) {
-      if (!values.length) return 0;
-      return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
-    }
-
-    function getStreak(entries) {
-      if (!entries.length) return 0;
-      const days = new Set(entries.map(entry => entry.dayKey));
-      let streak = 0;
-      const date = new Date();
-      while (days.has(getTodayKey(date))) {
-        streak += 1;
-        date.setDate(date.getDate() - 1);
-      }
-      return streak;
-    }
-
-    function updatePrivateLabels() {
-      const desire = Number(privateDesire.value);
-      const connection = Number(privateConnection.value);
-      const urge = Number(privateUrge.value);
-      const control = Number(privateControl.value);
-      const recovery = Number(privateRecovery.value);
-
-      document.getElementById('privateDesireValue').textContent = `${desire} / 10`;
-      document.getElementById('privateConnectionValue').textContent = `${connection} / 10`;
-      document.getElementById('privateUrgeValue').textContent = `${urge} / 10`;
-      document.getElementById('privateControlValue').textContent = `${control} / 10`;
-      document.getElementById('privateRecoveryValue').textContent = `${recovery} / 10`;
-
-      document.getElementById('privateDesireNote').textContent = desire >= 7 ? 'Healthy and present.' : desire >= 4 ? 'Moderate.' : 'Below baseline.';
-      document.getElementById('privateConnectionNote').textContent = connection >= 7 ? 'Connected and steady.' : connection >= 4 ? 'Mixed connection.' : 'Needs attention.';
-      document.getElementById('privateUrgeNote').textContent = urge >= 8 ? 'Very elevated.' : urge >= 5 ? 'Elevated.' : 'Manageable.';
-      document.getElementById('privateControlNote').textContent = control >= 7 ? 'Steady control across the day.' : control >= 4 ? 'Control was mixed rather than steady.' : 'Control felt weak today.';
-      document.getElementById('privateRecoveryNote').textContent = recovery >= 7 ? 'Recovery actions were used well.' : recovery >= 4 ? 'Some recovery action completed.' : 'No full reset action completed yet.';
-    }
-
-    function updateCounts() {
-      document.getElementById('dailySignalsCount').textContent = getCheckedLabels('#dailySignalsList input[type="checkbox"]').length;
-      document.getElementById('coreHabitsCount').textContent = getCheckedLabels('#coreHabitsList input[type="checkbox"]').length;
-    }
-
-    function renderPrivateTrends() {
-      const entries = readEntries();
-      const allTriggers = entries.flatMap(entry => entry.triggerTags || []);
-      const allRecoveryActions = entries.flatMap(entry => entry.recoveryActions || []);
-      const resilienceEntries = entries.filter(entry => Number(entry.privateUrge || 0) >= 7);
-      const resilienceWins = resilienceEntries.filter(entry => entry.highUrgeNoActing && !entry.pornUse && !entry.masturbation);
-      const resilienceRate = resilienceEntries.length ? `${Math.round((resilienceWins.length / resilienceEntries.length) * 100)}%` : '0%';
-
-      document.getElementById('privateTopTrigger').textContent = getMostCommonItem(allTriggers);
-      document.getElementById('privateBestRecoveryAction').textContent = getMostCommonItem(allRecoveryActions);
-      document.getElementById('privateResilienceRate').textContent = resilienceRate;
-    }
-
-    function updateDashboard() {
-      updateCounts();
-      updatePrivateLabels();
-
-      const healthScore = computeHealthScore();
+    function renderDashboard() {
+      const health = computeHealthScore();
       const privateScore = computePrivateScore();
       const selected = computeSelectedScore();
       const state = scoreState(selected);
-
-      document.getElementById('dashboardSelectedScore').textContent = selected;
-      document.getElementById('dashboardHealthScore').textContent = healthScore;
-      document.getElementById('dashboardPrivateScore').textContent = privateScore;
-      document.getElementById('dashboardHealthMini').textContent = healthScore;
-      document.getElementById('dashboardPrivateMini').textContent = privateScore;
-      document.getElementById('dashboardHealthFill').style.width = `${healthScore}%`;
-      document.getElementById('dashboardPrivateFill').style.width = `${privateScore}%`;
-      document.getElementById('dashboardSummaryText').textContent = `${state.label}. Win the next hour first. Health ${healthScore}. Private ${privateScore}.`;
-      document.getElementById('dashboardScoreRead').textContent = `${state.label}. ${state.delta}.`;
-      document.getElementById('dashboardDeltaText').textContent = state.delta;
-      document.getElementById('dashboardScoreContext').textContent = state.context;
-
-      const scoreStateEl = document.getElementById('dashboardScoreState');
-      scoreStateEl.textContent = state.label;
-      scoreStateEl.className = `score-pill ${state.className}`;
-
-      document.getElementById('privateTrendRead').textContent = privateScore >= 70 ? 'Holding steady' : privateScore >= 50 ? 'Mixed but workable' : 'Needs more attention';
-      document.getElementById('privateCurrentFocus').textContent = privateScore >= 70 ? 'Protect consistency' : privateScore >= 50 ? 'Strengthen recovery' : 'Protect control';
-      document.getElementById('dashboardFocusText').textContent = selected >= 75 ? 'Protect what is already working' : selected >= 50 ? 'Keep the next move simple' : 'Reduce pressure and reset';
-      document.getElementById('coachInputPreview').textContent = `Today score ${selected}. Health ${healthScore}. Private ${privateScore}. Coach will use today plus recent entries.`;
+      const note = journalText.value.trim();
+      dashboardSelectedScore.textContent = selected;
+      dashboardHealthScore.textContent = health;
+      dashboardPrivateScore.textContent = privateScore;
+      dashboardHealthMini.textContent = health;
+      dashboardPrivateMini.textContent = privateScore;
+      dashboardHealthFill.style.width = `${health}%`;
+      dashboardPrivateFill.style.width = `${privateScore}%`;
+      dashboardScoreState.textContent = state.label;
+      dashboardScoreState.className = `score-pill ${state.klass}`;
+      dashboardScoreRead.textContent = state.read;
+      dashboardSummaryText.textContent = `${state.read} Health ${health}. Private ${privateScore}.`;
+      dashboardJournalPreview.textContent = note || 'No note saved';
+      dashboardSelectedDay.textContent = formatDate(new Date().toISOString());
+      dashboardDeltaText.textContent = selected >= 70 ? 'Keep the base' : selected >= 45 ? 'Protect the next hour' : 'Go smaller and simpler';
+      dashboardScoreContext.textContent = selected >= 70
+        ? 'Momentum is holding. Stay steady and avoid unnecessary drift.'
+        : selected >= 45
+          ? 'Momentum is mixed. Narrow the target and remove avoidable noise.'
+          : 'Momentum is under pressure. Reduce scope and focus on the smallest stabilising move.';
     }
 
     function renderHistory() {
       const entries = readEntries();
-      document.getElementById('entriesSavedCount').textContent = entries.length;
-      document.getElementById('historyAverageScore').textContent = average(entries.map(entry => Number(entry.selectedScore || 0)));
-      document.getElementById('healthAvg').textContent = average(entries.map(entry => Number(entry.healthScore || 0))) || computeHealthScore();
-      document.getElementById('privateAvg').textContent = average(entries.map(entry => Number(entry.privateScore || 0))) || computePrivateScore();
-      document.getElementById('health7DayAverage').textContent = average(entries.slice(0, 7).map(entry => Number(entry.healthScore || 0))) || computeHealthScore();
-      document.getElementById('healthStreak').textContent = getStreak(entries);
+      entriesSavedCount.textContent = entries.length;
+      historyAverageScore.textContent = entries.length ? average(entries.map(entry => entry.selectedScore)) : computeSelectedScore();
 
-      const bestHabitPool = entries
-        .filter(entry => Number(entry.selectedScore || 0) >= 65)
-        .flatMap(entry => entry.coreHabitsChecked || []);
-      document.getElementById('historyBestHabit').textContent = bestHabitPool.length ? getMostCommonItem(bestHabitPool) : 'No pattern yet';
+      const strongerDays = entries.filter(entry => entry.selectedScore >= 65);
+      const habitCounts = {};
+      strongerDays.forEach(entry => {
+        entry.coreHabitsChecked.forEach(habit => {
+          habitCounts[habit] = (habitCounts[habit] || 0) + 1;
+        });
+      });
+      const bestHabit = Object.entries(habitCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Not enough data';
+      historyBestHabit.textContent = bestHabit;
 
-      const note = entries.length < 3
-        ? 'No history yet. Save a few days and the pattern read will sharpen.'
-        : `Recent average ${average(entries.slice(0, 7).map(entry => Number(entry.selectedScore || 0)))}. Watch repeated trigger tags and protect the basics on lower-score days.`;
-      document.getElementById('historyTrendNote').textContent = note;
-
-      const historyList = document.getElementById('historyList');
       if (!entries.length) {
+        historyTrendNote.textContent = 'No history yet. Save a few days and the pattern read will sharpen.';
         historyList.innerHTML = '<div class="history-empty">No entries saved yet.</div>';
-        renderPrivateTrends();
+        healthStreak.textContent = '0';
+        health7DayAverage.textContent = computeHealthScore();
+        healthAvg.textContent = computeHealthScore();
+        privateAvg.textContent = computePrivateScore();
+        privateTrendRead.textContent = 'Needs more attention';
         return;
       }
 
-      historyList.innerHTML = entries.slice(0, 14).map(entry => {
-        const chips = [
-          ...(entry.coreHabitsChecked || []).slice(0, 3),
-          ...(entry.dailySignalsChecked || []).slice(0, 2),
-          ...((entry.triggerTags || []).slice(0, 2))
-        ].map(label => `<span class="mini-chip">${label}</span>`).join('');
+      const recent = entries.slice(0, 7);
+      const avgHealth = average(entries.map(entry => entry.healthScore));
+      const avgPrivate = average(entries.map(entry => entry.privateScore));
+      const avgRecentHealth = average(recent.map(entry => entry.healthScore));
+      healthAvg.textContent = avgHealth;
+      health7DayAverage.textContent = avgRecentHealth;
+      privateAvg.textContent = avgPrivate;
+      privateTrendRead.textContent = avgPrivate >= avgHealth ? 'Holding together' : 'Needs more attention';
+      healthStreak.textContent = String(entries.length);
 
+      const highDays = entries.filter(entry => entry.selectedScore >= 65).length;
+      const lowDays = entries.filter(entry => entry.selectedScore < 45).length;
+      historyTrendNote.textContent = `Saved ${entries.length} day${entries.length === 1 ? '' : 's'}. ${highDays} stronger day${highDays === 1 ? '' : 's'}, ${lowDays} heavier day${lowDays === 1 ? '' : 's'}.`;
+
+      historyList.innerHTML = recent.map(entry => {
+        const chips = [...entry.coreHabitsChecked.slice(0, 4), ...entry.dailySignalsChecked.slice(0, 2)]
+          .map(label => `<span class="mini-chip">${label}</span>`).join('');
         return `
           <article class="history-item">
             <div>
-              <strong>${formatDayLabel(entry.date)}</strong>
-              <div class="card-note">${entry.journalNote ? entry.journalNote.slice(0, 120) : 'No journal note saved.'}</div>
-              <div class="chip-list">${chips || '<span class="mini-chip">No tags yet</span>'}</div>
+              <strong>${formatDate(entry.date)}</strong>
+              <div class="foot-note">${entry.journalNote || 'No journal note saved.'}</div>
+              <div class="chip-list">${chips || '<span class="mini-chip">No habits logged</span>'}</div>
             </div>
-            <div><div class="card-label">Score</div><div class="history-stat">${entry.selectedScore || 0}</div></div>
-            <div><div class="card-label">Health</div><div class="history-stat">${entry.healthScore || 0}</div></div>
-            <div><div class="card-label">Private</div><div class="history-stat">${entry.privateScore || 0}</div></div>
+            <div><div class="card-label">Momentum</div><div class="history-stat">${entry.selectedScore}</div></div>
+            <div><div class="card-label">Health</div><div class="history-stat">${entry.healthScore}</div></div>
+            <div><div class="card-label">Private</div><div class="history-stat">${entry.privateScore}</div></div>
           </article>
         `;
       }).join('');
-
-      renderPrivateTrends();
     }
 
-    function applyPrivateEntry(entry = {}) {
-      if (entry.privateDesire !== undefined) privateDesire.value = entry.privateDesire;
-      if (entry.privateConnection !== undefined) privateConnection.value = entry.privateConnection;
-      if (entry.privateUrge !== undefined) privateUrge.value = entry.privateUrge;
-      if (entry.control !== undefined) privateControl.value = entry.control;
-      if (entry.recovery !== undefined) privateRecovery.value = entry.recovery;
-
-      document.getElementById('privateTimeRisk').value = entry.privateTimeRisk || '';
-      document.getElementById('privateScreenUseLate').checked = !!entry.privateScreenUseLate;
-      document.getElementById('privateAlcoholInvolved').checked = !!entry.privateAlcoholInvolved;
-      document.getElementById('privateHighUrgeNoActing').checked = !!entry.highUrgeNoActing;
-      setSelectedChips('triggerTags', entry.triggerTags || []);
-      setSelectedChips('recoveryActions', entry.recoveryActions || []);
-      privateNotes.value = entry.privateNote || '';
-
-      document.getElementById('privatePornUse').value = entry.pornUse ? '1' : '0';
-      document.getElementById('privateMasturbation').value = entry.masturbation ? '1' : '0';
-      document.getElementById('privatePornUseValue').textContent = entry.pornUse ? 'Yes' : 'No';
-      document.getElementById('privateMasturbationValue').textContent = entry.masturbation ? 'Yes' : 'No';
-
-      document.querySelectorAll('[data-binary-group="privatePornUse"] .binary-option').forEach(btn => btn.classList.toggle('is-active', btn.dataset.value === (entry.pornUse ? '1' : '0')));
-      document.querySelectorAll('[data-binary-group="privateMasturbation"] .binary-option').forEach(btn => btn.classList.toggle('is-active', btn.dataset.value === (entry.masturbation ? '1' : '0')));
-
-      updatePrivateLabels();
-    }
-
-    function renderLatestIntoDashboard() {
+    function renderJournalHints() {
       const entries = readEntries();
-      const latest = entries[0];
-      document.getElementById('dashboardSelectedDay').textContent = latest ? formatDayLabel(latest.date) : 'Today';
-      document.getElementById('dashboardJournalPreview').textContent = latest?.journalNote ? latest.journalNote.slice(0, 70) : 'No note saved';
-    }
-
-    async function analyzeJournal() {
-      const entries = readEntries();
-      if (!entries.length) {
-        journalAnalysisStatus.textContent = 'No entries to analyze.';
-        journalAnalysisOutput.textContent = 'Save a few daily entries first.';
-        return;
-      }
-
-      journalAnalysisStatus.textContent = 'Analyzing...';
-      journalAnalysisOutput.textContent = 'Reviewing patterns...';
-
-      try {
-        const response = await fetch('/api/journal-analysis', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ entries: entries.slice(0, 14) })
-        });
-
-        if (!response.ok) throw new Error('Analysis request failed');
-        const data = await response.json();
-        journalAnalysisOutput.textContent = data.analysis || data.message || 'No analysis returned.';
-        journalAnalysisStatus.textContent = 'Analysis complete.';
-      } catch (error) {
-        journalAnalysisOutput.textContent = 'Could not reach journal analysis endpoint. You can still use saved entries and history locally.';
-        journalAnalysisStatus.textContent = 'Analysis unavailable.';
-      }
-    }
-
-    async function askCoach() {
-      const entries = readEntries();
-      const currentEntry = buildDailyEntry();
-      const recentEntries = entries.slice(0, 7);
-
-      coachStatus.textContent = 'Thinking...';
-      coachResponseOutput.textContent = 'Building a grounded next-step response...';
-
-      try {
-        const response = await fetch('/api/coach', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ currentEntry, recentEntries })
-        });
-
-        if (!response.ok) throw new Error('Coach request failed');
-        const data = await response.json();
-        coachResponseOutput.textContent = data.response || data.message || 'No coach response returned.';
-        coachStatus.textContent = 'Coach response ready.';
-      } catch (error) {
-        coachResponseOutput.textContent = 'Coach endpoint is unavailable right now. Use the score read, reduce pressure, and win the next hour first.';
-        coachStatus.textContent = 'Coach unavailable.';
-      }
-    }
-
-    function setActiveView(viewId) {
-      document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === viewId));
-      document.querySelectorAll('[data-view-target]').forEach(button => {
-        if (button.classList.contains('btn')) return;
-        button.classList.toggle('active', button.dataset.viewTarget === viewId);
-      });
-      document.body.classList.remove('sidebar-open');
-      const menuToggle = document.getElementById('menuToggle');
-      if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+      journalAnalysisStatus.textContent = entries.length >= 3 ? `Ready to analyse ${Math.min(entries.length, 14)} entries.` : 'Save at least 3 entries for a better pattern read.';
     }
 
     function renderAll() {
-      updateDashboard();
-      renderLatestIntoDashboard();
+      updateHealthCounts();
+      updatePrivateLabels();
+      renderDashboard();
       renderHistory();
+      renderJournalHints();
     }
 
-    document.querySelectorAll('[data-view-target]').forEach(button => {
-      button.addEventListener('click', () => setActiveView(button.dataset.viewTarget));
-    });
-
-    document.getElementById('menuToggle').addEventListener('click', () => {
-      const isOpen = document.body.classList.toggle('sidebar-open');
-      document.getElementById('menuToggle').setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
-
-    document.querySelector('[data-close-sidebar]').addEventListener('click', () => {
-      document.body.classList.remove('sidebar-open');
-      document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
-    });
-
-    [mood, stress, energy].forEach((input, index) => {
-      const outputs = [moodValue, stressValue, energyValue];
+    [mood, stress, energy].forEach(input => {
       input.addEventListener('input', () => {
-        updateRangeLabel(input, outputs[index]);
-        updateDashboard();
+        updateRangeLabel(mood, moodValue);
+        updateRangeLabel(stress, stressValue);
+        updateRangeLabel(energy, energyValue);
+        renderAll();
       });
     });
 
     [privateDesire, privateConnection, privateUrge, privateControl, privateRecovery].forEach(input => {
       input.addEventListener('input', () => {
         updatePrivateLabels();
-        updateDashboard();
+        renderAll();
       });
     });
 
     document.querySelectorAll('#dailySignalsList input[type="checkbox"], #coreHabitsList input[type="checkbox"]').forEach(input => {
-      input.addEventListener('change', updateDashboard);
+      input.addEventListener('change', renderAll);
     });
 
-    ['privateTimeRisk','privateScreenUseLate','privateAlcoholInvolved','privateHighUrgeNoActing'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('change', updateDashboard);
+    document.querySelectorAll('.binary-toggle').forEach(group => {
+      group.addEventListener('click', event => {
+        const button = event.target.closest('.binary-option');
+        if (!button) return;
+        const hiddenId = group.dataset.binaryGroup;
+        const hiddenInput = document.getElementById(hiddenId);
+        hiddenInput.value = button.dataset.value;
+        group.querySelectorAll('.binary-option').forEach(option => option.classList.toggle('is-active', option === button));
+        const valueLabel = document.getElementById(`${hiddenId}Value`);
+        if (valueLabel) valueLabel.textContent = button.dataset.value === '1' ? 'Yes' : 'No';
+        renderAll();
+      });
     });
 
-    document.getElementById('saveHealthBtn').addEventListener('click', () => saveCurrentEntry('health'));
-    document.getElementById('savePrivateBtn').addEventListener('click', () => saveCurrentEntry('private'));
-    document.getElementById('saveJournalBtn').addEventListener('click', () => saveCurrentEntry('journal'));
-    document.getElementById('analyzeJournalBtn').addEventListener('click', analyzeJournal);
-    document.getElementById('askCoachBtn').addEventListener('click', askCoach);
+    saveHealthBtn.addEventListener('click', () => saveCurrentEntry('health'));
+    savePrivateBtn.addEventListener('click', () => saveCurrentEntry('private'));
+    saveJournalBtn.addEventListener('click', () => saveCurrentEntry('journal'));
 
-    setupBinaryToggles();
-    setupChipToggles();
+    async function askCoach() {
+      const prompt = coachPrompt.value.trim();
+      if (!prompt) {
+        coachStateText.textContent = 'Write a prompt first.';
+        coachPrompt.focus();
+        return;
+      }
+
+      askCoachBtn.disabled = true;
+      coachStateText.textContent = 'Thinking...';
+      coachResponse.textContent = 'Generating response...';
+
+      try {
+        const payload = {
+          prompt,
+          currentEntry: buildDailyEntry(),
+          recentEntries: readEntries().slice(0, 7)
+        };
+        localStorage.setItem(STORAGE_KEYS.coachDraft, prompt);
+
+        const response = await fetch('/api/coach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error('Coach request failed');
+        const data = await response.json();
+        coachResponse.textContent = data.reply || 'No response returned.';
+        coachStateText.textContent = 'Ready.';
+        coachPrompt.value = '';
+        coachPrompt.focus();
+      } catch (error) {
+        coachResponse.textContent = 'The coach could not respond just now. Check the API route and try again.';
+        coachStateText.textContent = 'Unavailable.';
+      } finally {
+        askCoachBtn.disabled = false;
+      }
+    }
+
+    async function analyzeJournalTrends() {
+      const entries = readEntries().slice(0, 14);
+      if (entries.length < 3) {
+        journalAnalysisStatus.textContent = 'Save at least 3 entries first.';
+        journalAnalysisOutput.textContent = 'Not enough saved entries yet for useful trend analysis.';
+        return;
+      }
+
+      analyzeJournalBtn.disabled = true;
+      journalAnalysisStatus.textContent = 'Analysing trends...';
+      journalAnalysisOutput.textContent = 'Reviewing entries for stronger-day and weaker-day patterns...';
+
+      try {
+        const response = await fetch('/api/journal-analysis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entries })
+        });
+
+        if (!response.ok) throw new Error('Journal analysis failed');
+        const data = await response.json();
+        journalAnalysisOutput.textContent = data.reply || 'No analysis returned.';
+        journalAnalysisStatus.textContent = `Analysed ${entries.length} entries.`;
+      } catch (error) {
+        journalAnalysisOutput.textContent = 'The analysis route is not available yet. Create /api/journal-analysis and send the recent entries for pattern analysis.';
+        journalAnalysisStatus.textContent = 'Analysis unavailable.';
+      } finally {
+        analyzeJournalBtn.disabled = false;
+      }
+    }
+
+    askCoachBtn.addEventListener('click', askCoach);
+    analyzeJournalBtn.addEventListener('click', analyzeJournalTrends);
+
+    const savedCoachDraft = localStorage.getItem(STORAGE_KEYS.coachDraft);
+    if (savedCoachDraft) coachPrompt.value = savedCoachDraft;
 
     updateRangeLabel(mood, moodValue);
     updateRangeLabel(stress, stressValue);
     updateRangeLabel(energy, energyValue);
-    updatePrivateLabels();
-
-    const existingEntries = readEntries();
-    if (existingEntries.length) {
-      const latest = existingEntries[0];
-      journalText.value = latest.journalNote || '';
-      applyPrivateEntry(latest);
-    }
-
     renderAll();
   </script>
 </body>
