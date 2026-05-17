@@ -1007,29 +1007,40 @@
 </div>
 
           <div class="card card-stack" style="margin-top:18px;">
-            <div class="section-header">
-              <h3>Sexual health, triggers, recovery, and notes</h3>
-              <p>Keep the deeper read practical, honest, and useful for pattern recognition.</p>
-            </div>
+  <div class="section-header">
+    <h3>Triggers, recovery, and notes</h3>
+    <p>Track what pushed the day off line and what helped pull it back.</p>
+  </div>
 
-            <div class="grid grid-3">
-              <article class="card"><div class="card-label">Sexual health signals</div><div class="card-note">Libido lower this week. Confidence and performance feel inconsistent. No physical discomfort logged.</div></article>
-              <article class="card"><div class="card-label">Triggers and influences</div><div class="card-note">Stress, isolation, late-night phone use, poor sleep, and fatigue are the main influences.</div></article>
-              <article class="card"><div class="card-label">Recovery actions</div><div class="card-note">No-porn window, move the body, reduce isolation, and protect sleep.</div></article>
-            </div>
+  <h3 class="subsection-title">Triggers</h3>
+  <p class="foot-note"><span id="privateTriggersCount">0</span> / 5 logged</p>
+  <div class="check-grid" id="privateTriggersList">
+    <label class="check-item"><input type="checkbox" data-label="Stress" /><span><strong>Stress</strong>Main pressure trigger today.</span></label>
+    <label class="check-item"><input type="checkbox" data-label="Isolation" /><span><strong>Isolation</strong>Too much time alone or disconnected.</span></label>
+    <label class="check-item"><input type="checkbox" data-label="Late-night phone use" /><span><strong>Late-night phone use</strong>Screen drift opened the loop.</span></label>
+    <label class="check-item"><input type="checkbox" data-label="Poor sleep" /><span><strong>Poor sleep</strong>Fatigue lowered control.</span></label>
+    <label class="check-item"><input type="checkbox" data-label="Fatigue" /><span><strong>Fatigue</strong>Low energy reduced discipline.</span></label>
+  </div>
 
-            <div style="margin-top:16px;">
-              <label for="privateNotes" class="card-label" style="display:block; margin-bottom:8px;">Private notes</label>
-              <textarea id="privateNotes" placeholder="What happened, what triggered it, what helped, and what needs adjusting tomorrow?"></textarea>
-            </div>
+  <h3 class="subsection-title">Recovery actions</h3>
+  <p class="foot-note"><span id="privateRecoveryActionsCount">0</span> / 4 done</p>
+  <div class="check-grid" id="privateRecoveryActionsList">
+    <label class="check-item"><input type="checkbox" data-label="No-porn window" /><span><strong>No-porn window</strong>Protected the environment.</span></label>
+    <label class="check-item"><input type="checkbox" data-label="Move the body" /><span><strong>Move the body</strong>Shifted state physically.</span></label>
+    <label class="check-item"><input type="checkbox" data-label="Reduce isolation" /><span><strong>Reduce isolation</strong>Reconnected instead of withdrawing.</span></label>
+    <label class="check-item"><input type="checkbox" data-label="Protect sleep" /><span><strong>Protect sleep</strong>Set up a cleaner finish to the day.</span></label>
+  </div>
 
-            <div class="button-row">
-              <button class="btn btn-primary" type="button" id="savePrivateBtn">Save Private</button>
-              <span class="foot-note" id="savePrivateStatus">Not saved yet.</span>
-            </div>
-          </div>
-        </div>
-      </section>
+  <div style="margin-top:16px;">
+    <label for="privateNotes" class="card-label" style="display:block; margin-bottom:8px;">Private notes</label>
+    <textarea id="privateNotes" placeholder="What happened, what triggered it, what helped, and what needs adjusting tomorrow?"></textarea>
+  </div>
+
+  <div class="button-row">
+    <button class="btn btn-primary" type="button" id="savePrivateBtn">Save Private</button>
+    <span class="foot-note" id="savePrivateStatus">Not saved yet.</span>
+  </div>
+</div>
 
       <section id="historyView" class="view">
         <div class="section-card">
@@ -1148,6 +1159,8 @@
     const privateControlValue = document.getElementById('privateControlValue');
     const privateRecoveryValue = document.getElementById('privateRecoveryValue');
     const privateNotes = document.getElementById('privateNotes');
+    const privateTriggersCount = document.getElementById('privateTriggersCount');
+    const privateRecoveryActionsCount = document.getElementById('privateRecoveryActionsCount');
 
     const journalText = document.getElementById('journalText');
     const saveJournalBtn = document.getElementById('saveJournalBtn');
@@ -1426,13 +1439,14 @@
       journalAnalysisStatus.textContent = entries.length >= 3 ? `Ready to analyse ${Math.min(entries.length, 14)} entries.` : 'Save at least 3 entries for a better pattern read.';
     }
 
-    function renderAll() {
-      updateHealthCounts();
-      updatePrivateLabels();
-      renderDashboard();
-      renderHistory();
-      renderJournalHints();
-    }
+   function renderAll() {
+  updateHealthCounts();
+  updatePrivateCounts();
+  updatePrivateLabels();
+  renderDashboard();
+  renderHistory();
+  renderJournalHints();
+}
 
     [mood, stress, energy].forEach(input => {
       input.addEventListener('input', () => {
@@ -1453,6 +1467,9 @@
     document.querySelectorAll('#dailySignalsList input[type="checkbox"], #coreHabitsList input[type="checkbox"]').forEach(input => {
       input.addEventListener('change', renderAll);
     });
+document.querySelectorAll('#privateTriggersList input[type="checkbox"], #privateRecoveryActionsList input[type="checkbox"]').forEach(input => {
+  input.addEventListener('change', renderAll);
+});
 
     document.querySelectorAll('.binary-toggle').forEach(group => {
       group.addEventListener('click', event => {
@@ -1556,3 +1573,4 @@
   </script>
 </body>
 </html>
+      
