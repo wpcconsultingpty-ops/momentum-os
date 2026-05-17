@@ -1,0 +1,37 @@
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+export async function POST(req: Request) {
+  const { entries } = await req.json();
+
+  const completion = await client.chat.completions.create({
+    model: "gpt-5",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You analyze wellbeing journal data for trends, stronger-day patterns, weaker-day patterns, habit alignment, triggers, and practical next-step suggestions. Use only the supplied data. Do not diagnose. If the data is thin, say so clearly."
+      },
+      {
+        role: "user",
+        content: `Review these entries and return:
+1. good-day patterns,
+2. bad-day patterns,
+3. habits linked with stronger scores,
+4. habits linked with weaker scores,
+5. repeated triggers,
+6. 3 practical observations.
+
+Entries:
+${JSON.stringify(entries, null, 2)}`
+      }
+    ]
+  });
+
+  return Response.json({
+    reply: completion.choices[0].message.content
+  });
+}
