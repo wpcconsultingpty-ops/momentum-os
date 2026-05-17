@@ -69,25 +69,41 @@
     }
 
     .brand-badge {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 800;
-      font-size: 1.15rem;
-      flex-shrink: 0;
-      box-shadow: 0 10px 22px rgba(12,106,111,0.18);
-    }
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  box-shadow: 0 10px 22px rgba(12,106,111,0.18);
+}
+}
 
-    .brand-copy h1 {
-      margin: 0;
-      font-size: 1.9rem;
-      line-height: 1.02;
-      letter-spacing: -0.03em;
-    }
+.brand-badge-image {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  overflow: hidden;
+}
+
+.brand-badge-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 16px;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transform: translateY(1px);
+}
 
     .brand-copy p {
       margin: 6px 0 0;
@@ -975,12 +991,20 @@
   <div class="app-shell">
     <aside class="sidebar" aria-label="Primary navigation" id="sidebar">
       <div class="brand">
-        <div class="brand-badge">M</div>
-        <div class="brand-copy">
-          <h1>Momentum OS</h1>
-          <p>Reset. Refocus. Move.</p>
-        </div>
-      </div>
+  <div class="brand-badge brand-badge-image" aria-label="Momentum OS logo">
+    <img
+      src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/81ec643f-d863-466a-bd6a-721adf4a7187.png"
+      alt="Momentum OS logo"
+      width="52"
+      height="52"
+      loading="lazy"
+    />
+  </div>
+  <div class="brand-copy">
+    <h1>Momentum OS</h1>
+    <p>Reset. Refocus. Move.</p>
+  </div>
+</div>
 
       <div class="nav-group" aria-labelledby="views-heading">
         <h2 id="views-heading">Views</h2>
