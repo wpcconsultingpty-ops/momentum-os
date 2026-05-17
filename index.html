@@ -975,24 +975,39 @@
             <div class="range-row"><label for="energy"><span>Energy</span><span id="energyValue">7 / 10</span></label><input id="energy" type="range" min="1" max="10" value="7" /></div>
           </div>
 
-          <h3 class="subsection-title">Daily signals</h3>
-          <p class="foot-note"><span id="dailySignalsCount">2</span> / 3 logged</p>
-          <div class="check-grid" id="dailySignalsList">
-            <label class="check-item"><input type="checkbox" checked data-label="Stayed on plan" /><span><strong>Stayed on plan</strong>Protected the intended shape of the day.</span></label>
-            <label class="check-item"><input type="checkbox" checked data-label="Kept distractions down" /><span><strong>Kept distractions down</strong>Reduced drift, noise, and reactive switching.</span></label>
-            <label class="check-item"><input type="checkbox" data-label="Finished clean" /><span><strong>Finished clean</strong>Closed loops and set up tomorrow properly.</span></label>
-          </div>
+          <h3 class="subsection-title">Health habits</h3>
+<p class="foot-note"><span id="healthHabitsCount">2</span> / 6 done</p>
+<div class="check-grid" id="healthHabitsList">
+  <label class="check-item">
+    <input type="checkbox" data-label="Ate well" />
+    <span><strong>Ate well</strong>Food choices supported steadier energy.</span>
+  </label>
 
-          <h3 class="subsection-title">Core habits</h3>
-          <p class="foot-note"><span id="coreHabitsCount">2</span> / 6 done</p>
-          <div class="habit-grid" id="coreHabitsList">
-            <label class="habit-chip"><input type="checkbox" data-label="Protected focus" />Protected focus</label>
-            <label class="habit-chip"><input type="checkbox" data-label="Exercise or movement" />Exercise or movement</label>
-            <label class="habit-chip"><input type="checkbox" checked data-label="Priority task done" />Priority task done</label>
-            <label class="habit-chip"><input type="checkbox" data-label="Quiet minute or prayer" />Quiet minute or prayer</label>
-            <label class="habit-chip"><input type="checkbox" data-label="Protected sleep routine" />Protected sleep routine</label>
-            <label class="habit-chip"><input type="checkbox" checked data-label="Supportive nutrition" />Supportive nutrition</label>
-          </div>
+  <label class="check-item">
+    <input type="checkbox" data-label="Avoided alcohol" />
+    <span><strong>Avoided alcohol</strong>Kept the day cleaner and protected recovery.</span>
+  </label>
+
+  <label class="check-item">
+    <input type="checkbox" data-label="Moved my body" />
+    <span><strong>Moved my body</strong>Training, walking, or intentional movement happened.</span>
+  </label>
+
+  <label class="check-item">
+    <input type="checkbox" data-label="Protected sleep routine" />
+    <span><strong>Protected sleep routine</strong>Set up the evening to support better sleep.</span>
+  </label>
+
+  <label class="check-item">
+    <input type="checkbox" data-label="Drank enough water" />
+    <span><strong>Drank enough water</strong>Hydration was good enough for the day.</span>
+  </label>
+
+  <label class="check-item">
+    <input type="checkbox" data-label="Had meaningful connection" />
+    <span><strong>Had meaningful connection</strong>Connected properly with someone, not just surface contact.</span>
+  </label>
+</div>
 
           <div class="button-row">
             <button class="btn btn-primary" type="button" id="saveHealthBtn">Save Health</button>
@@ -1338,9 +1353,8 @@
     }
 
     function updateHealthCounts() {
-      dailySignalsCount.textContent = getCheckedLabels('#dailySignalsList input[type="checkbox"]').length;
-      coreHabitsCount.textContent = getCheckedLabels('#coreHabitsList input[type="checkbox"]').length;
-    }
+  healthHabitsCount.textContent = getCheckedLabels('#healthHabitsList input[type="checkbox"]').length;
+}
 
     function updatePrivateCounts() {
       privateTriggersCount.textContent = `${getCheckedLabels('#privateTriggersList input[type="checkbox"]').length} selected`;
@@ -1356,54 +1370,99 @@
     }
 
     function computeHealthScore() {
-      const moodScore = Number(mood.value) * 10;
-      const energyScore = Number(energy.value) * 10;
-      const stressRelief = (11 - Number(stress.value)) * 10;
-      const dailyBonus = getCheckedLabels('#dailySignalsList input[type="checkbox"]').length * 7;
-      const habitBonus = getCheckedLabels('#coreHabitsList input[type="checkbox"]').length * 4;
-      return clamp(Math.round((moodScore + energyScore + stressRelief + dailyBonus + habitBonus) / 4), 0, 100);
-    }
+  const moodPct = (Number(mood.value) / 10) * 100;
+  const energyPct = (Number(energy.value) / 10) * 100;
+  const stressReliefPct = ((10 - Number(stress.value)) / 10) * 100;
+  const habitsPct = (getCheckedLabels('#healthHabitsList input[type="checkbox"]').length / 6) * 100;
 
-    function computePrivateScore() {
-      const desire = Number(privateDesire.value) * 10;
-      const connection = Number(privateConnection.value) * 10;
-      const urge = Number(privateUrge.value) * 10;
-      const control = Number(privateControl.value) * 10;
-      const recovery = Number(privateRecovery.value) * 10;
+  return clamp(Math.round(
+    (moodPct * 0.22) +
+    (energyPct * 0.22) +
+    (stressReliefPct * 0.21) +
+    (habitsPct * 0.35)
+  ), 0, 100);
+}
 
-      const triggerCount = getCheckedLabels('#privateTriggersList input[type="checkbox"]').length;
-      const recoveryActionCount = getCheckedLabels('#privateRecoveryActionsList input[type="checkbox"]').length;
+function computePrivateScore() {
+  const desirePct = (Number(privateDesire.value) / 10) * 100;
+  const connectionPct = (Number(privateConnection.value) / 10) * 100;
+  const urgeReliefPct = ((10 - Number(privateUrge.value)) / 10) * 100;
+  const controlPct = (Number(privateControl.value) / 10) * 100;
+  const recoveryPct = (Number(privateRecovery.value) / 10) * 100;
 
-      const pornUsed = Number(document.getElementById('privatePornUse').value) === 1;
-      const masturbationLogged = Number(document.getElementById('privateMasturbation').value) === 1;
+  const triggersAvoidedPct = 100 - ((getCheckedLabels('#privateTriggersList input[type="checkbox"]').length / 6) * 100);
+  const recoveryActionsPct = (getCheckedLabels('#privateRecoveryActionsList input[type="checkbox"]').length / 6) * 100;
 
-      const positiveBase =
-        (connection * 0.28) +
-        (control * 0.30) +
-        (recovery * 0.22) +
-        (desire * 0.08) +
-        (recoveryActionCount * 6);
+  const pornPenalty = Number(document.getElementById('privatePornUse').value) === 1 ? 8 : 0;
+  const masturbationPenalty = Number(document.getElementById('privateMasturbation').value) === 1 ? 5 : 0;
 
-      const negativeLoad =
-        (urge * 0.18) +
-        (triggerCount * 5) +
-        (pornUsed ? 18 : 0) +
-        (masturbationLogged ? 10 : 0);
+  const rawScore =
+    (desirePct * 0.12) +
+    (connectionPct * 0.24) +
+    (urgeReliefPct * 0.18) +
+    (controlPct * 0.22) +
+    (recoveryPct * 0.14) +
+    (triggersAvoidedPct * 0.05) +
+    (recoveryActionsPct * 0.05) -
+    pornPenalty -
+    masturbationPenalty;
 
-      return clamp(Math.round(positiveBase - negativeLoad + 22), 0, 100);
-    }
+  return clamp(Math.round(rawScore), 0, 100);
+}
 
-    function computeSelectedScore() {
-      const health = computeHealthScore();
-      const privateScore = computePrivateScore();
-      return Math.round((health * 0.45) + (privateScore * 0.55));
-    }
+function computeSelectedScore() {
+  const health = computeHealthScore();
+  const privateScore = computePrivateScore();
 
-    function scoreState(score) {
-      if (score >= 70) return { label: 'Strong day', klass: 'is-strong', read: 'Strong day. Stay steady and protect the base.' };
-      if (score >= 45) return { label: 'Mixed day', klass: 'is-mixed', read: 'Mixed day. Win the next hour first.' };
-      return { label: 'Heavy day', klass: 'is-heavy', read: 'Heavy day. Reduce pressure and go smaller.' };
-    }
+  const baseScore = (health * 0.8) + (privateScore * 0.2);
+
+  const momentumBonus =
+    health >= 80 ? 6 :
+    health >= 70 ? 4 :
+    health >= 60 ? 2 : 0;
+
+  return clamp(Math.round(baseScore + momentumBonus), 0, 100);
+}
+
+function scoreState(score) {
+  if (score >= 85) {
+    return {
+      label: 'Excellent',
+      klass: 'is-strong',
+      read: 'Excellent day. Keep the rhythm and avoid unnecessary drift.'
+    };
+  }
+
+  if (score >= 70) {
+    return {
+      label: 'Strong',
+      klass: 'is-strong',
+      read: 'Strong day. Protect the base and keep momentum steady.'
+    };
+  }
+
+  if (score >= 55) {
+    return {
+      label: 'Steady',
+      klass: 'is-mixed',
+      read: 'Steady day. Keep the next move clear and simple.'
+    };
+  }
+
+  if (score >= 40) {
+    return {
+      label: 'Vulnerable',
+      klass: 'is-mixed',
+      read: 'Vulnerable day. Reduce noise and protect the next hour.'
+    };
+  }
+
+  return {
+    label: 'Critical',
+    klass: 'is-heavy',
+    read: 'Critical day. Go smaller, stabilise first, and reduce pressure.'
+  };
+}
 
     function buildDailyEntry() {
       return {
@@ -1472,31 +1531,39 @@
     }
 
     function renderHistory() {
-      const entries = readEntries();
-      entriesSavedCount.textContent = entries.length;
-      historyAverageScore.textContent = entries.length ? average(entries.map(entry => entry.selectedScore)) : computeSelectedScore();
+  const entries = readEntries();
+  entriesSavedCount.textContent = entries.length;
+  historyAverageScore.textContent = entries.length
+    ? average(entries.map(entry => entry.selectedScore))
+    : computeSelectedScore();
 
-      const strongerDays = entries.filter(entry => entry.selectedScore >= 65);
-      const habitCounts = {};
-      strongerDays.forEach(entry => {
-        entry.coreHabitsChecked.forEach(habit => {
-          habitCounts[habit] = (habitCounts[habit] || 0) + 1;
-        });
-      });
+  const excellentDays = entries.filter(entry => entry.selectedScore >= 85);
+  const strongerDays = entries.filter(entry => entry.selectedScore >= 70);
+  const steadyDays = entries.filter(entry => entry.selectedScore >= 55 && entry.selectedScore < 70);
+  const vulnerableDays = entries.filter(entry => entry.selectedScore >= 40 && entry.selectedScore < 55);
+  const criticalDays = entries.filter(entry => entry.selectedScore < 40);
 
-      const bestHabit = Object.entries(habitCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Not enough data';
-      historyBestHabit.textContent = bestHabit;
+  const habitCounts = {};
+  strongerDays.forEach(entry => {
+    entry.coreHabitsChecked.forEach(habit => {
+      habitCounts[habit] = (habitCounts[habit] || 0) + 1;
+    });
+  });
 
-      if (!entries.length) {
-        historyTrendNote.textContent = 'No history yet. Save a few days and the pattern read will sharpen.';
-        historyList.innerHTML = '<div class="history-empty">No entries saved yet.</div>';
-        healthStreak.textContent = '0';
-        health7DayAverage.textContent = computeHealthScore();
-        healthAvg.textContent = computeHealthScore();
-        privateAvg.textContent = computePrivateScore();
-        privateTrendRead.textContent = 'Needs more attention';
-        return;
-      }
+  const bestHabit = Object.entries(habitCounts)
+    .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Not enough data';
+  historyBestHabit.textContent = bestHabit;
+
+  if (!entries.length) {
+    historyTrendNote.textContent = 'No history yet. Save a few days and the pattern read will sharpen.';
+    historyList.innerHTML = '<div class="history-empty">No entries saved yet.</div>';
+    healthStreak.textContent = '0';
+    health7DayAverage.textContent = computeHealthScore();
+    healthAvg.textContent = computeHealthScore();
+    privateAvg.textContent = computePrivateScore();
+    privateTrendRead.textContent = 'Needs more attention';
+    return;
+  }
 
       const recent = entries.slice(0, 7);
       const avgHealth = average(entries.map(entry => entry.healthScore));
@@ -1562,9 +1629,9 @@
       });
     });
 
-    document.querySelectorAll('#dailySignalsList input[type="checkbox"], #coreHabitsList input[type="checkbox"]').forEach(input => {
-      input.addEventListener('change', renderAll);
-    });
+    document.querySelectorAll('#healthHabitsList input[type="checkbox"]').forEach(input => {
+  input.addEventListener('change', renderAll);
+});
 
     document.querySelectorAll('#privateTriggersList input[type="checkbox"], #privateRecoveryActionsList input[type="checkbox"]').forEach(input => {
       input.addEventListener('change', renderAll);
