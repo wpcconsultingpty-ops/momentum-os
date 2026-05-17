@@ -104,13 +104,14 @@
   justify-content: center;
   transform: translateY(-1px);
 }
-}
 
     .brand-copy p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 0.96rem;
-    }
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.96rem;
+  font-weight: 700;
+  font-style: italic;
+}
 
     .nav-group h2 {
       margin: 0 0 12px;
@@ -267,6 +268,20 @@
   font-weight: 700;
   font-style: italic;
   color: var(--accent);
+}
+.hero-date {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(12,106,111,0.12);
+  color: var(--accent);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1;
+  width: fit-content;
 }
 
     .hero p, .section-header p, .card-note, .foot-note, .range-row span:last-child, .response-text, .score-context, .score-subtext, .history-empty {
@@ -1031,12 +1046,13 @@
       </div>
 
       <section id="dashboardView" class="view active">
-        <header class="hero">
-          <p class="eyebrow">Daily momentum</p>
-          <h2>Win the day first.</h2>
-          <p class="hero-lead">Awareness today. Momentum tomorrow</p>
-          <div class="rule">Rule for hard days: Do not try to fix your life tonight. Win the next hour first.</div>
-        </header>
+  <header class="hero">
+    <p class="eyebrow">Daily momentum</p>
+    <h2>Win the day first.</h2>
+    <p class="hero-lead">Awareness today. Momentum tomorrow.</p>
+    <div class="hero-date" id="dashboardDateBadge">Monday, 18 May 2026</div>
+    <div class="rule">Rule for hard days: Do not try to fix your life tonight. Win the next hour first.</div>
+  </header>
 
         <div class="section-card">
           <div class="section-header">
@@ -1052,7 +1068,6 @@
     <h3>Today's momentum</h3>
   </div>
   <div class="score-top-actions">
-  <div class="score-date-badge" id="dashboardDateBadge">Monday, 18 May 2026</div>
   <div class="score-pill is-mixed" id="dashboardScoreState">Mixed day</div>
 </div>
 
