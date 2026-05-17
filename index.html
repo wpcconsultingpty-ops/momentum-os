@@ -532,9 +532,9 @@
 
     .metric-card input[type="range"] { margin-top: auto; }
 
-    #privateView .metric-card.score-card { min-height: 190px; }
+    #PersonalView .metric-card.score-card { min-height: 190px; }
 
-    #privateView .metric-card .score-value {
+    #PersonalView .metric-card .score-value {
       font-size: 1.15rem;
       line-height: 1.1;
       letter-spacing: -0.02em;
@@ -543,14 +543,14 @@
       color: var(--accent);
     }
 
-    #privateView .metric-card .score-subtext {
+    #PersonalView .metric-card .score-subtext {
       font-size: 0.84rem;
       color: var(--muted);
       margin-top: 0;
       min-height: 2.6em;
     }
 
-    .private-signals-grid {
+    .Personal-signals-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
@@ -937,7 +937,7 @@
     }
 
     @media (max-width: 1080px) {
-      .grid-3, .grid-2, .habit-grid, .private-signals-grid, .choice-grid {
+      .grid-3, .grid-2, .habit-grid, .Personal-signals-grid, .choice-grid {
         grid-template-columns: 1fr 1fr;
       }
       .grid-main-side { grid-template-columns: 1fr; }
@@ -981,7 +981,7 @@
 
       .main { padding: 16px; }
 
-      .grid-3, .grid-2, .habit-grid, .private-signals-grid, .choice-grid {
+      .grid-3, .grid-2, .habit-grid, .Personal-signals-grid, .choice-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1003,7 +1003,7 @@
 
       .score-number { font-size: 4.2rem; }
       .score-value { font-size: 3rem; }
-      #privateView .metric-card.score-card {
+      #PersonalView .metric-card.score-card {
   min-height: 165px;
 }
       .history-item { grid-template-columns: 1fr; }
@@ -1036,7 +1036,7 @@
         <nav class="nav-list" aria-label="Section navigation">
           <button class="nav-link active" data-view-target="dashboardView" type="button"><span class="nav-dot"></span><span class="nav-copy"><strong>Dashboard</strong><span>Today at a glance</span></span></button>
           <button class="nav-link" data-view-target="healthView" type="button"><span class="nav-dot"></span><span class="nav-copy"><strong>Health</strong><span>Sleep, energy, movement</span></span></button>
-          <button class="nav-link" data-view-target="privateView" type="button"><span class="nav-dot"></span><span class="nav-copy"><strong>Private</strong><span>Connection and desire</span></span></button>
+          <button class="nav-link" data-view-target="PersonalView" type="button"><span class="nav-dot"></span><span class="nav-copy"><strong>Personal</strong><span>Connection and desire</span></span></button>
           <button class="nav-link" data-view-target="historyView" type="button"><span class="nav-dot"></span><span class="nav-copy"><strong>History</strong><span>Trends and weekly review</span></span></button>
           <button class="nav-link" data-view-target="journalView" type="button"><span class="nav-dot"></span><span class="nav-copy"><strong>Journal</strong><span>Notes and reflection</span></span></button>
           <button class="nav-link" data-view-target="coachView" type="button"><span class="nav-dot"></span><span class="nav-copy"><strong>Coach</strong><span>Recover the next hour</span></span></button>
@@ -1065,7 +1065,7 @@
         <div class="section-card">
           <div class="section-header">
             <h2>Dashboard</h2>
-            <p id="dashboardSummaryText">Mixed day. Win the next hour first. Health 64. Private 47.</p>
+            <p id="dashboardSummaryText">Mixed day. Win the next hour first. Health 64. Personal 47.</p>
           </div>
 
           <div class="score-overview">
@@ -1091,13 +1091,13 @@
 
               <div class="score-bars" aria-label="Score breakdown">
                 <div class="score-bar-row"><span>Health</span><div class="score-track"><div class="score-fill" id="dashboardHealthFill" style="width:64%"></div></div><strong id="dashboardHealthMini">64</strong></div>
-                <div class="score-bar-row"><span>Private</span><div class="score-track"><div class="score-fill" id="dashboardPrivateFill" style="width:47%"></div></div><strong id="dashboardPrivateMini">47</strong></div>
+                <div class="score-bar-row"><span>Personal</span><div class="score-track"><div class="score-fill" id="dashboardPersonalFill" style="width:47%"></div></div><strong id="dashboardPersonalMini">47</strong></div>
               </div>
             </article>
 
             <div class="score-side">
               <article class="card score-card"><div><div class="card-label">Health score</div><div class="score-value" id="dashboardHealthScore">64</div></div><div class="score-subtext">Recovery, energy, and body signal across the day.</div></article>
-              <article class="card score-card"><div><div class="card-label">Private score</div><div class="score-value" id="dashboardPrivateScore">47</div></div><div class="score-subtext">Connection, control, and personal rhythm.</div></article>
+              <article class="card score-card"><div><div class="card-label">Personal score</div><div class="score-value" id="dashboardPersonalScore">47</div></div><div class="score-subtext">Connection, control, and personal rhythm.</div></article>
             </div>
           </div>
 
@@ -1113,7 +1113,7 @@
 
           <div class="button-row">
             <button class="btn btn-primary" data-view-target="healthView" type="button">Open Health</button>
-            <button class="btn" data-view-target="privateView" type="button">Open Private</button>
+            <button class="btn" data-view-target="PersonalView" type="button">Open Personal</button>
             <button class="btn" data-view-target="journalView" type="button">Go to Journal</button>
           </div>
         </div>
@@ -1212,54 +1212,54 @@
         </div>
       </section>
 
-      <section id="privateView" class="view">
+      <section id="PersonalView" class="view">
         <div class="section-card">
           <div class="section-header">
-            <h2>Private</h2>
+            <h2>Personal</h2>
             <p>Connection, desire, sexual health, and the personal rhythm behind the week.</p>
           </div>
 
           <div class="grid grid-3">
-            <article class="card score-card"><div><div class="card-label">Private avg</div><div class="score-value" id="privateAvg">47</div></div><div class="score-subtext">Connection, desire, and sexual health.</div></article>
-            <article class="card"><div class="card-label">Trend read</div><div class="card-value" style="font-size:1.05rem;" id="privateTrendRead">Needs more attention</div><div class="card-note">Private rhythm is trailing physical baseline.</div></article>
+            <article class="card score-card"><div><div class="card-label">Personal avg</div><div class="score-value" id="PersonalAvg">47</div></div><div class="score-subtext">Connection, desire, and sexual health.</div></article>
+            <article class="card"><div class="card-label">Trend read</div><div class="card-value" style="font-size:1.05rem;" id="PersonalTrendRead">Needs more attention</div><div class="card-note">Personal rhythm is trailing physical baseline.</div></article>
             <article class="card"><div class="card-label">Current focus</div><div class="card-value" style="font-size:1.05rem;">Protect control</div><div class="card-note">Reduce compulsive loops and support steadier recovery.</div></article>
           </div>
 
           <div class="grid grid-main-side" style="margin-top:18px;">
             <article class="card card-stack">
               <div class="section-header" style="margin-bottom:12px;">
-                <h3>Private check-in</h3>
-                <p>Score the private side of the day the same way the rest of the app is scored.</p>
+                <h3>Personal check-in</h3>
+                <p>Score the Personal side of the day the same way the rest of the app is scored.</p>
               </div>
 
               <div class="grid grid-3">
-                <label class="card score-card metric-card" for="privateDesire"><div class="card-label">Desire</div><div class="score-value" id="privateDesireValue">5 / 10</div><div class="score-subtext">Below baseline.</div><input id="privateDesire" type="range" min="0" max="10" value="5" /></label>
-                <label class="card score-card metric-card" for="privateConnection"><div class="card-label">Connection</div><div class="score-value" id="privateConnectionValue">4 / 10</div><div class="score-subtext">Needs attention.</div><input id="privateConnection" type="range" min="0" max="10" value="4" /></label>
-                <label class="card score-card metric-card" for="privateUrge"><div class="card-label">Urge intensity</div><div class="score-value" id="privateUrgeValue">7 / 10</div><div class="score-subtext">Elevated.</div><input id="privateUrge" type="range" min="0" max="10" value="7" /></label>
+                <label class="card score-card metric-card" for="PersonalDesire"><div class="card-label">Desire</div><div class="score-value" id="PersonalDesireValue">5 / 10</div><div class="score-subtext">Below baseline.</div><input id="PersonalDesire" type="range" min="0" max="10" value="5" /></label>
+                <label class="card score-card metric-card" for="PersonalConnection"><div class="card-label">Connection</div><div class="score-value" id="PersonalConnectionValue">4 / 10</div><div class="score-subtext">Needs attention.</div><input id="PersonalConnection" type="range" min="0" max="10" value="4" /></label>
+                <label class="card score-card metric-card" for="PersonalUrge"><div class="card-label">Urge intensity</div><div class="score-value" id="PersonalUrgeValue">7 / 10</div><div class="score-subtext">Elevated.</div><input id="PersonalUrge" type="range" min="0" max="10" value="7" /></label>
               </div>
             </article>
 
             <article class="card card-stack">
               <div class="section-header" style="margin-bottom:12px;">
-                <h3>Private signals</h3>
+                <h3>Personal signals</h3>
                 <p>Each signal now uses a slider and the panel is evenly distributed.</p>
               </div>
 
-              <div class="private-signals-grid">
+              <div class="Personal-signals-grid">
                 <div class="card signal-card">
-                  <div class="signal-top"><div><strong>Porn use logged</strong><em>Simple yes or no for the day.</em></div><span class="signal-value" id="privatePornUseValue">No</span></div>
-                  <div class="binary-toggle" data-binary-group="privatePornUse"><button type="button" class="binary-option is-active" data-value="0">No</button><button type="button" class="binary-option" data-value="1">Yes</button></div>
-                  <input id="privatePornUse" type="hidden" value="0" />
+                  <div class="signal-top"><div><strong>Porn use logged</strong><em>Simple yes or no for the day.</em></div><span class="signal-value" id="PersonalPornUseValue">No</span></div>
+                  <div class="binary-toggle" data-binary-group="PersonalPornUse"><button type="button" class="binary-option is-active" data-value="0">No</button><button type="button" class="binary-option" data-value="1">Yes</button></div>
+                  <input id="PersonalPornUse" type="hidden" value="0" />
                 </div>
 
                 <div class="card signal-card">
-                  <div class="signal-top"><div><strong>Masturbation logged</strong><em>Simple yes or no for the day.</em></div><span class="signal-value" id="privateMasturbationValue">No</span></div>
-                  <div class="binary-toggle" data-binary-group="privateMasturbation"><button type="button" class="binary-option is-active" data-value="0">No</button><button type="button" class="binary-option" data-value="1">Yes</button></div>
-                  <input id="privateMasturbation" type="hidden" value="0" />
+                  <div class="signal-top"><div><strong>Masturbation logged</strong><em>Simple yes or no for the day.</em></div><span class="signal-value" id="PersonalMasturbationValue">No</span></div>
+                  <div class="binary-toggle" data-binary-group="PersonalMasturbation"><button type="button" class="binary-option is-active" data-value="0">No</button><button type="button" class="binary-option" data-value="1">Yes</button></div>
+                  <input id="PersonalMasturbation" type="hidden" value="0" />
                 </div>
 
-                <label class="card signal-card" for="privateControl"><div class="signal-top"><div><strong>Felt fully in control</strong><em>Control was mixed rather than steady.</em></div><span class="signal-value" id="privateControlValue">4 / 10</span></div><input id="privateControl" type="range" min="0" max="10" value="4" /></label>
-                <label class="card signal-card" for="privateRecovery"><div class="signal-top"><div><strong>Recovery response completed</strong><em>No full reset action completed yet.</em></div><span class="signal-value" id="privateRecoveryValue">2 / 10</span></div><input id="privateRecovery" type="range" min="0" max="10" value="2" /></label>
+                <label class="card signal-card" for="PersonalControl"><div class="signal-top"><div><strong>Felt fully in control</strong><em>Control was mixed rather than steady.</em></div><span class="signal-value" id="PersonalControlValue">4 / 10</span></div><input id="PersonalControl" type="range" min="0" max="10" value="4" /></label>
+                <label class="card signal-card" for="PersonalRecovery"><div class="signal-top"><div><strong>Recovery response completed</strong><em>No full reset action completed yet.</em></div><span class="signal-value" id="PersonalRecoveryValue">2 / 10</span></div><input id="PersonalRecovery" type="range" min="0" max="10" value="2" /></label>
               </div>
             </article>
           </div>
@@ -1270,17 +1270,17 @@
               <p>Capture the main influences behind the day and the actions that helped stabilise it.</p>
             </div>
 
-            <div class="private-signals-grid">
+            <div class="Personal-signals-grid">
               <div class="card signal-card">
                 <div class="signal-top">
                   <div>
                     <strong>Main triggers</strong>
                     <em>Log the strongest influences behind the day.</em>
                   </div>
-                  <span class="signal-value" id="privateTriggersCount">0 selected</span>
+                  <span class="signal-value" id="PersonalTriggersCount">0 selected</span>
                 </div>
 
-                <div class="choice-grid" id="privateTriggersList">
+                <div class="choice-grid" id="PersonalTriggersList">
                   <label class="choice-chip"><input type="checkbox" data-label="Stress" />Stress</label>
                   <label class="choice-chip"><input type="checkbox" data-label="Isolation" />Isolation</label>
                   <label class="choice-chip"><input type="checkbox" data-label="Phone at night" />Phone at night</label>
@@ -1296,10 +1296,10 @@
                     <strong>Recovery actions used</strong>
                     <em>Log the actions that helped steady the day.</em>
                   </div>
-                  <span class="signal-value" id="privateRecoveryActionsCount">0 selected</span>
+                  <span class="signal-value" id="PersonalRecoveryActionsCount">0 selected</span>
                 </div>
 
-                <div class="choice-grid" id="privateRecoveryActionsList">
+                <div class="choice-grid" id="PersonalRecoveryActionsList">
                   <label class="choice-chip"><input type="checkbox" data-label="Moved body" />Moved body</label>
                   <label class="choice-chip"><input type="checkbox" data-label="Reduced isolation" />Reduced isolation</label>
                   <label class="choice-chip"><input type="checkbox" data-label="Put phone away" />Put phone away</label>
@@ -1311,13 +1311,13 @@
             </div>
 
             <div style="margin-top:16px;">
-              <label for="privateNotes" class="card-label" style="display:block; margin-bottom:8px;">Private notes</label>
-              <textarea id="privateNotes" placeholder="What happened, what triggered it, what helped, and what needs adjusting tomorrow?"></textarea>
+              <label for="PersonalNotes" class="card-label" style="display:block; margin-bottom:8px;">Personal notes</label>
+              <textarea id="PersonalNotes" placeholder="What happened, what triggered it, what helped, and what needs adjusting tomorrow?"></textarea>
             </div>
 
             <div class="button-row">
-              <button class="btn btn-primary" type="button" id="savePrivateBtn">Save Private</button>
-              <span class="foot-note" id="savePrivateStatus">Not saved yet.</span>
+              <button class="btn btn-primary" type="button" id="savePersonalBtn">Save Personal</button>
+              <span class="foot-note" id="savePersonalStatus">Not saved yet.</span>
             </div>
           </div>
         </div>
@@ -1355,7 +1355,7 @@
             <article class="card card-stack">
               <div>
                 <div class="card-label">Daily reflection</div>
-                <p class="foot-note">This note will now be saved into a dated daily entry alongside scores, habits, and private signals.</p>
+                <p class="foot-note">This note will now be saved into a dated daily entry alongside scores, habits, and Personal signals.</p>
               </div>
               <div>
                 <label for="journalText" class="card-label" style="display:block; margin-bottom:8px;">Journal note</label>
@@ -1429,19 +1429,19 @@
     const stressValue = document.getElementById('stressValue');
     const energyValue = document.getElementById('energyValue');
 
-    const privateDesire = document.getElementById('privateDesire');
-    const privateConnection = document.getElementById('privateConnection');
-    const privateUrge = document.getElementById('privateUrge');
-    const privateControl = document.getElementById('privateControl');
-    const privateRecovery = document.getElementById('privateRecovery');
-    const privateDesireValue = document.getElementById('privateDesireValue');
-    const privateConnectionValue = document.getElementById('privateConnectionValue');
-    const privateUrgeValue = document.getElementById('privateUrgeValue');
-    const privateControlValue = document.getElementById('privateControlValue');
-    const privateRecoveryValue = document.getElementById('privateRecoveryValue');
-    const privateNotes = document.getElementById('privateNotes');
-    const privateTriggersCount = document.getElementById('privateTriggersCount');
-    const privateRecoveryActionsCount = document.getElementById('privateRecoveryActionsCount');
+    const PersonalDesire = document.getElementById('PersonalDesire');
+    const PersonalConnection = document.getElementById('PersonalConnection');
+    const PersonalUrge = document.getElementById('PersonalUrge');
+    const PersonalControl = document.getElementById('PersonalControl');
+    const PersonalRecovery = document.getElementById('PersonalRecovery');
+    const PersonalDesireValue = document.getElementById('PersonalDesireValue');
+    const PersonalConnectionValue = document.getElementById('PersonalConnectionValue');
+    const PersonalUrgeValue = document.getElementById('PersonalUrgeValue');
+    const PersonalControlValue = document.getElementById('PersonalControlValue');
+    const PersonalRecoveryValue = document.getElementById('PersonalRecoveryValue');
+    const PersonalNotes = document.getElementById('PersonalNotes');
+    const PersonalTriggersCount = document.getElementById('PersonalTriggersCount');
+    const PersonalRecoveryActionsCount = document.getElementById('PersonalRecoveryActionsCount');
 
     const journalText = document.getElementById('journalText');
     const saveJournalBtn = document.getElementById('saveJournalBtn');
@@ -1451,17 +1451,17 @@
     const journalAnalysisOutput = document.getElementById('journalAnalysisOutput');
 
     const saveHealthBtn = document.getElementById('saveHealthBtn');
-    const savePrivateBtn = document.getElementById('savePrivateBtn');
+    const savePersonalBtn = document.getElementById('savePersonalBtn');
     const saveHealthStatus = document.getElementById('saveHealthStatus');
-    const savePrivateStatus = document.getElementById('savePrivateStatus');
+    const savePersonalStatus = document.getElementById('savePersonalStatus');
 
     const dashboardSelectedScore = document.getElementById('dashboardSelectedScore');
     const dashboardHealthScore = document.getElementById('dashboardHealthScore');
-    const dashboardPrivateScore = document.getElementById('dashboardPrivateScore');
+    const dashboardPersonalScore = document.getElementById('dashboardPersonalScore');
     const dashboardHealthMini = document.getElementById('dashboardHealthMini');
-    const dashboardPrivateMini = document.getElementById('dashboardPrivateMini');
+    const dashboardPersonalMini = document.getElementById('dashboardPersonalMini');
     const dashboardHealthFill = document.getElementById('dashboardHealthFill');
-    const dashboardPrivateFill = document.getElementById('dashboardPrivateFill');
+    const dashboardPersonalFill = document.getElementById('dashboardPersonalFill');
     const dashboardScoreState = document.getElementById('dashboardScoreState');
     const dashboardSummaryText = document.getElementById('dashboardSummaryText');
     const dashboardScoreRead = document.getElementById('dashboardScoreRead');
@@ -1473,8 +1473,8 @@
     const healthAvg = document.getElementById('healthAvg');
     const health7DayAverage = document.getElementById('health7DayAverage');
     const healthStreak = document.getElementById('healthStreak');
-    const privateAvg = document.getElementById('privateAvg');
-    const privateTrendRead = document.getElementById('privateTrendRead');
+    const PersonalAvg = document.getElementById('PersonalAvg');
+    const PersonalTrendRead = document.getElementById('PersonalTrendRead');
 
     const entriesSavedCount = document.getElementById('entriesSavedCount');
     const historyAverageScore = document.getElementById('historyAverageScore');
@@ -1561,17 +1561,17 @@ function clamp(num, min, max) {
   healthHabitsCount.textContent = getCheckedLabels('#healthHabitsList input[type="checkbox"]').length;
 }
 
-    function updatePrivateCounts() {
-      privateTriggersCount.textContent = `${getCheckedLabels('#privateTriggersList input[type="checkbox"]').length} selected`;
-      privateRecoveryActionsCount.textContent = `${getCheckedLabels('#privateRecoveryActionsList input[type="checkbox"]').length} selected`;
+    function updatePersonalCounts() {
+      PersonalTriggersCount.textContent = `${getCheckedLabels('#PersonalTriggersList input[type="checkbox"]').length} selected`;
+      PersonalRecoveryActionsCount.textContent = `${getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]').length} selected`;
     }
 
-    function updatePrivateLabels() {
-      privateDesireValue.textContent = `${privateDesire.value} / 10`;
-      privateConnectionValue.textContent = `${privateConnection.value} / 10`;
-      privateUrgeValue.textContent = `${privateUrge.value} / 10`;
-      privateControlValue.textContent = `${privateControl.value} / 10`;
-      privateRecoveryValue.textContent = `${privateRecovery.value} / 10`;
+    function updatePersonalLabels() {
+      PersonalDesireValue.textContent = `${PersonalDesire.value} / 10`;
+      PersonalConnectionValue.textContent = `${PersonalConnection.value} / 10`;
+      PersonalUrgeValue.textContent = `${PersonalUrge.value} / 10`;
+      PersonalControlValue.textContent = `${PersonalControl.value} / 10`;
+      PersonalRecoveryValue.textContent = `${PersonalRecovery.value} / 10`;
     }
 
     function computeHealthScore() {
@@ -1588,18 +1588,18 @@ function clamp(num, min, max) {
   ), 0, 100);
 }
 
-function computePrivateScore() {
-  const desirePct = (Number(privateDesire.value) / 10) * 100;
-  const connectionPct = (Number(privateConnection.value) / 10) * 100;
-  const urgeReliefPct = ((10 - Number(privateUrge.value)) / 10) * 100;
-  const controlPct = (Number(privateControl.value) / 10) * 100;
-  const recoveryPct = (Number(privateRecovery.value) / 10) * 100;
+function computePersonalScore() {
+  const desirePct = (Number(PersonalDesire.value) / 10) * 100;
+  const connectionPct = (Number(PersonalConnection.value) / 10) * 100;
+  const urgeReliefPct = ((10 - Number(PersonalUrge.value)) / 10) * 100;
+  const controlPct = (Number(PersonalControl.value) / 10) * 100;
+  const recoveryPct = (Number(PersonalRecovery.value) / 10) * 100;
 
-  const triggersAvoidedPct = 100 - ((getCheckedLabels('#privateTriggersList input[type="checkbox"]').length / 6) * 100);
-  const recoveryActionsPct = (getCheckedLabels('#privateRecoveryActionsList input[type="checkbox"]').length / 6) * 100;
+  const triggersAvoidedPct = 100 - ((getCheckedLabels('#PersonalTriggersList input[type="checkbox"]').length / 6) * 100);
+  const recoveryActionsPct = (getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]').length / 6) * 100;
 
-  const pornPenalty = Number(document.getElementById('privatePornUse').value) === 1 ? 8 : 0;
-  const masturbationPenalty = Number(document.getElementById('privateMasturbation').value) === 1 ? 5 : 0;
+  const pornPenalty = Number(document.getElementById('PersonalPornUse').value) === 1 ? 8 : 0;
+  const masturbationPenalty = Number(document.getElementById('PersonalMasturbation').value) === 1 ? 5 : 0;
 
   const rawScore =
     (desirePct * 0.12) +
@@ -1617,9 +1617,9 @@ function computePrivateScore() {
 
 function computeSelectedScore() {
   const health = computeHealthScore();
-  const privateScore = computePrivateScore();
+  const PersonalScore = computePersonalScore();
 
-  const baseScore = (health * 0.8) + (privateScore * 0.2);
+  const baseScore = (health * 0.8) + (PersonalScore * 0.2);
 
   const momentumBonus =
     health >= 80 ? 6 :
@@ -1674,23 +1674,23 @@ function scoreState(score) {
         date: new Date().toISOString(),
         selectedScore: computeSelectedScore(),
         healthScore: computeHealthScore(),
-        privateScore: computePrivateScore(),
+        PersonalScore: computePersonalScore(),
         mood: Number(mood.value),
         stress: Number(stress.value),
         energy: Number(energy.value),
         dailySignalsChecked: getCheckedLabels('#dailySignalsList input[type="checkbox"]'),
         coreHabitsChecked: getCheckedLabels('#coreHabitsList input[type="checkbox"]'),
-        privateDesire: Number(privateDesire.value),
-        privateConnection: Number(privateConnection.value),
-        privateUrge: Number(privateUrge.value),
-        pornUse: document.getElementById('privatePornUse').value === '1',
-        masturbation: document.getElementById('privateMasturbation').value === '1',
-        control: Number(privateControl.value),
-        recovery: Number(privateRecovery.value),
-        privateTriggersChecked: getCheckedLabels('#privateTriggersList input[type="checkbox"]'),
-        privateRecoveryActionsChecked: getCheckedLabels('#privateRecoveryActionsList input[type="checkbox"]'),
+        PersonalDesire: Number(PersonalDesire.value),
+        PersonalConnection: Number(PersonalConnection.value),
+        PersonalUrge: Number(PersonalUrge.value),
+        pornUse: document.getElementById('PersonalPornUse').value === '1',
+        masturbation: document.getElementById('PersonalMasturbation').value === '1',
+        control: Number(PersonalControl.value),
+        recovery: Number(PersonalRecovery.value),
+        PersonalTriggersChecked: getCheckedLabels('#PersonalTriggersList input[type="checkbox"]'),
+        PersonalRecoveryActionsChecked: getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]'),
         journalNote: journalText.value.trim(),
-        privateNote: privateNotes.value.trim()
+        PersonalNote: PersonalNotes.value.trim()
       };
     }
 
@@ -1701,7 +1701,7 @@ function scoreState(score) {
       writeEntries(entries.slice(0, 60));
       const savedAt = new Date(entry.date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
       saveHealthStatus.textContent = sourceLabel === 'health' ? `Saved ${savedAt}.` : saveHealthStatus.textContent;
-      savePrivateStatus.textContent = sourceLabel === 'private' ? `Saved ${savedAt}.` : savePrivateStatus.textContent;
+      savePersonalStatus.textContent = sourceLabel === 'Personal' ? `Saved ${savedAt}.` : savePersonalStatus.textContent;
       journalStateText.textContent = `Saved full daily entry at ${savedAt}.`;
       renderAll();
       return entry;
@@ -1709,22 +1709,22 @@ function scoreState(score) {
 
     function renderDashboard() {
       const health = computeHealthScore();
-      const privateScore = computePrivateScore();
+      const PersonalScore = computePersonalScore();
       const selected = computeSelectedScore();
       const state = scoreState(selected);
       const note = journalText.value.trim();
 
       dashboardSelectedScore.textContent = selected;
       dashboardHealthScore.textContent = health;
-      dashboardPrivateScore.textContent = privateScore;
+      dashboardPersonalScore.textContent = PersonalScore;
       dashboardHealthMini.textContent = health;
-      dashboardPrivateMini.textContent = privateScore;
+      dashboardPersonalMini.textContent = PersonalScore;
       dashboardHealthFill.style.width = `${health}%`;
-      dashboardPrivateFill.style.width = `${privateScore}%`;
+      dashboardPersonalFill.style.width = `${PersonalScore}%`;
       dashboardScoreState.textContent = state.label;
       dashboardScoreState.className = `score-pill ${state.klass}`;
       dashboardScoreRead.textContent = state.read;
-      dashboardSummaryText.textContent = `${state.read} Health ${health}. Private ${privateScore}.`;
+      dashboardSummaryText.textContent = `${state.read} Health ${health}. Personal ${PersonalScore}.`;
       dashboardJournalPreview.textContent = note || 'No note saved';
       dashboardSelectedDay.textContent = formatDate(new Date().toISOString());
       dashboardDeltaText.textContent = selected >= 70 ? 'Keep the base' : selected >= 45 ? 'Protect the next hour' : 'Go smaller and simpler';
@@ -1765,20 +1765,20 @@ function scoreState(score) {
     healthStreak.textContent = '0';
     health7DayAverage.textContent = computeHealthScore();
     healthAvg.textContent = computeHealthScore();
-    privateAvg.textContent = computePrivateScore();
-    privateTrendRead.textContent = 'Needs more attention';
+    PersonalAvg.textContent = computePersonalScore();
+    PersonalTrendRead.textContent = 'Needs more attention';
     return;
   }
 
       const recent = entries.slice(0, 7);
       const avgHealth = average(entries.map(entry => entry.healthScore));
-      const avgPrivate = average(entries.map(entry => entry.privateScore));
+      const avgPersonal = average(entries.map(entry => entry.PersonalScore));
       const avgRecentHealth = average(recent.map(entry => entry.healthScore));
 
       healthAvg.textContent = avgHealth;
       health7DayAverage.textContent = avgRecentHealth;
-      privateAvg.textContent = avgPrivate;
-      privateTrendRead.textContent = avgPrivate >= avgHealth ? 'Holding together' : 'Needs more attention';
+      PersonalAvg.textContent = avgPersonal;
+      PersonalTrendRead.textContent = avgPersonal >= avgHealth ? 'Holding together' : 'Needs more attention';
       healthStreak.textContent = String(entries.length);
 
       const highDays = entries.filter(entry => entry.selectedScore >= 65).length;
@@ -1798,7 +1798,7 @@ function scoreState(score) {
             </div>
             <div><div class="card-label">Momentum</div><div class="history-stat">${entry.selectedScore}</div></div>
             <div><div class="card-label">Health</div><div class="history-stat">${entry.healthScore}</div></div>
-            <div><div class="card-label">Private</div><div class="history-stat">${entry.privateScore}</div></div>
+            <div><div class="card-label">Personal</div><div class="history-stat">${entry.PersonalScore}</div></div>
           </article>
         `;
       }).join('');
@@ -1811,8 +1811,8 @@ function scoreState(score) {
 
     function renderAll() {
       updateHealthCounts();
-      updatePrivateCounts();
-      updatePrivateLabels();
+      updatePersonalCounts();
+      updatePersonalLabels();
       renderDashboard();
       renderHistory();
       renderJournalHints();
@@ -1827,9 +1827,9 @@ function scoreState(score) {
       });
     });
 
-    [privateDesire, privateConnection, privateUrge, privateControl, privateRecovery].forEach(input => {
+    [PersonalDesire, PersonalConnection, PersonalUrge, PersonalControl, PersonalRecovery].forEach(input => {
       input.addEventListener('input', () => {
-        updatePrivateLabels();
+        updatePersonalLabels();
         renderAll();
       });
     });
@@ -1838,7 +1838,7 @@ function scoreState(score) {
   input.addEventListener('change', renderAll);
 });
 
-    document.querySelectorAll('#privateTriggersList input[type="checkbox"], #privateRecoveryActionsList input[type="checkbox"]').forEach(input => {
+    document.querySelectorAll('#PersonalTriggersList input[type="checkbox"], #PersonalRecoveryActionsList input[type="checkbox"]').forEach(input => {
       input.addEventListener('change', renderAll);
     });
 
@@ -1864,7 +1864,7 @@ function scoreState(score) {
     });
 
     saveHealthBtn.addEventListener('click', () => saveCurrentEntry('health'));
-    savePrivateBtn.addEventListener('click', () => saveCurrentEntry('private'));
+    savePersonalBtn.addEventListener('click', () => saveCurrentEntry('Personal'));
     saveJournalBtn.addEventListener('click', () => saveCurrentEntry('journal'));
 
     async function askCoach() {
