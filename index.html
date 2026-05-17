@@ -708,6 +708,13 @@
       outline: none;
     }
 
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      transform: none;
+      box-shadow: none;
+    }
+
     .btn-primary {
       background: var(--accent);
       border-color: var(--accent);
@@ -1084,7 +1091,6 @@
               </div>
               <div class="score-subtext">Consecutive saved days.</div>
             </article>
-
             <article class="card score-card">
               <div>
                 <div class="card-label">7-day average</div>
@@ -1930,13 +1936,21 @@ ${context}`;
     }
 
     async function askCoach() {
-      const prompt = document.getElementById('coachPrompt')?.value?.trim();
+      const promptBox = document.getElementById('coachPrompt');
       const coachStatus = document.getElementById('coachStatus');
       const coachResponse = document.getElementById('coachResponse');
+      const askBtn = document.getElementById('askCoachBtn');
+
+      const prompt = promptBox?.value?.trim();
 
       if (!prompt) {
         if (coachStatus) coachStatus.textContent = 'Enter a prompt first.';
         return;
+      }
+
+      if (askBtn) {
+        askBtn.disabled = true;
+        askBtn.textContent = 'Thinking...';
       }
 
       if (coachStatus) coachStatus.textContent = 'Thinking...';
@@ -1957,12 +1971,23 @@ ${context}`;
         const reply = data.reply || 'No reply returned.';
 
         if (coachResponse) coachResponse.textContent = reply;
-        if (coachStatus) coachStatus.textContent = 'Done.';
+        if (coachStatus) coachStatus.textContent = 'Ready.';
+
+        if (promptBox) {
+          promptBox.value = '';
+          promptBox.placeholder = 'Ask the next question...';
+          promptBox.focus();
+        }
       } catch (error) {
         if (coachResponse) {
           coachResponse.textContent = 'Something went wrong getting the coach response. Check your backend endpoint and API key setup.';
         }
         if (coachStatus) coachStatus.textContent = 'Error.';
+      } finally {
+        if (askBtn) {
+          askBtn.disabled = false;
+          askBtn.textContent = 'Ask AI Coach';
+        }
       }
     }
 
