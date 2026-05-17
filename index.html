@@ -1549,9 +1549,12 @@ function clamp(num, min, max) {
     }
 
     function average(values) {
-      if (!values.length) return 0;
-      return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
-    }
+  const validValues = values.filter(value => Number.isFinite(Number(value)));
+  if (!validValues.length) return 0;
+
+  const total = validValues.reduce((sum, value) => sum + Number(value), 0);
+  return Math.round(total / validValues.length);
+}
 
     function updateRangeLabel(input, el, suffix = '/ 10') {
       el.textContent = `${input.value} ${suffix}`;
