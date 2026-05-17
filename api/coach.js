@@ -10,15 +10,14 @@ export default async function handler(req, res) {
   }
 
   try {
-   const { prompt, freeText, bleed, target, capacity } = req.body || {};
+    const { prompt, freeText, bleed, target, capacity } = req.body || {};
+    const finalFreeText = prompt || freeText;
 
-const finalFreeText = prompt || freeText;
+    if (!finalFreeText && !bleed && !target) {
+      return res.status(400).json({ error: "Please provide some context." });
+    }
 
-if (!finalFreeText && !bleed && !target) {
-  return res.status(400).json({ error: "Please provide some context." });
-}
-
-    const prompt = `
+    const coachPrompt = `
 You are Reset Coach for Momentum OS.
 
 Your role:
@@ -50,7 +49,7 @@ Safety rules:
 - In crisis-like situations, prioritize immediate human support over coaching.
 
 User free text:
-${freeText || "Not provided"}
+${finalFreeText || "Not provided"}
 
 User pressure:
 ${bleed || "Not provided"}
@@ -64,12 +63,12 @@ ${capacity || "Not provided"}
 
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
-      input: prompt,
+      input: coachPrompt,
     });
 
-    const output = response.output_text || "No response returned.";
+    const reply = response.output_text || "No response returned.";
 
-    return res.status(200).json({ output });
+    return res.status(200).json({ reply });
   } catch (error) {
     return res.status(500).json({
       error: error?.message || "Server error while calling Reset Coach",
