@@ -1411,9 +1411,10 @@
 
   <script>
     const STORAGE_KEYS = {
-      entries: 'momentum-daily-entries',
-      coachDraft: 'momentum-coach-draft'
-    };
+  entries: 'momentum-daily-entries',
+  coachDraft: 'momentum-coach-draft',
+  currentDraft: 'momentum-current-draft'
+};
 
     const navButtons = [...document.querySelectorAll('[data-view-target]')];
     const views = [...document.querySelectorAll('.view')];
@@ -1543,12 +1544,12 @@ function clamp(num, min, max) {
 }
 
     function getCheckedLabels(selector) {
-      return [...document.querySelectorAll(selector)]
-        .filter(input => input.checked)
-        .map(input => input.dataset.label || input.closest('label')?.innerText.trim() || 'Item');
-    }
+  return [...document.querySelectorAll(selector)]
+    .filter(input => input.checked)
+    .map(input => input.dataset.label || input.closest('label')?.innerText.trim() || 'Item');
+}
 
-    function average(values) {
+function average(values) {
   const validValues = values.filter(value => Number.isFinite(Number(value)));
   if (!validValues.length) return 0;
 
@@ -1556,26 +1557,140 @@ function clamp(num, min, max) {
   return Math.round(total / validValues.length);
 }
 
-    function updateRangeLabel(input, el, suffix = '/ 10') {
-      el.textContent = `${input.value} ${suffix}`;
-    }
+function updateRangeLabel(input, el, suffix = '/ 10') {
+  el.textContent = `${input.value} ${suffix}`;
+}
 
-    function updateHealthCounts() {
+function getDayKey(date = new Date()) {
+  return date.toISOString().slice(0, 10);
+}
+
+function resetFormForNewDay() {
+  mood.value = 0;
+  stress.value = 0;
+  energy.value = 0;
+
+  document.querySelectorAll('#healthHabitsList input[type="checkbox"]').forEach(input => {
+    input.checked = false;
+  });
+
+  PersonalDesire.value = 0;
+  PersonalConnection.value = 0;
+  PersonalUrge.value = 0;
+  PersonalControl.value = 0;
+  PersonalRecovery.value = 0;
+
+  document.getElementById('PersonalPornUse').value = '0';
+  document.getElementById('PersonalMasturbation').value = '0';
+
+  document.querySelectorAll('#PersonalTriggersList input[type="checkbox"]').forEach(input => {
+    input.checked = false;
+  });
+
+  document.querySelectorAll('#PersonalRecoveryActionsList input[type="checkbox"]').forEach(input => {
+    input.checked = false;
+  });
+
+  journalText.value = '';
+  PersonalNotes.value = '';
+
+  document.querySelectorAll('[data-binary-group]').forEach(group => {
+    const buttons = group.querySelectorAll('.binary-option');
+    buttons.forEach((button, index) => {
+      button.classList.toggle('is-active', index === 0);
+    });
+  });
+
+  updateRangeLabel(mood, moodValue);
+  updateRangeLabel(stress, stressValue);
+  updateRangeLabel(energy, energyValue);
+  updatePersonalLabels();
+  updateHealthCounts();
+  updatePersonalCounts();
+}
+
+function saveCurrentDraft() {
+  const draft = {
+    dayKey: getDayKey(),
+    mood: Number(mood.value),
+    stress: Number(stress.value),
+    energy: Number(energy.value),
+    healthHabitsChecked: getCheckedLabels('#healthHabitsList input[type="checkbox"]'),
+    PersonalDesire: Number(PersonalDesire.value),
+    PersonalConnection: Number(PersonalConnection.value),
+    PersonalUrge: Number(PersonalUrge.value),
+    PersonalControl: Number(PersonalControl.value),
+    PersonalRecovery: Number(PersonalRecovery.value),
+    pornUse: document.getElementById('PersonalPornUse').value,
+    masturbation: document.getElementById('PersonalMasturbation').value,
+    PersonalTriggersChecked: getCheckedLabels('#PersonalTriggersList input[type="checkbox"]'),
+    PersonalRecoveryActionsChecked: getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]'),
+    journalNote: journalText.value.trim(),
+    PersonalNote: PersonalNotes.value.trim()
+  };
+
+  localStorage.setItem(STORAGE_KEYS.currentDraft, JSON.stringify(draft));
+}
+
+function loadCurrentDraft() {
+  const raw = localStorage.getItem(STORAGE_KEYS.currentDraft);
+  if (!raw) {
+    resetFormForNewDay();
+    return;
+  }
+
+  const draft = JSON.parse(raw);
+
+  if (draft.dayKey !== getDayKey()) {
+    resetFormForNewDay();
+    saveCurrentDraft();
+    return;
+  }
+
+  mood.value = draft.mood ?? 0;
+  stress.value = draft.stress ?? 0;
+  energy.value = draft.energy ?? 0;
+
+  document.querySelectorAll('#healthHabitsList input[type="checkbox"]').forEach(input => {
+    input.checked = (draft.healthHabitsChecked || []).includes(input.dataset.label);
+  });
+
+  PersonalDesire.value = draft.PersonalDesire ?? 0;
+  PersonalConnection.value = draft.PersonalConnection ?? 0;
+  PersonalUrge.value = draft.PersonalUrge ?? 0;
+  PersonalControl.value = draft.PersonalControl ?? 0;
+  PersonalRecovery.value = draft.PersonalRecovery ?? 0;
+
+  document.getElementById('PersonalPornUse').value = draft.pornUse ?? '0';
+  document.getElementById('PersonalMasturbation').value = draft.masturbation ?? '0';
+
+  document.querySelectorAll('#PersonalTriggersList input[type="checkbox"]').forEach(input => {
+    input.checked = (draft.PersonalTriggersChecked || []).includes(input.dataset.label);
+  });
+
+  document.querySelectorAll('#PersonalRecoveryActionsList input[type="checkbox"]').forEach(input => {
+    input.checked = (draft.PersonalRecoveryActionsChecked || []).includes(input.dataset.label);
+  });
+
+  journalText.value = draft.journalNote ?? '';
+  PersonalNotes.value = draft.PersonalNote ?? '';
+
+  updateRangeLabel(mood, moodValue);
+  updateRangeLabel(stress, stressValue);
+  updateRangeLabel(energy, energyValue);
+  updatePersonalLabels();
+  updateHealthCounts();
+  updatePersonalCounts();
+}
+
+function updateHealthCounts() {
   healthHabitsCount.textContent = getCheckedLabels('#healthHabitsList input[type="checkbox"]').length;
 }
 
-    function updatePersonalCounts() {
-      PersonalTriggersCount.textContent = `${getCheckedLabels('#PersonalTriggersList input[type="checkbox"]').length} selected`;
-      PersonalRecoveryActionsCount.textContent = `${getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]').length} selected`;
-    }
-
-    function updatePersonalLabels() {
-      PersonalDesireValue.textContent = `${PersonalDesire.value} / 10`;
-      PersonalConnectionValue.textContent = `${PersonalConnection.value} / 10`;
-      PersonalUrgeValue.textContent = `${PersonalUrge.value} / 10`;
-      PersonalControlValue.textContent = `${PersonalControl.value} / 10`;
-      PersonalRecoveryValue.textContent = `${PersonalRecovery.value} / 10`;
-    }
+function updatePersonalCounts() {
+  PersonalTriggersCount.textContent = `${getCheckedLabels('#PersonalTriggersList input[type="checkbox"]').length} selected`;
+  PersonalRecoveryActionsCount.textContent = `${getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]').length} selected`;
+}
 
     function computeHealthScore() {
   const moodPct = (Number(mood.value) / 10) * 100;
@@ -1768,7 +1883,7 @@ function scoreState(score) {
     healthStreak.textContent = '0';
     health7DayAverage.textContent = computeHealthScore();
     healthAvg.textContent = computeHealthScore();
-    PersonalAvg.textContent = computePersonalScore();
+    privateAvg.textContent = Number.isFinite(avgPersonal) ? avgPersonal : computePersonalScore();
     PersonalTrendRead.textContent = 'Needs more attention';
     return;
   }
@@ -1948,10 +2063,8 @@ function scoreState(score) {
     const savedCoachDraft = localStorage.getItem(STORAGE_KEYS.coachDraft);
     if (savedCoachDraft) coachPrompt.value = savedCoachDraft;
 
-    updateRangeLabel(mood, moodValue);
-    updateRangeLabel(stress, stressValue);
-    updateRangeLabel(energy, energyValue);
-    renderAll();
+    loadCurrentDraft();
+renderAll();
   </script>
 </body>
 </html>
