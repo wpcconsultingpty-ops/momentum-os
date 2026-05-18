@@ -1233,9 +1233,9 @@
               </div>
 
               <div class="grid grid-3">
-                <label class="card score-card metric-card" for="PersonalDesire"><div class="card-label">Desire</div><div class="score-value" id="PersonalDesireValue">5 / 10</div><div class="score-subtext">Below baseline.</div><input id="PersonalDesire" type="range" min="0" max="10" value="5" /></label>
-                <label class="card score-card metric-card" for="PersonalConnection"><div class="card-label">Connection</div><div class="score-value" id="PersonalConnectionValue">4 / 10</div><div class="score-subtext">Needs attention.</div><input id="PersonalConnection" type="range" min="0" max="10" value="4" /></label>
-                <label class="card score-card metric-card" for="PersonalUrge"><div class="card-label">Urge intensity</div><div class="score-value" id="PersonalUrgeValue">7 / 10</div><div class="score-subtext">Elevated.</div><input id="PersonalUrge" type="range" min="0" max="10" value="7" /></label>
+                <label class="card score-card metric-card" for="PersonalDesire"><div class="card-label">Desire</div><div class="score-value" id="PersonalDesireValue">0 / 10</div><div class="score-subtext">Below baseline.</div><input id="PersonalDesire" type="range" min="0" max="10" value="0" /></label>
+                <label class="card score-card metric-card" for="PersonalConnection"><div class="card-label">Connection</div><div class="score-value" id="PersonalConnectionValue">0 / 10</div><div class="score-subtext">Needs attention.</div><input id="PersonalConnection" type="range" min="0" max="10" value="0" /></label>
+                <label class="card score-card metric-card" for="PersonalUrge"><div class="card-label">Urge intensity</div><div class="score-value" id="PersonalUrgeValue">0 / 10</div><div class="score-subtext">Elevated.</div><input id="PersonalUrge" type="range" min="0" max="10" value="0" /></label>
               </div>
             </article>
 
@@ -1258,8 +1258,17 @@
                   <input id="PersonalMasturbation" type="hidden" value="0" />
                 </div>
 
-                <label class="card signal-card" for="PersonalControl"><div class="signal-top"><div><strong>Felt fully in control</strong><em>Control was mixed rather than steady.</em></div><span class="signal-value" id="PersonalControlValue">4 / 10</span></div><input id="PersonalControl" type="range" min="0" max="10" value="4" /></label>
-                <label class="card signal-card" for="PersonalRecovery"><div class="signal-top"><div><strong>Recovery response completed</strong><em>No full reset action completed yet.</em></div><span class="signal-value" id="PersonalRecoveryValue">2 / 10</span></div><input id="PersonalRecovery" type="range" min="0" max="10" value="2" /></label>
+                <label class="card signal-card" for="PersonalControl">
+  <div class="signal-top">
+    <div>
+      <strong>Felt fully in control</strong>
+      <em>No control logged yet.</em>
+    </div>
+    <span class="signal-value" id="PersonalControlValue">0 / 10</span>
+  </div>
+  <input id="PersonalControl" type="range" min="0" max="10" value="0" />
+</label>
+                <label class="card signal-card" for="PersonalRecovery"><div class="signal-top"><div><strong>Recovery response completed</strong><em>No full reset action completed yet.</em></div><span class="signal-value" id="PersonalRecoveryValue">0 / 10</span></div><input id="PersonalRecovery" type="range" min="0" max="10" value="0" /></label>
               </div>
             </article>
           </div>
@@ -1733,6 +1742,56 @@ function computePersonalScore() {
   return clamp(Math.round(rawScore), 0, 100);
 }
 
+function updatePersonalLabels() {
+  const desire = Number(PersonalDesire.value);
+  const connection = Number(PersonalConnection.value);
+  const urge = Number(PersonalUrge.value);
+  const control = Number(PersonalControl.value);
+  const recovery = Number(PersonalRecovery.value);
+
+  PersonalDesireValue.textContent = `${desire} / 10`;
+  PersonalConnectionValue.textContent = `${connection} / 10`;
+  PersonalUrgeValue.textContent = `${urge} / 10`;
+  PersonalControlValue.textContent = `${control} / 10`;
+  PersonalRecoveryValue.textContent = `${recovery} / 10`;
+
+  const desireText =
+    desire === 0 ? 'Not rated yet.' :
+    desire <= 3 ? 'Very low.' :
+    desire <= 6 ? 'Below baseline.' :
+    desire <= 8 ? 'Healthy.' : 'Strong.';
+
+  const connectionText =
+    connection === 0 ? 'Not rated yet.' :
+    connection <= 3 ? 'Disconnected.' :
+    connection <= 6 ? 'Needs attention.' :
+    connection <= 8 ? 'Present.' : 'Strong connection.';
+
+  const urgeText =
+    urge === 0 ? 'Quiet.' :
+    urge <= 3 ? 'Low.' :
+    urge <= 6 ? 'Manageable.' :
+    urge <= 8 ? 'Elevated.' : 'Very high.';
+
+  const controlText =
+    control === 0 ? 'No control logged yet.' :
+    control <= 3 ? 'Low control.' :
+    control <= 6 ? 'Mixed control.' :
+    control <= 8 ? 'Mostly steady.' : 'Strong control.';
+
+  const recoveryText =
+    recovery === 0 ? 'No reset action completed yet.' :
+    recovery <= 3 ? 'Minimal recovery.' :
+    recovery <= 6 ? 'Some recovery.' :
+    recovery <= 8 ? 'Good recovery.' : 'Strong reset response.';
+
+  PersonalDesire.closest('.metric-card').querySelector('.score-subtext').textContent = desireText;
+  PersonalConnection.closest('.metric-card').querySelector('.score-subtext').textContent = connectionText;
+  PersonalUrge.closest('.metric-card').querySelector('.score-subtext').textContent = urgeText;
+  PersonalControl.closest('.signal-card').querySelector('em').textContent = controlText;
+  PersonalRecovery.closest('.signal-card').querySelector('em').textContent = recoveryText;
+}
+
 function computeSelectedScore() {
   const health = computeHealthScore();
   const PersonalScore = computePersonalScore();
@@ -1787,31 +1846,30 @@ function scoreState(score) {
   };
 }
 
-    function buildDailyEntry() {
-      return {
-        date: new Date().toISOString(),
-        selectedScore: computeSelectedScore(),
-        healthScore: computeHealthScore(),
-        PersonalScore: computePersonalScore(),
-        mood: Number(mood.value),
-        stress: Number(stress.value),
-        energy: Number(energy.value),
-        dailySignalsChecked: getCheckedLabels('#dailySignalsList input[type="checkbox"]'),
-        coreHabitsChecked: getCheckedLabels('#coreHabitsList input[type="checkbox"]'),
-        PersonalDesire: Number(PersonalDesire.value),
-        PersonalConnection: Number(PersonalConnection.value),
-        PersonalUrge: Number(PersonalUrge.value),
-        pornUse: document.getElementById('PersonalPornUse').value === '1',
-        masturbation: document.getElementById('PersonalMasturbation').value === '1',
-        control: Number(PersonalControl.value),
-        recovery: Number(PersonalRecovery.value),
-        PersonalTriggersChecked: getCheckedLabels('#PersonalTriggersList input[type="checkbox"]'),
-        PersonalRecoveryActionsChecked: getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]'),
-        journalNote: journalText.value.trim(),
-        PersonalNote: PersonalNotes.value.trim()
-      };
-    }
-
+function buildDailyEntry() {
+  return {
+    date: new Date().toISOString(),
+    selectedScore: computeSelectedScore(),
+    healthScore: computeHealthScore(),
+    PersonalScore: computePersonalScore(),
+    mood: Number(mood.value),
+    stress: Number(stress.value),
+    energy: Number(energy.value),
+    healthHabitsChecked: getCheckedLabels('#healthHabitsList input[type="checkbox"]'),
+    coreHabitsChecked: getCheckedLabels('#healthHabitsList input[type="checkbox"]'),
+    PersonalDesire: Number(PersonalDesire.value),
+    PersonalConnection: Number(PersonalConnection.value),
+    PersonalUrge: Number(PersonalUrge.value),
+    pornUse: document.getElementById('PersonalPornUse').value === '1',
+    masturbation: document.getElementById('PersonalMasturbation').value === '1',
+    control: Number(PersonalControl.value),
+    recovery: Number(PersonalRecovery.value),
+    PersonalTriggersChecked: getCheckedLabels('#PersonalTriggersList input[type="checkbox"]'),
+    PersonalRecoveryActionsChecked: getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]'),
+    journalNote: journalText.value.trim(),
+    PersonalNote: PersonalNotes.value.trim()
+  };
+}
     function saveCurrentEntry(sourceLabel) {
       const entry = buildDailyEntry();
       const entries = readEntries();
@@ -1878,15 +1936,15 @@ function scoreState(score) {
   historyBestHabit.textContent = bestHabit;
 
   if (!entries.length) {
-    historyTrendNote.textContent = 'No history yet. Save a few days and the pattern read will sharpen.';
-    historyList.innerHTML = '<div class="history-empty">No entries saved yet.</div>';
-    healthStreak.textContent = '0';
-    health7DayAverage.textContent = computeHealthScore();
-    healthAvg.textContent = computeHealthScore();
-    privateAvg.textContent = Number.isFinite(avgPersonal) ? avgPersonal : computePersonalScore();
-    PersonalTrendRead.textContent = 'Needs more attention';
-    return;
-  }
+  historyTrendNote.textContent = 'No history yet. Save a few days and the pattern read will sharpen.';
+  historyList.innerHTML = '<div class="history-empty">No entries saved yet.</div>';
+  healthStreak.textContent = '0';
+  health7DayAverage.textContent = computeHealthScore();
+  healthAvg.textContent = computeHealthScore();
+  PersonalAvg.textContent = computePersonalScore();
+  PersonalTrendRead.textContent = 'Needs more attention';
+  return;
+}
 
       const recent = entries.slice(0, 7);
       const avgHealth = average(entries.map(entry => entry.healthScore));
@@ -1945,12 +2003,14 @@ function scoreState(score) {
       });
     });
 
-    [PersonalDesire, PersonalConnection, PersonalUrge, PersonalControl, PersonalRecovery].forEach(input => {
-      input.addEventListener('input', () => {
-        updatePersonalLabels();
-        renderAll();
-      });
-    });
+   [PersonalDesire, PersonalConnection, PersonalUrge, PersonalControl, PersonalRecovery].forEach(input => {
+  const syncPersonalSlider = () => {
+    updatePersonalLabels();
+    renderAll();
+  };
+  input.addEventListener('input', syncPersonalSlider);
+  input.addEventListener('change', syncPersonalSlider);
+});
 
     document.querySelectorAll('#healthHabitsList input[type="checkbox"]').forEach(input => {
   input.addEventListener('change', renderAll);
