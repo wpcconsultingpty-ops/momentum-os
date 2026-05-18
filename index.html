@@ -1139,71 +1139,7 @@
             <div class="range-row"><label for="energy"><span>Energy</span><span id="energyValue">7 / 10</span></label><input id="energy" type="range" min="1" max="10" value="7" /></div>
           </div>
 
-          <div class="habit-block">
-  <div class="habit-block-head">
-    <div>
-      <h3 class="subsection-title">Health habits</h3>
-      <p class="foot-note">Actions that stabilise the day and strengthen momentum.</p>
-    </div>
-    <div class="habit-count-pill"><span id="healthHabitsCount">2</span> / 6 done</div>
-  </div>
-
-  <div class="habit-grid" id="healthHabitsList">
-    <label class="habit-card">
-      <input type="checkbox" data-label="Ate well" />
-      <span class="habit-check"></span>
-      <span class="habit-copy">
-        <strong>Ate well</strong>
-        <small>Food choices supported steadier energy.</small>
-      </span>
-    </label>
-
-    <label class="habit-card">
-      <input type="checkbox" data-label="Avoided alcohol" />
-      <span class="habit-check"></span>
-      <span class="habit-copy">
-        <strong>Avoided alcohol</strong>
-        <small>Kept the day cleaner and protected recovery.</small>
-      </span>
-    </label>
-
-    <label class="habit-card">
-      <input type="checkbox" data-label="Moved my body" />
-      <span class="habit-check"></span>
-      <span class="habit-copy">
-        <strong>Moved my body</strong>
-        <small>Training, walking, or intentional movement happened.</small>
-      </span>
-    </label>
-
-    <label class="habit-card">
-      <input type="checkbox" data-label="Protected sleep routine" />
-      <span class="habit-check"></span>
-      <span class="habit-copy">
-        <strong>Protected sleep routine</strong>
-        <small>Set up the evening to support better sleep.</small>
-      </span>
-    </label>
-
-    <label class="habit-card">
-      <input type="checkbox" data-label="Drank enough water" />
-      <span class="habit-check"></span>
-      <span class="habit-copy">
-        <strong>Drank enough water</strong>
-        <small>Hydration was good enough for the day.</small>
-      </span>
-    </label>
-
-    <label class="habit-card">
-      <input type="checkbox" data-label="Had meaningful connection" />
-      <span class="habit-check"></span>
-      <span class="habit-copy">
-        <strong>Had meaningful connection</strong>
-        <small>Connected properly with someone, not just surface contact.</small>
-      </span>
-    </label>
-  </div>
-</div>
+          do i replace
 
           <div class="button-row">
             <button class="btn btn-primary" type="button" id="saveHealthBtn">Save Health</button>
@@ -1289,15 +1225,61 @@
                   <span class="signal-value" id="PersonalTriggersCount">0 selected</span>
                 </div>
 
-                <div class="choice-grid" id="PersonalTriggersList">
-                  <label class="choice-chip"><input type="checkbox" data-label="Stress" />Stress</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Isolation" />Isolation</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Phone at night" />Phone at night</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Poor sleep" />Poor sleep</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Fatigue" />Fatigue</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Drift / boredom" />Drift / boredom</label>
-                </div>
-              </div>
+               <div class="habit-grid" id="PersonalTriggersList">
+  <label class="habit-card">
+    <input type="checkbox" data-label="Stress" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Stress</strong>
+      <small>Pressure, overload, or internal tension drove the day.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Isolation" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Isolation</strong>
+      <small>Too much time alone increased drift or vulnerability.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Phone at night" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Phone at night</strong>
+      <small>Late-night scrolling or device access weakened control.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Poor sleep" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Poor sleep</strong>
+      <small>Low recovery reduced resilience and lifted urges.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Fatigue" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Fatigue</strong>
+      <small>Physical or mental tiredness made the day harder to steer.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Drift / boredom" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Drift / boredom</strong>
+      <small>Lack of structure or stimulation opened the door to drift.</small>
+    </span>
+  </label>
+</div>
 
               <div class="card signal-card">
                 <div class="signal-top">
@@ -1308,16 +1290,61 @@
                   <span class="signal-value" id="PersonalRecoveryActionsCount">0 selected</span>
                 </div>
 
-                <div class="choice-grid" id="PersonalRecoveryActionsList">
-                  <label class="choice-chip"><input type="checkbox" data-label="Moved body" />Moved body</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Reduced isolation" />Reduced isolation</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Put phone away" />Put phone away</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Protected sleep" />Protected sleep</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="No-porn window" />No-porn window</label>
-                  <label class="choice-chip"><input type="checkbox" data-label="Reset routine" />Reset routine</label>
-                </div>
-              </div>
-            </div>
+                <div class="habit-grid" id="PersonalRecoveryActionsList">
+  <label class="habit-card">
+    <input type="checkbox" data-label="Moved body" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Moved body</strong>
+      <small>Exercise, walking, or movement helped reset momentum.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Reduced isolation" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Reduced isolation</strong>
+      <small>Connection or contact helped break the loop.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Put phone away" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Put phone away</strong>
+      <small>Reducing access lowered temptation and noise.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Protected sleep" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Protected sleep</strong>
+      <small>Evening choices supported recovery and less drift.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="No-porn window" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>No-porn window</strong>
+      <small>A protected block of time helped restore control.</small>
+    </span>
+  </label>
+
+  <label class="habit-card">
+    <input type="checkbox" data-label="Reset routine" />
+    <span class="habit-check"></span>
+    <span class="habit-copy">
+      <strong>Reset routine</strong>
+      <small>A deliberate reset broke the pattern and steadied the day.</small>
+    </span>
+  </label>
+</div>
 
             <div style="margin-top:16px;">
               <label for="PersonalNotes" class="card-label" style="display:block; margin-bottom:8px;">Personal notes</label>
