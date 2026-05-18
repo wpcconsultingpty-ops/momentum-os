@@ -1588,9 +1588,33 @@ function clamp(num, min, max) {
 function average(values) {
   const validValues = values.filter(value => Number.isFinite(Number(value)));
   if (!validValues.length) return 0;
-
   const total = validValues.reduce((sum, value) => sum + Number(value), 0);
   return Math.round(total / validValues.length);
+}
+
+function average(values) {
+  const validValues = values.filter(value => Number.isFinite(Number(value)));
+  if (!validValues.length) return 0;
+  const total = validValues.reduce((sum, value) => sum + Number(value), 0);
+  return Math.round(total / validValues.length);
+}
+
+function getHealthHabitInputs() {
+  return [...document.querySelectorAll('#healthHabitsList input[type="checkbox"]')];
+}
+
+function updateHealthCounts() {
+  const checkedCount = getHealthHabitInputs().filter(input => input.checked).length;
+
+  if (typeof healthHabitsCount !== 'undefined' && healthHabitsCount) {
+    healthHabitsCount.textContent = `${checkedCount}`;
+  }
+  if (typeof coreHabitsCount !== 'undefined' && coreHabitsCount) {
+    coreHabitsCount.textContent = `${checkedCount}`;
+  }
+  if (typeof dailySignalsCount !== 'undefined' && dailySignalsCount) {
+    dailySignalsCount.textContent = `${checkedCount}`;
+  }
 }
 
 function updateRangeLabel(input, el, suffix = '/ 10') {
