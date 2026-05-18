@@ -1749,22 +1749,12 @@ function computePersonalScore() {
   const controlPct = (Number(PersonalControl.value) / 10) * 100;
   const recoveryPct = (Number(PersonalRecovery.value) / 10) * 100;
 
-  const triggersAvoidedPct = 100 - ((getCheckedLabels('#PersonalTriggersList input[type="checkbox"]').length / 6) * 100);
-  const recoveryActionsPct = (getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]').length / 6) * 100;
-
-  const pornPenalty = Number(document.getElementById('PersonalPornUse').value) === 1 ? 8 : 0;
-  const masturbationPenalty = Number(document.getElementById('PersonalMasturbation').value) === 1 ? 5 : 0;
-
   const rawScore =
-    (desirePct * 0.12) +
-    (connectionPct * 0.24) +
-    (urgeReliefPct * 0.18) +
-    (controlPct * 0.22) +
-    (recoveryPct * 0.14) +
-    (triggersAvoidedPct * 0.05) +
-    (recoveryActionsPct * 0.05) -
-    pornPenalty -
-    masturbationPenalty;
+    (desirePct * 0.15) +
+    (connectionPct * 0.25) +
+    (urgeReliefPct * 0.20) +
+    (controlPct * 0.25) +
+    (recoveryPct * 0.15);
 
   return clamp(Math.round(rawScore), 0, 100);
 }
@@ -1911,32 +1901,42 @@ function buildDailyEntry() {
     }
 
     function renderDashboard() {
-      const health = computeHealthScore();
-      const PersonalScore = computePersonalScore();
-      const selected = computeSelectedScore();
-      const state = scoreState(selected);
-      const note = journalText.value.trim();
+  const health = computeHealthScore();
+  const PersonalScore = computePersonalScore();
+  const selected = computeSelectedScore();
+  const state = scoreState(selected);
+  const note = journalText.value.trim();
 
-      dashboardSelectedScore.textContent = selected;
-      dashboardHealthScore.textContent = health;
-      dashboardPersonalScore.textContent = PersonalScore;
-      dashboardHealthMini.textContent = health;
-      dashboardPersonalMini.textContent = PersonalScore;
-      dashboardHealthFill.style.width = `${health}%`;
-      dashboardPersonalFill.style.width = `${PersonalScore}%`;
-      dashboardScoreState.textContent = state.label;
-      dashboardScoreState.className = `score-pill ${state.klass}`;
-      dashboardScoreRead.textContent = state.read;
-      dashboardSummaryText.textContent = `${state.read} Health ${health}. Personal ${PersonalScore}.`;
-      dashboardJournalPreview.textContent = note || 'No note saved';
-      dashboardSelectedDay.textContent = formatDate(new Date().toISOString());
-      dashboardDeltaText.textContent = selected >= 70 ? 'Keep the base' : selected >= 45 ? 'Protect the next hour' : 'Go smaller and simpler';
-      dashboardScoreContext.textContent = selected >= 70
-        ? 'Momentum is holding. Stay steady and avoid unnecessary drift.'
-        : selected >= 45
-          ? 'Momentum is mixed. Narrow the target and remove avoidable noise.'
-          : 'Momentum is under pressure. Reduce scope and focus on the smallest stabilising move.';
-    }
+  dashboardSelectedScore.textContent = selected;
+  dashboardHealthScore.textContent = health;
+  dashboardPersonalScore.textContent = PersonalScore;
+  dashboardHealthMini.textContent = health;
+  dashboardPersonalMini.textContent = PersonalScore;
+  dashboardHealthFill.style.width = `${health}%`;
+  dashboardPersonalFill.style.width = `${PersonalScore}%`;
+  dashboardScoreState.textContent = state.label;
+  dashboardScoreState.className = `score-pill ${state.klass}`;
+  dashboardScoreRead.textContent = state.read;
+  dashboardSummaryText.textContent = `${state.read} Health ${health}. Personal ${PersonalScore}.`;
+  dashboardJournalPreview.textContent = note || 'No note saved';
+  dashboardSelectedDay.textContent = formatDate(new Date().toISOString());
+  dashboardDeltaText.textContent = selected >= 70
+    ? 'Keep the base'
+    : selected >= 45
+      ? 'Protect the next hour'
+      : 'Go smaller and simpler';
+  dashboardScoreContext.textContent = selected >= 70
+    ? 'Momentum is holding. Stay steady and avoid unnecessary drift.'
+    : selected >= 45
+      ? 'Momentum is mixed. Narrow the target and remove avoidable noise.'
+      : 'Momentum is under pressure. Reduce scope and focus on the smallest stabilising move.';
+}
+
+function renderPersonalSummary() {
+  const currentPersonal = computePersonalScore();
+  PersonalAvg.textContent = currentPersonal;
+  PersonalTrendRead.textContent = currentPersonal >= 60 ? 'Holding together' : 'Needs more attention';
+}
 
     function renderHistory() {
   const entries = readEntries();
@@ -1980,8 +1980,6 @@ function buildDailyEntry() {
 
       healthAvg.textContent = avgHealth;
       health7DayAverage.textContent = avgRecentHealth;
-      PersonalAvg.textContent = avgPersonal;
-      PersonalTrendRead.textContent = avgPersonal >= avgHealth ? 'Holding together' : 'Needs more attention';
       healthStreak.textContent = String(entries.length);
 
       const highDays = entries.filter(entry => entry.selectedScore >= 65).length;
@@ -2013,13 +2011,14 @@ function buildDailyEntry() {
     }
 
     function renderAll() {
-      updateHealthCounts();
-      updatePersonalCounts();
-      updatePersonalLabels();
-      renderDashboard();
-      renderHistory();
-      renderJournalHints();
-    }
+  updateHealthCounts();
+  updatePersonalCounts();
+  updatePersonalLabels();
+  renderDashboard();
+  renderPersonalSummary();
+  renderHistory();
+  renderJournalHints();
+}
 
     [mood, stress, energy].forEach(input => {
       input.addEventListener('input', () => {
