@@ -1374,10 +1374,10 @@ const recoveryValue = document.getElementById('recoveryValue');
     const historyTrendNote = document.getElementById('historyTrendNote');
     const historyList = document.getElementById('historyList');
 
-    const coachPrompt = document.getElementById('coachPrompt');
-    const askCoachBtn = document.getElementById('askCoachBtn');
-    const coachStateText = document.getElementById('coachStateText');
-    const coachResponse = document.getElementById('coachResponse');
+    const coachPrompt = document.getElementById('coachPrompt')
+    const askCoachBtn = document.getElementById('askCoachBtn')
+    const coachStateText = document.getElementById('coachStateText')
+    const coachMessages = document.getElementById('coachMessages')
 
     function setActiveView(viewId) {
       views.forEach(view => view.classList.toggle('active', view.id === viewId));
@@ -1910,78 +1910,61 @@ renderAll();
 }
 
     async function askCoach() {
-      const prompt = coachPrompt.value.trim();
-      if (!prompt) {
-        coachStateText.textContent = 'Write a prompt first.';
-        coachPrompt.focus();
-        return;
-      }
+  const prompt = coachPrompt.value.trim();
+  if (!prompt) {
+    coachStateText.textContent = 'Write a prompt first.';
+    coachPrompt.focus();
+    return;
+  }
 
-      askCoachBtn.disabled = true;
-      coachStateText.textContent = 'Thinking...';
-      coachResponse.textContent = 'Generating response...';
+  askCoachBtn.disabled = true;
+  coachStateText.textContent = 'Thinking...';
 
-      try {
-        const payload = {
-          prompt,
-          currentEntry: buildDailyEntry(),
-          recentEntries: readEntries().slice(0, 7)
-        };
+  coachMessages.innerHTML += `
+    <div class="message-row user">
+      <div class="message-bubble">${prompt}</div>
+    </div>
+  `;
 
-        localStorage.setItem(STORAGE_KEYS.coachDraft, prompt);
+  try {
+    const payload = {
+      prompt,
+      currentEntry: buildDailyEntry(),
+      recentEntries: readEntries().slice(0, 7)
+    };
 
-        const response = await fetch('/api/coach', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+    localStorage.setItem(STORAGE_KEYS.coachDraft, prompt);
 
-        if (!response.ok) throw new Error('Coach request failed');
-        const data = await response.json();
-        coachResponse.textContent = data.reply || 'No response returned.';
-        coachStateText.textContent = 'Ready.';
-        coachPrompt.value = '';
-        coachPrompt.focus();
-      } catch (error) {
-        coachResponse.textContent = 'The coach could not respond just now. Check the API route and try again.';
-        coachStateText.textContent = 'Unavailable.';
-      } finally {
-        askCoachBtn.disabled = false;
-      }
-    }
+    const response = await fetch('/api/coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-    async function analyzeJournalTrends() {
-      const entries = readEntries().slice(0, 14);
-      if (entries.length < 3) {
-        journalAnalysisStatus.textContent = 'Save at least 3 entries first.';
-        journalAnalysisOutput.textContent = 'Not enough saved entries yet for useful trend analysis.';
-        return;
-      }
+    if (!response.ok) throw new Error('Coach request failed');
 
-      analyzeJournalBtn.disabled = true;
-      journalAnalysisStatus.textContent = 'Analysing trends...';
-      journalAnalysisOutput.textContent = 'Reviewing entries for stronger-day and weaker-day patterns...';
+    const data = await response.json();
 
-      try {
-        const response = await fetch('/api/journal-analysis', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ entries })
-        });
+    coachMessages.innerHTML += `
+      <div class="message-row coach">
+        <div class="message-bubble">${data.reply || 'No response returned.'}</div>
+      </div>
+    `;
 
-        if (!response.ok) throw new Error('Journal analysis failed');
-        const data = await response.json();
-        journalAnalysisOutput.textContent = data.reply || 'No analysis returned.';
-        journalAnalysisStatus.textContent = `Analysed ${entries.length} entries.`;
-      } catch (error) {
-        journalAnalysisOutput.textContent = 'The analysis route is not available yet. Create /api/journal-analysis and send the recent entries for pattern analysis.';
-        journalAnalysisStatus.textContent = 'Analysis unavailable.';
-      } finally {
-        analyzeJournalBtn.disabled = false;
-      }
-    }
-
-    askCoachBtn.addEventListener('click', askCoach);
+    coachStateText.textContent = 'Ready.';
+    coachPrompt.value = '';
+    coachPrompt.focus();
+  } catch (error) {
+    coachMessages.innerHTML += `
+      <div class="message-row coach">
+        <div class="message-bubble">The coach could not respond just now. Check the API route and try again.</div>
+      </div>
+    `;
+    coachStateText.textContent = 'Unavailable.';
+  } finally {
+    askCoachBtn.disabled = false;
+  }
+}
 analyzeJournalBtn.addEventListener('click', analyzeJournalTrends);
 
 const savedCoachDraft = localStorage.getItem(STORAGE_KEYS.coachDraft);
