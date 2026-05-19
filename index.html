@@ -1250,29 +1250,41 @@
       </section>
 
       <section id="coachView" class="view">
-        <div class="section-card">
-          <div class="section-header">
-            <h2>Coach</h2>
-            <p>Use the current day plus your note to recover the next hour with a calm, practical response.</p>
-          </div>
+<div class="section-card">
+<div class="section-header">
+<h2>Coach</h2>
+<p>A calm reset for the next hour, grounded in today’s score, signals, and notes.</p>
+</div>
 
-          <div class="card card-stack">
-            <div>
-              <div class="card-label">Ask Reset Coach</div>
-              <p class="foot-note">Ground the reply in today’s score, signals, and notes. This should support reflection, not replace real help.</p>
-            </div>
-            <div>
-              <label for="coachPrompt" class="card-label" style="display:block; margin-bottom:8px;">Prompt</label>
-              <textarea id="coachPrompt" placeholder="I feel off-track tonight. Help me reset the next hour."></textarea>
-            </div>
-            <div class="button-row">
-              <button class="btn btn-primary" type="button" id="askCoachBtn">Ask Coach</button>
-              <span class="foot-note" id="coachStateText">Ready.</span>
-            </div>
-            <div id="coachResponse" class="analysis-box response-text">No response yet.</div>
-          </div>
-        </div>
-      </section>
+<div class="card card-stack coach-chat-card">
+<div class="coach-chat-header">
+<p class="foot-note">
+This supports reflection and next-step clarity. It does not replace real help.
+</p>
+</div>
+
+<div id="coachMessages" class="coach-messages" aria-live="polite">
+<div class="message-row coach">
+<div class="message-bubble">
+You seem a bit flat today. What feels most true right now?
+</div>
+</div>
+</div>
+
+<div class="coach-composer">
+<textarea
+id="coachPrompt"
+placeholder="What’s going on right now?"
+aria-label="Message coach"
+></textarea>
+<div class="coach-composer-actions">
+<span class="foot-note" id="coachStateText">Ready.</span>
+<button class="btn btn-primary" type="button" id="askCoachBtn">Send</button>
+</div>
+</div>
+</div>
+</div>
+</section>
     </main>
   </div>
 
