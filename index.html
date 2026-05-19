@@ -1909,7 +1909,7 @@ loadCurrentDraft();
 renderAll();
 }
 
-  async function askCoach() {
+ async function askCoach() {
   const prompt = coachPrompt.value.trim();
   if (!prompt) {
     coachStateText.textContent = 'Write a prompt first.';
@@ -1922,9 +1922,13 @@ renderAll();
 
   coachMessages.innerHTML += `
     <div class="message-row user">
-      <div class="message-bubble">${prompt}</div>
+      <div class="message-bubble">
+        <span class="message-label">You -</span>
+        <span class="message-body">${prompt}</span>
+      </div>
     </div>
   `;
+  coachMessages.scrollTop = coachMessages.scrollHeight;
 
   try {
     const payload = {
@@ -1947,9 +1951,13 @@ renderAll();
 
     coachMessages.innerHTML += `
       <div class="message-row coach">
-        <div class="message-bubble">${data.reply || 'No response returned.'}</div>
+        <div class="message-bubble">
+          <span class="message-label">Coach -</span>
+          <span class="message-body">${data.reply || 'No response returned.'}</span>
+        </div>
       </div>
     `;
+    coachMessages.scrollTop = coachMessages.scrollHeight;
 
     coachStateText.textContent = 'Ready.';
     coachPrompt.value = '';
@@ -1957,9 +1965,13 @@ renderAll();
   } catch (error) {
     coachMessages.innerHTML += `
       <div class="message-row coach">
-        <div class="message-bubble">The coach could not respond just now. Check the API route and try again.</div>
+        <div class="message-bubble">
+          <span class="message-label">Coach -</span>
+          <span class="message-body">The coach could not respond just now. Check the API route and try again.</span>
+        </div>
       </div>
     `;
+    coachMessages.scrollTop = coachMessages.scrollHeight;
     coachStateText.textContent = 'Unavailable.';
   } finally {
     askCoachBtn.disabled = false;
