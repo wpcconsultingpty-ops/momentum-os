@@ -1909,7 +1909,7 @@ loadCurrentDraft();
 renderAll();
 }
 
-    async function askCoach() {
+  async function askCoach() {
   const prompt = coachPrompt.value.trim();
   if (!prompt) {
     coachStateText.textContent = 'Write a prompt first.';
@@ -1965,6 +1965,16 @@ renderAll();
     askCoachBtn.disabled = false;
   }
 }
+
+askCoachBtn.addEventListener('click', askCoach);
+
+coachPrompt.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    askCoach();
+  }
+});
+
 analyzeJournalBtn.addEventListener('click', analyzeJournalTrends);
 
 const savedCoachDraft = localStorage.getItem(STORAGE_KEYS.coachDraft);
