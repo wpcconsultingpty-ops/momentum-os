@@ -1008,18 +1008,53 @@
             <article class="card score-card"><div><div class="card-label">Health avg</div><div class="score-value" id="healthAvg">64</div></div><div class="score-subtext">Sleep, energy, movement.</div></article>
           </div>
 
-          <h3 class="subsection-title">Today’s check-in</h3>
-          <div class="range-list">
-            <div class="range-row"><label for="mood"><span>Mood</span><span id="moodValue">7 / 10</span></label><input id="mood" type="range" min="1" max="10" value="7" /></div>
-            <div class="range-row"><label for="stress"><span>Stress</span><span id="stressValue">7 / 10</span></label><input id="stress" type="range" min="1" max="10" value="7" /></div>
-            <div class="range-row"><label for="energy"><span>Energy</span><span id="energyValue">7 / 10</span></label><input id="energy" type="range" min="1" max="10" value="7" /></div>
-          </div>
+         <h3 class="subsection-title">Today's check-in</h3>
+<div class="range-list">
+  <div class="range-row">
+    <label for="mood"><span>Mood</span><span id="moodValue">7 / 10</span></label>
+    <input id="mood" type="range" min="1" max="10" value="7">
+  </div>
 
-          <div class="button-row">
-            <button class="btn btn-primary" type="button" id="saveHealthBtn">Save Health</button>
-            <span class="foot-note" id="saveHealthStatus">Not saved yet.</span>
-          </div>
-        </div>
+  <div class="range-row">
+    <label for="stress"><span>Stress</span><span id="stressValue">7 / 10</span></label>
+    <input id="stress" type="range" min="1" max="10" value="7">
+  </div>
+
+  <div class="range-row">
+    <label for="energy"><span>Energy</span><span id="energyValue">7 / 10</span></label>
+    <input id="energy" type="range" min="1" max="10" value="7">
+  </div>
+
+  <div class="range-row">
+    <label for="sleepQuality"><span>Sleep Quality</span><span id="sleepQualityValue">7 / 10</span></label>
+    <input id="sleepQuality" type="range" min="1" max="10" value="7">
+  </div>
+
+  <div class="range-row">
+    <label for="nutritionQuality"><span>Nutrition Quality</span><span id="nutritionQualityValue">7 / 10</span></label>
+    <input id="nutritionQuality" type="range" min="1" max="10" value="7">
+  </div>
+
+  <div class="range-row">
+    <label for="hydration"><span>Hydration</span><span id="hydrationValue">7 / 10</span></label>
+    <input id="hydration" type="range" min="1" max="10" value="7">
+  </div>
+
+  <div class="range-row">
+    <label for="alcohol"><span>Alcohol</span><span id="alcoholValue">1 / 10</span></label>
+    <input id="alcohol" type="range" min="0" max="10" value="1">
+  </div>
+
+  <div class="range-row">
+    <label for="exerciseLoad"><span>Exercise Load</span><span id="exerciseLoadValue">5 / 10</span></label>
+    <input id="exerciseLoad" type="range" min="0" max="10" value="5">
+  </div>
+
+  <div class="range-row">
+    <label for="recovery"><span>Recovery</span><span id="recoveryValue">7 / 10</span></label>
+    <input id="recovery" type="range" min="1" max="10" value="7">
+  </div>
+</div>
       </section>
 
       <section id="PersonalView" class="view">
@@ -1250,11 +1285,24 @@
     const sidebarBackdrop = document.querySelector('[data-close-sidebar]');
 
     const mood = document.getElementById('mood');
-    const stress = document.getElementById('stress');
-    const energy = document.getElementById('energy');
-    const moodValue = document.getElementById('moodValue');
-    const stressValue = document.getElementById('stressValue');
-    const energyValue = document.getElementById('energyValue');
+const stress = document.getElementById('stress');
+const energy = document.getElementById('energy');
+const sleepQuality = document.getElementById('sleepQuality');
+const nutritionQuality = document.getElementById('nutritionQuality');
+const hydration = document.getElementById('hydration');
+const alcohol = document.getElementById('alcohol');
+const exerciseLoad = document.getElementById('exerciseLoad');
+const recovery = document.getElementById('recovery');
+
+const moodValue = document.getElementById('moodValue');
+const stressValue = document.getElementById('stressValue');
+const energyValue = document.getElementById('energyValue');
+const sleepQualityValue = document.getElementById('sleepQualityValue');
+const nutritionQualityValue = document.getElementById('nutritionQualityValue');
+const hydrationValue = document.getElementById('hydrationValue');
+const alcoholValue = document.getElementById('alcoholValue');
+const exerciseLoadValue = document.getElementById('exerciseLoadValue');
+const recoveryValue = document.getElementById('recoveryValue');
 
     const PersonalDesire = document.getElementById('PersonalDesire');
     const PersonalConnection = document.getElementById('PersonalConnection');
@@ -1283,7 +1331,7 @@
     const savePersonalBtn = document.getElementById('savePersonalBtn');
     const saveHealthStatus = document.getElementById('saveHealthStatus');
     const savePersonalStatus = document.getElementById('savePersonalStatus');
-
+        
     const dashboardSelectedScore = document.getElementById('dashboardSelectedScore');
     const dashboardHealthScore = document.getElementById('dashboardHealthScore');
     const dashboardPersonalScore = document.getElementById('dashboardPersonalScore');
@@ -1322,11 +1370,7 @@
       if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
     }
 
-    navButtons.forEach(button => {
-      button.addEventListener('click', () => setActiveView(button.dataset.viewTarget));
-    });
-
-    if (menuToggle) {
+        if (menuToggle) {
       menuToggle.addEventListener('click', () => {
         const isOpen = document.body.classList.toggle('sidebar-open');
         menuToggle.setAttribute('aria-expanded', String(isOpen));
@@ -1427,20 +1471,30 @@
     }
 
     function computeHealthScore() {
-      const moodPct = (Number(mood.value) / 10) * 100;
-      const energyPct = (Number(energy.value) / 10) * 100;
-      const stressReliefPct = ((10 - Number(stress.value)) / 10) * 100;
+  const moodPct = (Number(mood.value) / 10) * 100;
+  const energyPct = (Number(energy.value) / 10) * 100;
+  const stressReliefPct = ((10 - Number(stress.value)) / 10) * 100;
 
-      return clamp(
-        Math.round(
-          moodPct * 0.34 +
-          energyPct * 0.33 +
-          stressReliefPct * 0.33
-        ),
-        0,
-        100
-      );
-    }
+  const sleepPct = (Number(sleepQuality.value) / 10) * 100;
+  const nutritionPct = (Number(nutritionQuality.value) / 10) * 100;
+  const hydrationPct = (Number(hydration.value) / 10) * 100;
+  const alcoholReliefPct = ((10 - Number(alcohol.value)) / 10) * 100;
+  const exercisePct = (Number(exerciseLoad.value) / 10) * 100;
+  const recoveryPct = (Number(recovery.value) / 10) * 100;
+
+  const rawScore =
+    (moodPct * 0.15) +
+    (energyPct * 0.15) +
+    (stressReliefPct * 0.15) +
+    (sleepPct * 0.15) +
+    (nutritionPct * 0.10) +
+    (hydrationPct * 0.10) +
+    (alcoholReliefPct * 0.08) +
+    (exercisePct * 0.06) +
+    (recoveryPct * 0.06);
+
+  return clamp(Math.round(rawScore), 0, 100);
+}
 
     function computePersonalScore() {
       const desirePct = (Number(PersonalDesire.value) / 10) * 100;
@@ -1476,129 +1530,179 @@
     }
 
     function resetFormForNewDay() {
-      mood.value = 7;
-      stress.value = 7;
-      energy.value = 7;
-      PersonalDesire.value = 0;
-      PersonalConnection.value = 0;
-      PersonalUrge.value = 0;
-      PersonalControl.value = 0;
-      PersonalRecovery.value = 0;
-      personalPornUse.value = '0';
-      personalMasturbation.value = '0';
-      document.querySelectorAll('#PersonalTriggersList input[type="checkbox"], #PersonalRecoveryActionsList input[type="checkbox"]').forEach(input => {
-        input.checked = false;
-      });
-      document.querySelectorAll('[data-binary-group]').forEach(group => {
-        const buttons = group.querySelectorAll('.binary-option');
-        buttons.forEach((button, index) => button.classList.toggle('is-active', index === 0));
-      });
-      document.getElementById('PersonalPornUseValue').textContent = 'No';
-      document.getElementById('PersonalMasturbationValue').textContent = 'No';
-      journalText.value = '';
-      PersonalNotes.value = '';
-      updateRangeLabel(mood, moodValue);
-      updateRangeLabel(stress, stressValue);
-      updateRangeLabel(energy, energyValue);
-      updatePersonalLabels();
-      updatePersonalCounts();
-    }
+  mood.value = 7;
+  stress.value = 7;
+  energy.value = 7;
+  sleepQuality.value = 7;
+  nutritionQuality.value = 7;
+  hydration.value = 7;
+  alcohol.value = 1;
+  exerciseLoad.value = 5;
+  recovery.value = 7;
+
+  PersonalDesire.value = 0;
+  PersonalConnection.value = 0;
+  PersonalUrge.value = 0;
+  PersonalControl.value = 0;
+  PersonalRecovery.value = 0;
+  personalPornUse.value = '0';
+  personalMasturbation.value = '0';
+
+  document.querySelectorAll('#PersonalTriggersList input[type="checkbox"], #PersonalRecoveryActionsList input[type="checkbox"]').forEach(input => {
+    input.checked = false;
+  });
+
+  document.querySelectorAll('[data-binary-group]').forEach(group => {
+    const buttons = group.querySelectorAll('.binary-option');
+    buttons.forEach((button, index) => button.classList.toggle('is-active', index === 0));
+  });
+
+  document.getElementById('PersonalPornUseValue').textContent = 'No';
+  document.getElementById('PersonalMasturbationValue').textContent = 'No';
+
+  journalText.value = '';
+  PersonalNotes.value = '';
+
+  updateRangeLabel(mood, moodValue);
+  updateRangeLabel(stress, stressValue);
+  updateRangeLabel(energy, energyValue);
+  updateRangeLabel(sleepQuality, sleepQualityValue);
+  updateRangeLabel(nutritionQuality, nutritionQualityValue);
+  updateRangeLabel(hydration, hydrationValue);
+  updateRangeLabel(alcohol, alcoholValue);
+  updateRangeLabel(exerciseLoad, exerciseLoadValue);
+  updateRangeLabel(recovery, recoveryValue);
+
+  updatePersonalLabels();
+  updatePersonalCounts();
+}
 
     function saveCurrentDraft() {
-      const draft = {
-        dayKey: getDayKey(),
-        mood: Number(mood.value),
-        stress: Number(stress.value),
-        energy: Number(energy.value),
-        PersonalDesire: Number(PersonalDesire.value),
-        PersonalConnection: Number(PersonalConnection.value),
-        PersonalUrge: Number(PersonalUrge.value),
-        PersonalControl: Number(PersonalControl.value),
-        PersonalRecovery: Number(PersonalRecovery.value),
-        pornUse: personalPornUse.value,
-        masturbation: personalMasturbation.value,
-        PersonalTriggersChecked: getCheckedLabels('#PersonalTriggersList input[type="checkbox"]'),
-        PersonalRecoveryActionsChecked: getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]'),
-        journalNote: journalText.value.trim(),
-        PersonalNote: PersonalNotes.value.trim()
-      };
-      localStorage.setItem(STORAGE_KEYS.currentDraft, JSON.stringify(draft));
-    }
+  const draft = {
+    dayKey: getDayKey(),
+    mood: Number(mood.value),
+    stress: Number(stress.value),
+    energy: Number(energy.value),
+    sleepQuality: Number(sleepQuality.value),
+    nutritionQuality: Number(nutritionQuality.value),
+    hydration: Number(hydration.value),
+    alcohol: Number(alcohol.value),
+    exerciseLoad: Number(exerciseLoad.value),
+    recovery: Number(recovery.value),
+
+    PersonalDesire: Number(PersonalDesire.value),
+    PersonalConnection: Number(PersonalConnection.value),
+    PersonalUrge: Number(PersonalUrge.value),
+    PersonalControl: Number(PersonalControl.value),
+    PersonalRecovery: Number(PersonalRecovery.value),
+    pornUse: personalPornUse.value,
+    masturbation: personalMasturbation.value,
+    PersonalTriggersChecked: getCheckedLabels('#PersonalTriggersList input[type="checkbox"]'),
+    PersonalRecoveryActionsChecked: getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]'),
+    journalNote: journalText.value.trim(),
+    PersonalNote: PersonalNotes.value.trim()
+  };
+  localStorage.setItem(STORAGE_KEYS.currentDraft, JSON.stringify(draft));
+}
 
     function loadCurrentDraft() {
-      const raw = localStorage.getItem(STORAGE_KEYS.currentDraft);
-      if (!raw) {
-        resetFormForNewDay();
-        return;
-      }
+  const raw = localStorage.getItem(STORAGE_KEYS.currentDraft);
+  if (!raw) {
+    resetFormForNewDay();
+    return;
+  }
 
-      const draft = JSON.parse(raw);
-      if (draft.dayKey !== getDayKey()) {
-        resetFormForNewDay();
-        saveCurrentDraft();
-        return;
-      }
+  const draft = JSON.parse(raw);
+  if (draft.dayKey !== getDayKey()) {
+    resetFormForNewDay();
+    saveCurrentDraft();
+    return;
+  }
 
-      mood.value = draft.mood ?? 7;
-      stress.value = draft.stress ?? 7;
-      energy.value = draft.energy ?? 7;
-      PersonalDesire.value = draft.PersonalDesire ?? 0;
-      PersonalConnection.value = draft.PersonalConnection ?? 0;
-      PersonalUrge.value = draft.PersonalUrge ?? 0;
-      PersonalControl.value = draft.PersonalControl ?? 0;
-      PersonalRecovery.value = draft.PersonalRecovery ?? 0;
-      personalPornUse.value = draft.pornUse ?? '0';
-      personalMasturbation.value = draft.masturbation ?? '0';
+  mood.value = draft.mood ?? 7;
+  stress.value = draft.stress ?? 7;
+  energy.value = draft.energy ?? 7;
+  sleepQuality.value = draft.sleepQuality ?? 7;
+  nutritionQuality.value = draft.nutritionQuality ?? 7;
+  hydration.value = draft.hydration ?? 7;
+  alcohol.value = draft.alcohol ?? 1;
+  exerciseLoad.value = draft.exerciseLoad ?? 5;
+  recovery.value = draft.recovery ?? 7;
 
-      document.querySelectorAll('#PersonalTriggersList input[type="checkbox"]').forEach(input => {
-        input.checked = (draft.PersonalTriggersChecked || []).includes(input.dataset.label);
-      });
-      document.querySelectorAll('#PersonalRecoveryActionsList input[type="checkbox"]').forEach(input => {
-        input.checked = (draft.PersonalRecoveryActionsChecked || []).includes(input.dataset.label);
-      });
+  PersonalDesire.value = draft.PersonalDesire ?? 0;
+  PersonalConnection.value = draft.PersonalConnection ?? 0;
+  PersonalUrge.value = draft.PersonalUrge ?? 0;
+  PersonalControl.value = draft.PersonalControl ?? 0;
+  PersonalRecovery.value = draft.PersonalRecovery ?? 0;
+  personalPornUse.value = draft.pornUse ?? '0';
+  personalMasturbation.value = draft.masturbation ?? '0';
 
-      document.querySelectorAll('[data-binary-group]').forEach(group => {
-        const hiddenId = group.dataset.binaryGroup;
-        const hiddenInput = document.getElementById(hiddenId);
-        const currentValue = hiddenInput.value;
-        group.querySelectorAll('.binary-option').forEach(option => {
-          option.classList.toggle('is-active', option.dataset.value === currentValue);
-        });
-        const valueLabel = document.getElementById(`${hiddenId}Value`);
-        if (valueLabel) valueLabel.textContent = currentValue === '1' ? 'Yes' : 'No';
-      });
+  document.querySelectorAll('#PersonalTriggersList input[type="checkbox"]').forEach(input => {
+    input.checked = (draft.PersonalTriggersChecked || []).includes(input.dataset.label);
+  });
+  document.querySelectorAll('#PersonalRecoveryActionsList input[type="checkbox"]').forEach(input => {
+    input.checked = (draft.PersonalRecoveryActionsChecked || []).includes(input.dataset.label);
+  });
 
-      journalText.value = draft.journalNote ?? '';
-      PersonalNotes.value = draft.PersonalNote ?? '';
-      updateRangeLabel(mood, moodValue);
-      updateRangeLabel(stress, stressValue);
-      updateRangeLabel(energy, energyValue);
-      updatePersonalLabels();
-      updatePersonalCounts();
-    }
+  document.querySelectorAll('[data-binary-group]').forEach(group => {
+    const hiddenId = group.dataset.binaryGroup;
+    const hiddenInput = document.getElementById(hiddenId);
+    const currentValue = hiddenInput.value;
+    group.querySelectorAll('.binary-option').forEach(option => {
+      option.classList.toggle('is-active', option.dataset.value === currentValue);
+    });
+    const valueLabel = document.getElementById(`${hiddenId}Value`);
+    if (valueLabel) valueLabel.textContent = currentValue === '1' ? 'Yes' : 'No';
+  });
+
+  journalText.value = draft.journalNote ?? '';
+  PersonalNotes.value = draft.PersonalNote ?? '';
+
+  updateRangeLabel(mood, moodValue);
+  updateRangeLabel(stress, stressValue);
+  updateRangeLabel(energy, energyValue);
+  updateRangeLabel(sleepQuality, sleepQualityValue);
+  updateRangeLabel(nutritionQuality, nutritionQualityValue);
+  updateRangeLabel(hydration, hydrationValue);
+  updateRangeLabel(alcohol, alcoholValue);
+  updateRangeLabel(exerciseLoad, exerciseLoadValue);
+  updateRangeLabel(recovery, recoveryValue);
+
+  updatePersonalLabels();
+  updatePersonalCounts();
+}
 
     function buildDailyEntry() {
-      return {
-        date: new Date().toISOString(),
-        selectedScore: computeSelectedScore(),
-        healthScore: computeHealthScore(),
-        PersonalScore: computePersonalScore(),
-        mood: Number(mood.value),
-        stress: Number(stress.value),
-        energy: Number(energy.value),
-        PersonalDesire: Number(PersonalDesire.value),
-        PersonalConnection: Number(PersonalConnection.value),
-        PersonalUrge: Number(PersonalUrge.value),
-        pornUse: personalPornUse.value === '1',
-        masturbation: personalMasturbation.value === '1',
-        control: Number(PersonalControl.value),
-        recovery: Number(PersonalRecovery.value),
-        PersonalTriggersChecked: getCheckedLabels('#PersonalTriggersList input[type="checkbox"]'),
-        PersonalRecoveryActionsChecked: getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]'),
-        journalNote: journalText.value.trim(),
-        PersonalNote: PersonalNotes.value.trim()
-      };
-    }
+  return {
+    date: new Date().toISOString(),
+    selectedScore: computeSelectedScore(),
+    healthScore: computeHealthScore(),
+    PersonalScore: computePersonalScore(),
+
+    mood: Number(mood.value),
+    stress: Number(stress.value),
+    energy: Number(energy.value),
+    sleepQuality: Number(sleepQuality.value),
+    nutritionQuality: Number(nutritionQuality.value),
+    hydration: Number(hydration.value),
+    alcohol: Number(alcohol.value),
+    exerciseLoad: Number(exerciseLoad.value),
+    recovery: Number(recovery.value),
+
+    PersonalDesire: Number(PersonalDesire.value),
+    PersonalConnection: Number(PersonalConnection.value),
+    PersonalUrge: Number(PersonalUrge.value),
+    pornUse: personalPornUse.value === '1',
+    masturbation: personalMasturbation.value === '1',
+    control: Number(PersonalControl.value),
+    recoveryPersonal: Number(PersonalRecovery.value),
+
+    PersonalTriggersChecked: getCheckedLabels('#PersonalTriggersList input[type="checkbox"]'),
+    PersonalRecoveryActionsChecked: getCheckedLabels('#PersonalRecoveryActionsList input[type="checkbox"]'),
+    journalNote: journalText.value.trim(),
+    PersonalNote: PersonalNotes.value.trim()
+  };
+}
 
     function saveCurrentEntry(sourceLabel) {
       const entry = buildDailyEntry();
@@ -1669,15 +1773,15 @@
       }
 
       const recent = entries.slice(0, 7);
-      const avgHealth = average(entries.map(entry => entry.healthScore));
-      const avgPersonal = average(entries.map(entry => entry.PersonalScore));
-      const avgRecentHealth = average(recent.map(entry => entry.healthScore));
+const avgHealth = average(entries.map(entry => entry.healthScore));
+const avgPersonal = average(entries.map(entry => entry.PersonalScore));
+const avgRecentHealth = average(recent.map(entry => entry.healthScore));
 
-      healthAvg.textContent = avgHealth;
-      health7DayAverage.textContent = avgRecentHealth;
-      healthStreak.textContent = String(entries.length);
-      PersonalAvg.textContent = avgPersonal;
-      PersonalTrendRead.textContent = avgPersonal >= 60 ? 'Holding together' : 'Needs more attention';
+healthAvg.textContent = computeHealthScore();
+health7DayAverage.textContent = avgRecentHealth;
+healthStreak.textContent = String(entries.length);
+PersonalAvg.textContent = avgPersonal;
+PersonalTrendRead.textContent = avgPersonal >= 60 ? 'Holding together' : 'Needs more attention';
 
       const highDays = entries.filter(entry => entry.selectedScore >= 65).length;
       const lowDays = entries.filter(entry => entry.selectedScore < 45).length;
@@ -1720,14 +1824,30 @@
       if (badge) badge.textContent = formatTodayLong();
     }
 
-    [mood, stress, energy].forEach(input => {
-      input.addEventListener('input', () => {
-        updateRangeLabel(mood, moodValue);
-        updateRangeLabel(stress, stressValue);
-        updateRangeLabel(energy, energyValue);
-        renderAll();
-      });
-    });
+    [
+  mood,
+  stress,
+  energy,
+  sleepQuality,
+  nutritionQuality,
+  hydration,
+  alcohol,
+  exerciseLoad,
+  recovery
+].forEach(input => {
+  input.addEventListener('input', () => {
+    updateRangeLabel(mood, moodValue);
+    updateRangeLabel(stress, stressValue);
+    updateRangeLabel(energy, energyValue);
+    updateRangeLabel(sleepQuality, sleepQualityValue);
+    updateRangeLabel(nutritionQuality, nutritionQualityValue);
+    updateRangeLabel(hydration, hydrationValue);
+    updateRangeLabel(alcohol, alcoholValue);
+    updateRangeLabel(exerciseLoad, exerciseLoadValue);
+    updateRangeLabel(recovery, recoveryValue);
+    renderAll();
+  });
+});
 
     [PersonalDesire, PersonalConnection, PersonalUrge, PersonalControl, PersonalRecovery].forEach(input => {
       const syncPersonalSlider = () => {
@@ -1756,9 +1876,22 @@
       });
     });
 
-    saveHealthBtn.addEventListener('click', () => saveCurrentEntry('health'));
-    savePersonalBtn.addEventListener('click', () => saveCurrentEntry('Personal'));
-    saveJournalBtn.addEventListener('click', () => saveCurrentEntry('journal'));
+    navButtons.forEach(button => {
+  button.addEventListener('click', () => setActiveView(button.dataset.viewTarget));
+});
+
+if (saveHealthBtn && typeof saveCurrentEntry === 'function') {
+  saveHealthBtn.addEventListener('click', () => saveCurrentEntry('health'));
+}
+if (savePersonalBtn && typeof saveCurrentEntry === 'function') {
+  savePersonalBtn.addEventListener('click', () => saveCurrentEntry('Personal'));
+}
+if (saveJournalBtn && typeof saveCurrentEntry === 'function') {
+  saveJournalBtn.addEventListener('click', () => saveCurrentEntry('journal'));
+
+loadCurrentDraft();
+renderAll();
+}
 
     async function askCoach() {
       const prompt = coachPrompt.value.trim();
@@ -1833,13 +1966,13 @@
     }
 
     askCoachBtn.addEventListener('click', askCoach);
-    analyzeJournalBtn.addEventListener('click', analyzeJournalTrends);
+analyzeJournalBtn.addEventListener('click', analyzeJournalTrends);
 
-    const savedCoachDraft = localStorage.getItem(STORAGE_KEYS.coachDraft);
-    if (savedCoachDraft) coachPrompt.value = savedCoachDraft;
+const savedCoachDraft = localStorage.getItem(STORAGE_KEYS.coachDraft);
+if (savedCoachDraft) coachPrompt.value = savedCoachDraft;
 
-    loadCurrentDraft();
-    renderAll();
+loadCurrentDraft();
+renderAll();
   </script>
 </body>
 </html>
