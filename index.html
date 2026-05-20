@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Momentum OS</title>
+
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=cabinet-grotesk@500,700,800&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --bg: #f5f1ea;
@@ -31,16 +34,24 @@
       --shadow-soft: 0 4px 18px rgba(32, 26, 22, 0.05);
       --shadow-score: 0 18px 40px rgba(12, 106, 111, 0.10);
     }
-
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      margin: 0;
-      font-family: Inter, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-    }
+  margin: 0;
+  font-family: 'General Sans', Inter, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.hero h2,
+.section-header h2,
+.section-header h3,
+.brand-copy h1 {
+  font-family: 'Cabinet Grotesk', Inter, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
 
     button, input, textarea { font: inherit; }
 
@@ -825,28 +836,31 @@
     }
 
     .coach-response-card {
-      padding: 16px 18px;
-      border-radius: 20px;
-      border: 1px solid rgba(12,106,111,0.18);
-      background: linear-gradient(180deg, #f7fbfb 0%, #edf7f7 100%);
-      box-shadow: 0 10px 24px rgba(12,106,111,0.08);
-    }
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(12,106,111,0.12);
+  background: linear-gradient(180deg, #f7fbfb 0%, #edf7f7 100%);
+  box-shadow: 0 4px 12px rgba(12,106,111,0.05);
+}
 
-    .coach-response-label {
-      margin-bottom: 8px;
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
+.coach-response-label {
+  margin-bottom: 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1;
+}
 
-    .coach-response-text {
-      font-size: 1.02rem;
-      line-height: 1.7;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
+.coach-response-text {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: var(--text);
+  white-space: pre-wrap;
+  min-height: 0;
+  margin: 0;
+}
 
     .coach-composer {
       padding: 14px;
@@ -1456,8 +1470,8 @@
     <div id="coachResponseCard" class="coach-response-card" aria-live="polite">
       <div class="coach-response-label">Coach response</div>
       <div id="coachResponseText" class="coach-response-text">
-        The coach will reflect back what matters most and suggest one simple next move.
-      </div>
+  One clear next step will appear here.
+</div>
     </div>
 
     <div class="coach-composer">
