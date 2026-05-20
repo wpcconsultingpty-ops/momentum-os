@@ -757,7 +757,7 @@
       box-shadow: 0 12px 28px rgba(12, 106, 111, 0.10);
     }
 
-    textarea {
+        textarea {
       width: 100%;
       min-height: 160px;
       padding: 14px;
@@ -766,6 +766,107 @@
       background: #fff;
       color: var(--text);
       resize: vertical;
+    }
+
+    .coach-chat-card {
+      gap: 14px;
+    }
+
+    .coach-chat-header {
+      margin-bottom: 2px;
+    }
+
+    .coach-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(12,106,111,0.08);
+      background: linear-gradient(180deg, #fcfaf7 0%, #f7f2eb 100%);
+      min-height: 110px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .message-row {
+      display: flex;
+      width: 100%;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.user.is-system {
+      justify-content: flex-start;
+    }
+
+    .message-bubble {
+      max-width: min(680px, 88%);
+      padding: 12px 14px;
+      border-radius: 16px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .message-row.user .message-bubble {
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .message-bubble.subtle {
+      background: rgba(255,255,255,0.75);
+      border: 1px dashed rgba(12,106,111,0.16);
+      color: var(--muted);
+      box-shadow: none;
+    }
+
+    .coach-response-card {
+      padding: 16px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(12,106,111,0.18);
+      background: linear-gradient(180deg, #f7fbfb 0%, #edf7f7 100%);
+      box-shadow: 0 10px 24px rgba(12,106,111,0.08);
+    }
+
+    .coach-response-label {
+      margin-bottom: 8px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .coach-response-text {
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .coach-composer {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(12,106,111,0.10);
+      background: rgba(255,255,255,0.72);
+    }
+
+    .coach-composer textarea {
+      min-height: 120px;
+      border: 1px solid rgba(12,106,111,0.12);
+      background: #fffdfa;
+    }
+
+    .coach-composer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
     }
 
     .analysis-box {
@@ -837,7 +938,7 @@
       .history-item { grid-template-columns: 1fr 1fr; }
     }
 
-    @media (max-width: 860px) {
+        @media (max-width: 860px) {
       .app-shell { grid-template-columns: 1fr; }
       .topbar { display: flex; }
 
@@ -884,6 +985,19 @@
       .score-value { font-size: 3rem; }
       #PersonalView .metric-card.score-card { min-height: 165px; }
       .history-item { grid-template-columns: 1fr; }
+
+      .coach-messages {
+        max-height: 180px;
+      }
+
+      .coach-composer-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .coach-composer .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -1250,40 +1364,53 @@
       </section>
 
       <section id="coachView" class="view">
-<div class="section-card">
-<div class="section-header">
-<h2>Coach</h2>
-<p>A calm reset for the next hour, grounded in today’s score, signals, and notes.</p>
-</div>
+  <div class="section-card">
+    <div class="section-header">
+      <h2>Coach</h2>
+      <p>A calm reset for the next hour, grounded in today’s score, signals, and notes.</p>
+    </div>
 
-<div class="card card-stack coach-chat-card">
-<div class="coach-chat-header">
-<p class="foot-note">
-This supports reflection and next-step clarity. It does not replace real help.
-</p>
-</div>
+    <div class="coach-shell">
+      <div class="coach-thread-wrap">
+        <div class="coach-thread-head">
+          <div class="coach-thread-title">
+            <span class="coach-dot" aria-hidden="true"></span>
+            <strong>Momentum Coach</strong>
+          </div>
+          <span class="coach-thread-subtitle">Calm reset for right now</span>
+        </div>
 
-<div id="coachMessages" class="coach-messages" aria-live="polite">
-<div class="message-row coach">
-<div class="message-bubble">
-You seem a bit flat today. What feels most true right now?
-</div>
-</div>
-</div>
+        <div id="coachMessages" class="coach-thread" aria-live="polite">
+          <div class="chat-row coach">
+            <div class="chat-avatar" aria-hidden="true">C</div>
+            <div class="chat-content">
+              <div class="chat-meta">
+                <span class="chat-name">Coach</span>
+                <span class="chat-time">Now</span>
+              </div>
+              <div class="chat-bubble">
+                You seem a bit flat today. What feels most true right now?
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<div class="coach-composer">
-<textarea
-id="coachPrompt"
-placeholder="What’s going on right now?"
-aria-label="Message coach"
-></textarea>
-<div class="coach-composer-actions">
-<span class="foot-note" id="coachStateText">Ready.</span>
-<button class="btn btn-primary" type="button" id="askCoachBtn">Send</button>
-</div>
-</div>
-</div>
-</div>
+      <div class="coach-composer">
+        <label for="coachPrompt" class="sr-only">Message coach</label>
+        <textarea
+          id="coachPrompt"
+          placeholder="Tell the coach what is happening right now..."
+          aria-label="Message coach"
+        ></textarea>
+
+        <div class="coach-composer-bar">
+          <span class="foot-note" id="coachStateText">Ready.</span>
+          <button class="btn btn-primary" type="button" id="askCoachBtn">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
     </main>
   </div>
@@ -1909,7 +2036,7 @@ loadCurrentDraft();
 renderAll();
 }
 
- async function askCoach() {
+  async function askCoach() {
   const prompt = coachPrompt.value.trim();
   if (!prompt) {
     coachStateText.textContent = 'Write a prompt first.';
@@ -1977,7 +2104,6 @@ renderAll();
     askCoachBtn.disabled = false;
   }
 }
-
 askCoachBtn.addEventListener('click', askCoach);
 
 coachPrompt.addEventListener('keydown', (event) => {
