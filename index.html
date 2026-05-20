@@ -862,12 +862,65 @@
     }
 
     .coach-composer-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 12px;
-    }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.coach-links-panel {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.support-links-intro {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 2px;
+}
+
+.support-link-card {
+  display: block;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(12,106,111,0.12);
+  background: rgba(255,255,255,0.9);
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.support-link-card:hover,
+.support-link-card:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(12,106,111,0.22);
+  background: #ffffff;
+  outline: none;
+}
+
+.support-link-card strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: 0.98rem;
+}
+
+.support-link-card span {
+  display: block;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.support-link-card small {
+  display: block;
+  color: var(--text);
+  font-weight: 700;
+}
 
     .analysis-box {
       white-space: pre-wrap;
@@ -1364,50 +1417,59 @@
       </section>
 
       <section id="coachView" class="view">
-  <div class="section-card">
+  <div class="section-card coach-chat-card">
     <div class="section-header">
       <h2>Coach</h2>
       <p>A calm reset for the next hour, grounded in today’s score, signals, and notes.</p>
     </div>
 
-    <div class="coach-shell">
-      <div class="coach-thread-wrap">
-        <div class="coach-thread-head">
-          <div class="coach-thread-title">
-            <span class="coach-dot" aria-hidden="true"></span>
-            <strong>Momentum Coach</strong>
-          </div>
-          <span class="coach-thread-subtitle">Calm reset for right now</span>
-        </div>
+    <div class="coach-chat-header">
+      <p class="foot-note">
+        Use the coach to steady the next hour, reduce noise, and turn today’s signals into one clear next step.
+      </p>
+    </div>
 
-        <div id="coachMessages" class="coach-thread" aria-live="polite">
-          <div class="chat-row coach">
-            <div class="chat-avatar" aria-hidden="true">C</div>
-            <div class="chat-content">
-              <div class="chat-meta">
-                <span class="chat-name">Coach</span>
-                <span class="chat-time">Now</span>
-              </div>
-              <div class="chat-bubble">
-                You seem a bit flat today. What feels most true right now?
-              </div>
-            </div>
-          </div>
-        </div>
+    <div id="coachMessages" class="coach-messages coach-links-panel" aria-live="polite">
+  <div class="support-links-intro">
+    Support options if today feels heavier than usual.
+  </div>
+
+  <a class="support-link-card" href="https://www.lifeline.org.au" target="_blank" rel="noopener noreferrer">
+    <strong>Lifeline</strong>
+    <span>24/7 crisis support</span>
+    <small>13 11 14</small>
+  </a>
+
+  <a class="support-link-card" href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer">
+    <strong>Beyond Blue</strong>
+    <span>24/7 mental health support</span>
+    <small>1300 22 4636</small>
+  </a>
+
+  <a class="support-link-card" href="https://livin.org" target="_blank" rel="noopener noreferrer">
+    <strong>LIVIN</strong>
+    <span>Breaking the stigma of mental health</span>
+    <small>It Ain’t Weak to Speak</small>
+  </a>
+</div>
+
+    <div id="coachResponseCard" class="coach-response-card" aria-live="polite">
+      <div class="coach-response-label">Coach response</div>
+      <div id="coachResponseText" class="coach-response-text">
+        The coach will reflect back what matters most and suggest one simple next move.
       </div>
+    </div>
 
-      <div class="coach-composer">
-        <label for="coachPrompt" class="sr-only">Message coach</label>
-        <textarea
-          id="coachPrompt"
-          placeholder="Tell the coach what is happening right now..."
-          aria-label="Message coach"
-        ></textarea>
+    <div class="coach-composer">
+      <label class="sr-only" for="coachPrompt">Message coach</label>
+      <textarea
+        id="coachPrompt"
+        placeholder="Message coach"
+      ></textarea>
 
-        <div class="coach-composer-bar">
-          <span class="foot-note" id="coachStateText">Ready.</span>
-          <button class="btn btn-primary" type="button" id="askCoachBtn">Send</button>
-        </div>
+      <div class="coach-composer-actions">
+        <span class="foot-note" id="coachStateText">Ready.</span>
+        <button class="btn btn-primary" type="button" id="askCoachBtn">Send</button>
       </div>
     </div>
   </div>
