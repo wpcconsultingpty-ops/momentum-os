@@ -156,52 +156,60 @@ export default async function handler(req, res) {
       view: String(body.view || "coach").trim(),
     };
 
-    const response = await client.responses.create({
-  model: "gpt-4.1-mini",
-  input: [
-    { role: "system", content: buildSystemPrompt() },
-    { role: "user", content: buildUserPrompt(context) },
-  ],
-  text: {
-    format: {
-      type: "json_schema",
-      name: "momentum_coach",
-      schema: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          stateSummary: { type: "string" },
-          coachingMode: {
-            type: "string",
-            enum: ["stabilise", "narrow", "maintain", "protect-momentum"],
+        const response = await client.responses.create({
+      model: "gpt-4.1-mini",
+      input: [
+        { role: "system", content: buildSystemPrompt() },
+        { role: "user", content: buildUserPrompt(context) },
+      ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "momentum_coach",
+          schema: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              stateSummary: { type: "string" },
+              coachingMode: {
+                type: "string",
+                enum: ["stabilise", "narrow", "maintain", "protect-momentum"],
+              },
+              nextSteps: {
+                type: "array",
+                items: { type: "string" },
+                minItems: 3,
+                maxItems: 3,
+              },
+              avoidToday: { type: "string" },
+              encouragement: { type: "string" },
+              coachQuestion: { type: "string" },
+            },
+            required: [
+              "stateSummary",
+              "coachingMode",
+              "nextSteps",
+              "avoidToday",
+              "encouragement",
+              "coachQuestion",
+            ],
           },
-          nextSteps: {
-            type: "array",
-            items: { type: "string" },
-            minItems: 3,
-            maxItems: 3,
-          },
-          avoidToday: { type: "string" },
-          encouragement: { type: "string" },
-          coachQuestion: { type: "string" },
         },
-        required: [
-          "stateSummary",
-          "coachingMode",
-          "nextSteps",
-          "avoidToday",
-          "encouragement",
-          "coachQuestion",
-        ],
       },
-    },
-  },
-  temperature: 0.8,
-  max_output_tokens: 700,
-});
+      temperature: 0.8,
+      max_output_tokens: 700,
+    });
 
-const output = response.output_text || "";
-const fallbackMode = coachingModeForLabel(overallLabel);
-const coach = safeParseCoach(output, fallbackMode);
+    const output = response.output_text || "";
+    const fallbackMode = coachingModeForLabel(overallLabel);
+    const coach = safeParseCoach(output, fallbackMode);
 
-return res.status(200).json({ ok: true, coach, raw: output });
+    return res.status(200).json({ ok: true, coach, raw: output });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: "Coach request failed",
+      detail: error?.message || "Unknown error",
+    });
+  }
+}
