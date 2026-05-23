@@ -1474,20 +1474,48 @@
             </div>
           </div>
 
-          <div class="coach-composer">
-            <textarea id="coachPrompt" placeholder="Ask me anything about your momentum, habits, or how to improve..."></textarea>
-            <div class="coach-composer-actions">
-              <span class="foot-note" id="coachStatus">Ready</span>
-              <button class="btn btn-primary" id="askCoachBtn">Send Message</button>
-            </div>
-          </div>
+<div class="coach-composer">
+  <textarea id="coachPrompt" placeholder="Ask me anything about your momentum, habits, or how to improve..."></textarea>
+  <div class="coach-composer-actions">
+    <span class="foot-note" id="coachStatus">Ready</span>
+    <button class="btn btn-primary" id="askCoachBtn">Send Message</button>
+  </div>
+</div>
 
-          <div class="grid grid-2" style="margin-top: 24px;">
-            <button class="btn" onclick="askQuickQuestion('sleep')">💤 Improve Sleep</button>
-            <button class="btn" onclick="askQuickQuestion('energy')">⚡ Boost Energy</button>
-            <button class="btn" onclick="askQuickQuestion('stress')">😌 Manage Stress</button>
-            <button class="btn" onclick="askQuickQuestion('habits')">🎯 Build Habits</button>
-          </div>
+<div class="coach-support-card">
+  <div class="coach-support-label">Extra support</div>
+  <p class="coach-support-text">
+    If today feels heavier than usual, these Australian mental health organisations can help.
+  </p>
+
+  <div class="coach-support-links">
+    <a href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-link">
+      <strong>Beyond Blue</strong>
+      <span>24/7 mental health support and resources</span>
+    </a>
+
+    <a href="http://www.ruok.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-link">
+      <strong>R U OK?</strong>
+      <span>Tools for starting a supportive conversation</span>
+    </a>
+
+    <a href="https://livin.org" target="_blank" rel="noopener noreferrer" class="coach-support-link">
+      <strong>LIVIN</strong>
+      <span>Mental health education and stigma reduction</span>
+    </a>
+  </div>
+
+  <p class="coach-support-note">
+    If you feel at immediate risk or unsafe, call emergency services right away.
+  </p>
+</div>
+
+<div class="grid grid-2" style="margin-top: 24px;">
+  <button class="btn" onclick="askQuickQuestion('sleep')">Improve Sleep</button>
+  <button class="btn" onclick="askQuickQuestion('energy')">Boost Energy</button>
+  <button class="btn" onclick="askQuickQuestion('stress')">Manage Stress</button>
+  <button class="btn" onclick="askQuickQuestion('habits')">Build Habits</button>
+</div>
         </div>
       </section>
 
