@@ -329,18 +329,22 @@
     }
 
     .sidebar {
-  display: block;
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: min(82vw, 300px);
-  height: 100dvh;
-  z-index: 30;
-  transform: translateX(-100%);
-  transition: transform 0.22s ease;
-  background: rgba(248, 245, 239, 0.95);
-  box-shadow: 18px 0 40px rgba(32, 26, 22, 0.12);
-      body.sidebar-open .sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 18px;
+  border-right: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(10px);
+  overflow-y: auto;
+}
+
+body.sidebar-open .sidebar {
   transform: translateX(0);
+}
+
+body:not(.sidebar-open) .sidebar {
+  transform: translateX(-100%);
 }
 
 body:not(.sidebar-open) .sidebar {
