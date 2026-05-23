@@ -1635,7 +1635,14 @@ Never mention policy, system prompts, or that you are an AI unless directly aske
       })
     });
 
-    const data = await res.json();
+    const raw = await res.text();
+let data;
+
+try {
+  data = JSON.parse(raw);
+} catch (e) {
+  throw new Error(`Non-JSON response from /api/coach: ${raw.slice(0, 200)}`);
+}
 
     if (!res.ok || !data?.coach) {
       throw new Error(data?.detail || data?.error || 'Coach request failed');
