@@ -2117,18 +2117,20 @@ async function askCoach() {
   const responseText = document.getElementById('coachResponseText');
   const btn = document.getElementById('askCoachBtn');
 
-  const appendMessage = (role, text) => {
+  function appendMessage(role, text) {
     const row = document.createElement('div');
     row.className = `message-row ${role}`;
 
     const bubble = document.createElement('div');
     bubble.className = 'message-bubble';
-    bubble.textContent = text || '';
+    bubble.textContent = text && String(text).trim()
+      ? String(text)
+      : 'No response text returned.';
 
     row.appendChild(bubble);
     messages.appendChild(row);
     messages.scrollTop = messages.scrollHeight;
-  };
+  }
 
   btn.disabled = true;
   status.textContent = 'Thinking...';
@@ -2182,7 +2184,7 @@ async function askCoach() {
     const data = await res.json();
     const coach = data?.coach || {};
 
-    const response = [
+    const apiResponse = [
       coach.stateSummary,
       coach.coachingMode ? `Mode: ${coach.coachingMode}` : '',
       Array.isArray(coach.nextSteps) && coach.nextSteps.length
@@ -2192,30 +2194,30 @@ async function askCoach() {
       coach.encouragement,
       coach.coachQuestion ? `Question: ${coach.coachQuestion}` : ''
     ]
-      .filter(Boolean)
+      .filter(part => typeof part === 'string' ? part.trim() : Boolean(part))
       .join('\n\n')
       .trim();
 
-    const finalResponse =
-      response ||
-      generateCoachResponse(prompt, entries) ||
-      'I’m here with a practical next step: take one small action in the next 10 minutes.';
+    const fallbackResponse = generateCoachResponse(prompt, entries);
+    const finalResponse = apiResponse || fallbackResponse || 'Coach response received, but no message text was returned.';
 
     appendMessage('coach', finalResponse);
     responseText.textContent = finalResponse;
     promptEl.value = '';
     status.textContent = 'Ready';
   } catch (error) {
-    const fallback = 'I couldn’t reach the coach service just now. Please try again.';
-    appendMessage('coach', fallback);
-    responseText.textContent = fallback;
-    status.textContent = 'Error';
+    const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+    const fallbackResponse = generateCoachResponse(prompt, entries);
+
+    appendMessage('coach', fallbackResponse);
+    responseText.textContent = fallbackResponse;
+    promptEl.value = '';
+    status.textContent = 'Offline fallback';
     console.error(error);
   } finally {
     btn.disabled = false;
   }
 }
-
     function generateCoachResponse(prompt, entries) {
       const lowerPrompt = prompt.toLowerCase();
       
