@@ -794,101 +794,199 @@
     }
 
     /* Coach Section */
-    .coach-messages {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(12,106,111,0.08);
-      background: linear-gradient(180deg, #fcfaf7 0%, #f7f2eb 100%);
-      min-height: 200px;
-      max-height: 400px;
-      overflow-y: auto;
-    }
+.coach-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(12,106,111,0.08);
+  background: linear-gradient(180deg, #fcfaf7 0%, #f7f2eb 100%);
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+}
 
-    .message-row {
-      display: flex;
-      width: 100%;
-      animation: fadeIn 0.3s ease-out;
-    }
+.message-row {
+  display: flex;
+  width: 100%;
+  animation: fadeIn 0.3s ease-out;
+}
 
-    .message-row.user {
-      justify-content: flex-end;
-    }
+.message-row.user {
+  justify-content: flex-end;
+}
 
-    .message-row.coach {
-      justify-content: flex-start;
-    }
+.message-row.coach {
+  justify-content: flex-start;
+}
 
-    .message-bubble {
-      max-width: min(680px, 88%);
-      padding: 12px 14px;
-      border-radius: 16px;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      box-shadow: var(--shadow-soft);
-    }
+.message-bubble {
+  max-width: min(680px, 88%);
+  padding: 12px 14px;
+  border-radius: 16px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  box-shadow: var(--shadow-soft);
+}
 
-    .message-row.user .message-bubble {
-      background: #fff;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
+.message-row.user .message-bubble {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
 
-    .message-row.coach .message-bubble {
-      background: linear-gradient(135deg, rgba(111, 143, 114, 0.14), rgba(111, 143, 114, 0.05));
-      border: 1px solid rgba(111, 143, 114, 0.12);
-      color: var(--text);
-    }
+.message-row.coach .message-bubble {
+  background: linear-gradient(135deg, rgba(111, 143, 114, 0.14), rgba(111, 143, 114, 0.05));
+  border: 1px solid rgba(111, 143, 114, 0.12);
+  color: var(--text);
+}
 
-    .coach-response-card {
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(111, 143, 114, 0.12);
-      background: linear-gradient(180deg, #f8faf6 0%, #eef4ec 100%);
-      box-shadow: 0 4px 12px rgba(47, 58, 49, 0.05);
-      margin-top: 16px;
-    }
+.coach-response-card {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(111, 143, 114, 0.12);
+  background: linear-gradient(180deg, #f8faf6 0%, #eef4ec 100%);
+  box-shadow: 0 4px 12px rgba(47, 58, 49, 0.05);
+  margin-top: 16px;
+}
 
-    .coach-response-label {
-      margin-bottom: 4px;
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-      line-height: 1;
-    }
+.coach-response-label {
+  margin-bottom: 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1;
+}
 
-    .coach-response-text {
-      font-size: 0.92rem;
-      line-height: 1.35;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
+.coach-response-text {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: var(--text);
+  white-space: pre-wrap;
+}
 
-    .coach-composer {
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(111, 143, 114, 0.10);
-      background: rgba(255,255,255,0.72);
-      margin-top: 16px;
-    }
+.coach-composer {
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(111, 143, 114, 0.10);
+  background: rgba(255,255,255,0.72);
+  margin-top: 16px;
+}
 
-    .coach-composer textarea {
-      min-height: 120px;
-      border: 1px solid rgba(111, 143, 114, 0.12);
-      background: #fffdfa;
-    }
+.coach-composer textarea {
+  min-height: 120px;
+  border: 1px solid rgba(111, 143, 114, 0.12);
+  background: #fffdfa;
+}
 
-    .coach-composer-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 12px;
-    }
+.coach-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* Support cards */
+.coach-support-boxes {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.coach-support-box {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.coach-support-box:hover {
+  transform: translateY(-1px);
+  background: var(--surface-3);
+  border-color: var(--accent);
+}
+
+.coach-support-box:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.coach-support-box-primary {
+  background: var(--accent-soft);
+  border-color: var(--accent-strong);
+}
+
+.coach-support-box-primary:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.support-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.support-logo-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text);
+}
+
+.support-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.support-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.support-copy strong {
+  font-size: 1rem;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.support-copy span:last-child {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .coach-support-box {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .support-logo {
+    width: 44px;
+    height: 44px;
+  }
+}
 
     /* History */
     .history-list {
@@ -1499,32 +1597,34 @@
     If today feels heavier than usual, these Australian mental health organisations can help.
   </p>
 
-  <div class="coach-support-boxes">
-    <a href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-box">
-      <div class="support-logo support-logo-text" aria-hidden="true">BB</div>
-      <div class="support-copy">
-        <strong>Beyond Blue</strong>
-        <span>24/7 mental health support and resources</span>
-      </div>
-    </a>
+ <div class="coach-support-boxes">
+  <a href="https://www.beyondblue.org.au/" target="_blank" rel="noopener noreferrer" class="coach-support-box coach-support-box-primary">
+    <div class="support-logo support-logo-text" aria-hidden="true">BB</div>
+    <div class="support-copy">
+      <span class="support-label">Need support now?</span>
+      <strong>Beyond Blue</strong>
+      <span>Free 24/7 mental health support by phone and webchat.</span>
+    </div>
+  </a>
 
-    <a href="https://www.ruok.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-box">
-      <div class="support-logo support-logo-text" aria-hidden="true">R U OK?</div>
-      <div class="support-copy">
-        <strong>R U OK?</strong>
-        <span>Tools for starting a supportive conversation</span>
-      </div>
-    </a>
+  <a href="https://www.ruok.org.au/" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+    <div class="support-logo support-logo-text" aria-hidden="true">R U OK?</div>
+    <div class="support-copy">
+      <span class="support-label">Supporting someone else?</span>
+      <strong>R U OK?</strong>
+      <span>Tools for starting a supportive conversation.</span>
+    </div>
+  </a>
 
-    <a href="https://livin.org" target="_blank" rel="noopener noreferrer" class="coach-support-box">
-      <div class="support-logo support-logo-text" aria-hidden="true">LIVIN</div>
-      <div class="support-copy">
-        <strong>LIVIN</strong>
-        <span>Mental health education and stigma reduction</span>
-      </div>
-    </a>
-  </div>
-
+  <a href="https://livin.org/" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+    <div class="support-logo support-logo-text" aria-hidden="true">LIVIN</div>
+    <div class="support-copy">
+      <span class="support-label">Learn and explore</span>
+      <strong>LIVIN</strong>
+      <span>Mental health education and stigma reduction.</span>
+    </div>
+  </a>
+</div>
   <p class="foot-note" style="margin-top: 12px;">
     If you feel at immediate risk or unsafe, call emergency services right away.
   </p>
