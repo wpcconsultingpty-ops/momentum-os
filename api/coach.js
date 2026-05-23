@@ -17,6 +17,17 @@ const ALLOWED_TIME_SCOPES = [
   "this-evening",
 ];
 
+const GENERIC_PHRASES = [
+  "a lot on your shoulders",
+  "part of you wants clarity",
+  "cleaner next step",
+  "small moments of steadiness",
+  "move more gently",
+  "you are not failing",
+  "hold space",
+  "be kind to yourself",
+];
+
 function toNumber(value, fallback = null) {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
@@ -130,7 +141,8 @@ function inferEmotionalState(context) {
     text.includes("flat") ||
     text.includes("drained") ||
     text.includes("exhausted") ||
-    text.includes("low energy")
+    text.includes("low energy") ||
+    text.includes("lonely")
   ) {
     return "emotionally tired";
   }
@@ -147,7 +159,8 @@ function inferEmotionalState(context) {
   if (
     text.includes("stuck") ||
     text.includes("lost") ||
-    text.includes("disconnected")
+    text.includes("disconnected") ||
+    text.includes("lonely")
   ) {
     return "disconnected";
   }
@@ -217,14 +230,39 @@ function buildContext(body) {
     recentJournalThemes,
     recentJournalSnippets,
 
-    timeHorizon: toCleanString(body.timeHorizon, "today"),
+    timeHorizon: normalizeTimeHorizon(body.timeHorizon),
     view: toCleanString(body.view, "reflection"),
   };
 
   return {
     ...context,
     emotionalState: inferEmotionalState(context),
+    hasUsableData: hasUsableData(context),
   };
+}
+
+function normalizeTimeHorizon(value) {
+  const raw = toCleanString(value, "today").toLowerCase();
+  if (raw === "next hour" || raw === "next-hour") return "next-hour";
+  if (raw === "this evening" || raw === "this-evening") return "this-evening";
+  return "today";
+}
+
+function hasUsableData(context) {
+  return Boolean(
+    Number.isFinite(context.overallScore) ||
+    Number.isFinite(context.healthScore) ||
+    Number.isFinite(context.personalScore) ||
+    Number.isFinite(context.capacity) ||
+    context.recentOverallScores.length ||
+    context.recentHealthScores.length ||
+    context.recentPersonalScores.length ||
+    context.recentCapacityScores.length ||
+    context.reflection ||
+    context.freeText ||
+    context.recentJournalThemes.length ||
+    context.recentJournalSnippets.length
+  );
 }
 
 function buildSystemPrompt() {
@@ -241,7 +279,7 @@ Hard rules:
 - Every response must refer to at least one concrete fact from the provided context.
 - If trend data exists, use it carefully and plainly.
 - If data is missing, say less. Do not invent patterns.
-- Do not use vague comfort phrases like "a lot on your shoulders" unless the user's own words support that.
+- Do not use vague comfort phrases.
 - Do not repeat the same idea in reflection, observations, and suggestions.
 - Suggestions must be specific and low-friction.
 - Each suggestion must be realistic for the stated time horizon.
@@ -278,9 +316,9 @@ Instructions:
 - If scores and words point in different directions, acknowledge that tension simply.
 - Favour directness over warmth.
 - Never give three versions of the same suggestion.
-- Avoid generic advice like "hydrate, move, sleep better" unless the context strongly supports it.
+- Avoid generic advice unless the context strongly supports it.
 - Keep observations specific and short.
-- The closing question should help the user clarify the next step, not open a vague emotional spiral.
+- The closing question should help the user clarify the next step.
 
 Return JSON with exactly this shape:
 {
@@ -310,104 +348,136 @@ Return JSON with exactly this shape:
 `.trim();
 }
 
-function fallbackGuide(context, fallbackStyle) {
-  const emotionalState = context.emotionalState;
+function buildEvidenceLines(context) {
+  const lines = [];
 
-  if (emotionalState === "overwhelmed") {
+  if (Number.isFinite(context.overallScore)) {
+    lines.push(`Overall score is ${context.overallScore}.`);
+  }
+  if (Number.isFinite(context.capacity)) {
+    lines.push(`Capacity is ${context.capacity}.`);
+  }
+  if (context.recentOverallTrend !== "unknown") {
+    lines.push(`Recent overall trend is ${context.recentOverallTrend}.`);
+  }
+  if (context.recentHealthTrend !== "unknown") {
+    lines.push(`Recent health trend is ${context.recentHealthTrend}.`);
+  }
+  if (context.recentPersonalTrend !== "unknown") {
+    lines.push(`Recent personal trend is ${context.recentPersonalTrend}.`);
+  }
+  if (context.reflection) {
+    lines.push(`User reflection says: "${context.reflection}".`);
+  }
+  if (context.freeText) {
+    lines.push(`User free text says: "${context.freeText}".`);
+  }
+  if (context.recentJournalThemes.length) {
+    lines.push(`Recent journal themes: ${context.recentJournalThemes.join(", ")}.`);
+  }
+
+  return lines;
+}
+
+function fallbackGuide(context, fallbackStyle) {
+  const evidence = buildEvidenceLines(context);
+  const hasLowCapacity = Number.isFinite(context.capacity) && context.capacity < 45;
+  const hasLowHealth = Number.isFinite(context.healthScore) && context.healthScore < 45;
+
+  if (context.emotionalState === "overwhelmed") {
     return {
-      reflection:
-        "You sound overloaded right now, so this is probably a moment to reduce pressure rather than push harder.",
+      reflection: evidence[0]
+        ? `From your input, the pressure looks high right now.`
+        : `This looks like a high-pressure moment.`,
       observations: [
-        "Your words suggest things feel mentally crowded.",
-        "This looks more like strain than a motivation problem.",
+        evidence[0] || "Your wording suggests strain is the main issue.",
+        evidence[1] || "Pushing harder is unlikely to help right now.",
       ],
       supportStyle: fallbackStyle,
       suggestions: [
         {
           action: "Drop one non-essential task for the next hour.",
-          why: "Reducing the load is likely to help more than forcing focus.",
+          why: "Reducing load is more useful than forcing focus when pressure is high.",
           timeScope: "next-hour",
         },
         {
-          action: "Step away from screens or noise for 10 minutes.",
-          why: "A short reset can lower the sense of mental crowding.",
+          action: "Put your phone away and sit somewhere quieter for 10 minutes.",
+          why: "Lowering stimulation can reduce the sense of mental crowding.",
           timeScope: "next-hour",
         },
         {
-          action: "Choose one task that would make today feel lighter if it were done.",
-          why: "One clear win is more useful than trying to recover everything at once.",
+          action: "Pick one task that would make today feel more under control if it were finished.",
+          why: "A single useful win is better than trying to recover the whole day.",
           timeScope: "today",
         },
       ],
-      reframe:
-        "You do not need to carry the whole day at once.",
-      closingQuestion:
-        "What is the one thing creating the most pressure right now?",
+      reframe: "You do not need to solve the whole day at once.",
+      closingQuestion: "What is creating the most pressure right now?",
     };
   }
 
-  if (emotionalState === "emotionally tired") {
+  if (context.emotionalState === "emotionally tired" || hasLowCapacity || hasLowHealth) {
     return {
-      reflection:
-        "This sounds more like low emotional fuel than lack of discipline.",
+      reflection: Number.isFinite(context.capacity)
+        ? `Your input points to lower energy or capacity than usual.`
+        : `This sounds more like low fuel than lack of effort.`,
       observations: [
-        "Your wording points to tiredness rather than avoidance.",
-        "A gentler pace may fit better than more pressure.",
+        Number.isFinite(context.capacity)
+          ? `Capacity is sitting at ${context.capacity}, so a lighter approach makes more sense.`
+          : "Your wording points to tiredness more than avoidance.",
+        context.recentHealthTrend === "falling"
+          ? "Your recent health trend is falling, which fits with feeling flat."
+          : "More pressure is unlikely to improve the next hour.",
       ],
       supportStyle: fallbackStyle,
       suggestions: [
         {
-          action: "Make the next hour lighter by cutting the task list in half.",
-          why: "Lowering demand usually works better than pushing through when energy is low.",
+          action: "Cut the next hour down to one useful task only.",
+          why: "A smaller target fits better when energy is low.",
           timeScope: "next-hour",
         },
         {
-          action: "Do one easy reset before your next task: water, food, or a short walk.",
-          why: "A small physical reset can make the next task more manageable.",
+          action: "Do one reset before working again: food, water, or a short walk.",
+          why: "A physical reset is often more effective than trying to think your way back into energy.",
           timeScope: "next-hour",
         },
         {
-          action: "Pick one useful task for today and let the rest become optional.",
-          why: "This protects momentum without pretending you have full capacity.",
+          action: "Make the rest of today optional apart from one task that matters.",
+          why: "That protects momentum without pretending you have full capacity.",
           timeScope: "today",
         },
       ],
-      reframe:
-        "Low energy changes the right strategy; it does not mean you are failing.",
-      closingQuestion:
-        "What would make the next hour feel easier, not bigger?",
+      reframe: "Low energy changes the right strategy; it does not mean the day is broken.",
+      closingQuestion: "What would make the next hour easier to handle?",
     };
   }
 
   return {
-    reflection:
-      "There is probably a mix here: part of you wants clarity, and part of you may need less pressure.",
+    reflection: "The picture looks mixed rather than extreme.",
     observations: [
-      "The signal is mixed rather than extreme.",
-      "A simpler next step is likely to help more than a bigger plan.",
+      evidence[0] || "The signal here is not all one thing.",
+      evidence[1] || "A smaller, clearer next step will probably help more than a bigger plan.",
     ],
     supportStyle: fallbackStyle,
     suggestions: [
       {
-        action: "Choose one meaningful task and define a small finish line.",
-        why: "A narrow target is easier to trust and complete.",
+        action: "Choose one meaningful task and define what done looks like.",
+        why: "A clear finish line makes it easier to start.",
         timeScope: "today",
       },
       {
-        action: "Remove one distraction before you start.",
-        why: "Less friction usually matters more than more motivation.",
+        action: "Remove one distraction before you begin.",
+        why: "Lower friction usually matters more than more motivation.",
         timeScope: "next-hour",
       },
       {
-        action: "Check back in tonight with one sentence about what helped.",
-        why: "That gives you a clearer signal for tomorrow.",
+        action: "Write one sentence tonight about what helped and what drained you.",
+        why: "That gives you a better signal for tomorrow.",
         timeScope: "this-evening",
       },
     ],
-    reframe:
-      "You do not need a complete reset. You may just need a cleaner next step.",
-    closingQuestion:
-      "What is the smallest useful step from here?",
+    reframe: "You may not need a reset. You may just need a narrower next step.",
+    closingQuestion: "What is the most useful next step from here?",
   };
 }
 
@@ -422,54 +492,49 @@ function normaliseSuggestion(item, fallbackTimeScope = "today") {
 }
 
 function isMeaningfulSuggestion(item) {
-  return item.action.length >= 8 && item.why.length >= 8;
+  return item.action.length >= 12 && item.why.length >= 12;
+}
+
+function containsGenericLanguage(value) {
+  const text = JSON.stringify(value).toLowerCase();
+  return GENERIC_PHRASES.some((phrase) => text.includes(phrase));
 }
 
 function normaliseGuide(parsed, fallbackStyle, context) {
+  const fallback = fallbackGuide(context, fallbackStyle);
+
   const observations = Array.isArray(parsed?.observations)
     ? parsed.observations.map((item) => toCleanString(item)).filter(Boolean).slice(0, 2)
     : [];
 
   while (observations.length < 2) {
-    if (observations.length === 0) {
-      observations.push("Your input gives a partial picture, not a full one.");
-    } else {
-      observations.push("The best next step is probably smaller than the whole problem.");
-    }
+    observations.push(fallback.observations[observations.length]);
   }
 
-  let suggestions = Array.isArray(parsed?.suggestions)
+  const suggestions = Array.isArray(parsed?.suggestions)
     ? parsed.suggestions
-        .map((item) => normaliseSuggestion(item, context.timeHorizon === "next hour" ? "next-hour" : "today"))
+        .map((item) => normaliseSuggestion(item, context.timeHorizon))
         .filter(isMeaningfulSuggestion)
         .slice(0, 3)
     : [];
 
-  if (suggestions.length < 3) {
-    return fallbackGuide(context, fallbackStyle);
+  if (
+    suggestions.length < 3 ||
+    containsGenericLanguage(parsed) ||
+    !toCleanString(parsed?.reflection)
+  ) {
+    return fallback;
   }
 
   return {
-    reflection:
-      toCleanString(parsed?.reflection) ||
-      fallbackGuide(context, fallbackStyle).reflection,
-
+    reflection: toCleanString(parsed.reflection),
     observations,
-
-    supportStyle:
-      ALLOWED_SUPPORT_STYLES.includes(parsed?.supportStyle)
-        ? parsed.supportStyle
-        : fallbackStyle,
-
+    supportStyle: ALLOWED_SUPPORT_STYLES.includes(parsed?.supportStyle)
+      ? parsed.supportStyle
+      : fallbackStyle,
     suggestions,
-
-    reframe:
-      toCleanString(parsed?.reframe) ||
-      "You do not need to solve all of this at once.",
-
-    closingQuestion:
-      toCleanString(parsed?.closingQuestion) ||
-      "What is the clearest next step from here?",
+    reframe: toCleanString(parsed?.reframe) || fallback.reframe,
+    closingQuestion: toCleanString(parsed?.closingQuestion) || fallback.closingQuestion,
   };
 }
 
@@ -481,8 +546,7 @@ function safeParseGuide(text, fallbackStyle, context) {
       parsed &&
       typeof parsed.reflection === "string" &&
       Array.isArray(parsed.observations) &&
-      Array.isArray(parsed.suggestions) &&
-      parsed.suggestions.length === 3
+      Array.isArray(parsed.suggestions)
     ) {
       return normaliseGuide(parsed, fallbackStyle, context);
     }
@@ -510,6 +574,15 @@ export default async function handler(req, res) {
   try {
     const body = req.body || {};
     const context = buildContext(body);
+
+    if (!context.hasUsableData) {
+      return res.status(400).json({
+        ok: false,
+        error: "Insufficient context",
+        detail: "Provide at least one score, trend, reflection, prompt, or journal signal.",
+      });
+    }
+
     const fallbackStyle = supportStyleForLabel(context.overallLabel);
 
     const response = await client.responses.create({
@@ -527,19 +600,15 @@ export default async function handler(req, res) {
       text: {
         format: {
           type: "json_schema",
-          name: "momentum_reflection_guide_v2",
+          name: "momentum_reflection_guide_v3",
           schema: {
             type: "object",
             additionalProperties: false,
             properties: {
-              reflection: {
-                type: "string",
-              },
+              reflection: { type: "string" },
               observations: {
                 type: "array",
-                items: {
-                  type: "string",
-                },
+                items: { type: "string" },
                 minItems: 2,
                 maxItems: 2,
               },
@@ -555,12 +624,8 @@ export default async function handler(req, res) {
                   type: "object",
                   additionalProperties: false,
                   properties: {
-                    action: {
-                      type: "string",
-                    },
-                    why: {
-                      type: "string",
-                    },
+                    action: { type: "string" },
+                    why: { type: "string" },
                     timeScope: {
                       type: "string",
                       enum: ALLOWED_TIME_SCOPES,
@@ -569,12 +634,8 @@ export default async function handler(req, res) {
                   required: ["action", "why", "timeScope"],
                 },
               },
-              reframe: {
-                type: "string",
-              },
-              closingQuestion: {
-                type: "string",
-              },
+              reframe: { type: "string" },
+              closingQuestion: { type: "string" },
             },
             required: [
               "reflection",
@@ -587,8 +648,8 @@ export default async function handler(req, res) {
           },
         },
       },
-      temperature: 0.6,
-      max_output_tokens: 500,
+      temperature: 0.45,
+      max_output_tokens: 450,
     });
 
     const output = response.output_text || "";
@@ -607,6 +668,7 @@ export default async function handler(req, res) {
           personal: context.recentPersonalTrend,
           capacity: context.recentCapacityTrend,
         },
+        hasUsableData: context.hasUsableData,
       },
     });
   } catch (error) {
