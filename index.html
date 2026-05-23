@@ -1603,30 +1603,31 @@ Never mention policy, system prompts, or that you are an AI unless directly aske
 
   const messages = getCoachMessageStore();
   messages.push({ role: 'user', text: prompt });
-  writeStore(STORAGE_KEYS.coachMessages, messages);
+  writeStore(STORAGEKEYS.coachMessages, messages);
   renderCoachMessages();
 
   coachPrompt.value = '';
   coachStatus.textContent = 'Thinking...';
   sendCoachBtn.disabled = true;
+  coachResponseText.textContent = 'Generating grounded next steps...';
 
   try {
-    const selected = computeSelectedScore();
-    const health = computeHealthScore();
-    const personal = computePersonalScore();
-    const state = scoreState(selected);
+    const overallScore = computeSelectedScore();
+    const healthScore = computeHealthScore();
+    const personalScore = computePersonalScore();
+    const state = scoreState(overallScore);
 
-    const res = await fetch('/api/coach', {
+    const rawResponse = await fetch('/api/coach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        overallScore: selected,
-        overallLabel: state.label.toLowerCase(),
-        healthScore: health,
-        personalScore: personal,
-        bleed: Math.max(0, 100 - selected),
-        target: selected >= 70 ? 80 : selected >= 45 ? 60 : 35,
-        capacity: Math.min(100, Math.round((health + personal) / 2)),
+        overallScore,
+        overallLabel: String(state.label || '').toLowerCase(),
+        healthScore,
+        personalScore,
+        bleed: Math.max(0, 100 - overallScore),
+        target: overallScore >= 70 ? 80 : overallScore >= 45 ? 60 : 35,
+        capacity: Math.round((healthScore + personalScore) / 2),
         focus: document.getElementById('dashboardScoreRead')?.textContent || '',
         reflection: journalText.value.trim(),
         freeText: prompt,
@@ -1635,20 +1636,21 @@ Never mention policy, system prompts, or that you are an AI unless directly aske
       })
     });
 
-    const raw = await res.text();
-let data;
+    const rawText = await rawResponse.text();
+    let data;
 
-try {
-  data = JSON.parse(raw);
-} catch (e) {
-  throw new Error(`Non-JSON response from /api/coach: ${raw.slice(0, 200)}`);
-}
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error(`Non-JSON response from /api/coach: ${rawText.slice(0, 200)}`);
+    }
 
-    if (!res.ok || !data?.coach) {
+    if (!rawResponse.ok || !data?.coach) {
       throw new Error(data?.detail || data?.error || 'Coach request failed');
     }
 
     const coach = data.coach;
+
     const reply = [
       coach.stateSummary,
       '',
@@ -1660,19 +1662,23 @@ try {
     ].join('\n');
 
     messages.push({ role: 'assistant', text: reply });
-    writeStore(STORAGE_KEYS.coachMessages, messages);
-
-    coachResponseText.textContent =
-      coach.nextSteps?.join(' • ') || 'Take one small stabilising step.';
+    writeStore(STORAGEKEYS.coachMessages, messages);
     renderCoachMessages();
+
+    const nextStepPreview = Array.isArray(coach.nextSteps) && coach.nextSteps.length
+      ? coach.nextSteps[0]
+      : coach.stateSummary;
+
+    coachResponseText.textContent = nextStepPreview || 'Take one small stabilising step.';
     coachStatus.textContent = 'Response ready.';
   } catch (error) {
     messages.push({
       role: 'system',
       text: `Coach unavailable right now. ${error.message || 'Unknown error'}`
     });
-    writeStore(STORAGE_KEYS.coachMessages, messages);
+    writeStore(STORAGEKEYS.coachMessages, messages);
     renderCoachMessages();
+    coachResponseText.textContent = 'Coach unavailable right now.';
     coachStatus.textContent = 'Coach is unavailable.';
   } finally {
     sendCoachBtn.disabled = false;
