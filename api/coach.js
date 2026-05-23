@@ -463,36 +463,3 @@ export default async function handler(req, res) {
     });
   }
 }
-```
-
-## What Changed
-
-### Emotional tone
-
-* Shifted from performance coaching to reflective emotional support.
-* Reduced productivity language.
-* Added emotional mirroring before suggestions.
-
-### Better structure
-
-* Added emotional-state inference.
-* Added contextual fallbacks.
-* Improved string cleaning and validation.
-* Improved schema consistency.
-
-### More natural output
-
-* Replaced:
-
-  * `stateSummary` → `reflection`
-  * `nextSteps` → `gentleSuggestions`
-  * `coachingMode` → `supportStyle`
-  * `coachQuestion` → `closingQuestion`
-
-### More human responses
-
-The assistant now behaves more like:
-
-* an emotionally intelligent guide
-  and less like:
-* a productivity optimisation system.
