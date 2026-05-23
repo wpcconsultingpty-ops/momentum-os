@@ -2132,48 +2132,103 @@ async function askCoach() {
     messages.scrollTop = messages.scrollHeight;
   }
 
+  function formatGuide(guide) {
+    if (!guide || typeof guide !== 'object') return '';
+
+    const parts = [];
+
+    if (guide.reflection) {
+      parts.push(guide.reflection.trim());
+    }
+
+    if (Array.isArray(guide.observations) && guide.observations.length) {
+      parts.push(
+        `What I’m noticing:\n- ${guide.observations
+          .filter(Boolean)
+          .map(item => String(item).trim())
+          .join('\n- ')}`
+      );
+    }
+
+    if (Array.isArray(guide.suggestions) && guide.suggestions.length) {
+      parts.push(
+        `Next steps:\n- ${guide.suggestions
+          .filter(item => item && item.action)
+          .map(item => {
+            const action = String(item.action || '').trim();
+            const why = String(item.why || '').trim();
+            const timeScope = String(item.timeScope || '').trim();
+            return why
+              ? `${action} (${why}${timeScope ? ` — ${timeScope}` : ''})`
+              : `${action}${timeScope ? ` — ${timeScope}` : ''}`;
+          })
+          .join('\n- ')}`
+      );
+    }
+
+    if (guide.reframe) {
+      parts.push(`Reframe:\n${String(guide.reframe).trim()}`);
+    }
+
+    if (guide.closingQuestion) {
+      parts.push(String(guide.closingQuestion).trim());
+    }
+
+    return parts.filter(Boolean).join('\n\n').trim();
+  }
+
   btn.disabled = true;
   status.textContent = 'Thinking...';
-
   appendMessage('user', prompt);
 
   try {
     const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
     const latest = entries.length ? entries[entries.length - 1] : {};
 
-    const overallScore = latest.overallScore ?? Math.round((calculateHealthScore() + calculatePersonalScore()) / 2);
-    const healthScore = latest.healthScore ?? calculateHealthScore();
-    const personalScore = latest.personalScore ?? calculatePersonalScore();
+    const overallScore = Number.isFinite(latest.overallScore)
+      ? latest.overallScore
+      : Math.round((calculateHealthScore() + calculatePersonalScore()) / 2);
 
-    const overallLabel =
-      overallScore >= 80 ? 'Excellent' :
-      overallScore >= 60 ? 'Good' :
-      'Needs attention';
+    const healthScore = Number.isFinite(latest.healthScore)
+      ? latest.healthScore
+      : calculateHealthScore();
+
+    const personalScore = Number.isFinite(latest.personalScore)
+      ? latest.personalScore
+      : calculatePersonalScore();
 
     const checkedTriggers = Array.from(document.querySelectorAll('[data-trigger]:checked'))
       .map(el => el.dataset.trigger);
 
-    const bleed = checkedTriggers.join(', ') || 'none identified';
-    const target = document.getElementById('personalDesire')?.value || '';
-    const capacity = document.getElementById('energy')?.value || '';
-    const reflection = document.getElementById('journalText')?.value?.trim() || '';
+    const recent = entries.slice(-7);
 
     const res = await fetch('/api/coach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         overallScore,
-        overallLabel,
         healthScore,
         personalScore,
-        bleed,
-        target,
-        capacity,
+        capacity: Number(document.getElementById('energy')?.value || 0),
+        bleed: checkedTriggers.join(', ') || '',
+        target: document.getElementById('personalDesire')?.value || '',
         focus: prompt,
-        reflection,
+        reflection: document.getElementById('journalText')?.value?.trim() || '',
         freeText: prompt,
-        timeHorizon: 'next hour',
-        view: 'coach'
+        timeHorizon: 'next-hour',
+        view: 'coach',
+        recentOverallScores: recent.map(e => e.overallScore).filter(Number.isFinite),
+        recentHealthScores: recent.map(e => e.healthScore).filter(Number.isFinite),
+        recentPersonalScores: recent.map(e => e.personalScore).filter(Number.isFinite),
+        recentCapacityScores: recent.map(e => e.energy ? e.energy * 10 : null).filter(Number.isFinite),
+        recentJournalThemes: recent
+          .map(e => e.journalNote || '')
+          .filter(Boolean)
+          .slice(-5),
+        recentJournalSnippets: recent
+          .map(e => e.journalNote || '')
+          .filter(Boolean)
+          .slice(-3)
       })
     });
 
@@ -2182,37 +2237,23 @@ async function askCoach() {
     }
 
     const data = await res.json();
-    const coach = data?.coach || {};
+    const finalResponse = formatGuide(data?.guide);
 
-    const apiResponse = [
-      coach.stateSummary,
-      coach.coachingMode ? `Mode: ${coach.coachingMode}` : '',
-      Array.isArray(coach.nextSteps) && coach.nextSteps.length
-        ? `Next steps:\n- ${coach.nextSteps.join('\n- ')}`
-        : '',
-      coach.avoidToday ? `Avoid today: ${coach.avoidToday}` : '',
-      coach.encouragement,
-      coach.coachQuestion ? `Question: ${coach.coachQuestion}` : ''
-    ]
-      .filter(part => typeof part === 'string' ? part.trim() : Boolean(part))
-      .join('\n\n')
-      .trim();
-
-    const fallbackResponse = generateCoachResponse(prompt, entries);
-    const finalResponse = apiResponse || fallbackResponse || 'Coach response received, but no message text was returned.';
+    if (!finalResponse) {
+      throw new Error('Guide response missing expected fields');
+    }
 
     appendMessage('coach', finalResponse);
     responseText.textContent = finalResponse;
     promptEl.value = '';
     status.textContent = 'Ready';
   } catch (error) {
-    const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
-    const fallbackResponse = generateCoachResponse(prompt, entries);
+    const fallback =
+      "I couldn't generate a grounded response just now. Try saving today's health, personal, and journal data first, then ask a more specific question.";
 
-    appendMessage('coach', fallbackResponse);
-    responseText.textContent = fallbackResponse;
-    promptEl.value = '';
-    status.textContent = 'Offline fallback';
+    appendMessage('coach', fallback);
+    responseText.textContent = fallback;
+    status.textContent = 'Coach unavailable';
     console.error(error);
   } finally {
     btn.disabled = false;
