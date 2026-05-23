@@ -11,21 +11,10 @@ const ALLOWED_SUPPORT_STYLES = [
   "protect-energy",
 ];
 
-const ALLOWED_TIME_SCOPES = [
-  "next-hour",
-  "today",
-  "this-evening",
-];
-
-const GENERIC_PHRASES = [
-  "a lot on your shoulders",
-  "part of you wants clarity",
-  "cleaner next step",
-  "small moments of steadiness",
-  "move more gently",
-  "you are not failing",
-  "hold space",
-  "be kind to yourself",
+const ALLOWED_SUGGESTION_TYPES = [
+  "regulate",
+  "reduce",
+  "reconnect",
 ];
 
 function toNumber(value, fallback = null) {
@@ -40,71 +29,12 @@ function clamp(value, min = 0, max = 100) {
 
 function toCleanString(value, fallback = "") {
   if (value === null || value === undefined) return fallback;
-  return String(value).replace(/\s+/g, " ").trim();
+  return String(value).trim();
 }
 
-function toStringArray(value, maxItems = 7) {
+function toCleanArray(value) {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => toCleanString(item))
-    .filter(Boolean)
-    .slice(0, maxItems);
-}
-
-function toNumericArray(value, maxItems = 14) {
-  if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => clamp(toNumber(item)))
-    .filter((item) => Number.isFinite(item))
-    .slice(0, maxItems);
-}
-
-function average(values) {
-  if (!Array.isArray(values) || values.length === 0) return null;
-  const valid = values.filter((v) => Number.isFinite(v));
-  if (!valid.length) return null;
-  return valid.reduce((sum, v) => sum + v, 0) / valid.length;
-}
-
-function latest(values) {
-  if (!Array.isArray(values) || values.length === 0) return null;
-  const valid = values.filter((v) => Number.isFinite(v));
-  return valid.length ? valid[valid.length - 1] : null;
-}
-
-function slopeLabel(values) {
-  if (!Array.isArray(values) || values.length < 2) return "unknown";
-  const first = values[0];
-  const last = values[values.length - 1];
-  if (!Number.isFinite(first) || !Number.isFinite(last)) return "unknown";
-
-  const delta = last - first;
-
-  if (delta <= -12) return "falling";
-  if (delta >= 12) return "rising";
-  return "flat";
-}
-
-function volatilityLabel(values) {
-  if (!Array.isArray(values) || values.length < 3) return "unknown";
-
-  let totalChange = 0;
-  let transitions = 0;
-
-  for (let i = 1; i < values.length; i += 1) {
-    if (Number.isFinite(values[i]) && Number.isFinite(values[i - 1])) {
-      totalChange += Math.abs(values[i] - values[i - 1]);
-      transitions += 1;
-    }
-  }
-
-  if (!transitions) return "unknown";
-
-  const avgChange = totalChange / transitions;
-
-  if (avgChange >= 15) return "high";
-  if (avgChange >= 7) return "moderate";
-  return "low";
+  return value.map((item) => toCleanString(item)).filter(Boolean);
 }
 
 function deriveStateLabel(score) {
@@ -124,8 +54,7 @@ function supportStyleForLabel(label) {
 }
 
 function inferEmotionalState(context) {
-  const text = `${context.reflection} ${context.freeText} ${context.recentJournalThemes.join(" ")}`
-    .toLowerCase();
+  const text = `${context.reflection} ${context.freeText}`.toLowerCase();
 
   if (
     text.includes("overwhelmed") ||
@@ -140,9 +69,7 @@ function inferEmotionalState(context) {
     text.includes("tired") ||
     text.includes("flat") ||
     text.includes("drained") ||
-    text.includes("exhausted") ||
-    text.includes("low energy") ||
-    text.includes("lonely")
+    text.includes("exhausted")
   ) {
     return "emotionally tired";
   }
@@ -159,8 +86,7 @@ function inferEmotionalState(context) {
   if (
     text.includes("stuck") ||
     text.includes("lost") ||
-    text.includes("disconnected") ||
-    text.includes("lonely")
+    text.includes("disconnected")
   ) {
     return "disconnected";
   }
@@ -176,365 +102,228 @@ function inferEmotionalState(context) {
   return "steady";
 }
 
-function buildContext(body) {
-  const overallScore = clamp(toNumber(body.overallScore));
-  const healthScore = clamp(toNumber(body.healthScore));
-  const personalScore = clamp(toNumber(body.personalScore));
-  const capacity = clamp(toNumber(body.capacity));
-
-  const recentHealthScores = toNumericArray(body.recentHealthScores);
-  const recentPersonalScores = toNumericArray(body.recentPersonalScores);
-  const recentCapacityScores = toNumericArray(body.recentCapacityScores);
-  const recentOverallScores = toNumericArray(body.recentOverallScores);
-  const recentJournalThemes = toStringArray(body.recentJournalThemes, 8);
-  const recentJournalSnippets = toStringArray(body.recentJournalSnippets, 3);
-
-  const overallLabel = deriveStateLabel(overallScore);
-
-  const context = {
-    overallScore,
-    overallLabel,
-    healthScore,
-    personalScore,
-    capacity,
-
-    recentHealthScores,
-    recentPersonalScores,
-    recentCapacityScores,
-    recentOverallScores,
-
-    recentHealthTrend: slopeLabel(recentHealthScores),
-    recentPersonalTrend: slopeLabel(recentPersonalScores),
-    recentCapacityTrend: slopeLabel(recentCapacityScores),
-    recentOverallTrend: slopeLabel(recentOverallScores),
-
-    overallVolatility: volatilityLabel(recentOverallScores),
-
-    healthAverage7d: average(recentHealthScores),
-    personalAverage7d: average(recentPersonalScores),
-    capacityAverage7d: average(recentCapacityScores),
-    overallAverage7d: average(recentOverallScores),
-
-    healthLatest: latest(recentHealthScores),
-    personalLatest: latest(recentPersonalScores),
-    capacityLatest: latest(recentCapacityScores),
-    overallLatest: latest(recentOverallScores),
-
-    bleed: toCleanString(body.bleed),
-    target: toCleanString(body.target),
-    focus: toCleanString(body.focus),
-
-    reflection: toCleanString(body.reflection),
-    freeText: toCleanString(body.freeText || body.prompt),
-
-    recentJournalThemes,
-    recentJournalSnippets,
-
-    timeHorizon: normalizeTimeHorizon(body.timeHorizon),
-    view: toCleanString(body.view, "reflection"),
-  };
-
-  return {
-    ...context,
-    emotionalState: inferEmotionalState(context),
-    hasUsableData: hasUsableData(context),
-  };
-}
-
-function normalizeTimeHorizon(value) {
-  const raw = toCleanString(value, "today").toLowerCase();
-  if (raw === "next hour" || raw === "next-hour") return "next-hour";
-  if (raw === "this evening" || raw === "this-evening") return "this-evening";
-  return "today";
-}
-
-function hasUsableData(context) {
-  return Boolean(
-    Number.isFinite(context.overallScore) ||
-    Number.isFinite(context.healthScore) ||
-    Number.isFinite(context.personalScore) ||
-    Number.isFinite(context.capacity) ||
-    context.recentOverallScores.length ||
-    context.recentHealthScores.length ||
-    context.recentPersonalScores.length ||
-    context.recentCapacityScores.length ||
-    context.reflection ||
-    context.freeText ||
-    context.recentJournalThemes.length ||
-    context.recentJournalSnippets.length
-  );
-}
-
 function buildSystemPrompt() {
-  return `
-You are the Reflection Guide for Momentum OS.
+  return `You are the Reflection Guide for Momentum OS.
 
-Your job:
-- Give grounded, emotionally aware support based on the user's actual data and words.
-- Sound calm, clear, and human.
-- Do not sound corporate, motivational, generic, poetic, or therapist-like.
-- Do not optimise for inspiration. Optimise for accuracy, steadiness, and usefulness.
+Purpose:
+- Help the user slow down, understand what they are feeling, and reconnect with themselves.
+- The goal is not to optimise the user.
+- The goal is to help them feel more grounded, clearer, and less alone in what they are carrying.
 
-Hard rules:
-- Every response must refer to at least one concrete fact from the provided context.
-- If trend data exists, use it carefully and plainly.
-- If data is missing, say less. Do not invent patterns.
-- Do not use vague comfort phrases.
-- Do not repeat the same idea in reflection, observations, and suggestions.
-- Suggestions must be specific and low-friction.
-- Each suggestion must be realistic for the stated time horizon.
-- Avoid filler encouragement.
-- Avoid therapy jargon.
-- Do not diagnose.
+Core role:
+- Respond like a calm, emotionally intelligent counsellor having a real conversation.
+- Listen for the emotional reality underneath the words.
+- Help the user feel understood before offering direction.
+- Reduce overwhelm, shame, pressure, and emotional noise.
+- Encourage reflection, steadiness, and gentle next steps.
 
-Style rules:
-- Use plain English.
-- Keep the reflection concise.
-- Observations should sound like honest noticing, not analytics output.
-- Suggestions should feel practical, not wellness-template advice.
-- If the user sounds low-capacity, reduce demands immediately.
-- If the user sounds emotionally tired, prioritise recovery and simplification.
-- If the user sounds steady or strong, help protect energy and avoid overextension.
+Voice:
+- Warm, calm, grounded, thoughtful, and human.
+- Emotionally attuned without sounding clinical.
+- Never robotic, motivational, corporate, or overly therapeutic.
+- Use soft, natural language.
+- Use short paragraphs and conversational pacing.
+- Sound like someone emotionally safe to talk to.
 
-Safety:
+Response approach:
+- Start with the person's felt experience, not the metric.
+- Use concrete context from the input to support the reflection.
+- Mention at least one specific signal from the provided context such as low capacity, a recent trend, a trigger, or a short phrase from reflection/freeText.
+- Do not lead with score language unless it clearly helps.
+- Translate score patterns into lived experience.
+- If capacity is low, reduce expectations immediately.
+- If health is low, lean toward rest, hydration, food, movement, or reduced stimulation.
+- If personal score is low, lean toward honesty, boundaries, connection, or self-kindness.
+- If the user sounds overwhelmed, make suggestions smaller and simpler.
+- Keep each suggestion realistic for the next hour unless the user explicitly asks for a bigger plan.
+- Do not repeat the same idea three different ways.
+- Avoid vague filler or polished generic empathy.
+- Do not diagnose or pathologise.
+
+Boundaries:
+- You are not a therapist, psychiatrist, doctor, or crisis service.
 - If the user appears at risk of self-harm or harm to others, advise immediate support from local emergency or crisis services.
 
-Return valid JSON only.
-`.trim();
+Output rules:
+- Return valid JSON only.
+- reflection should sound human and emotionally aware.
+- observedPattern must point to something specific in the context.
+- whyThisFitsNow must explain why the suggestions fit this moment.
+- gentleSuggestions must contain exactly 3 distinct suggestions.
+- gentleSuggestions should use these categories in this order: regulate, reduce, reconnect.
+- regulate should help the nervous system settle.
+- reduce should lower pressure or remove friction.
+- reconnect should help the person reconnect with self, body, values, or environment.
+- The closing question should invite reflection naturally, without sounding scripted.`;
 }
 
 function buildUserPrompt(context) {
-  return `
-Use this Momentum OS context.
+  return `Use this Momentum OS state to support the user.
 
 Context:
 ${JSON.stringify(context, null, 2)}
 
-Instructions:
-- Start from what is actually present in the context.
-- Ground the response in the user's wording, scores, and trends.
-- If scores and words point in different directions, acknowledge that tension simply.
-- Favour directness over warmth.
-- Never give three versions of the same suggestion.
-- Avoid generic advice unless the context strongly supports it.
-- Keep observations specific and short.
-- The closing question should help the user clarify the next step.
+Interpretation rules:
+- vulnerable: reduce overwhelm and focus on emotional steadiness.
+- mixed: simplify expectations and reconnect with what matters most.
+- steady: support balance, consistency, and gentle progress.
+- strong: protect energy and avoid emotional overextension.
+- The response must sound grounded in the actual context, not like a generic wellness script.
+- Start by reflecting emotional reality in plain human language.
+- Mention at least one concrete input from context in reflection or observedPattern.
+- If recentTrends exist, use them when relevant.
+- If recentReflections exist, you may quote a very short phrase only when useful.
+- Keep suggestions specific and doable.
+- Suggestions should feel invitational, not commanding.
 
-Return JSON with exactly this shape:
+Return JSON with exactly these fields:
 {
   "reflection": "string",
-  "observations": ["string", "string"],
+  "observedPattern": "string",
   "supportStyle": "grounding | simplify | steady | protect-energy",
-  "suggestions": [
-    {
-      "action": "string",
-      "why": "string",
-      "timeScope": "next-hour | today | this-evening"
-    },
-    {
-      "action": "string",
-      "why": "string",
-      "timeScope": "next-hour | today | this-evening"
-    },
-    {
-      "action": "string",
-      "why": "string",
-      "timeScope": "next-hour | today | this-evening"
-    }
+  "gentleSuggestions": [
+    { "type": "regulate", "suggestion": "string" },
+    { "type": "reduce", "suggestion": "string" },
+    { "type": "reconnect", "suggestion": "string" }
   ],
+  "whyThisFitsNow": "string",
   "reframe": "string",
+  "encouragement": "string",
   "closingQuestion": "string"
+}`;
 }
-`.trim();
+
+function buildObservedPattern(context) {
+  const bits = [];
+
+  if (Number.isFinite(context.capacity) && context.capacity <= 4) {
+    bits.push(`your capacity looks low at ${context.capacity}/10`);
+  }
+
+  if (Number.isFinite(context.healthScore) && context.healthScore < 55) {
+    bits.push(`your health score is sitting on the lower side at ${context.healthScore}`);
+  }
+
+  if (Number.isFinite(context.personalScore) && context.personalScore < 55) {
+    bits.push(`your personal score is also under strain at ${context.personalScore}`);
+  }
+
+  if (context.bleed && context.bleed !== "none identified") {
+    bits.push(`today's pressure seems linked to ${context.bleed}`);
+  }
+
+  if (context.recentReflections?.length) {
+    bits.push(`your recent notes carry a similar tone`);
+  }
+
+  return bits.length
+    ? `A pattern I notice is that ${bits.slice(0, 2).join(", ")}.`
+    : "A pattern I notice is that this seems like a moment for steadiness rather than more pressure.";
 }
 
-function buildEvidenceLines(context) {
-  const lines = [];
-
-  if (Number.isFinite(context.overallScore)) {
-    lines.push(`Overall score is ${context.overallScore}.`);
-  }
-  if (Number.isFinite(context.capacity)) {
-    lines.push(`Capacity is ${context.capacity}.`);
-  }
-  if (context.recentOverallTrend !== "unknown") {
-    lines.push(`Recent overall trend is ${context.recentOverallTrend}.`);
-  }
-  if (context.recentHealthTrend !== "unknown") {
-    lines.push(`Recent health trend is ${context.recentHealthTrend}.`);
-  }
-  if (context.recentPersonalTrend !== "unknown") {
-    lines.push(`Recent personal trend is ${context.recentPersonalTrend}.`);
-  }
-  if (context.reflection) {
-    lines.push(`User reflection says: "${context.reflection}".`);
-  }
-  if (context.freeText) {
-    lines.push(`User free text says: "${context.freeText}".`);
-  }
-  if (context.recentJournalThemes.length) {
-    lines.push(`Recent journal themes: ${context.recentJournalThemes.join(", ")}.`);
+function buildWhyThisFitsNow(context) {
+  if (Number.isFinite(context.capacity) && context.capacity <= 4) {
+    return "These suggestions stay small because your capacity looks limited right now, so the aim is to settle and reduce pressure rather than push harder.";
   }
 
-  return lines;
+  if (context.emotionalState === "overwhelmed") {
+    return "These suggestions focus on reducing noise first because overwhelmed moments usually respond better to less input, not more effort.";
+  }
+
+  if (
+    Number.isFinite(context.healthScore) &&
+    context.healthScore < 55 &&
+    Number.isFinite(context.personalScore) &&
+    context.personalScore < 55
+  ) {
+    return "These suggestions focus on steadiness because both your body and your emotional world seem to be asking for a little less pressure right now.";
+  }
+
+  return "These suggestions focus on steadiness first so you can respond to the moment you are actually in, not the one you wish you had.";
 }
 
 function fallbackGuide(context, fallbackStyle) {
-  const evidence = buildEvidenceLines(context);
-  const hasLowCapacity = Number.isFinite(context.capacity) && context.capacity < 45;
-  const hasLowHealth = Number.isFinite(context.healthScore) && context.healthScore < 45;
-
-  if (context.emotionalState === "overwhelmed") {
-    return {
-      reflection: evidence[0]
-        ? `From your input, the pressure looks high right now.`
-        : `This looks like a high-pressure moment.`,
-      observations: [
-        evidence[0] || "Your wording suggests strain is the main issue.",
-        evidence[1] || "Pushing harder is unlikely to help right now.",
-      ],
-      supportStyle: fallbackStyle,
-      suggestions: [
-        {
-          action: "Drop one non-essential task for the next hour.",
-          why: "Reducing load is more useful than forcing focus when pressure is high.",
-          timeScope: "next-hour",
-        },
-        {
-          action: "Put your phone away and sit somewhere quieter for 10 minutes.",
-          why: "Lowering stimulation can reduce the sense of mental crowding.",
-          timeScope: "next-hour",
-        },
-        {
-          action: "Pick one task that would make today feel more under control if it were finished.",
-          why: "A single useful win is better than trying to recover the whole day.",
-          timeScope: "today",
-        },
-      ],
-      reframe: "You do not need to solve the whole day at once.",
-      closingQuestion: "What is creating the most pressure right now?",
-    };
-  }
-
-  if (context.emotionalState === "emotionally tired" || hasLowCapacity || hasLowHealth) {
-    return {
-      reflection: Number.isFinite(context.capacity)
-        ? `Your input points to lower energy or capacity than usual.`
-        : `This sounds more like low fuel than lack of effort.`,
-      observations: [
-        Number.isFinite(context.capacity)
-          ? `Capacity is sitting at ${context.capacity}, so a lighter approach makes more sense.`
-          : "Your wording points to tiredness more than avoidance.",
-        context.recentHealthTrend === "falling"
-          ? "Your recent health trend is falling, which fits with feeling flat."
-          : "More pressure is unlikely to improve the next hour.",
-      ],
-      supportStyle: fallbackStyle,
-      suggestions: [
-        {
-          action: "Cut the next hour down to one useful task only.",
-          why: "A smaller target fits better when energy is low.",
-          timeScope: "next-hour",
-        },
-        {
-          action: "Do one reset before working again: food, water, or a short walk.",
-          why: "A physical reset is often more effective than trying to think your way back into energy.",
-          timeScope: "next-hour",
-        },
-        {
-          action: "Make the rest of today optional apart from one task that matters.",
-          why: "That protects momentum without pretending you have full capacity.",
-          timeScope: "today",
-        },
-      ],
-      reframe: "Low energy changes the right strategy; it does not mean the day is broken.",
-      closingQuestion: "What would make the next hour easier to handle?",
-    };
-  }
+  const lowCapacity = Number.isFinite(context.capacity) && context.capacity <= 4;
 
   return {
-    reflection: "The picture looks mixed rather than extreme.",
-    observations: [
-      evidence[0] || "The signal here is not all one thing.",
-      evidence[1] || "A smaller, clearer next step will probably help more than a bigger plan.",
-    ],
+    reflection: lowCapacity
+      ? `It makes sense if things feel harder to carry right now. Your energy for coping looks limited${Number.isFinite(context.capacity) ? ` at about ${context.capacity}/10` : ""}, so this may be a moment to scale things down rather than demand more from yourself.`
+      : "It sounds like part of you wants clarity, while another part may need a little more room to breathe first.",
+    observedPattern: buildObservedPattern(context),
     supportStyle: fallbackStyle,
-    suggestions: [
+    gentleSuggestions: [
       {
-        action: "Choose one meaningful task and define what done looks like.",
-        why: "A clear finish line makes it easier to start.",
-        timeScope: "today",
+        type: "regulate",
+        suggestion: "Step away from anything noisy or demanding for two minutes and let one full breath out slowly.",
       },
       {
-        action: "Remove one distraction before you begin.",
-        why: "Lower friction usually matters more than more motivation.",
-        timeScope: "next-hour",
+        type: "reduce",
+        suggestion: "Choose one thing that matters for the next hour and let the rest wait.",
       },
       {
-        action: "Write one sentence tonight about what helped and what drained you.",
-        why: "That gives you a better signal for tomorrow.",
-        timeScope: "this-evening",
+        type: "reconnect",
+        suggestion: "Check what your body is asking for first: water, food, movement, rest, quiet, or connection.",
       },
     ],
-    reframe: "You may not need a reset. You may just need a narrower next step.",
-    closingQuestion: "What is the most useful next step from here?",
+    whyThisFitsNow: buildWhyThisFitsNow(context),
+    reframe: "You do not need to clear the whole day to care for yourself well.",
+    encouragement: "A gentler next step still counts.",
+    closingQuestion: "What feels most needed right now: settling, simplifying, or reconnecting?",
   };
-}
-
-function normaliseSuggestion(item, fallbackTimeScope = "today") {
-  return {
-    action: toCleanString(item?.action),
-    why: toCleanString(item?.why),
-    timeScope: ALLOWED_TIME_SCOPES.includes(item?.timeScope)
-      ? item.timeScope
-      : fallbackTimeScope,
-  };
-}
-
-function isMeaningfulSuggestion(item) {
-  return item.action.length >= 12 && item.why.length >= 12;
-}
-
-function containsGenericLanguage(value) {
-  const text = JSON.stringify(value).toLowerCase();
-  return GENERIC_PHRASES.some((phrase) => text.includes(phrase));
 }
 
 function normaliseGuide(parsed, fallbackStyle, context) {
-  const fallback = fallbackGuide(context, fallbackStyle);
-
-  const observations = Array.isArray(parsed?.observations)
-    ? parsed.observations.map((item) => toCleanString(item)).filter(Boolean).slice(0, 2)
+  const provided = Array.isArray(parsed?.gentleSuggestions)
+    ? parsed.gentleSuggestions
+        .map((item) => ({
+          type: toCleanString(item?.type),
+          suggestion: toCleanString(item?.suggestion),
+        }))
+        .filter(
+          (item) =>
+            ALLOWED_SUGGESTION_TYPES.includes(item.type) && item.suggestion
+        )
     : [];
 
-  while (observations.length < 2) {
-    observations.push(fallback.observations[observations.length]);
-  }
+  const byType = new Map(provided.map((item) => [item.type, item.suggestion]));
 
-  const suggestions = Array.isArray(parsed?.suggestions)
-    ? parsed.suggestions
-        .map((item) => normaliseSuggestion(item, context.timeHorizon))
-        .filter(isMeaningfulSuggestion)
-        .slice(0, 3)
-    : [];
+  const fallbackSuggestions = {
+    regulate:
+      "Take two slower breaths and let your shoulders drop before you ask more of yourself.",
+    reduce:
+      "Lower the standard for the next hour and focus on only one necessary thing.",
+    reconnect:
+      "Notice what you need most right now: rest, food, water, space, or connection.",
+  };
 
-  if (
-    suggestions.length < 3 ||
-    containsGenericLanguage(parsed) ||
-    !toCleanString(parsed?.reflection)
-  ) {
-    return fallback;
-  }
+  const gentleSuggestions = ALLOWED_SUGGESTION_TYPES.map((type) => ({
+    type,
+    suggestion: byType.get(type) || fallbackSuggestions[type],
+  }));
 
   return {
-    reflection: toCleanString(parsed.reflection),
-    observations,
-    supportStyle: ALLOWED_SUPPORT_STYLES.includes(parsed?.supportStyle)
-      ? parsed.supportStyle
-      : fallbackStyle,
-    suggestions,
-    reframe: toCleanString(parsed?.reframe) || fallback.reframe,
-    closingQuestion: toCleanString(parsed?.closingQuestion) || fallback.closingQuestion,
+    reflection:
+      toCleanString(parsed?.reflection) ||
+      "It sounds like this moment needs gentleness more than pressure.",
+    observedPattern:
+      toCleanString(parsed?.observedPattern) || buildObservedPattern(context),
+    supportStyle:
+      parsed?.supportStyle &&
+      ALLOWED_SUPPORT_STYLES.includes(parsed.supportStyle)
+        ? parsed.supportStyle
+        : fallbackStyle,
+    gentleSuggestions,
+    whyThisFitsNow:
+      toCleanString(parsed?.whyThisFitsNow) || buildWhyThisFitsNow(context),
+    reframe:
+      toCleanString(parsed?.reframe) ||
+      "You do not need to solve the whole day right now.",
+    encouragement:
+      toCleanString(parsed?.encouragement) ||
+      "A steadier next hour is enough.",
+    closingQuestion:
+      toCleanString(parsed?.closingQuestion) ||
+      "What would feel most supportive in the next hour?",
   };
 }
 
@@ -545,8 +334,9 @@ function safeParseGuide(text, fallbackStyle, context) {
     if (
       parsed &&
       typeof parsed.reflection === "string" &&
-      Array.isArray(parsed.observations) &&
-      Array.isArray(parsed.suggestions)
+      typeof parsed.observedPattern === "string" &&
+      Array.isArray(parsed.gentleSuggestions) &&
+      parsed.gentleSuggestions.length === 3
     ) {
       return normaliseGuide(parsed, fallbackStyle, context);
     }
@@ -555,10 +345,40 @@ function safeParseGuide(text, fallbackStyle, context) {
   return fallbackGuide(context, fallbackStyle);
 }
 
+function buildContext(body) {
+  const overallScore = clamp(toNumber(body.overallScore));
+  const overallLabel = deriveStateLabel(overallScore);
+
+  const context = {
+    overallScore,
+    overallLabel,
+    healthScore: clamp(toNumber(body.healthScore)),
+    personalScore: clamp(toNumber(body.personalScore)),
+    capacity: clamp(toNumber(body.capacity), 0, 10),
+    bleed: toCleanString(body.bleed),
+    target: toCleanString(body.target),
+    focus: toCleanString(body.focus),
+    reflection: toCleanString(body.reflection),
+    freeText: toCleanString(body.freeText || body.prompt),
+    timeHorizon: toCleanString(body.timeHorizon, "next hour"),
+    view: toCleanString(body.view, "reflection"),
+    recentTrends:
+      body.recentTrends && typeof body.recentTrends === "object"
+        ? body.recentTrends
+        : {},
+    recentReflections: toCleanArray(body.recentReflections).slice(0, 3),
+    recentTriggers: toCleanArray(body.recentTriggers).slice(0, 5),
+  };
+
+  return {
+    ...context,
+    emotionalState: inferEmotionalState(context),
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
-      ok: false,
       error: "Method not allowed",
     });
   }
@@ -574,15 +394,6 @@ export default async function handler(req, res) {
   try {
     const body = req.body || {};
     const context = buildContext(body);
-
-    if (!context.hasUsableData) {
-      return res.status(400).json({
-        ok: false,
-        error: "Insufficient context",
-        detail: "Provide at least one score, trend, reflection, prompt, or journal signal.",
-      });
-    }
-
     const fallbackStyle = supportStyleForLabel(context.overallLabel);
 
     const response = await client.responses.create({
@@ -600,23 +411,22 @@ export default async function handler(req, res) {
       text: {
         format: {
           type: "json_schema",
-          name: "momentum_reflection_guide_v3",
+          name: "momentum_reflection_guide_v2",
           schema: {
             type: "object",
             additionalProperties: false,
             properties: {
-              reflection: { type: "string" },
-              observations: {
-                type: "array",
-                items: { type: "string" },
-                minItems: 2,
-                maxItems: 2,
+              reflection: {
+                type: "string",
+              },
+              observedPattern: {
+                type: "string",
               },
               supportStyle: {
                 type: "string",
                 enum: ALLOWED_SUPPORT_STYLES,
               },
-              suggestions: {
+              gentleSuggestions: {
                 type: "array",
                 minItems: 3,
                 maxItems: 3,
@@ -624,32 +434,45 @@ export default async function handler(req, res) {
                   type: "object",
                   additionalProperties: false,
                   properties: {
-                    action: { type: "string" },
-                    why: { type: "string" },
-                    timeScope: {
+                    type: {
                       type: "string",
-                      enum: ALLOWED_TIME_SCOPES,
+                      enum: ALLOWED_SUGGESTION_TYPES,
+                    },
+                    suggestion: {
+                      type: "string",
                     },
                   },
-                  required: ["action", "why", "timeScope"],
+                  required: ["type", "suggestion"],
                 },
               },
-              reframe: { type: "string" },
-              closingQuestion: { type: "string" },
+              whyThisFitsNow: {
+                type: "string",
+              },
+              reframe: {
+                type: "string",
+              },
+              encouragement: {
+                type: "string",
+              },
+              closingQuestion: {
+                type: "string",
+              },
             },
             required: [
               "reflection",
-              "observations",
+              "observedPattern",
               "supportStyle",
-              "suggestions",
+              "gentleSuggestions",
+              "whyThisFitsNow",
               "reframe",
+              "encouragement",
               "closingQuestion",
             ],
           },
         },
       },
-      temperature: 0.45,
-      max_output_tokens: 450,
+      temperature: 0.7,
+      max_output_tokens: 700,
     });
 
     const output = response.output_text || "";
@@ -662,13 +485,6 @@ export default async function handler(req, res) {
         label: context.overallLabel,
         emotionalState: context.emotionalState,
         supportStyle: guide.supportStyle,
-        trends: {
-          overall: context.recentOverallTrend,
-          health: context.recentHealthTrend,
-          personal: context.recentPersonalTrend,
-          capacity: context.recentCapacityTrend,
-        },
-        hasUsableData: context.hasUsableData,
       },
     });
   } catch (error) {
