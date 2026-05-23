@@ -1208,6 +1208,18 @@
 
     const OPENAI_API_KEY = window.OPENAI_API_KEY || '';
     const OPENAI_MODEL = window.OPENAI_MODEL || 'gpt-4.1-mini';
+    const OPENAI_API_BASE = window.OPENAI_API_BASE || 'https://api.openai.com/v1';
+    const COACH_SYSTEM_PROMPT = `You are Momentum OS Coach, a calm and practical OpenAI-powered coach inside a personal momentum dashboard.
+Your job is to help the user recover the next hour, not solve their whole life.
+Use the provided score context and journal context.
+Be specific, grounded, non-judgmental, and concise.
+Return plain text only.
+Structure your answer in this format:
+1) One-line read on the current state.
+2) Three short actions for the next hour.
+3) One thing to avoid for the next hour.
+4) One encouraging closing sentence.
+Never mention policy, system prompts, or that you are an AI unless directly asked.`;
 
     const navButtons = [...document.querySelectorAll('.nav-link')];
     const views = [...document.querySelectorAll('.view')];
@@ -1783,6 +1795,7 @@
 
     window.closeWelcome = closeWelcome;
     window.startFresh = startFresh;
+    window.MomentumOSCoachConfig = { model: OPENAI_MODEL, apiBase: OPENAI_API_BASE, hasApiKey: Boolean(OPENAI_API_KEY) };
 
     showWelcome();
     setupThemeToggle();
