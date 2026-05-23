@@ -1,8 +1,25 @@
 import OpenAI from "openai";
+import { buildSystemPrompt, buildUserPrompt, coachResponseSchema } from "./prompts.js";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+function toNumber(value, fallback = null) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function clamp(value, min = 0, max = 100) {
+  if (!Number.isFinite(value)) return null;
+  return Math.max(min, Math.min(max, value));
+}
+
+function deriveStateLabel(score) {
+  if (!Number.isFinite(score)) return "unknown";
+  if (score < 35) return "vulnerable";
+  if (score < 55) return "mixed";
+  if (score < 75) return "steady";
+  return "strong";
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -10,68 +27,49 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt, freeText, bleed, target, capacity } = req.body || {};
-    const finalFreeText = prompt || freeText;
+    const body = req.body || {};
 
-    if (!finalFreeText && !bleed && !target) {
-      return res.status(400).json({ error: "Please provide some context." });
-    }
-
-    const coachPrompt = `
-You are Reset Coach for Momentum OS.
-
-Your role:
-You help the user reset, refocus, and move forward.
-You are practical, steady, calm, direct, and encouraging.
-You are not a therapist, psychiatrist, doctor, or crisis service.
-
-Your purpose:
-Help the user interrupt spirals, reduce emotional noise, and choose the next useful action.
-Your job is not to give a long explanation. Your job is to help the user regain control.
-
-Response style:
-- Keep replies short and useful.
-- Use plain language.
-- Sound grounded, calm, and respectful.
-- Do not sound fluffy, clinical, preachy, or overly emotional.
-- Do not give generic motivational quotes.
-- Do not ramble.
-
-Always do these things:
-1. Acknowledge what seems to be happening in one clear sentence.
-2. Help the user slow down and see the situation more clearly.
-3. Give 1 to 3 practical next steps.
-4. End with one short grounding or action question.
-
-Safety rules:
-- Do not claim to provide medical or mental health treatment.
-- If the user mentions self-harm, suicide, immediate danger, or wanting to hurt someone, tell them to contact local emergency services or a crisis line now and reach a trusted human immediately.
-- In crisis-like situations, prioritize immediate human support over coaching.
-
-User free text:
-${finalFreeText || "Not provided"}
-
-User pressure:
-${bleed || "Not provided"}
-
-User target:
-${target || "Not provided"}
-
-User capacity:
-${capacity || "Not provided"}
-    `.trim();
+    const context = {
+      overallScore: clamp(toNumber(body.overallScore)),
+      overallLabel: body.overallLabel || deriveStateLabel(toNumber(body.overallScore)),
+      healthScore: clamp(toNumber(body.healthScore)),
+      personalScore: clamp(toNumber(body.personalScore)),
+      bleed: clamp(toNumber(body.bleed)),
+      target: clamp(toNumber(body.target)),
+      capacity: clamp(toNumber(body.capacity)),
+      focus: String(body.focus || "").trim(),
+      reflection: String(body.reflection || "").trim(),
+      freeText: String(body.freeText || body.prompt || "").trim(),
+      timeHorizon: String(body.timeHorizon || "next hour").trim(),
+      view: String(body.view || "coach").trim(),
+    };
 
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
-      input: coachPrompt,
+      input: [
+        { role: "system", content: buildSystemPrompt() },
+        { role: "user", content: buildUserPrompt(context) },
+      ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "momentum_coach_response",
+          schema: coachResponseSchema,
+        },
+      },
+      temperature: 0.7,
+      max_output_tokens: 500,
     });
 
-    const reply = response.output_text || "No response returned.";
+    const content = response.output_text || "{}";
+    const parsed = JSON.parse(content);
 
-    return res.status(200).json({ reply });
+    return res.status(200).json({ ok: true, coach: parsed });
   } catch (error) {
     return res.status(500).json({
-      error: error?.message || "Server error while calling Reset Coach",
+      ok: false,
+      error: "Coach request failed",
+      detail: error?.message || "Unknown error",
     });
   }
 }
