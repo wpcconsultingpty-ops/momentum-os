@@ -1776,11 +1776,49 @@ function toggleMenu() {
     }
 
     function setupEventListeners() {
-      // Sidebar backdrop click
-      const sidebarBackdrop = document.getElementById('sidebarBackdrop');
-     if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeMenu);
-        });
+  // Sidebar backdrop click
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener('click', closeMenu);
+  }
+
+  // Theme toggle
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem(STORAGE_KEYS.theme, newTheme);
+    updateThemeIcon(newTheme);
+  });
+
+  // Range inputs
+  document.querySelectorAll('input[type="range"]').forEach(input => {
+    input.addEventListener('input', () => {
+      const valueSpan = document.getElementById(input.id + 'Value');
+      if (valueSpan) {
+        valueSpan.textContent = `${input.value} / 10`;
       }
+      updateScores();
+    });
+  });
+
+  // Save buttons
+  document.getElementById('saveHealthBtn')?.addEventListener('click', saveHealthData);
+  document.getElementById('savePersonalBtn')?.addEventListener('click', savePersonalData);
+  document.getElementById('saveJournalBtn')?.addEventListener('click', saveJournalEntry);
+
+  // Coach
+  document.getElementById('askCoachBtn')?.addEventListener('click', askCoach);
+  document.getElementById('coachPrompt')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      askCoach();
+    }
+  });
+
+  // Analysis
+  document.getElementById('analyzeBtn')?.addEventListener('click', analyzePatterns);
+}
 
       // Theme toggle
       document.getElementById('themeToggle')?.addEventListener('click', () => {
