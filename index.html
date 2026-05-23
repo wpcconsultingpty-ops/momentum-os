@@ -1778,9 +1778,7 @@ function toggleMenu() {
     function setupEventListeners() {
       // Sidebar backdrop click
       const sidebarBackdrop = document.getElementById('sidebarBackdrop');
-      if (sidebarBackdrop) {
-        sidebarBackdrop.addEventListener('click', () => {
-          document.body.classList.remove('sidebar-open');
+     if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeMenu);
         });
       }
 
@@ -1823,31 +1821,31 @@ function toggleMenu() {
     }
 
     function switchView(viewId) {
-      // Hide all views
-      document.querySelectorAll('.view').forEach(view => {
-        view.classList.remove('active');
-      });
+  // Hide all views
+  document.querySelectorAll('.view').forEach(view => {
+    view.classList.remove('active');
+  });
 
-      // Show selected view
-      const targetView = document.getElementById(viewId);
-      if (targetView) {
-        targetView.classList.add('active');
-      }
+  // Show selected view
+  const targetView = document.getElementById(viewId);
+  if (targetView) {
+    targetView.classList.add('active');
+  }
 
-      // Update nav links
-      document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-      });
+  // Update nav links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.classList.remove('active');
+  });
 
-      // Find and activate the correct nav link
-      const activeLink = document.querySelector(`.nav-link[onclick*="${viewId}"]`);
-      if (activeLink) {
-        activeLink.classList.add('active');
-      }
+  // Find and activate the correct nav link
+  const activeLink = document.querySelector(`.nav-link[onclick*="${viewId}"]`);
+  if (activeLink) {
+    activeLink.classList.add('active');
+  }
 
-      // Close mobile menu
-      document.body.classList.remove('sidebar-open');
-    }
+  // Close mobile menu
+  closeMenu();
+}
 
     function updateThemeIcon(theme) {
       const icon = document.querySelector('.theme-icon');
