@@ -888,20 +888,44 @@
 }
 
 .coach-support-inline-text {
-  margin: 0;
+  margin: 0 0 12px 0;
   font-size: 0.9rem;
   line-height: 1.55;
   color: var(--muted);
 }
 
-.coach-support-inline-text a {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 700;
+.coach-support-boxes {
+  display: grid;
+  gap: 10px;
 }
 
-.coach-support-inline-text a:hover {
-  text-decoration: underline;
+.coach-support-box {
+  display: block;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.72);
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.coach-support-box:hover {
+  transform: translateY(-1px);
+  border-color: rgba(12,106,111,0.18);
+  box-shadow: var(--shadow-soft);
+}
+
+.coach-support-box strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.95rem;
+}
+
+.coach-support-box span {
+  display: block;
+  font-size: 0.84rem;
+  color: var(--muted);
 }
 
     /* History */
@@ -1510,12 +1534,25 @@
 <div class="coach-support-inline">
   <span class="coach-support-kicker">Extra support</span>
   <p class="coach-support-inline-text">
-    If today feels heavier than usual, you can also reach out to
-    <a href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer">Beyond Blue</a>,
-    <a href="http://www.ruok.org.au" target="_blank" rel="noopener noreferrer">R U OK?</a>,
-    or
-    <a href="https://livin.org" target="_blank" rel="noopener noreferrer">LIVIN</a>.
+    If today feels heavier than usual, these organisations offer extra support.
   </p>
+
+  <div class="coach-support-boxes">
+    <a href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+      <strong>Beyond Blue</strong>
+      <span>24/7 support and resources</span>
+    </a>
+
+    <a href="http://www.ruok.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+      <strong>R U OK?</strong>
+      <span>Conversation tools and support guidance</span>
+    </a>
+
+    <a href="https://livin.org" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+      <strong>LIVIN</strong>
+      <span>Mental health education</span>
+    </a>
+  </div>
 </div>
 
 <div class="grid grid-2" style="margin-top: 24px;">
