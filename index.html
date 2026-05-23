@@ -1180,7 +1180,7 @@
       <div class="nav-group">
   <h2>Views</h2>
   <nav class="nav-list">
-    <button class="nav-link active" onclick="switchView('dashboardView'); closeMenu();" type="button">
+    <button class="nav-link active" onclick="switchView('dashboardView')" type="button">
       <span class="nav-dot"></span>
       <span class="nav-copy">
         <strong>Dashboard</strong>
@@ -1188,7 +1188,7 @@
       </span>
     </button>
 
-    <button class="nav-link" onclick="switchView('healthView'); closeMenu();" type="button">
+    <button class="nav-link" onclick="switchView('healthView')" type="button">
       <span class="nav-dot"></span>
       <span class="nav-copy">
         <strong>Health</strong>
@@ -1196,7 +1196,7 @@
       </span>
     </button>
 
-    <button class="nav-link" onclick="switchView('personalView'); closeMenu();" type="button">
+    <button class="nav-link" onclick="switchView('personalView')" type="button">
       <span class="nav-dot"></span>
       <span class="nav-copy">
         <strong>Personal</strong>
@@ -1204,7 +1204,7 @@
       </span>
     </button>
 
-    <button class="nav-link" onclick="switchView('journalView'); closeMenu();" type="button">
+    <button class="nav-link" onclick="switchView('journalView')" type="button">
       <span class="nav-dot"></span>
       <span class="nav-copy">
         <strong>Journal</strong>
@@ -1212,7 +1212,7 @@
       </span>
     </button>
 
-    <button class="nav-link" onclick="switchView('coachView'); closeMenu();" type="button">
+    <button class="nav-link" onclick="switchView('coachView')" type="button">
       <span class="nav-dot"></span>
       <span class="nav-copy">
         <strong>AI Coach</strong>
@@ -1220,7 +1220,7 @@
       </span>
     </button>
 
-    <button class="nav-link" onclick="switchView('historyView'); closeMenu();" type="button">
+    <button class="nav-link" onclick="switchView('historyView')" type="button">
       <span class="nav-dot"></span>
       <span class="nav-copy">
         <strong>History</strong>
@@ -2515,12 +2515,13 @@ async function askCoach() {
 
     // Export functions for HTML
     window.toggleMenu = toggleMenu;
-    window.closeWelcome = closeWelcome;
-    window.startFresh = startFresh;
-    window.exportData = exportData;
-    window.clearData = clearData;
-    window.askQuickQuestion = askQuickQuestion;
-    window.switchView = switchView;
+window.closeMenu = closeMenu;
+window.closeWelcome = closeWelcome;
+window.startFresh = startFresh;
+window.exportData = exportData;
+window.clearData = clearData;
+window.askQuickQuestion = askQuickQuestion;
+window.switchView = switchView;
   </script>
 </body>
 </html>
