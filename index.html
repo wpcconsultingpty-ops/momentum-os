@@ -1726,13 +1726,8 @@
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateThemeIcon(savedTheme);
 
-  showWelcome();
-  setupEventListeners();
-  loadCurrentData();
-  updateScores();     // add this
-  updateAllViews();
+  updateScores();
 }
-    }
 
     function showWelcome() {
       if (!localStorage.getItem(STORAGE_KEYS.firstVisit)) {
