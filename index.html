@@ -2107,8 +2107,9 @@
       output.textContent = analysis;
     }
 
-    async function askCoach() {
-  const prompt = document.getElementById('coachPrompt').value.trim();
+async function askCoach() {
+  const promptEl = document.getElementById('coachPrompt');
+  const prompt = promptEl.value.trim();
   if (!prompt) return;
 
   const status = document.getElementById('coachStatus');
@@ -2116,15 +2117,23 @@
   const responseText = document.getElementById('coachResponseText');
   const btn = document.getElementById('askCoachBtn');
 
+  const appendMessage = (role, text) => {
+    const row = document.createElement('div');
+    row.className = `message-row ${role}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    bubble.textContent = text || '';
+
+    row.appendChild(bubble);
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+  };
+
   btn.disabled = true;
   status.textContent = 'Thinking...';
 
-  messages.innerHTML += `
-    <div class="message-row user">
-      <div class="message-bubble">${prompt}</div>
-    </div>
-  `;
-  messages.scrollTop = messages.scrollHeight;
+  appendMessage('user', prompt);
 
   try {
     const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
@@ -2145,9 +2154,7 @@
     const bleed = checkedTriggers.join(', ') || 'none identified';
     const target = document.getElementById('personalDesire')?.value || '';
     const capacity = document.getElementById('energy')?.value || '';
-    const focus = prompt;
     const reflection = document.getElementById('journalText')?.value?.trim() || '';
-    const freeText = prompt;
 
     const res = await fetch('/api/coach', {
       method: 'POST',
@@ -2160,9 +2167,9 @@
         bleed,
         target,
         capacity,
-        focus,
+        focus: prompt,
         reflection,
-        freeText,
+        freeText: prompt,
         timeHorizon: 'next hour',
         view: 'coach'
       })
@@ -2173,40 +2180,35 @@
     }
 
     const data = await res.json();
+    const coach = data?.coach || {};
 
-    const coach = data.coach || {};
-    const response =
-      [
-        coach.stateSummary,
-        coach.coachingMode ? `Mode: ${coach.coachingMode}` : '',
-        Array.isArray(coach.nextSteps) && coach.nextSteps.length
-          ? `Next steps:\n- ${coach.nextSteps.join('\n- ')}`
-          : '',
-        coach.avoidToday ? `Avoid today: ${coach.avoidToday}` : '',
-        coach.encouragement,
-        coach.coachQuestion ? `Question: ${coach.coachQuestion}` : ''
-      ]
+    const response = [
+      coach.stateSummary,
+      coach.coachingMode ? `Mode: ${coach.coachingMode}` : '',
+      Array.isArray(coach.nextSteps) && coach.nextSteps.length
+        ? `Next steps:\n- ${coach.nextSteps.join('\n- ')}`
+        : '',
+      coach.avoidToday ? `Avoid today: ${coach.avoidToday}` : '',
+      coach.encouragement,
+      coach.coachQuestion ? `Question: ${coach.coachQuestion}` : ''
+    ]
       .filter(Boolean)
-      .join('\n\n');
+      .join('\n\n')
+      .trim();
 
-    messages.innerHTML += `
-      <div class="message-row coach">
-        <div class="message-bubble">${response}</div>
-      </div>
-    `;
-    messages.scrollTop = messages.scrollHeight;
+    const finalResponse =
+      response ||
+      generateCoachResponse(prompt, entries) ||
+      'I’m here with a practical next step: take one small action in the next 10 minutes.';
 
-    responseText.textContent = coach.stateSummary || coach.encouragement || 'Coach response received.';
-    document.getElementById('coachPrompt').value = '';
+    appendMessage('coach', finalResponse);
+    responseText.textContent = finalResponse;
+    promptEl.value = '';
     status.textContent = 'Ready';
   } catch (error) {
-    messages.innerHTML += `
-      <div class="message-row coach">
-        <div class="message-bubble">I couldn’t reach the coach service just now. Please try again.</div>
-      </div>
-    `;
-    messages.scrollTop = messages.scrollHeight;
-    responseText.textContent = 'Coach service unavailable.';
+    const fallback = 'I couldn’t reach the coach service just now. Please try again.';
+    appendMessage('coach', fallback);
+    responseText.textContent = fallback;
     status.textContent = 'Error';
     console.error(error);
   } finally {
