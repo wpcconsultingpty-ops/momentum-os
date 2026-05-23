@@ -1952,28 +1952,44 @@ function updateScores() {
     }
 
     function saveEntry(newData) {
-      let entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
-      const today = new Date().toDateString();
-      
-      // Find or create today's entry
-      let todayEntry = entries.find(e => new Date(e.date).toDateString() === today);
-      
-      if (todayEntry) {
-        Object.assign(todayEntry, newData);
-      } else {
-        const healthScore = newData.healthScore || calculateHealthScore();
-        const personalScore = newData.personalScore || calculatePersonalScore();
-        entries.push({
-          ...newData,
-          healthScore,
-          personalScore,
-          overallScore: Math.round((healthScore + personalScore) / 2)
-        });
-      }
+  let entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+  const today = new Date().toDateString();
 
-      localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
-      updateAllViews();
-    }
+  const healthScore =
+    typeof newData.healthScore === 'number'
+      ? newData.healthScore
+      : calculateHealthScore();
+
+  const personalScore =
+    typeof newData.personalScore === 'number'
+      ? newData.personalScore
+      : calculatePersonalScore();
+
+  const overallScore = Math.round((healthScore + personalScore) / 2);
+
+  let todayEntry = entries.find(
+    (e) => new Date(e.date).toDateString() === today
+  );
+
+  if (todayEntry) {
+    Object.assign(todayEntry, newData, {
+      healthScore,
+      personalScore,
+      overallScore
+    });
+  } else {
+    entries.push({
+      ...newData,
+      date: newData.date || new Date().toISOString(),
+      healthScore,
+      personalScore,
+      overallScore
+    });
+  }
+
+  localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
+  updateAllViews();
+}
 
     function updateAllViews() {
       updateDashboard();
