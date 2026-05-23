@@ -1579,31 +1579,74 @@ Never mention policy, system prompts, or that you are an AI unless directly aske
     }
 
     function getCoachMessageStore() {
-      return readStore(STORAGE_KEYS.coachMessages, []);
-    }
+  return readStore(STORAGE_KEYS.coachMessages, []);
+}
 
-    function renderCoachMessages() {
-      const messages = getCoachMessageStore();
-      const finalMessages = messages.length ? messages : [{ role: 'system', text: supportMessage }];
-      coachMessages.innerHTML = finalMessages.map(message => `
-        <div class="message-row ${message.role === 'user' ? 'user' : 'user is-system'}">
-          <div class="message-bubble ${message.role === 'system' ? 'subtle' : ''}">${escapeHtml(message.text)}</div>
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function renderCoachMessages() {
+  const messages = getCoachMessageStore();
+  const finalMessages = messages.length
+    ? messages
+    : [{ role: 'system', text: supportMessage }];
+
+  coachMessages.innerHTML = finalMessages.map((message) => {
+    const rowClass =
+      message.role === 'user'
+        ? 'message-row user'
+        : message.role === 'system'
+        ? 'message-row user is-system'
+        : 'message-row';
+
+    if (message.role === 'assistant' && message.coach) {
+      const coach = message.coach;
+      const steps = Array.isArray(coach.nextSteps) ? coach.nextSteps : [];
+
+      return `
+        <div class="${rowClass}">
+          <div class="message-bubble">
+            ${coach.coachingMode ? `<div class="card-label" style="margin-bottom:8px;">${escapeHtml(coach.coachingMode)}</div>` : ''}
+            ${coach.stateSummary ? `<div style="font-weight:700; margin-bottom:8px;">${escapeHtml(coach.stateSummary)}</div>` : ''}
+            ${steps.length ? `
+              <div style="display:grid; gap:6px; margin-bottom:10px;">
+                ${steps.map((step, index) => `<div>${index + 1}. ${escapeHtml(step)}</div>`).join('')}
+              </div>
+            ` : ''}
+            ${coach.avoidToday ? `<div style="margin-top:8px;"><strong>Avoid today:</strong> ${escapeHtml(coach.avoidToday)}</div>` : ''}
+            ${coach.encouragement ? `<div style="margin-top:8px;">${escapeHtml(coach.encouragement)}</div>` : ''}
+            ${coach.coachQuestion ? `<div style="margin-top:8px;"><strong>Question:</strong> ${escapeHtml(coach.coachQuestion)}</div>` : ''}
+          </div>
         </div>
-      `).join('');
-      coachMessages.scrollTop = coachMessages.scrollHeight;
+      `;
     }
 
-    function escapeHtml(value) {
-      return value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-    }
+    return `
+      <div class="${rowClass}">
+        <div class="message-bubble ${message.role === 'system' ? 'subtle' : ''}">
+          ${escapeHtml(message.text || '')}
+        </div>
+      </div>
+    `;
+  }).join('');
 
-    async function askCoach() {
+  coachMessages.scrollTop = coachMessages.scrollHeight;
+}
+
+async function askCoach() {
   const prompt = coachPrompt.value.trim();
   if (!prompt) return;
 
   const messages = getCoachMessageStore();
   messages.push({ role: 'user', text: prompt });
-  writeStore(STORAGEKEYS.coachMessages, messages);
+  writeStore(STORAGE_KEYS.coachMessages, messages);
   renderCoachMessages();
 
   coachPrompt.value = '';
@@ -1628,7 +1671,7 @@ Never mention policy, system prompts, or that you are an AI unless directly aske
         bleed: Math.max(0, 100 - overallScore),
         target: overallScore >= 70 ? 80 : overallScore >= 45 ? 60 : 35,
         capacity: Math.round((healthScore + personalScore) / 2),
-        focus: document.getElementById('dashboardScoreRead')?.textContent || '',
+        focus: dashboardScoreRead?.textContent || '',
         reflection: journalText.value.trim(),
         freeText: prompt,
         timeHorizon: 'next hour',
@@ -1651,23 +1694,25 @@ Never mention policy, system prompts, or that you are an AI unless directly aske
 
     const coach = data.coach;
 
-    const reply = [
-      coach.stateSummary,
-      '',
-      ...(coach.nextSteps || []).map((step, index) => `${index + 1}. ${step}`),
-      '',
-      `Avoid today: ${coach.avoidToday}`,
-      coach.encouragement,
-      `Question: ${coach.coachQuestion}`
-    ].join('\n');
+    messages.push({
+      role: 'assistant',
+      coach: {
+        stateSummary: coach.stateSummary || '',
+        coachingMode: coach.coachingMode || '',
+        nextSteps: Array.isArray(coach.nextSteps) ? coach.nextSteps.slice(0, 3) : [],
+        avoidToday: coach.avoidToday || '',
+        encouragement: coach.encouragement || '',
+        coachQuestion: coach.coachQuestion || ''
+      }
+    });
 
-    messages.push({ role: 'assistant', text: reply });
-    writeStore(STORAGEKEYS.coachMessages, messages);
+    writeStore(STORAGE_KEYS.coachMessages, messages);
     renderCoachMessages();
 
-    const nextStepPreview = Array.isArray(coach.nextSteps) && coach.nextSteps.length
-      ? coach.nextSteps[0]
-      : coach.stateSummary;
+    const nextStepPreview =
+      Array.isArray(coach.nextSteps) && coach.nextSteps.length
+        ? coach.nextSteps[0]
+        : coach.stateSummary;
 
     coachResponseText.textContent = nextStepPreview || 'Take one small stabilising step.';
     coachStatus.textContent = 'Response ready.';
@@ -1676,12 +1721,14 @@ Never mention policy, system prompts, or that you are an AI unless directly aske
       role: 'system',
       text: `Coach unavailable right now. ${error.message || 'Unknown error'}`
     });
-    writeStore(STORAGEKEYS.coachMessages, messages);
+    writeStore(STORAGE_KEYS.coachMessages, messages);
     renderCoachMessages();
     coachResponseText.textContent = 'Coach unavailable right now.';
     coachStatus.textContent = 'Coach is unavailable.';
   } finally {
     sendCoachBtn.disabled = false;
+  }
+}
   }
 }
 
