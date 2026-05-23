@@ -922,7 +922,9 @@
 }
 
 .coach-support-box {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px solid rgba(111, 143, 114, 0.12);
@@ -937,6 +939,7 @@
   border-color: rgba(111, 143, 114, 0.18);
   box-shadow: var(--shadow-soft);
 }
+
 .coach-support-box strong {
   display: block;
   margin-bottom: 3px;
@@ -947,6 +950,26 @@
   display: block;
   font-size: 0.84rem;
   color: var(--muted);
+}
+
+.support-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.support-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.coach-support-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
     /* History */
@@ -1559,27 +1582,75 @@
 <div class="coach-support-inline">
   <span class="coach-support-kicker">Extra support</span>
   <p class="coach-support-inline-text">
-    If today feels heavier than usual, these organisations offer extra support.
+    If today feels heavier than usual, these Australian mental health organisations can help.
   </p>
 
   <div class="coach-support-boxes">
-    <a href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-box">
-      <strong>Beyond Blue</strong>
-      <span>24/7 support and resources</span>
+    <a
+      href="https://www.beyondblue.org.au"
+      class="coach-support-box"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="https://www.beyondblue.org.au/images/default-source/logos/beyond-blue-logo.svg"
+        alt="Beyond Blue logo"
+        class="support-logo"
+        width="40"
+        height="40"
+        loading="lazy"
+      >
+      <div class="support-copy">
+        <strong>Beyond Blue</strong>
+        <span>24/7 mental health support and resources</span>
+      </div>
     </a>
 
-    <a href="http://www.ruok.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-box">
-      <strong>R U OK?</strong>
-      <span>Conversation tools and support guidance</span>
+    <a
+      href="https://www.ruok.org.au"
+      class="coach-support-box"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="https://www.ruok.org.au/contentassets/caf47f2a7c3d4c6d96ed8bc2dd9af4dd/ruok-logo.png"
+        alt="R U OK? logo"
+        class="support-logo"
+        width="40"
+        height="40"
+        loading="lazy"
+      >
+      <div class="support-copy">
+        <strong>R U OK?</strong>
+        <span>Tools for starting a supportive conversation</span>
+      </div>
     </a>
 
-    <a href="https://livin.org" target="_blank" rel="noopener noreferrer" class="coach-support-box">
-      <strong>LIVIN</strong>
-      <span>Mental health education</span>
+    <a
+      href="https://livin.org"
+      class="coach-support-box"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="https://livin.org/wp-content/uploads/2021/03/LIVIN-Logo-Black.png"
+        alt="LIVIN logo"
+        class="support-logo"
+        width="40"
+        height="40"
+        loading="lazy"
+      >
+      <div class="support-copy">
+        <strong>LIVIN</strong>
+        <span>Mental health education and stigma reduction</span>
+      </div>
     </a>
   </div>
-</div>
 
+  <p class="foot-note" style="margin-top: 12px;">
+    If you feel at immediate risk or unsafe, call emergency services right away.
+  </p>
+</div>
 <div class="grid grid-2" style="margin-top: 24px;">
   <button class="btn" onclick="askQuickQuestion('sleep')">Improve Sleep</button>
   <button class="btn" onclick="askQuickQuestion('energy')">Boost Energy</button>
