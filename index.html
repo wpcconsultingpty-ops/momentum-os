@@ -1712,21 +1712,26 @@
     });
 
     function initializeApp() {
-      // Set current date
-      const badge = document.getElementById('dashboardDateBadge');
-      if (badge) {
-        badge.textContent = new Date().toLocaleDateString(undefined, {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        });
-      }
+  const badge = document.getElementById('dashboardDateBadge');
+  if (badge) {
+    badge.textContent = new Date().toLocaleDateString(undefined, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
 
-      // Setup theme
-      const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      updateThemeIcon(savedTheme);
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeIcon(savedTheme);
+
+  showWelcome();
+  setupEventListeners();
+  loadCurrentData();
+  updateScores();     // add this
+  updateAllViews();
+}
     }
 
     function showWelcome() {
@@ -1853,26 +1858,28 @@
     }
 
     function loadCurrentData() {
-      const draft = localStorage.getItem(STORAGE_KEYS.currentDraft);
-      if (draft) {
-        try {
-          const data = JSON.parse(draft);
-          // Restore form values
-          Object.keys(data).forEach(key => {
-            const element = document.getElementById(key);
-            if (element) {
-              element.value = data[key];
-              const valueSpan = document.getElementById(key + 'Value');
-              if (valueSpan && element.type === 'range') {
-                valueSpan.textContent = `${data[key]} / 10`;
-              }
-            }
-          });
-        } catch (e) {
-          console.error('Error loading draft:', e);
+  const draft = localStorage.getItem(STORAGE_KEYS.currentDraft);
+  if (draft) {
+    try {
+      const data = JSON.parse(draft);
+
+      Object.keys(data).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+          element.value = data[key];
+          const valueSpan = document.getElementById(key + 'Value');
+          if (valueSpan && element.type === 'range') {
+            valueSpan.textContent = data[key] + ' / 10';
+          }
         }
-      }
+      });
+    } catch (e) {
+      console.error('Error loading draft:', e);
     }
+  }
+
+  updateScores(); // add this
+}
 
     function saveCurrentData() {
       const data = {};
