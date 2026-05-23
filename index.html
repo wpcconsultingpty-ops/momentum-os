@@ -1598,28 +1598,79 @@ Never mention policy, system prompts, or that you are an AI unless directly aske
     }
 
     async function askCoach() {
-      const prompt = coachPrompt.value.trim();
-      if (!prompt) return;
-      const messages = getCoachMessageStore();
-      messages.push({ role: 'user', text: prompt });
-      writeStore(STORAGE_KEYS.coachMessages, messages);
-      renderCoachMessages();
-      coachPrompt.value = '';
-      coachStatus.textContent = 'Thinking...';
-      sendCoachBtn.disabled = true;
-      try {
-        const reply = `Grounding plan:\n1. Reduce the target to one next action.\n2. Remove one source of noise for the next hour.\n3. Finish with one recovery move: water, walk, breath, or reset.\n\n${supportMessage}`;
-        messages.push({ role: 'assistant', text: reply });
-        writeStore(STORAGE_KEYS.coachMessages, messages);
-        coachResponseText.textContent = 'Choose one task, one boundary, and one recovery action.';
-        renderCoachMessages();
-        coachStatus.textContent = 'Response ready.';
-      } catch {
-        coachStatus.textContent = 'Coach is unavailable.';
-      } finally {
-        sendCoachBtn.disabled = false;
-      }
+  const prompt = coachPrompt.value.trim();
+  if (!prompt) return;
+
+  const messages = getCoachMessageStore();
+  messages.push({ role: 'user', text: prompt });
+  writeStore(STORAGE_KEYS.coachMessages, messages);
+  renderCoachMessages();
+
+  coachPrompt.value = '';
+  coachStatus.textContent = 'Thinking...';
+  sendCoachBtn.disabled = true;
+
+  try {
+    const selected = computeSelectedScore();
+    const health = computeHealthScore();
+    const personal = computePersonalScore();
+    const state = scoreState(selected);
+
+    const res = await fetch('/api/coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        overallScore: selected,
+        overallLabel: state.label.toLowerCase(),
+        healthScore: health,
+        personalScore: personal,
+        bleed: Math.max(0, 100 - selected),
+        target: selected >= 70 ? 80 : selected >= 45 ? 60 : 35,
+        capacity: Math.min(100, Math.round((health + personal) / 2)),
+        focus: document.getElementById('dashboardScoreRead')?.textContent || '',
+        reflection: journalText.value.trim(),
+        freeText: prompt,
+        timeHorizon: 'next hour',
+        view: 'coach'
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data?.coach) {
+      throw new Error(data?.detail || data?.error || 'Coach request failed');
     }
+
+    const coach = data.coach;
+    const reply = [
+      coach.stateSummary,
+      '',
+      ...(coach.nextSteps || []).map((step, index) => `${index + 1}. ${step}`),
+      '',
+      `Avoid today: ${coach.avoidToday}`,
+      coach.encouragement,
+      `Question: ${coach.coachQuestion}`
+    ].join('\n');
+
+    messages.push({ role: 'assistant', text: reply });
+    writeStore(STORAGE_KEYS.coachMessages, messages);
+
+    coachResponseText.textContent =
+      coach.nextSteps?.join(' • ') || 'Take one small stabilising step.';
+    renderCoachMessages();
+    coachStatus.textContent = 'Response ready.';
+  } catch (error) {
+    messages.push({
+      role: 'system',
+      text: `Coach unavailable right now. ${error.message || 'Unknown error'}`
+    });
+    writeStore(STORAGE_KEYS.coachMessages, messages);
+    renderCoachMessages();
+    coachStatus.textContent = 'Coach is unavailable.';
+  } finally {
+    sendCoachBtn.disabled = false;
+  }
+}
 
     function setActiveView(viewId) {
       views.forEach(view => view.classList.toggle('active', view.id === viewId));
