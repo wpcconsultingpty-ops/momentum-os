@@ -2119,181 +2119,108 @@
     }
 
 async function askCoach() {
-  const promptEl = document.getElementById('coachPrompt');
-  const prompt = promptEl.value.trim();
-  if (!prompt) return;
+  const promptInput = document.getElementById('coachPrompt');
+  const statusEl = document.getElementById('coachStatus');
+  const messagesEl = document.getElementById('coachMessages');
+  const latestEl = document.getElementById('coachResponseText');
 
-  const status = document.getElementById('coachStatus');
-  const messages = document.getElementById('coachMessages');
-  const responseText = document.getElementById('coachResponseText');
-  const btn = document.getElementById('askCoachBtn');
+  if (!promptInput || !messagesEl || !latestEl) return;
 
-  function appendMessage(role, text) {
-    const row = document.createElement('div');
-    row.className = `message-row ${role}`;
-
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble';
-    bubble.textContent = text && String(text).trim()
-      ? String(text)
-      : 'No response text returned.';
-
-    row.appendChild(bubble);
-    messages.appendChild(row);
-    messages.scrollTop = messages.scrollHeight;
+  const prompt = promptInput.value.trim();
+  if (!prompt) {
+    statusEl.textContent = 'Add a little detail first';
+    return;
   }
 
-  btn.disabled = true;
-  status.textContent = 'Thinking...';
+  // Build context from current UI/state
+  const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
+  const healthScore = parseInt(document.getElementById('healthProgressValue')?.textContent || '0', 10) || 0;
+  const personalScore = parseInt(document.getElementById('personalProgressValue')?.textContent || '0', 10) || 0;
+  const capacity = parseInt(document.getElementById('energy')?.value || '0', 10) || null;
 
-  appendMessage('user', prompt);
+  const bleedTriggers = Array.from(
+    document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
+  ).map(input => input.dataset.trigger || '');
+
+  const recentReflections = []; // optional: could pull from history
+  const recentTriggers = bleedTriggers;
+
+  statusEl.textContent = 'Thinking...';
+  statusEl.classList.add('pulse');
+
+  // Show user message in thread
+  const userRow = document.createElement('div');
+  userRow.className = 'message-row user';
+  const userBubble = document.createElement('div');
+  userBubble.className = 'message-bubble';
+  userBubble.textContent = prompt;
+  userRow.appendChild(userBubble);
+  messagesEl.appendChild(userRow);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 
   try {
-    const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
-    const latest = entries.length ? entries[entries.length - 1] : {};
-
-    const overallScore = latest.overallScore ?? Math.round((calculateHealthScore() + calculatePersonalScore()) / 2);
-    const healthScore = latest.healthScore ?? calculateHealthScore();
-    const personalScore = latest.personalScore ?? calculatePersonalScore();
-
-    const overallLabel =
-      overallScore >= 80 ? 'Excellent' :
-      overallScore >= 60 ? 'Good' :
-      'Needs attention';
-
-    const checkedTriggers = Array.from(document.querySelectorAll('[data-trigger]:checked'))
-      .map(el => el.dataset.trigger);
-
-    const bleed = checkedTriggers.join(', ') || 'none identified';
-    const target = document.getElementById('personalDesire')?.value || '';
-    const capacity = document.getElementById('energy')?.value || '';
-    const reflection = document.getElementById('journalText')?.value?.trim() || '';
-
     const res = await fetch('/api/coach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         overallScore,
-        overallLabel,
         healthScore,
         personalScore,
-        bleed,
-        target,
         capacity,
-        focus: prompt,
-        reflection,
+        bleed: bleedTriggers.join(', ') || 'none identified',
+        target: '',
+        focus: '',
+        reflection: document.getElementById('journalText')?.value || '',
         freeText: prompt,
         timeHorizon: 'next hour',
-        view: 'coach'
+        view: 'reflection',
+        recentTrends: {},
+        recentReflections,
+        recentTriggers
       })
     });
 
-    if (!res.ok) {
-      throw new Error(`Coach API error: ${res.status}`);
+    const data = await res.json();
+
+    if (!data.ok || !data.guide) {
+      throw new Error(data.error || 'No guide returned');
     }
 
-    const data = await res.json();
-    const coach = data?.coach || {};
+    const guide = data.guide;
 
-    const apiResponse = [
-      coach.stateSummary,
-      coach.coachingMode ? `Mode: ${coach.coachingMode}` : '',
-      Array.isArray(coach.nextSteps) && coach.nextSteps.length
-        ? `Next steps:\n- ${coach.nextSteps.join('\n- ')}`
-        : '',
-      coach.avoidToday ? `Avoid today: ${coach.avoidToday}` : '',
-      coach.encouragement,
-      coach.coachQuestion ? `Question: ${coach.coachQuestion}` : ''
-    ]
-      .filter(part => typeof part === 'string' ? part.trim() : Boolean(part))
-      .join('\n\n')
-      .trim();
+    // Render guide into the main coach card
+    latestEl.textContent =
+      `${guide.reflection}\n\n` +
+      `${guide.observedPattern}\n\n` +
+      `Why this fits now: ${guide.whyThisFitsNow}\n\n` +
+      `Reframe: ${guide.reframe}\n\n` +
+      `Encouragement: ${guide.encouragement}\n\n` +
+      `Suggestions:\n` +
+      guide.gentleSuggestions
+        .map(s => `• (${s.type}) ${s.suggestion}`)
+        .join('\n') +
+      `\n\n${guide.closingQuestion}`;
 
-    const fallbackResponse = generateCoachResponse(prompt, entries);
-    const finalResponse = apiResponse || fallbackResponse || 'Coach response received, but no message text was returned.';
+    // Also append coach message to thread
+    const coachRow = document.createElement('div');
+    coachRow.className = 'message-row coach';
+    const coachBubble = document.createElement('div');
+    coachBubble.className = 'message-bubble';
+    coachBubble.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
+    coachRow.appendChild(coachBubble);
+    messagesEl.appendChild(coachRow);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
 
-    appendMessage('coach', finalResponse);
-    responseText.textContent = finalResponse;
-    promptEl.value = '';
-    status.textContent = 'Ready';
-  } catch (error) {
-    const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
-    const fallbackResponse = generateCoachResponse(prompt, entries);
-
-    appendMessage('coach', fallbackResponse);
-    responseText.textContent = fallbackResponse;
-    promptEl.value = '';
-    status.textContent = 'Offline fallback';
-    console.error(error);
+    statusEl.textContent = 'Ready';
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Something went wrong. Try again in a moment.';
   } finally {
-    btn.disabled = false;
+    statusEl.classList.remove('pulse');
+    // Keep the prompt so user can tweak it; clear if you prefer:
+    // promptInput.value = '';
   }
 }
-    function generateCoachResponse(prompt, entries) {
-      const lowerPrompt = prompt.toLowerCase();
-      
-      if (lowerPrompt.includes('sleep')) {
-        return "Sleep is foundational to your momentum. Based on your data, aim for 7-9 hours consistently. Try this tonight: Set a wind-down alarm 1 hour before bed, dim the lights, and put away all screens. Your body will thank you tomorrow.";
-      }
-      
-      if (lowerPrompt.includes('energy')) {
-        const avgEnergy = entries.length > 0 
-          ? Math.round(entries.reduce((sum, e) => sum + (e.energy || 5), 0) / entries.length)
-          : 5;
-        return `Your average energy is ${avgEnergy}/10. To boost it: Start with 5 minutes of movement every hour, stay hydrated (aim for 8 glasses), and eat protein with each meal. Small changes compound into big energy gains.`;
-      }
-      
-      if (lowerPrompt.includes('stress')) {
-        return "I notice stress patterns in your data. Here's a quick reset: Take 5 deep breaths (4 counts in, 6 counts out), write down your top 3 priorities for today, and tackle the easiest one first. Momentum reduces stress naturally.";
-      }
-      
-      if (lowerPrompt.includes('motivation') || lowerPrompt.includes('stuck')) {
-        return "Feeling stuck is normal. Your data shows you've overcome this before. Right now: Pick ONE tiny action you can do in 2 minutes. Do it immediately. Action creates motivation, not the other way around. You've got this!";
-      }
-      
-      if (lowerPrompt.includes('habits')) {
-        return "Building habits is about consistency, not perfection. Your streak shows commitment! Focus on one keystone habit this week - something that makes other good habits easier. Suggestion: A 10-minute morning routine to set your day's tone.";
-      }
-      
-      // Default response with data insights
-      if (entries.length > 0) {
-        const avgScore = Math.round(entries.reduce((sum, e) => sum + (e.overallScore || 0), 0) / entries.length);
-        const trend = entries.length > 3 
-          ? (entries[entries.length-1].overallScore > entries[entries.length-4].overallScore ? 'improving' : 'variable')
-          : 'building';
-        
-        return `Your momentum is ${trend} with an average score of ${avgScore}. Based on your patterns, focus on consistency over intensity. What specific area would you like to improve? I can provide targeted strategies for sleep, energy, stress, or habits.`;
-      }
-      
-      return "I'm here to help you build sustainable momentum. Start tracking your daily data, and I'll provide personalized insights based on your patterns. What aspect of your wellbeing would you like to focus on first?";
-    }
-
-    function askQuickQuestion(topic) {
-      document.getElementById('coachPrompt').value = `How can I improve my ${topic}?`;
-      askCoach();
-    }
-
-    function exportData() {
-      const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
-      const dataStr = JSON.stringify(entries, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      
-      const exportFileDefaultName = `momentum-export-${new Date().toISOString().slice(0, 10)}.json`;
-      
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
-      linkElement.click();
-    }
-
-    function clearData() {
-      if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
-        localStorage.removeItem(STORAGE_KEYS.entries);
-        localStorage.removeItem(STORAGE_KEYS.currentDraft);
-        updateAllViews();
-        alert('All data has been cleared.');
-      }
-    }
 
     // Export functions for HTML
     window.toggleMenu = toggleMenu;
