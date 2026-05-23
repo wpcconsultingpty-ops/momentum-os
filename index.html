@@ -940,6 +940,33 @@
   box-shadow: var(--shadow-soft);
 }
 
+.support-logo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.support-logo-text {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: center;
+  padding: 4px;
+}
+
+.support-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
 .coach-support-box strong {
   display: block;
   margin-bottom: 3px;
@@ -1586,46 +1613,30 @@
   </p>
 
   <div class="coach-support-boxes">
-    <a
-      href="https://www.beyondblue.org.au"
-      class="coach-support-box"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <img
-        src="https://www.beyondblue.org.au/images/default-source/logos/beyond-blue-logo.svg"
-        alt="Beyond Blue logo"
-        class="support-logo"
-        width="40"
-        height="40"
-        loading="lazy"
-      >
-      <div class="support-copy">
-        <strong>Beyond Blue</strong>
-        <span>24/7 mental health support and resources</span>
-      </div>
-    </a>
+  <a href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+    <div class="support-logo support-logo-text" aria-hidden="true">BB</div>
+    <div class="support-copy">
+      <strong>Beyond Blue</strong>
+      <span>24/7 mental health support and resources</span>
+    </div>
+  </a>
 
-    <a
-      href="https://www.ruok.org.au"
-      class="coach-support-box"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <img
-        src="https://www.ruok.org.au/contentassets/caf47f2a7c3d4c6d96ed8bc2dd9af4dd/ruok-logo.png"
-        alt="R U OK? logo"
-        class="support-logo"
-        width="40"
-        height="40"
-        loading="lazy"
-      >
-      <div class="support-copy">
-        <strong>R U OK?</strong>
-        <span>Tools for starting a supportive conversation</span>
-      </div>
-    </a>
+  <a href="https://www.ruok.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+    <div class="support-logo support-logo-text" aria-hidden="true">R U OK?</div>
+    <div class="support-copy">
+      <strong>R U OK?</strong>
+      <span>Tools for starting a supportive conversation</span>
+    </div>
+  </a>
 
+  <a href="https://livin.org" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+    <div class="support-logo support-logo-text" aria-hidden="true">LIVIN</div>
+    <div class="support-copy">
+      <strong>LIVIN</strong>
+      <span>Mental health education and stigma reduction</span>
+    </div>
+  </a>
+</div>
     <a
       href="https://livin.org"
       class="coach-support-box"
