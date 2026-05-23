@@ -1689,9 +1689,17 @@
     };
 
     // Toggle menu function - MUST be defined first
-    function toggleMenu() {
-      document.body.classList.toggle('sidebar-open');
-    }
+   function openMenu() {
+  document.body.classList.add('sidebar-open');
+}
+
+function closeMenu() {
+  document.body.classList.remove('sidebar-open');
+}
+
+function toggleMenu() {
+  document.body.classList.toggle('sidebar-open');
+}
 
     // Initialize app
     document.addEventListener('DOMContentLoaded', () => {
