@@ -1813,58 +1813,78 @@
     }
 
     function calculateHealthScore() {
-      const mood = parseInt(document.getElementById('mood').value);
-      const energy = parseInt(document.getElementById('energy').value);
-      const stress = 10 - parseInt(document.getElementById('stress').value);
-      const sleep = parseInt(document.getElementById('sleepQuality').value);
-      const exercise = parseInt(document.getElementById('exercise').value);
-      const nutrition = parseInt(document.getElementById('nutrition').value);
-      const hydration = parseInt(document.getElementById('hydration').value);
-      const recovery = parseInt(document.getElementById('recovery').value);
+  const mood = parseInt(document.getElementById('mood')?.value || 0, 10);
+  const energy = parseInt(document.getElementById('energy')?.value || 0, 10);
+  const stress = 10 - parseInt(document.getElementById('stress')?.value || 0, 10);
+  const sleep = parseInt(document.getElementById('sleepQuality')?.value || 0, 10);
+  const exercise = parseInt(document.getElementById('exercise')?.value || 0, 10);
+  const nutrition = parseInt(document.getElementById('nutrition')?.value || 0, 10);
+  const hydration = parseInt(document.getElementById('hydration')?.value || 0, 10);
+  const recovery = parseInt(document.getElementById('recovery')?.value || 0, 10);
 
-      const score = Math.round((mood + energy + stress + sleep + exercise + nutrition + hydration + recovery) / 8 * 10);
-      return Math.min(100, Math.max(0, score));
-    }
+  const values = [
+    mood,
+    energy,
+    stress,
+    sleep,
+    exercise,
+    nutrition,
+    hydration,
+    recovery
+  ].filter(Number.isFinite);
 
-    function calculatePersonalScore() {
-      const desire = parseInt(document.getElementById('personalDesire').value);
-      const connection = parseInt(document.getElementById('personalConnection').value);
-      const control = parseInt(document.getElementById('personalControl').value);
-      const urge = 10 - parseInt(document.getElementById('personalUrge').value);
+  if (!values.length) return 0;
 
-      const score = Math.round((desire + connection + control + urge) / 4 * 10);
-      return Math.min(100, Math.max(0, score));
-    }
+  const score = Math.round(
+    (values.reduce((sum, value) => sum + value, 0) / values.length) * 10
+  );
 
-    function updateScores() {
-      const healthScore = calculateHealthScore();
-      const personalScore = calculatePersonalScore();
-      const overallScore = Math.round((healthScore + personalScore) / 2);
+  return Math.min(100, Math.max(0, score));
+}
 
-      // Update progress rings
-      updateProgressRing('healthProgressRing', 'healthProgressValue', healthScore);
-      updateProgressRing('personalProgressRing', 'personalProgressValue', personalScore);
-      updateProgressRing('overallProgressRing', 'overallProgressValue', overallScore);
+function calculatePersonalScore() {
+  const desire = parseInt(document.getElementById('personalDesire')?.value || 0, 10);
+  const connection = parseInt(document.getElementById('personalConnection')?.value || 0, 10);
+  const control = parseInt(document.getElementById('personalControl')?.value || 0, 10);
+  const urge = 10 - parseInt(document.getElementById('personalUrge')?.value || 0, 10);
 
-      // Update score displays
-      document.getElementById('currentHealthScore').textContent = healthScore;
-      document.getElementById('currentPersonalScore').textContent = personalScore;
+  const values = [desire, connection, control, urge].filter(Number.isFinite);
 
-      // Update overall state
-      const stateElement = document.getElementById('overallScoreState');
-      if (overallScore >= 80) {
-        stateElement.textContent = 'Excellent';
-        stateElement.className = 'score-pill is-strong';
-      } else if (overallScore >= 60) {
-        stateElement.textContent = 'Good';
-        stateElement.className = 'score-pill is-mixed';
-      } else {
-        stateElement.textContent = 'Needs attention';
-        stateElement.className = 'score-pill is-heavy';
-      }
+  if (!values.length) return 0;
 
-      saveCurrentData();
-    }
+  const score = Math.round(
+    (values.reduce((sum, value) => sum + value, 0) / values.length) * 10
+  );
+
+  return Math.min(100, Math.max(0, score));
+}
+
+function updateScores() {
+  const healthScore = calculateHealthScore();
+  const personalScore = calculatePersonalScore();
+  const overallScore = Math.round((healthScore + personalScore) / 2);
+
+  updateProgressRing('healthProgressRing', 'healthProgressValue', healthScore);
+  updateProgressRing('personalProgressRing', 'personalProgressValue', personalScore);
+  updateProgressRing('overallProgressRing', 'overallProgressValue', overallScore);
+
+  document.getElementById('currentHealthScore').textContent = healthScore;
+  document.getElementById('currentPersonalScore').textContent = personalScore;
+
+  const stateElement = document.getElementById('overallScoreState');
+  if (overallScore >= 80) {
+    stateElement.textContent = 'Excellent';
+    stateElement.className = 'score-pill is-strong';
+  } else if (overallScore >= 60) {
+    stateElement.textContent = 'Good';
+    stateElement.className = 'score-pill is-mixed';
+  } else {
+    stateElement.textContent = 'Needs attention';
+    stateElement.className = 'score-pill is-heavy';
+  }
+
+  saveCurrentData();
+}
 
     function updateProgressRing(ringId, valueId, score) {
       const ring = document.getElementById(ringId);
