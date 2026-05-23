@@ -871,13 +871,38 @@
       background: #fffdfa;
     }
 
-    .coach-composer-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 12px;
-    }
+    .coach-support-inline {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(12,106,111,0.08);
+}
+
+.coach-support-kicker {
+  display: inline-block;
+  margin-bottom: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.coach-support-inline-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.coach-support-inline-text a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.coach-support-inline-text a:hover {
+  text-decoration: underline;
+}
 
     /* History */
     .history-list {
@@ -1482,32 +1507,22 @@
   </div>
 </div>
 
-<div class="coach-support-card">
-  <div class="coach-support-label">Extra support</div>
-  <p class="coach-support-text">
-    If today feels heavier than usual, these Australian mental health organisations can help.
+<div class="coach-support-inline">
+  <span class="coach-support-kicker">Extra support</span>
+  <p class="coach-support-inline-text">
+    If today feels heavier than usual, you can also reach out to
+    <a href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer">Beyond Blue</a>,
+    <a href="http://www.ruok.org.au" target="_blank" rel="noopener noreferrer">R U OK?</a>,
+    or
+    <a href="https://livin.org" target="_blank" rel="noopener noreferrer">LIVIN</a>.
   </p>
+</div>
 
-  <div class="coach-support-links">
-    <a href="https://www.beyondblue.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-link">
-      <strong>Beyond Blue</strong>
-      <span>24/7 mental health support and resources</span>
-    </a>
-
-    <a href="http://www.ruok.org.au" target="_blank" rel="noopener noreferrer" class="coach-support-link">
-      <strong>R U OK?</strong>
-      <span>Tools for starting a supportive conversation</span>
-    </a>
-
-    <a href="https://livin.org" target="_blank" rel="noopener noreferrer" class="coach-support-link">
-      <strong>LIVIN</strong>
-      <span>Mental health education and stigma reduction</span>
-    </a>
-  </div>
-
-  <p class="coach-support-note">
-    If you feel at immediate risk or unsafe, call emergency services right away.
-  </p>
+<div class="grid grid-2" style="margin-top: 24px;">
+  <button class="btn" onclick="askQuickQuestion('sleep')">Improve Sleep</button>
+  <button class="btn" onclick="askQuickQuestion('energy')">Boost Energy</button>
+  <button class="btn" onclick="askQuickQuestion('stress')">Manage Stress</button>
+  <button class="btn" onclick="askQuickQuestion('habits')">Build Habits</button>
 </div>
 
 <div class="grid grid-2" style="margin-top: 24px;">
