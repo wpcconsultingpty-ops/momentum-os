@@ -1027,17 +1027,39 @@ body:not(.sidebar-open) .sidebar {
     }
 
     /* Mobile Styles */
-    @media (max-width: 860px) {
+@media (max-width: 860px) {
   .app-shell {
     grid-template-columns: 1fr;
   }
 
   .topbar {
-    ...
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: -28px -28px 18px;
+    padding: 14px 16px;
+    background: rgba(245, 241, 234, 0.94);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
   }
 
   .menu-toggle {
-    ...
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    font-weight: 700;
+    cursor: pointer;
   }
 
   .sidebar {
@@ -1088,22 +1110,20 @@ body:not(.sidebar-open) .sidebar {
   .habit-grid {
     grid-template-columns: 1fr;
   }
+
+  .history-item {
+    grid-template-columns: 1fr;
+  }
+
+  .coach-composer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .coach-composer .btn {
+    width: 100%;
+  }
 }
-
-      .history-item {
-        grid-template-columns: 1fr;
-      }
-
-      .coach-composer-actions {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .coach-composer .btn {
-        width: 100%;
-      }
-    }
-  </style>
 </head>
 <body>
   <!-- Welcome Modal -->
