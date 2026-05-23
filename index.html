@@ -2221,7 +2221,20 @@ async function askCoach() {
     // promptInput.value = '';
   }
 }
+function askQuickQuestion(topic) {
+  const promptEl = document.getElementById('coachPrompt');
+  if (!promptEl) return;
 
+  const prompts = {
+    sleep: 'How can I improve my sleep?',
+    energy: 'How can I improve my energy?',
+    stress: 'How can I manage stress better?',
+    habits: 'How can I build better habits?'
+  };
+
+  promptEl.value = prompts[topic] || `How can I improve my ${topic}?`;
+  askCoach();
+}
     // Export functions for HTML
     window.toggleMenu = toggleMenu;
     window.closeWelcome = closeWelcome;
