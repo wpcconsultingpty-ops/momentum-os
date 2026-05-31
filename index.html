@@ -2070,26 +2070,26 @@
       const historyList = document.getElementById('historyList');
       if (entries.length > 0) {
         const recentEntries = entries.slice(-10).reverse();
-        historyList.innerHTML = recentEntries.map(entry => `
-          <div class="history-item">
-            <div>
-              <strong>${new Date(entry.date).toLocaleDateString()}</strong>
-              <div class="foot-note">${entry.journalNote || 'No journal entry'}</div>
-            </div>
-            <div>
-              <div class="card-label">Overall</div>
-              <div class="history-stat">${entry.overallScore || 0}</div>
-            </div>
-            <div>
-              <div class="card-label">Health</div>
-              <div class="history-stat">${entry.healthScore || 0}</div>
-            </div>
-            <div>
-              <div class="card-label">Personal</div>
-              <div class="history-stat">${entry.personalScore || 0}</div>
-            </div>
-          </div>
-        `).join('');
+       historyList.innerHTML = recentEntries.map(entry => `
+  <div class="history-item">
+    <div>
+      <strong>${new Date(entry.date).toLocaleDateString()}</strong>
+      <div class="foot-note">${entry.journalNote || 'No journal entry'}</div>
+    </div>
+    <div>
+      <div class="card-label">Overall</div>
+      <div class="history-stat">${entry.overallScore || 0}</div>
+    </div>
+    <div>
+      <div class="card-label">Health</div>
+      <div class="history-stat">${entry.healthScore || 0}</div>
+    </div>
+    <div>
+      <div class="card-label">Personal</div>
+      <div class="history-stat">${entry.personalScore || 0}</div>
+    </div>
+  </div>
+`).join('');
       }
     }
 
