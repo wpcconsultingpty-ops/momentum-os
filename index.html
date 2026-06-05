@@ -468,7 +468,7 @@
 
     .view.active {
       display: block;
-      /* animation: fadeIn 0.3s ease-out; */
+      animation: fadeIn 0.3s ease-out;
             
     }
 
@@ -1252,7 +1252,7 @@
       </div>
 
       <!-- Dashboard View -->
-      <section id="dashboardView" class="view active">
+      <section id="dashboard" class="view active">
         <header class="hero animate-in">
 
         <!-- Progress Rings -->
@@ -1355,7 +1355,7 @@
       </section>
 
       <!-- Health View -->
-      <section id="healthView" class="view">
+      <section id="health" class="view">
         <div class="section-card">
           <div class="section-header">
             <h2>Health Tracking</h2>
@@ -1424,7 +1424,7 @@
       </section>
 
       <!-- Personal View -->
-      <section id="personalView" class="view">
+      <section id="personal" class="view">
         <div class="section-card">
           <div class="section-header">
             <h2>Personal Tracking</h2>
@@ -1513,7 +1513,7 @@
       </section>
 
       <!-- Journal View -->
-      <section id="journalView" class="view">
+      <section id="journal" class="view">
         <div class="section-card">
           <div class="section-header">
             <h2>Journal</h2>
@@ -1567,7 +1567,7 @@
       </section>
 
       <!-- Coach View -->
-      <section id="coachView" class="view">
+      <section id="aiCoach" class="view">
         <div class="section-card">
           <div class="section-header">
             <h2>AI Coach</h2>
@@ -1648,7 +1648,7 @@
       </section>
 
      <!-- History View -->
-<section id="historyView" class="view">
+<section id="history" class="view">
   <div class="section-card">
     <div class="section-header">
       <h2>History & Analytics</h2>
@@ -1854,7 +1854,7 @@
       document.body.classList.remove('sidebar-open');
 
                 // Also reset after reflow
-    setTimeout(() => { if (mainEl) mainEl.scrollTop = 0; window.scrollTo(0, 0); document.title = 'ST:'+mainEl.scrollTop+' SH:'+mainEl.scrollHeight+' CH:'+mainEl.clientHeight; }, 50);
+    requestAnimationFrame(() => { if (mainEl) mainEl.scrollTop = 0; window.scrollTo(0, 0); });
     }
 
     function updateThemeIcon(theme) {
