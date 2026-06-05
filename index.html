@@ -2397,14 +2397,7 @@ async function askCoach() {
     const guide = data.guide;
 
     // Render guide into the main coach card
-latestEl.textContent =
-          `${guide.reflection}\n\n` +
-          `${guide.observedPattern}\n\n` +
-          `${guide.reframe} ${guide.encouragement}\n\n` +
-          guide.gentleSuggestions
-            .map(s => `\u2022 ${s.suggestion}`)
-            .join('\n') +
-          `\n\n${guide.closingQuestion}`;
+latestEl.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
 
     // Also append coach message to thread
     const coachRow = document.createElement('div');
