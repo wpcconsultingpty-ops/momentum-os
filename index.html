@@ -2419,7 +2419,7 @@ async function askCoach() {
     messagesEl.appendChild(coachRow);
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
-    statusEl.textContent = 'Ready';
+    statusEl.textContent = 'Ready'; promptInput.value = '';
   } catch (err) {
     console.error(err);
     statusEl.textContent = 'Something went wrong. Try again in a moment.';
