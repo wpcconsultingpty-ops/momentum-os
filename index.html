@@ -1843,7 +1843,8 @@
       const targetView = document.getElementById(viewId);
       if (targetView) {
         targetView.classList.add('active');
-      }
+                    targetView.scrollIntoView({block: 'start', behavior: 'instant'});
+                }
 
       // Update nav links
       document.querySelectorAll('.nav-link').forEach(link => {
