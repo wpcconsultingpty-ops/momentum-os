@@ -1861,7 +1861,7 @@
       document.body.classList.remove('sidebar-open');
 
                 // Also reset after reflow
-    requestAnimationFrame(() => { var tv=document.getElementById(viewId); if(mainEl&&tv){mainEl.scrollTop=tv.offsetTop;} window.scrollTo(0,0); document.title='oT:'+tv?.offsetTop+' sH:'+mainEl?.scrollHeight+' cH:'+mainEl?.clientHeight; });
+    requestAnimationFrame(() => { var views=document.querySelectorAll('.view');var info=[];views.forEach(function(v){info.push(v.id+':'+getComputedStyle(v).display+'/h'+v.offsetHeight)});var tv=document.getElementById(viewId);if(mainEl)mainEl.scrollTop=0;window.scrollTo(0,0);document.title=info.join(' ')+' oT:'+tv?.offsetTop+' sH:'+mainEl?.scrollHeight; });
     }
 
     function updateThemeIcon(theme) {
