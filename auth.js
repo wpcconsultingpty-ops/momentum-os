@@ -13,7 +13,7 @@
   let currentUser = null;
   let currentTier = 'free';
   let coachUsesToday = 0;
-  const COACH_FREE_LIMIT = 3;
+  const COACH_FREE_LIMIT = 3;   const TESTING_MODE = true; // TESTING: set to false to re-enable pricing/tier gating
 
   // ── Inject CSS ──
   const css = document.createElement('style');
@@ -210,7 +210,7 @@
 
   // ── Tier Gating ──
   function applyTierGating(tier) {
-    currentTier = tier || 'free';
+    currentTier = TESTING_MODE ? 'pro' : (tier || 'free');
     // Update pricing page
     const label = document.getElementById('currentPlanLabel');
     if (label) label.textContent = currentTier.charAt(0).toUpperCase() + currentTier.slice(1);
@@ -220,7 +220,7 @@
 
   // ── Coach Rate Limiting ──
   window.canUseCoach = function () {
-    if (currentTier !== 'free') return true;
+    if (TESTING_MODE) return true; if (currentTier !== 'free') return true;
     const today = new Date().toISOString().slice(0, 10);
     const key = 'coach-day-' + today;
     coachUsesToday = parseInt(localStorage.getItem(key) || '0', 10);
