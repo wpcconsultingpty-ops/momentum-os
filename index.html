@@ -1985,7 +1985,7 @@
     function updateScores() {
       const healthScore = calculateHealthScore();
       const personalScore = calculatePersonalScore();
-      const _streakBonus = Math.min(10, calculateStreak(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')) * 2); const overallScore = Math.min(100, Math.round((healthScore + personalScore) / 2) + _streakBonus);
+      const _streakBonus = Math.min(15, calculateStreak(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')) * 3); const overallScore = Math.min(100, Math.round((healthScore + personalScore) / 2) + _streakBonus);
 
       // Update progress rings
       updateProgressRing('healthProgressRing', 'healthProgressValue', healthScore);
@@ -2118,7 +2118,7 @@
         
         document.getElementById('health7DayAvg').textContent = avgHealth;
         document.getElementById('personalWeeklyAvg').textContent = avgPersonal;
-        document.getElementById('personalBest').textContent = Math.max(...recent.map(e => e.personalScore || 0));
+        document.getElementById('personalBest').textContent = Math.max(...recent.map(e => e.personalScore || 0)); const _today = entries[entries.length - 1]; if (_today) { const _ov = (_today.overallScore != null) ? _today.overallScore : Math.round(((_today.healthScore||0)+(_today.personalScore||0))/2); updateProgressRing('overallProgressRing', 'overallProgressValue', _ov); updateProgressRing('healthProgressRing', 'healthProgressValue', _today.healthScore||0); updateProgressRing('personalProgressRing', 'personalProgressValue', _today.personalScore||0); }
       }
 
       // Update journal stats
