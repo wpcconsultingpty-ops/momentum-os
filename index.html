@@ -1840,8 +1840,7 @@
       document.body.classList.remove('sidebar-open');
 
             // Scroll to top when switching views
-      window.scrollTo(0, 0);
-    document.querySelector('.main').scrollTop = 0;
+    setTimeout(() => { window.scrollTo(0, 0); document.querySelector('.main').scrollTop = 0; }, 0);
     }
 
     function updateThemeIcon(theme) {
