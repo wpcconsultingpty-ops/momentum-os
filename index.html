@@ -1836,13 +1836,13 @@
     window.scrollTo(0, 0);
       // Hide all views
       document.querySelectorAll('.view').forEach(view => {
-        view.classList.remove('active');
+        view.classList.remove('active'); view.style.display = 'none';
       });
 
       // Show selected view
       const targetView = document.getElementById(viewId);
       if (targetView) {
-        targetView.classList.add('active');
+        targetView.classList.add('active'); targetView.style.display = 'block';
                             }
 
       // Update nav links
