@@ -316,7 +316,7 @@
     .app-shell {
       display: grid;
       grid-template-columns: 280px minmax(0, 1fr);
-      height: 100vh;
+      min-height: 100vh;
     }
 
     .sidebar {
@@ -446,7 +446,7 @@
       min-width: 0;
       padding: 28px;
             overflow-y: auto;
-            outline: 3px solid red;
+            
     }
 
     .topbar {
@@ -460,7 +460,7 @@
     .view.active {
       display: block;
       animation: fadeIn 0.3s ease-out;
-            outline: 3px solid blue;
+            
     }
 
     .hero, .section-card {
@@ -1816,6 +1816,9 @@
     }
 
     function switchView(viewId) {
+          const mainEl = document.querySelector('.main');
+    if (mainEl) mainEl.scrollTop = 0;
+    window.scrollTo(0, 0);
       // Hide all views
       document.querySelectorAll('.view').forEach(view => {
         view.classList.remove('active');
@@ -1841,8 +1844,8 @@
       // Close mobile menu
       document.body.classList.remove('sidebar-open');
 
-            // Scroll to top when switching views
-    setTimeout(() => { window.scrollTo(0, 0); document.querySelector('.main').scrollTop = 0; }, 0);
+                // Also reset after reflow
+    requestAnimationFrame(() => { if (mainEl) mainEl.scrollTop = 0; window.scrollTo(0, 0); });
     }
 
     function updateThemeIcon(theme) {
