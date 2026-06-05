@@ -63,6 +63,31 @@
       --gradient-success: linear-gradient(135deg, #5f7f63 0%, #84ad88 100%);
     }
 
+          /* Dark mode component overrides */
+      [data-theme="dark"] .sidebar { background: rgba(24, 32, 26, 0.92); }
+      [data-theme="dark"] .sidebar.mobile-open { background: rgba(24, 32, 26, 0.96); }
+      [data-theme="dark"] .habit-card,
+      [data-theme="dark"] .history-item,
+      [data-theme="dark"] .card,
+      [data-theme="dark"] .metric-card { background: var(--surface-2); }
+      [data-theme="dark"] textarea,
+      [data-theme="dark"] input[type="text"],
+      [data-theme="dark"] input[type="number"],
+      [data-theme="dark"] input[type="date"],
+      [data-theme="dark"] select { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+      [data-theme="dark"] .user-bubble { background: var(--surface-3); color: var(--text); }
+      [data-theme="dark"] .coach-composer { background: var(--surface-2); color: var(--text); }
+      [data-theme="dark"] .binary-option.active { background: var(--accent-strong); color: var(--accent); }
+      [data-theme="dark"] .btn-secondary,
+      [data-theme="dark"] button:not(.btn-primary):not(.theme-toggle) { background: var(--surface-2); color: var(--text); }
+      [data-theme="dark"] .score-card { background: var(--surface); }
+      [data-theme="dark"] .nav-link { color: var(--text); }
+      [data-theme="dark"] .nav-link:hover { background: var(--accent-soft); }
+      [data-theme="dark"] .nav-link.active { color: var(--accent); background: var(--accent-soft); }
+      [data-theme="dark"] .insight-card { background: var(--surface-2); }
+      [data-theme="dark"] .chat-container { background: var(--surface); }
+      [data-theme="dark"] .habit-check::before { box-shadow: inset 0 0 0 4px var(--surface-2); }
+
     * { 
       box-sizing: border-box;
       margin: 0;
