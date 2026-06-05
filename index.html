@@ -1845,6 +1845,7 @@
       if (targetView) {
         targetView.classList.add('active');
                     targetView.style.display = 'block';
+                    var tb = mainEl ? mainEl.querySelector('.topbar') : null; if (tb) tb.after(targetView);
                             }
 
       // Update nav links
