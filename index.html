@@ -1854,7 +1854,7 @@
       document.body.classList.remove('sidebar-open');
 
                 // Also reset after reflow
-    requestAnimationFrame(() => { if (mainEl) mainEl.scrollTop = 0; window.scrollTo(0, 0); });
+    setTimeout(() => { if (mainEl) mainEl.scrollTop = 0; window.scrollTo(0, 0); document.title = 'ST:'+mainEl.scrollTop+' SH:'+mainEl.scrollHeight+' CH:'+mainEl.clientHeight; }, 50);
     }
 
     function updateThemeIcon(theme) {
