@@ -1968,7 +1968,7 @@
       const hydration = parseInt(document.getElementById('hydration').value);
       const recovery = parseInt(document.getElementById('recovery').value);
 
-      const score = Math.round((mood + energy + stress + sleep + exercise + nutrition + hydration + recovery) / 8 * 10);
+      const score = Math.round((mood + energy + stress + sleep + exercise + nutrition + hydration + recovery) / 8 * 6 + 40);
       return Math.min(100, Math.max(0, score));
     }
 
@@ -1978,7 +1978,7 @@
       const control = parseInt(document.getElementById('personalControl').value);
       const urge = 10 - parseInt(document.getElementById('personalUrge').value);
 
-      const score = Math.round((desire + connection + control + urge) / 4 * 10);
+      const score = Math.round((desire + connection + control + urge) / 4 * 6 + 40);
       return Math.min(100, Math.max(0, score));
     }
 
