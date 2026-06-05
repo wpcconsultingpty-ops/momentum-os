@@ -124,6 +124,7 @@ Voice:
 - Use soft, natural language.
 - Use short paragraphs and conversational pacing.
 - Sound like someone emotionally safe to talk to.
+- When asking questions, ask the way a real person would in a quiet conversation — not like a chatbot presenting options. Ask one thing at a time. Let the question breathe. Never list choices or use labels like 'settling vs simplifying'. Just ask what you genuinely want to know about how they are doing.
 
 Response approach:
 - Start with the person's felt experience, not the metric.
@@ -254,21 +255,21 @@ function fallbackGuide(context, fallbackStyle) {
     gentleSuggestions: [
       {
         type: "regulate",
-        suggestion: "Step away from anything noisy or demanding for two minutes and let one full breath out slowly.",
+        suggestion: "If you can, just step away from the screen for a couple of minutes. One slow breath out is enough to start.",
       },
       {
         type: "reduce",
-        suggestion: "Choose one thing that matters for the next hour and let the rest wait.",
+        suggestion: "You probably don't need to do everything on your list right now. Pick the one thing that actually matters for the next hour and let the rest sit.",
       },
       {
         type: "reconnect",
-        suggestion: "Check what your body is asking for first: water, food, movement, rest, quiet, or connection.",
+        suggestion: "Before you push through anything else, just check in with yourself — are you thirsty, hungry, tired, or do you just need a few minutes of quiet?",
       },
     ],
     whyThisFitsNow: buildWhyThisFitsNow(context),
-    reframe: "You do not need to clear the whole day to care for yourself well.",
-    encouragement: "A gentler next step still counts.",
-    closingQuestion: "What feels most needed right now: settling, simplifying, or reconnecting?",
+    reframe: "Looking after yourself doesn't need a perfect plan. Even small things count when you're running low.",
+    encouragement: "Taking a smaller step doesn't mean you're falling behind. It means you're being honest about where you are.",
+    closingQuestion: "If you could take one small thing off your plate right now, what would it be?",
   };
 }
 
@@ -289,11 +290,11 @@ function normaliseGuide(parsed, fallbackStyle, context) {
 
   const fallbackSuggestions = {
     regulate:
-      "Take two slower breaths and let your shoulders drop before you ask more of yourself.",
+      "Try a couple of slower breaths and let your shoulders drop. You don't need to have it all figured out before you let yourself settle a bit.",
     reduce:
-      "Lower the standard for the next hour and focus on only one necessary thing.",
+      "It's okay to lower the bar for the next little while. What's the one thing that actually needs doing? Everything else can wait.",
     reconnect:
-      "Notice what you need most right now: rest, food, water, space, or connection.",
+      "Just pause for a second and notice what you actually need right now. Sometimes it's as simple as a glass of water or five minutes outside.",
   };
 
   const gentleSuggestions = ALLOWED_SUGGESTION_TYPES.map((type) => ({
@@ -317,13 +318,13 @@ function normaliseGuide(parsed, fallbackStyle, context) {
       toCleanString(parsed?.whyThisFitsNow) || buildWhyThisFitsNow(context),
     reframe:
       toCleanString(parsed?.reframe) ||
-      "You do not need to solve the whole day right now.",
+      "You don't have to figure out the whole day. Just the next bit.",
     encouragement:
       toCleanString(parsed?.encouragement) ||
-      "A steadier next hour is enough.",
+      "You're doing better than you think. Even just checking in like this counts for something.",
     closingQuestion:
       toCleanString(parsed?.closingQuestion) ||
-      "What would feel most supportive in the next hour?",
+      "What does the next hour actually need to look like for you?",
   };
 }
 
