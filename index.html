@@ -323,7 +323,7 @@
     .app-shell {
       display: grid;
       grid-template-columns: 280px minmax(0, 1fr);
-      height: 100vh;
+      min-height: 100vh;
             overflow: hidden;
     }
 
@@ -1197,42 +1197,42 @@
       <div class="nav-group">
         <h2>Views</h2>
         <nav class="nav-list">
-          <button class="nav-link active" onclick="switchView('dashboardView')" type="button">
+          <button class="nav-link active" onclick="switchView('dashboard')" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy">
               <strong>Dashboard</strong>
               <span>Today at a glance</span>
             </span>
           </button>
-          <button class="nav-link" onclick="switchView('healthView')" type="button">
+          <button class="nav-link" onclick="switchView('health')" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy">
               <strong>Health</strong>
               <span>Sleep, energy, movement</span>
             </span>
           </button>
-          <button class="nav-link" onclick="switchView('personalView')" type="button">
+          <button class="nav-link" onclick="switchView('personal')" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy">
               <strong>Personal</strong>
               <span>Connection and desire</span>
             </span>
           </button>
-          <button class="nav-link" onclick="switchView('journalView')" type="button">
+          <button class="nav-link" onclick="switchView('journal')" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy">
               <strong>Journal</strong>
               <span>Notes and reflection</span>
             </span>
           </button>
-          <button class="nav-link" onclick="switchView('coachView')" type="button">
+          <button class="nav-link" onclick="switchView('ai-coach')" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy">
               <strong>AI Coach</strong>
               <span>Personalized guidance</span>
             </span>
           </button>
-          <button class="nav-link" onclick="switchView('historyView')" type="button">
+          <button class="nav-link" onclick="switchView('history')" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy">
               <strong>History</strong>
@@ -1313,9 +1313,9 @@
           </div>
 
           <div class="button-row">
-            <button class="btn btn-primary" onclick="switchView('healthView')">Track Health</button>
-            <button class="btn" onclick="switchView('personalView')">Track Personal</button>
-            <button class="btn" onclick="switchView('coachView')">Get AI Advice</button>
+            <button class="btn btn-primary" onclick="switchView('health')">Track Health</button>
+            <button class="btn" onclick="switchView('personal')">Track Personal</button>
+            <button class="btn" onclick="switchView('ai-coach')">Get AI Advice</button>
           </div>
         </div>
 
