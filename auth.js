@@ -180,7 +180,7 @@
     sBtn.style.cssText = 'margin-top:16px;opacity:0.7';
     sBtn.onclick = function () { handleSignOut(); };
     sBtn.innerHTML = '<span class="nav-dot"></span><span class="nav-copy"><strong id="userEmailNav">Sign out</strong><span>Manage account</span></span>';
-    nav.appendChild(sBtn);
+    var rBtn = document.createElement('button'); rBtn.className = 'nav-link'; rBtn.id = 'navResetData'; rBtn.type = 'button'; rBtn.style.cssText = 'margin-top:8px;opacity:0.7'; rBtn.onclick = function () { if (typeof clearData === 'function') { clearData(); } else if (confirm('Reset all info for a new user? This clears saved data on this device and cannot be undone.')) { ['momentum-daily-entries','momentum-current-draft','momentum-first-visit'].forEach(function(k){ localStorage.removeItem(k); }); location.reload(); } }; rBtn.innerHTML = ' <strong>Reset for new user</strong><br><small>Clear saved data</small> '; nav.appendChild(rBtn); nav.appendChild(sBtn);
   }
 
   // ── Stripe Checkout (placeholder) ──
