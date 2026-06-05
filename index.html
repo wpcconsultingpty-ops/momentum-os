@@ -1985,7 +1985,7 @@
     function updateScores() {
       const healthScore = calculateHealthScore();
       const personalScore = calculatePersonalScore();
-      const overallScore = Math.round((healthScore + personalScore) / 2);
+      const _streakBonus = Math.min(10, calculateStreak(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')) * 2); const overallScore = Math.min(100, Math.round((healthScore + personalScore) / 2) + _streakBonus);
 
       // Update progress rings
       updateProgressRing('healthProgressRing', 'healthProgressValue', healthScore);
