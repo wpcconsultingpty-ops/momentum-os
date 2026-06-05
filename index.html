@@ -1168,6 +1168,18 @@
         width: 100%;
       }
     }
+      /* Dark mode final overrides - cascade priority */
+      [data-theme="dark"] .message-row.coach .message-bubble { background: linear-gradient(135deg, rgba(142, 179, 146, 0.22), rgba(142, 179, 146, 0.10)) !important; color: var(--text) !important; }
+      [data-theme="dark"] .message-row.user .message-bubble { background: var(--surface-3) !important; color: var(--text) !important; }
+      [data-theme="dark"] .coach-response-card { background: var(--surface-2) !important; color: var(--text) !important; }
+      [data-theme="dark"] .coach-composer { background: var(--surface-2) !important; }
+      [data-theme="dark"] .coach-composer textarea { background: var(--surface-3) !important; color: var(--text) !important; }
+      [data-theme="dark"] .sidebar { background: rgba(24, 32, 26, 0.95) !important; }
+      [data-theme="dark"] .habit-card { background: var(--surface-2) !important; }
+      [data-theme="dark"] .history-item { background: var(--surface-2) !important; }
+      [data-theme="dark"] textarea { background: var(--surface-2) !important; color: var(--text) !important; }
+      [data-theme="dark"] input[type="text"], [data-theme="dark"] input[type="number"], [data-theme="dark"] input[type="date"], [data-theme="dark"] select { background: var(--surface-2) !important; color: var(--text) !important; }
+  
   </style>
 </head>
 <body>
