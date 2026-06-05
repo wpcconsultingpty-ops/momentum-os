@@ -1726,7 +1726,7 @@
     </div>
 
     <div class="chart-container" style="margin-top: 24px;">
-      <h3 style="margin: 0 0 16px; font-size: 1.1rem;">30-Day Overview</h3>
+      <h3 style="margin: 0 0 16px; font-size: 1.1rem;">7-Day Overview</h3>
       <div class="chart-canvas" id="monthlyChart">
         <!-- Monthly chart will be rendered here -->
       </div>
@@ -2213,20 +2213,20 @@
       const days = [];
       const today = new Date();
       
-      for (let i = 29; i >= 0; i--) {
+      for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dayKey = date.toDateString();
         const entry = entries.find(e => new Date(e.date).toDateString() === dayKey);
         
         days.push({
-          date: date.getDate(),
+          date: date.toLocaleDateString('en', { weekday: 'short' }),
           value: entry ? (entry.overallScore || 0) : 0
         });
       }
       
       chart.innerHTML = days.map(day => `
-        <div class="chart-bar" style="height: ${Math.max(5, day.value)}%; width: ${100/30}%;">
+        <div class="chart-bar" style="height: ${Math.max(5, day.value)}%; width: ${100/7}%;">
           <span style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 0.65rem; color: var(--muted);">
             ${day.date}
           </span>
