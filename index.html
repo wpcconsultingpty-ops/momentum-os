@@ -1044,8 +1044,12 @@
     @media (max-width: 860px) {
       .app-shell {
         grid-template-columns: 1fr;
-      }
+                grid-template-rows: minmax(0, 1fr);
+            }
 
+            .main {
+      grid-row: 1;
+    }
       .topbar {
         display: flex;
         position: sticky;
