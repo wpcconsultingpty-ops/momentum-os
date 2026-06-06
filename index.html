@@ -2149,8 +2149,8 @@
       // Update history list
       const historyList = document.getElementById('historyList');
       if (entries.length > 0) {
-        const recentEntries = entries.slice(-10).reverse();
-       historyList.innerHTML = recentEntries.map(entry => `
+        const recentEntries = entries.slice(-10).reverse(); const _avg = Math.round(entries.reduce((s,e)=>s+(e.overallScore||0),0)/entries.length); const _recent = entries.slice(-3); const _recentAvg = _recent.length ? Math.round(_recent.reduce((s,e)=>s+(e.overallScore||0),0)/_recent.length) : _avg; const _trendWord = _recentAvg > _avg + 3 ? 'trending up' : (_recentAvg < _avg - 3 ? 'dipping a little' : 'holding steady'); const _insightHtml = `<div class="history-insight" style="background:var(--accent-soft);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:14px;color:var(--text);font-size:14px;line-height:1.5">Over your last ${entries.length} day${entries.length===1?'':'s'}, your momentum is <strong>${_trendWord}</strong>, averaging <strong>${_avg}</strong>, with recent days around <strong>${_recentAvg}</strong>. ${_recentAvg>=_avg?'Keep it going!':'A small check-in today can turn it around.'}</div>`;
+       historyList.innerHTML = _insightHtml + recentEntries.map(entry => `
   <div class="history-item">
     <div>
       <strong>${new Date(entry.date).toLocaleDateString()}</strong>
