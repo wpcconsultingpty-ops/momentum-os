@@ -2244,7 +2244,7 @@
     function calculateStreak(entries) {
       if (entries.length === 0) return 0;
       
-      let streak = 0;
+      let streak = 0;   let _restUsed = 0;
       const today = new Date();
       
       for (let i = 0; i < 365; i++) {
@@ -2254,7 +2254,7 @@
         
         if (entries.some(e => new Date(e.date).toDateString() === dayKey)) {
           streak++;
-        } else if (i > 0) {
+        } else if (i > 0 && _restUsed < 1) {       _restUsed++;     } else if (i > 0) {
           break;
         }
       }
