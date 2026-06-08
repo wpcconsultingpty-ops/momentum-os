@@ -250,6 +250,8 @@
       injectAuthOverlay();
       injectPricingView();
       injectPricingNav();
+injectAccountView();
+injectAccountNav();        
 
       // Listen for auth state changes
       db.auth.onAuthStateChange(async function (event, session) {
@@ -260,6 +262,7 @@
           // Update nav email display
           const emailNav = document.getElementById('userEmailNav');
           if (emailNav) emailNav.textContent = currentUser.email;
+if (typeof renderAccount === 'function') renderAccount();            
           // Fetch tier from Supabase (placeholder — defaults to free)
           try {
             const { data } = await db.from('subscriptions').select('tier').eq('user_id', currentUser.id).single();
@@ -272,12 +275,15 @@
           currentUser = null;
           currentTier = 'free';
           if (overlay) overlay.classList.remove('hidden');
+if (typeof renderAccount === 'function') renderAccount();            
         }
       });
     };
     document.head.appendChild(script);
   }
-
+function injectAccountView(){var main=document.querySelector('main.main')||document.querySelector('.main');if(!main||document.getElementById('account'))return;var s=document.createElement('section');s.id='account';s.className='view';s.style.display='none';s.innerHTML='<div class="card" style="max-width:560px"><h2 style="margin:0 0 4px">Account</h2><p style="color:var(--muted);margin:0 0 20px">Manage your login and subscription</p><div id="acctStatus" style="margin-bottom:24px"></div><div style="border-top:1px solid var(--border);padding-top:20px"><h3 style="margin:0 0 4px">Subscription</h3><p style="color:var(--muted);margin:0 0 12px">Current plan: <strong id="currentPlanLabel">Free</strong></p><div id="acctSubActions"></div></div></div>';main.appendChild(s);}
+function injectAccountNav(){var nav=document.querySelector('.nav-list');if(!nav||document.getElementById('navAccount'))return;var a=document.createElement('button');a.className='nav-link';a.id='navAccount';a.type='button';a.onclick=function(){if(typeof switchView==='function')switchView('account');};a.innerHTML='<span class="nav-dot"></span><span class="nav-copy"><strong>Account</strong><span>Login and subscription</span></span>';nav.appendChild(a);}
+function renderAccount(){var st=document.getElementById('acctStatus');var sub=document.getElementById('acctSubActions');var pl=document.getElementById('currentPlanLabel');var t=currentTier||'free';if(pl)pl.textContent=t.charAt(0).toUpperCase()+t.slice(1);if(st){if(currentUser){st.innerHTML='<p style="margin:0 0 4px;color:var(--muted)">Signed in as</p><p style="margin:0 0 16px;font-weight:600">'+currentUser.email+'</p><button id="acctLogout" class="auth-submit" style="width:auto;padding:10px 20px">Log out</button>';var lo=document.getElementById('acctLogout');if(lo)lo.onclick=function(){if(typeof handleSignOut==='function')handleSignOut();};}else{st.innerHTML='<p style="margin:0 0 16px;color:var(--muted)">You are not signed in.</p><button id="acctLogin" class="auth-submit" style="width:auto;padding:10px 20px">Log in</button>';var li=document.getElementById('acctLogin');if(li)li.onclick=function(){var o=document.getElementById('authOverlay');if(o)o.classList.remove('hidden');};}}if(sub){if(t!=='free'){sub.innerHTML='<p style="color:var(--muted);margin:0">You are on the '+t+' plan. Thank you for subscribing.</p>';}else{var b=document.createElement('button');b.className='auth-submit';b.style.cssText='width:auto;padding:10px 20px';b.textContent='View plans & upgrade';b.onclick=function(){if(typeof switchView==='function')switchView('pricing');};sub.innerHTML='';sub.appendChild(b);}}}    
   // Wait for DOM
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
