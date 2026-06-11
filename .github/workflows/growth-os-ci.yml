@@ -49,8 +49,12 @@ jobs:
           cache-dependency-path: growth-os/package-lock.json
       - name: Install supabase CLI
         run: |
-          curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar -xz
-          sudo mv supabase /usr/local/bin/supabase
+          set -euo pipefail
+          tmpdir="$(mktemp -d)"
+          curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz \
+            | tar -xz -C "$tmpdir"
+          sudo install -m 0755 "$tmpdir/supabase" /usr/local/bin/supabase
+          rm -rf "$tmpdir"
           supabase --version
       - working-directory: growth-os
         run: npm ci
