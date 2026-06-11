@@ -45,6 +45,7 @@ growth-os/
 ├── scripts/
 │   ├── sign.mjs                       # HMAC-SHA256 signer
 │   └── test-webhooks.sh               # curl smoke tests
+├── tests/                             # Vitest unit + integration suites
 └── middleware.ts                      # auth gate for /dashboard/*
 ```
 
@@ -76,6 +77,57 @@ npm run dev          # http://localhost:3000
 npm run lint
 npm run build
 ```
+
+## Testing
+
+Tests use [Vitest](https://vitest.dev) (node environment). Unit tests mock the
+Supabase admin client and never touch a real database or the network — webhook
+route handlers are imported directly and driven with a hand-built `Request`.
+
+```bash
+cd growth-os
+npm test                 # unit tests (vitest run)
+npm run test:watch       # watch mode
+npm run test:coverage    # unit tests + coverage (text + lcov)
+npm run typecheck        # tsc --noEmit
+```
+
+Coverage thresholds (lines 80 / functions 80 / branches 70 / statements 80) are
+enforced on `lib/webhooks/**` and `app/api/webhooks/**`.
+
+```
+tests/
+├── unit/
+│   ├── verify.test.ts            # HMAC verify + sha256Hex
+│   ├── idempotency.test.ts       # recordDelivery / markDelivery
+│   ├── resolveOwner.test.ts      # owner resolution contract
+│   ├── helpers/supabaseMock.ts   # chainable Supabase client stub
+│   └── webhooks/                 # instagram / survey / trial route handlers
+└── integration/                  # gated behind RUN_INTEGRATION_TESTS=1
+    ├── setup.ts                  # local-supabase clients + createUser helper
+    ├── rls.integration.test.ts   # owner-isolation RLS across two JWTs
+    └── webhooks.integration.test.ts
+```
+
+### Integration tests (local Supabase)
+
+The integration suite proves the migrations apply cleanly, RLS blocks
+cross-tenant reads, and a signed survey webhook ingests end-to-end. It needs a
+local Supabase stack and is **skipped by default** (and in CI). Run it locally:
+
+```bash
+cd growth-os
+supabase start
+RUN_INTEGRATION_TESTS=1 npm run test:integration
+```
+
+## CI
+
+`.github/workflows/growth-os-ci.yml` (at the repo root, path-filtered to
+`growth-os/**`) runs lint, typecheck, unit tests with coverage, and build on
+every PR and on pushes to `main`, `phase-4-auth-attribution`, and
+`phase-5-tests-ci`. Integration tests are not yet wired into CI (they require a
+dockerized Supabase service).
 
 ## Supabase setup
 
@@ -141,3 +193,7 @@ Re-sending a POST with the same delivery id returns `{"ok":true,"duplicate":true
   owner-isolation RLS) covering profiles/content/leads/trials/
   attribution_events/webhook_deliveries, and three HMAC-verified webhook routes
   with idempotency and a shared service-role admin client.
+- **Phase 5** — Vitest unit tests (HMAC verify, idempotency, owner resolution,
+  and all three webhook route handlers via mocked Supabase), a local-Supabase
+  integration harness for migrations + RLS + end-to-end ingest, and a
+  path-filtered GitHub Actions CI workflow (lint, typecheck, test, build).
