@@ -12,6 +12,14 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    // Integration tests share a single local Supabase + Postgres. Running
+    // files in parallel causes resetDb truncate deadlocks. Force a single
+    // worker in integration mode; unit mode keeps default parallelism.
+    pool: runIntegration ? "forks" : undefined,
+    poolOptions: runIntegration
+      ? { forks: { singleFork: true } }
+      : undefined,
+    fileParallelism: runIntegration ? false : undefined,
     // Integration tests hit a live local Supabase; skip unless explicitly opted
     // in. The global setup fails fast if the stack is unreachable.
     exclude: runIntegration ? [] : ["tests/integration/**"],

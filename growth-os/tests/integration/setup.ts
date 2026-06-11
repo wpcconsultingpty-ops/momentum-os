@@ -288,18 +288,14 @@ export async function resetDb(): Promise<void> {
   const client = new PgClient({ connectionString: dbUrl });
   await client.connect();
   try {
-    await client.query(
-      `truncate table ${RESET_TABLES.map((t) => `public.${t}`).join(", ")} restart identity cascade;`,
-    );
-    // Truncate the full auth surface in one statement — `cascade` cleans any
-    // remaining FK-referenced rows. profiles rows are removed via the FK from
-    // auth.users on delete cascade (covered by the public truncate above).
-    // No `restart identity`: auth.* sequences are owned by supabase_auth_admin,
-    // not postgres, so resetting them errors with "must be owner of sequence".
-    // Test isolation only needs the rows gone; sequence positions are fine.
-    await client.query(
-      `truncate table ${AUTH_RESET_TABLES.join(", ")} cascade;`,
-    );
+    // Single TRUNCATE acquires all locks atomically so two concurrent resetDb
+    // calls cannot deadlock on overlapping public<->auth FK ordering. No
+    // `restart identity`: auth.* sequences are owned by supabase_auth_admin
+    // (not postgres) and resetting them errors with "must be owner of
+    // sequence". Test isolation only needs the rows gone.
+    const publicTables = RESET_TABLES.map((t) => `public.${t}`);
+    const allTables = [...publicTables, ...AUTH_RESET_TABLES].join(", ");
+    await client.query(`truncate table ${allTables} cascade;`);
   } finally {
     await client.end();
   }
