@@ -6,13 +6,13 @@ on:
       - 'growth-os/**'
       - '.github/workflows/growth-os-ci.yml'
   push:
-    branches: [main, phase-4-auth-attribution, phase-5-tests-ci]
+    branches: [main, phase-4-auth-attribution, phase-5-tests-ci, phase-6-ssr-auth-integration]
     paths:
       - 'growth-os/**'
       - '.github/workflows/growth-os-ci.yml'
 
 jobs:
-  ci:
+  unit:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,3 +34,53 @@ jobs:
           # lib/supabase/env.ts, so the build succeeds without real values.
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+
+  integration:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: growth-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: growth-os/package-lock.json
+      - name: Install supabase CLI
+        run: |
+          curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar -xz
+          sudo mv supabase /usr/local/bin/supabase
+          supabase --version
+      - working-directory: growth-os
+        run: npm ci
+      - name: Start Supabase
+        working-directory: growth-os
+        run: supabase start
+      - name: Export Supabase env
+        working-directory: growth-os
+        run: |
+          api_url=$(supabase status -o json | jq -r .API_URL)
+          anon=$(supabase status -o json | jq -r .ANON_KEY)
+          svc=$(supabase status -o json | jq -r .SERVICE_ROLE_KEY)
+          db_url=$(supabase status -o json | jq -r .DB_URL)
+          echo "NEXT_PUBLIC_SUPABASE_URL=$api_url" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$anon" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$svc" >> $GITHUB_ENV
+          echo "SUPABASE_DB_URL=$db_url" >> $GITHUB_ENV
+          echo "SITE_URL=http://localhost:3000" >> $GITHUB_ENV
+          echo "OWNER_USER_ID=00000000-0000-0000-0000-000000000000" >> $GITHUB_ENV
+          echo "INSTAGRAM_VERIFY_TOKEN=test-verify" >> $GITHUB_ENV
+          echo "INSTAGRAM_APP_SECRET=test-ig-secret" >> $GITHUB_ENV
+          echo "SURVEY_WEBHOOK_SECRET=test-survey-secret" >> $GITHUB_ENV
+          echo "TRIAL_WEBHOOK_SECRET=test-trial-secret" >> $GITHUB_ENV
+          # The stack is already migrated by `supabase start`; skip the per-suite
+          # `supabase db reset` (resetDb truncation handles isolation instead).
+          echo "INTEGRATION_SKIP_MIGRATIONS=1" >> $GITHUB_ENV
+      - name: Run integration tests
+        working-directory: growth-os
+        run: RUN_INTEGRATION_TESTS=1 npm run test:integration
+      - name: Stop Supabase
+        if: always()
+        working-directory: growth-os
+        run: supabase stop --no-backup || true

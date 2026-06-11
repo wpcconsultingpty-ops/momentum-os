@@ -1,12 +1,13 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   INTEGRATION_ENABLED,
+  adminClient,
   applyMigrations,
   createUser,
-  makeClients,
+  getEnv,
+  resetDb,
   sign,
   type CreatedUser,
-  type IntegrationContext,
 } from "./setup";
 
 const SURVEY_SECRET = "integration-survey-secret";
@@ -15,26 +16,27 @@ const SURVEY_SECRET = "integration-survey-secret";
 // invoked as a plain function with the service-role admin client pointed at the
 // local stack via env. Skipped unless RUN_INTEGRATION_TESTS=1.
 describe.skipIf(!INTEGRATION_ENABLED)("survey webhook end-to-end", () => {
-  let ctx: IntegrationContext;
   let owner: CreatedUser;
 
   beforeAll(async () => {
     applyMigrations();
-    ctx = makeClients();
-    owner = await createUser(ctx);
+  }, 180_000);
+
+  beforeEach(async () => {
+    await resetDb();
+    owner = await createUser();
 
     // Point the route's env at the local stack + this owner.
-    const { url, serviceRoleKey } = await import("./setup").then((m) =>
-      m.getConfig(),
-    );
-    process.env.NEXT_PUBLIC_SUPABASE_URL = url;
-    process.env.SUPABASE_SERVICE_ROLE_KEY = serviceRoleKey;
+    const env = getEnv();
+    process.env.NEXT_PUBLIC_SUPABASE_URL = env.url;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = env.serviceRoleKey;
     process.env.OWNER_USER_ID = owner.userId;
     process.env.SURVEY_WEBHOOK_SECRET = SURVEY_SECRET;
-  }, 120_000);
+  });
 
   it("seeds content, ingests a signed survey, and links attribution", async () => {
-    const { data: content } = await ctx.adminClient
+    const admin = adminClient();
+    const { data: content } = await admin
       .from("content")
       .insert({
         owner_id: owner.userId,
@@ -65,7 +67,7 @@ describe.skipIf(!INTEGRATION_ENABLED)("survey webhook end-to-end", () => {
     );
     expect(res.status).toBe(200);
 
-    const { data: lead } = await ctx.adminClient
+    const { data: lead } = await admin
       .from("leads")
       .select("id, attributed_content_id")
       .eq("owner_id", owner.userId)
@@ -73,7 +75,7 @@ describe.skipIf(!INTEGRATION_ENABLED)("survey webhook end-to-end", () => {
       .single();
     expect(lead?.attributed_content_id).toBe(content!.id);
 
-    const { data: events } = await ctx.adminClient
+    const { data: events } = await admin
       .from("attribution_events")
       .select("id, event_type, content_id")
       .eq("owner_id", owner.userId)
