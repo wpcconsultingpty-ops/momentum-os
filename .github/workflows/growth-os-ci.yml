@@ -50,12 +50,15 @@ jobs:
       - name: Install supabase CLI
         run: |
           set -euo pipefail
-          tmpdir="$(mktemp -d)"
+          # The Supabase CLI ships as a shim (`supabase`) + Go binary
+          # (`supabase-go`) that must live in the same directory. Extract
+          # both into a stable location and put it on PATH.
+          install_dir="$HOME/.local/share/supabase"
+          mkdir -p "$install_dir"
           curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz \
-            | tar -xz -C "$tmpdir"
-          sudo install -m 0755 "$tmpdir/supabase" /usr/local/bin/supabase
-          rm -rf "$tmpdir"
-          supabase --version
+            | tar -xz -C "$install_dir"
+          echo "$install_dir" >> "$GITHUB_PATH"
+          "$install_dir/supabase" --version
       - working-directory: growth-os
         run: npm ci
       - name: Start Supabase
