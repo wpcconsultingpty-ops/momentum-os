@@ -259,11 +259,29 @@ const RESET_TABLES = [
   "profiles",
 ];
 
+// Full GoTrue auth-table surface. `delete from auth.users` alone only cascades
+// to identities/sessions/refresh_tokens via FK; rows in flow_state,
+// one_time_tokens, mfa_*, audit_log_entries, etc. are orphaned and cause the
+// next admin.createUser to fail with "Database error granting user".
+// `truncate ... cascade` cleans everything in one statement.
+const AUTH_RESET_TABLES = [
+  "auth.refresh_tokens",
+  "auth.sessions",
+  "auth.mfa_amr_claims",
+  "auth.mfa_challenges",
+  "auth.mfa_factors",
+  "auth.one_time_tokens",
+  "auth.flow_state",
+  "auth.identities",
+  "auth.users",
+  "auth.audit_log_entries",
+];
+
 /**
  * Truncates all domain tables (FK order handled by CASCADE) between tests so
  * each test starts from a clean slate. Uses a direct Postgres connection
- * because PostgREST cannot run TRUNCATE. Also clears auth.users so the profile
- * trigger fires fresh on the next createUser.
+ * because PostgREST cannot run TRUNCATE. Also truncates the full GoTrue auth.*
+ * surface so the next createUser starts from a clean auth state.
  */
 export async function resetDb(): Promise<void> {
   const { dbUrl } = getEnv();
@@ -273,9 +291,12 @@ export async function resetDb(): Promise<void> {
     await client.query(
       `truncate table ${RESET_TABLES.map((t) => `public.${t}`).join(", ")} restart identity cascade;`,
     );
-    // profiles rows are removed by the cascade above via the FK from auth.users,
-    // but auth.users itself must be cleared explicitly.
-    await client.query("delete from auth.users;");
+    // Truncate the full auth surface in one statement — `cascade` cleans any
+    // remaining FK-referenced rows. profiles rows are removed via the FK from
+    // auth.users on delete cascade (covered by the public truncate above).
+    await client.query(
+      `truncate table ${AUTH_RESET_TABLES.join(", ")} restart identity cascade;`,
+    );
   } finally {
     await client.end();
   }
