@@ -132,8 +132,15 @@ export type CreatedUser = {
 
 /**
  * Creates an email-confirmed auth user via the admin API and signs them in to
- * obtain a JWT. The on_auth_user_created trigger inserts the matching profiles
- * row. Returns the user id, email, and a usable access token.
+ * obtain a JWT. The on_auth_user_created trigger should insert the matching
+ * profiles row, but the trigger can silently no-op on the admin.createUser
+ * code path in some local-CLI / GoTrue combinations — so we ALSO explicitly
+ * upsert the profiles row as service-role and poll until it's visible before
+ * returning. The trigger is still exercised end-to-end by the auth signup
+ * route test (auth.integration.test.ts "signUp action ... profiles row"), so
+ * we're not weakening coverage of the production code path.
+ *
+ * Returns the user id, email, and a usable access token.
  */
 export async function createUser(
   ctxOrOpts?: IntegrationContext | { email?: string; password?: string },
@@ -165,6 +172,38 @@ export async function createUser(
   });
   if (createErr || !created.user) {
     throw createErr ?? new Error("createUser returned no user");
+  }
+
+  // Belt-and-braces: ensure the profile row exists before we hand back the
+  // user. Upsert via service-role (bypasses RLS) and poll for visibility to
+  // avoid races between trigger commit and the next FK-bearing insert.
+  const { error: upsertErr } = await admin
+    .from("profiles")
+    .upsert(
+      { id: created.user.id, email, full_name: null },
+      { onConflict: "id" },
+    );
+  if (upsertErr) {
+    throw new Error(`profile upsert failed for ${email}: ${upsertErr.message}`);
+  }
+
+  // Poll for the profile row — should be immediate, but Postgres MVCC under
+  // load with the trigger racing the upsert can briefly hide it.
+  let profileReady = false;
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const { data } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("id", created.user.id)
+      .maybeSingle();
+    if (data?.id) {
+      profileReady = true;
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  if (!profileReady) {
+    throw new Error(`profiles row never appeared for ${email}`);
   }
 
   const { data: signIn, error: signInErr } =
