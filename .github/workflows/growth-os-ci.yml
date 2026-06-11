@@ -21,7 +21,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Node 22 — @supabase/supabase-js requires native WebSocket support
+          # (available natively on Node 22+, not on Node 20).
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: growth-os/package-lock.json
       - run: npm ci
@@ -44,7 +46,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Node 22 — @supabase/supabase-js requires native WebSocket support.
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: growth-os/package-lock.json
       - name: Install supabase CLI
