@@ -12,19 +12,39 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
-    // Integration tests hit a live local Supabase; skip unless explicitly opted in.
+    // Integration tests share a single local Supabase + Postgres. Running
+    // files in parallel causes resetDb truncate deadlocks. Force a single
+    // worker in integration mode; unit mode keeps default parallelism.
+    pool: runIntegration ? "forks" : undefined,
+    poolOptions: runIntegration
+      ? { forks: { singleFork: true } }
+      : undefined,
+    fileParallelism: runIntegration ? false : undefined,
+    // Integration tests hit a live local Supabase; skip unless explicitly opted
+    // in. The global setup fails fast if the stack is unreachable.
     exclude: runIntegration ? [] : ["tests/integration/**"],
+    globalSetup: runIntegration
+      ? ["tests/integration/global-setup.ts"]
+      : [],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
-      // Thresholds are scoped to the webhook ingest code this phase hardens.
-      include: ["lib/webhooks/**", "app/api/webhooks/**"],
-      thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 70,
-        statements: 80,
-      },
+      // Unit mode hardens the webhook ingest surface; integration mode widens
+      // coverage to the SSR helpers, auth routes, and dashboard server actions
+      // that can only be exercised against a real Supabase + RLS.
+      include: runIntegration
+        ? [
+            "lib/**",
+            "app/auth/**",
+            "app/dashboard/**/actions.ts",
+            "app/api/webhooks/**",
+          ]
+        : ["lib/webhooks/**", "app/api/webhooks/**"],
+      // Lower branches in integration mode: Next.js cookie/redirect code paths
+      // are hard to fully exercise from a test harness.
+      thresholds: runIntegration
+        ? { lines: 75, functions: 80, branches: 65, statements: 75 }
+        : { lines: 80, functions: 80, branches: 70, statements: 80 },
     },
   },
 });
