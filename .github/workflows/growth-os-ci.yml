@@ -1,0 +1,36 @@
+name: growth-os CI
+
+on:
+  pull_request:
+    paths:
+      - 'growth-os/**'
+      - '.github/workflows/growth-os-ci.yml'
+  push:
+    branches: [main, phase-4-auth-attribution, phase-5-tests-ci]
+    paths:
+      - 'growth-os/**'
+      - '.github/workflows/growth-os-ci.yml'
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: growth-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: growth-os/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test -- --coverage
+      - run: npm run build
+        env:
+          # Placeholders only; runtime env reads are gated behind functions in
+          # lib/supabase/env.ts, so the build succeeds without real values.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
