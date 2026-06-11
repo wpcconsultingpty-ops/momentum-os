@@ -80,20 +80,31 @@ npm run build
 
 ## Testing
 
-Tests use [Vitest](https://vitest.dev) (node environment). Unit tests mock the
-Supabase admin client and never touch a real database or the network — webhook
-route handlers are imported directly and driven with a hand-built `Request`.
+Tests use [Vitest](https://vitest.dev) (node environment). The default `npm test`
+run is **unit-only** and never touches a database or the network — it mocks the
+Supabase admin client and drives webhook route handlers with hand-built
+`Request`s. The integration suite is opt-in (`RUN_INTEGRATION_TESTS=1`) and runs
+against a real local Supabase stack.
 
 ```bash
 cd growth-os
-npm test                 # unit tests (vitest run)
+npm test                 # unit tests only — fast, no DB
 npm run test:watch       # watch mode
 npm run test:coverage    # unit tests + coverage (text + lcov)
 npm run typecheck        # tsc --noEmit
 ```
 
-Coverage thresholds (lines 80 / functions 80 / branches 70 / statements 80) are
-enforced on `lib/webhooks/**` and `app/api/webhooks/**`.
+### Coverage thresholds
+
+Coverage is scoped differently per mode:
+
+| Mode | `coverage.include` | Thresholds |
+| --- | --- | --- |
+| `npm test` (unit) | `lib/webhooks/**`, `app/api/webhooks/**` | lines 80 / functions 80 / branches 70 / statements 80 |
+| `RUN_INTEGRATION_TESTS=1` (unit + integration) | `lib/**`, `app/auth/**`, `app/dashboard/**/actions.ts`, `app/api/webhooks/**` | lines 75 / functions 80 / branches 65 / statements 75 |
+
+Branches are lower in integration mode because Next.js cookie/redirect code
+paths are hard to fully exercise from a harness.
 
 ```
 tests/
@@ -101,25 +112,42 @@ tests/
 │   ├── verify.test.ts            # HMAC verify + sha256Hex
 │   ├── idempotency.test.ts       # recordDelivery / markDelivery
 │   ├── resolveOwner.test.ts      # owner resolution contract
+│   ├── client.test.ts            # browser supabase client smoke
 │   ├── helpers/supabaseMock.ts   # chainable Supabase client stub
 │   └── webhooks/                 # instagram / survey / trial route handlers
 └── integration/                  # gated behind RUN_INTEGRATION_TESTS=1
-    ├── setup.ts                  # local-supabase clients + createUser helper
-    ├── rls.integration.test.ts   # owner-isolation RLS across two JWTs
-    └── webhooks.integration.test.ts
+    ├── setup.ts                          # env + client/user/db helpers
+    ├── global-setup.ts                   # fail-fast env + DB reachability check
+    ├── helpers/fakeCookies.ts            # in-memory CookieAdapter
+    ├── helpers/nextMocks.ts              # next/headers + redirect mocks
+    ├── ssr.integration.test.ts           # server.ts + middleware.ts
+    ├── auth.integration.test.ts          # signup/login/callback/sign-out + trigger
+    ├── server-actions.integration.test.ts# content/leads actions + RLS + Zod
+    ├── rls.integration.test.ts           # owner-isolation RLS across two JWTs
+    └── webhooks.integration.test.ts      # signed survey ingest end-to-end
 ```
 
 ### Integration tests (local Supabase)
 
-The integration suite proves the migrations apply cleanly, RLS blocks
-cross-tenant reads, and a signed survey webhook ingests end-to-end. It needs a
-local Supabase stack and is **skipped by default** (and in CI). Run it locally:
+The integration suite proves the SSR helpers refresh/authenticate against real
+cookies, the auth routes and profile trigger work end-to-end, the dashboard
+server actions enforce `auth.uid()` ownership (rejecting client-supplied
+`owner_id`) and Zod validation, RLS blocks cross-tenant access, and a signed
+survey webhook ingests end-to-end. It needs a local Supabase stack (Docker) and
+is **skipped by default**. Run it locally:
 
 ```bash
 cd growth-os
-supabase start
+supabase start                              # boots Postgres+GoTrue+… in Docker
 RUN_INTEGRATION_TESTS=1 npm run test:integration
+supabase stop                               # tear the stack down when done
 ```
+
+`supabase start` applies `supabase/migrations/*.sql` automatically, so the DB is
+ready as soon as it boots. The harness reads the CLI's local URL/keys (or the
+well-known local defaults) — no real secrets. Between tests, `resetDb()`
+truncates the domain tables over a direct Postgres connection
+(`SUPABASE_DB_URL`, default `postgresql://postgres:postgres@127.0.0.1:54322/postgres`).
 
 ## CI
 
