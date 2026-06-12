@@ -46,25 +46,31 @@ export default function LeadForm({ utm }: { utm: UtmParams }) {
 
   if (status === "success") {
     return (
-      <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center">
-        <h2 className="text-lg font-semibold text-green-900">You&apos;re on the list</h2>
-        <p className="mt-2 text-sm text-green-800">
-          Thanks for joining Momentum OS. Keep an eye on your inbox — we&apos;ll be in touch soon.
+      <div className="rounded-lg border border-amber-200/30 bg-amber-200/5 p-6 text-center">
+        <h2 className="text-lg font-semibold text-amber-100">
+          You&apos;re on the list.
+        </h2>
+        <p className="mt-2 text-sm text-slate-300">
+          We&apos;ll reach out when the next beta cohort opens. Keep an eye on
+          your inbox.
         </p>
       </div>
     );
   }
 
+  const fieldClass =
+    "mt-1 w-full rounded-md border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-amber-200/60 focus:outline-none";
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       {status === "error" ? (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
           Something went wrong. Please try again.
         </p>
       ) : null}
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-900">
+        <label htmlFor="email" className="block text-sm font-medium text-slate-200">
           Email
         </label>
         <input
@@ -74,13 +80,13 @@ export default function LeadForm({ utm }: { utm: UtmParams }) {
           required
           autoComplete="email"
           placeholder="you@example.com"
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
+          className={fieldClass}
         />
       </div>
 
       <div>
-        <label htmlFor="full_name" className="block text-sm font-medium text-gray-900">
-          Full name <span className="font-normal text-gray-400">(optional)</span>
+        <label htmlFor="full_name" className="block text-sm font-medium text-slate-200">
+          Full name <span className="font-normal text-slate-500">(optional)</span>
         </label>
         <input
           id="full_name"
@@ -88,23 +94,23 @@ export default function LeadForm({ utm }: { utm: UtmParams }) {
           type="text"
           autoComplete="name"
           placeholder="Your name"
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
+          className={fieldClass}
         />
       </div>
 
       <div>
-        <label htmlFor="ig_user_handle" className="block text-sm font-medium text-gray-900">
-          Instagram handle <span className="font-normal text-gray-400">(optional)</span>
+        <label htmlFor="ig_user_handle" className="block text-sm font-medium text-slate-200">
+          Instagram handle <span className="font-normal text-slate-500">(optional)</span>
         </label>
-        <div className="mt-1 flex items-center rounded-md border border-gray-300 focus-within:border-gray-900">
-          <span className="pl-3 text-sm text-gray-400">@</span>
+        <div className="mt-1 flex items-center rounded-md border border-slate-700 bg-slate-900/60 focus-within:border-amber-200/60">
+          <span className="pl-3 text-sm text-slate-500">@</span>
           <input
             id="ig_user_handle"
             name="ig_user_handle"
             type="text"
             autoComplete="off"
             placeholder="yourhandle"
-            className="w-full rounded-md border-0 bg-transparent px-2 py-2 text-sm focus:outline-none"
+            className="w-full rounded-md border-0 bg-transparent px-2 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
           />
         </div>
       </div>
@@ -118,9 +124,9 @@ export default function LeadForm({ utm }: { utm: UtmParams }) {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="w-full rounded-md bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-60"
+        className="w-full rounded-md bg-amber-200 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-100 disabled:opacity-60"
       >
-        {status === "submitting" ? "Joining…" : "Get early access"}
+        {status === "submitting" ? "Submitting…" : "Apply for beta access"}
       </button>
     </form>
   );
