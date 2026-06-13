@@ -89,7 +89,7 @@ style={{ objectFit: "cover", borderRadius: 6, flexShrink: 0 }}
 {post.error && (
 <p style={{ color: "#cf222e", marginTop: 8 }}>Error: {post.error}</p>
 )}
-        {PENDING.has(post.status) && <PostActions postId={post.id} />}</div>
+                {(PENDING.has(post.status) || post.status === "approved") && <PostActions postId={post.id} status={post.status} />}</div>
 </li>
 ))}
 </ul>
