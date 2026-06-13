@@ -85,6 +85,18 @@ return null;
 // Full convenience flow: container -> publish -> permalink.
 export async function publishImagePost(input: CreateContainerInput): Promise<PublishResult> {
 const creationId = await createMediaContainer(input);
+  // Wait for the container to finish processing before publishing (avoids "Media ID is not available").
+const maxAttempts = 30;
+for (let attempt = 0; attempt < maxAttempts; attempt++) {
+const status = await getContainerStatus(creationId);
+if (status === "FINISHED") break;
+if (status === "ERROR" || status === "EXPIRED") {
+throw new Error(`Media container ${creationId} failed with status: ${status}`);
+}
+// Not ready yet; wait before polling again (IN_PROGRESS).
+await new Promise((resolve) => setTimeout(resolve, 2000));
+}
+
 const mediaId = await publishMediaContainer(creationId);
 const permalink = await getMediaPermalink(mediaId);
 return { creationId, mediaId, permalink };
