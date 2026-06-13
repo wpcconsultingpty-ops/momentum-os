@@ -1,7 +1,6 @@
 // Approvals dashboard: lists the owner's scheduled Instagram posts and lets
 // them approve, reject, or approve & publish. Data is read with the
 // RLS-respecting SSR client, so a user only ever sees their own rows.
-
 import { createClient } from "@/lib/supabase/server";
 import { PostActions } from "./PostActions";
 
@@ -18,6 +17,15 @@ created_at: string;
 }
 
 const PENDING = new Set(["draft", "pending_approval"]);
+
+// Mirror the publisher's logic: derive the on-image hook from the caption
+// (first sentence, capped at 160 chars) and render it via /api/og-post so the
+// preview matches exactly what gets published to Instagram.
+function previewImage(post: ScheduledPost): string {
+const firstSentence = (post.caption || "").split(/(?<=[.!?])\s/)[0].trim();
+const hook = (firstSentence || post.caption || "Momentum").slice(0, 160);
+return `/api/og-post?hook=${encodeURIComponent(hook)}`;
+}
 
 export default async function ApprovalsPage() {
 const supabase = createClient();
@@ -64,28 +72,24 @@ style={{ border: "1px solid #d0d7de", borderRadius: 8, padding: 16, display: "fl
 >
 {/* eslint-disable-next-line @next/next/no-img-element */}
 <img
-src={post.image_url}
+src={previewImage(post)}
 alt=""
 width={96}
 height={96}
 style={{ objectFit: "cover", borderRadius: 6, flexShrink: 0 }}
 />
-<div style={{ flex: 1, minWidth: 0 }}>
-<div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-<span style={{ fontSize: 12, textTransform: "uppercase", color: "#57606a" }}>
-{post.status}
-</span>
+<div style={{ flex: 1 }}>
+<div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+<span style={{ fontSize: 12, textTransform: "uppercase", color: "#57606a" }}>{post.status}</span>
 {post.permalink && (
-<a href={post.permalink} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>
-View on Instagram
-</a>
+<a href={post.permalink} target="_blank" rel="noreferrer">View on Instagram</a>
 )}
 </div>
-<p style={{ whiteSpace: "pre-wrap", margin: "8px 0" }}>{post.caption}</p>
+<p style={{ margin: 0 }}>{post.caption}</p>
 {post.error && (
-<p style={{ color: "#cf222e", fontSize: 12 }}>Error: {post.error}</p>
+<p style={{ color: "#cf222e", marginTop: 8 }}>Error: {post.error}</p>
 )}
-{PENDING.has(post.status) && <PostActions postId={post.id} />}
+{PENDING.has(post.status) && <PostActions id={post.id} />}
 </div>
 </li>
 ))}
