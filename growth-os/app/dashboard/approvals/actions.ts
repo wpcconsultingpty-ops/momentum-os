@@ -83,3 +83,43 @@ return { ok: true };
 return { ok: false, error: err instanceof Error ? err.message : "Publish request failed" };
 }
 }
+
+
+// Publish a post that has ALREADY been approved. This complements
+// approveAndPublish for the case where a post was approved separately and
+// now needs to go live. Mirrors the publish call in approveAndPublish and
+// relies on /api/ig/publish's hard gate (status === "approved").
+export async function publishPost(postId: string): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireUser();
+    // Confirm the caller owns the row and it is in an approved state.
+    const { data, error } = await supabase
+      .from("scheduled_posts")
+      .select("id, status")
+      .eq("id", postId)
+      .maybeSingle();
+    if (error) return { ok: false, error: error.message };
+    if (!data) return { ok: false, error: "Post not found" };
+    if (data.status !== "approved") {
+      return { ok: false, error: "Post must be approved before publishing" };
+    }
+
+    const res = await fetch(`${getSiteUrl()}/api/ig/publish`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getPublishSecret()}`,
+      },
+      body: JSON.stringify({ postId }),
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      return { ok: false, error: `Publish failed (${res.status}) ${detail}`.trim() };
+    }
+    revalidatePath("/dashboard/approvals");
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Unknown error" };
+  }
+}
