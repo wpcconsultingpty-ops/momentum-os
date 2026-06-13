@@ -17,7 +17,7 @@ permalink: string | null;
 }
 
 function graphBase(): string {
-return `https://graph.facebook.com/${getGraphApiVersion()}`;
+  return `https://graph.instagram.com/${getGraphApiVersion()}`;
 }
 
 async function graphPost(path: string, params: Record<string, string>): Promise<any> {
