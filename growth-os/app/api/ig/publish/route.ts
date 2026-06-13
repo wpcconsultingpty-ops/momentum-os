@@ -2,14 +2,13 @@
 // Publishes an APPROVED scheduled post to Instagram via the Graph API.
 //
 // Security model:
-//  - Protected by a shared secret (IG_PUBLISH_SECRET) sent as Bearer token.
-//  - Uses the service-role Supabase client (bypasses RLS) for status writes.
-//  - Hard gate: a row will ONLY be published if its status === "approved".
-//    This enforces the owner-approval requirement at the server boundary.
+// - Protected by a shared secret (IG_PUBLISH_SECRET) sent as Bearer token.
+// - Uses the service-role Supabase client (bypasses RLS) for status writes.
+// - Hard gate: a row will ONLY be published if its status === "approved".
+// This enforces the owner-approval requirement at the server boundary.
 //
-// This route never publishes on its own; it must be invoked with a postId
-// for a row the owner has already approved in the Approvals dashboard.
-
+// On success it also upserts the linked `content` ledger row so the
+// Attribution surfaces (UTM campaign, permalink, external id) stay accurate.
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPublishSecret } from "@/lib/instagram/env";
@@ -47,7 +46,7 @@ const supabase = createAdminClient();
 // 3) Load the post and enforce the approval gate.
 const { data: post, error: loadError } = await supabase
 .from("scheduled_posts")
-.select("id, status, caption, image_url")
+.select("id, status, caption, image_url, content_id, utm_campaign, owner_id")
 .eq("id", postId)
 .single();
 
@@ -79,16 +78,20 @@ return NextResponse.json(
 
 // 5) Publish via Graph API (container -> publish -> permalink).
 try {
-      // Derive a short hook from the first sentence of the caption for the on-image text.
-    const firstSentence = (post.caption || "").split(/(?<=[.!?])\s/)[0].trim();
-    const hook = (firstSentence || post.caption || "Momentum").slice(0, 160);
-    // Render the branded text-on-image via our og-post route (absolute URL so IG can fetch it).
-    const origin = new URL(req.url).origin;
-    const ogImageUrl = `${origin}/api/og-post?hook=${encodeURIComponent(hook)}`;
+// Derive a short hook from the first sentence of the caption for the on-image text.
+const firstSentence = (post.caption || "").split(/(?<=[.!?])\s/)[0].trim();
+const hook = (firstSentence || post.caption || "Momentum").slice(0, 160);
+
+// Render the branded text-on-image via our og-post route (absolute URL so IG can fetch it).
+const origin = new URL(req.url).origin;
+const ogImageUrl = `${origin}/api/og-post?hook=${encodeURIComponent(hook)}`;
+
 const result = await publishImagePost({
-            imageUrl: ogImageUrl,
-      caption: post.caption,
+imageUrl: ogImageUrl,
+caption: post.caption,
 });
+
+const publishedAt = new Date().toISOString();
 
 await supabase
 .from("scheduled_posts")
@@ -97,10 +100,43 @@ status: "published",
 creation_id: result.creationId,
 ig_media_id: result.mediaId,
 permalink: result.permalink,
-published_at: new Date().toISOString(),
+published_at: publishedAt,
 error: null,
 })
 .eq("id", postId);
+
+// 6) Upsert the linked `content` ledger row so Attribution stays accurate.
+// If the scheduled post is already linked to a content row, update it;
+// otherwise insert a new content row and back-link it via content_id.
+const contentRow = {
+owner_id: post.owner_id,
+platform: "instagram",
+external_id: result.mediaId,
+permalink: result.permalink,
+caption: post.caption,
+utm_campaign: post.utm_campaign ?? null,
+status: "published",
+published_at: publishedAt,
+};
+
+if (post.content_id) {
+await supabase
+.from("content")
+.update(contentRow)
+.eq("id", post.content_id);
+} else {
+const { data: inserted } = await supabase
+.from("content")
+.insert(contentRow)
+.select("id")
+.maybeSingle();
+if (inserted?.id) {
+await supabase
+.from("scheduled_posts")
+.update({ content_id: inserted.id })
+.eq("id", postId);
+}
+}
 
 return NextResponse.json({ ok: true, ...result });
 } catch (err) {
