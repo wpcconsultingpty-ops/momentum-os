@@ -79,9 +79,15 @@ return NextResponse.json(
 
 // 5) Publish via Graph API (container -> publish -> permalink).
 try {
+      // Derive a short hook from the first sentence of the caption for the on-image text.
+    const firstSentence = (post.caption || "").split(/(?<=[.!?])\s/)[0].trim();
+    const hook = (firstSentence || post.caption || "Momentum").slice(0, 160);
+    // Render the branded text-on-image via our og-post route (absolute URL so IG can fetch it).
+    const origin = new URL(req.url).origin;
+    const ogImageUrl = `${origin}/api/og-post?hook=${encodeURIComponent(hook)}`;
 const result = await publishImagePost({
-imageUrl: post.image_url,
-caption: post.caption,
+            imageUrl: ogImageUrl,
+      caption: post.caption,
 });
 
 await supabase
