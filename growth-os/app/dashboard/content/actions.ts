@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getUserId } from "@/lib/auth";
+import { approveAndPublish } from "../approvals/actions";
 
 type ActionResult = { ok: boolean; error?: string };
 
@@ -137,5 +138,45 @@ export async function deleteContent(formData: FormData): Promise<ActionResult> {
   }
   revalidatePath("/dashboard/content");
   revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+// Approve an Instagram content draft and publish it to Instagram in one step.
+// The content table is the read-only ledger, but Instagram drafts created here
+// are bridged into scheduled_posts (see createContent). This action resolves
+// the linked scheduled_posts row by content_id (owner-scoped via RLS), then
+// delegates to the Approvals approveAndPublish flow, which flips the post to
+// "approved" and calls the secret-gated /api/ig/publish route server-side.
+export async function approveAndPublishContent(
+  contentId: string,
+): Promise<ActionResult> {
+  const ownerId = await getUserId();
+  if (!ownerId) return { ok: false, error: "Not authenticated" };
+  try {
+    const supabase = createClient();
+    const { data: post, error } = await supabase
+      .from("scheduled_posts")
+      .select("id, status")
+      .eq("content_id", contentId)
+      .eq("owner_id", ownerId)
+      .in("status", ["draft", "pending_approval"])
+      .maybeSingle();
+    if (error) return { ok: false, error: error.message };
+    if (!post) {
+      return {
+        ok: false,
+        error: "No approvable Instagram post is linked to this content row",
+      };
+    }
+    const result = await approveAndPublish(post.id);
+    if (!result.ok) return result;
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Could not publish content",
+    };
+  }
+  revalidatePath("/dashboard/content");
+  revalidatePath("/dashboard/approvals");
   return { ok: true };
 }
