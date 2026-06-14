@@ -95,7 +95,6 @@ export async function createContent(formData: FormData): Promise<ActionResult> {
         content_id: inserted.id,
         caption,
         image_url: imageUrl,
-        utm_campaign: parsed.data.utm_campaign ?? null,
         status: "draft",
       });
       if (schedErr) {
