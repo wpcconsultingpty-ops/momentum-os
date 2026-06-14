@@ -12,3 +12,11 @@
 
 grant select, insert, update, delete on public.content to authenticated, service_role;
 grant select, insert, update, delete on public.scheduled_posts to authenticated, service_role;
+
+-- Same gap on the remaining RLS-protected tables exercised by the
+-- integration suite (leads, attribution_events, webhook_deliveries).
+-- service_role bypasses RLS for server-side webhook/attribution writes;
+-- authenticated stays constrained by existing owner policies.
+grant select, insert, update, delete on public.leads to authenticated, service_role;
+grant select, insert, update, delete on public.attribution_events to authenticated, service_role;
+grant select, insert, update, delete on public.webhook_deliveries to authenticated, service_role;
