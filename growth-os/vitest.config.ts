@@ -40,7 +40,6 @@ export default defineConfig({
             "app/api/webhooks/**",
           ]
         : ["lib/webhooks/**", "app/api/webhooks/**"],
-      // Lower branches in integration mode: Next.js cookie/redirect code paths
       // are hard to fully exercise from a test harness.
       thresholds: runIntegration
         ? { lines: 75, functions: 80, branches: 65, statements: 75 }
