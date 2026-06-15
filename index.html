@@ -2072,7 +2072,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       saveCurrentData();
     }
 
-    function updateDriverRings() {       const drivers = [         { ringId: 'driverSleepRing', valueId: 'driverSleepValue', inputId: 'sleepQuality' },         { ringId: 'driverEnergyRing', valueId: 'driverEnergyValue', inputId: 'energy' },         { ringId: 'driverRecoveryRing', valueId: 'driverRecoveryValue', inputId: 'recovery' },         { ringId: 'driverMoodRing', valueId: 'driverMoodValue', inputId: 'mood' },         { ringId: 'driverConnectionRing', valueId: 'driverConnectionValue', inputId: 'personalConnection' }       ];       const circumference = 2 * Math.PI * 30;       drivers.forEach(function (d) {         const ring = document.getElementById(d.ringId);         const valueText = document.getElementById(d.valueId);         const input = document.getElementById(d.inputId);         if (!ring || !valueText) return;         const raw = input ? parseInt(input.value, 10) : 0;         const pct = Math.min(100, Math.max(0, (isNaN(raw) ? 0 : raw) * 10));         ring.style.strokeDasharray = circumference;         ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;         valueText.textContent = isNaN(raw) ? 0 : raw;       });     }      function updateProgressRing(ringId, valueId, score) {
+        function updateDriverRings() {
+      const drivers = [
+        { ringId: 'driverSleepRing', valueId: 'driverSleepValue', inputId: 'sleepQuality' },
+        { ringId: 'driverEnergyRing', valueId: 'driverEnergyValue', inputId: 'energy' },
+        { ringId: 'driverRecoveryRing', valueId: 'driverRecoveryValue', inputId: 'recovery' },
+        { ringId: 'driverMoodRing', valueId: 'driverMoodValue', inputId: 'mood' },
+        { ringId: 'driverConnectionRing', valueId: 'driverConnectionValue', inputId: 'personalConnection' }
+      ];
+      const circumference = 2 * Math.PI * 30;
+      drivers.forEach(function (d) {
+        const ring = document.getElementById(d.ringId);
+        const valueText = document.getElementById(d.valueId);
+        const input = document.getElementById(d.inputId);
+        if (!ring || !valueText) return;
+        const raw = input ? parseInt(input.value, 10) : 0;
+        const pct = Math.min(100, Math.max(0, (isNaN(raw) ? 0 : raw) * 10));
+        ring.style.strokeDasharray = circumference;
+        ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
+        valueText.textContent = isNaN(raw) ? 0 : raw;
+      });
+    }
       const ring = document.getElementById(ringId);
       const valueText = document.getElementById(valueId);
       
