@@ -2086,7 +2086,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         const valueText = document.getElementById(d.valueId);
         const input = document.getElementById(d.inputId);
         if (!ring || !valueText) return;
-        const raw = input ? parseInt(input.value, 10) : 0;
+        const _e = JSON.parse(localStorage.getItem('momentum-daily-entries') || '[]'); const _se = _e.length ? (_e[_e.length - 1] || {}) : {}; const _key = d.inputId === 'personalConnection' ? 'connection' : d.inputId; const _sv = _se[_key]; const raw = (_sv !== undefined && _sv !== null && _sv !== '') ? parseInt(_sv, 10) : (input ? parseInt(input.value, 10) : 0);
         const pct = Math.min(100, Math.max(0, (isNaN(raw) ? 0 : raw) * 10));
         ring.style.strokeDasharray = circumference;
         ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
