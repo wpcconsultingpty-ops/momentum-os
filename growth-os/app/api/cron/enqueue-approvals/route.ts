@@ -16,6 +16,7 @@
 //   read + insert, scoped strictly to the owner_id carried on each draft.
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { DEFAULT_STUCK_AFTER_MS, stuckCutoffIso } from "@/lib/approvals/sweep";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -87,10 +88,28 @@ async function enqueue() {
   return NextResponse.json({ ok: true, enqueued: inserted?.length ?? 0 });
 }
 
+// Recover any scheduled_posts stuck in "publishing" past the grace period.
+// Runs alongside the daily enqueue so the single Hobby-plan cron slot covers
+// both jobs. Best-effort: errors are swallowed so they never block enqueue.
+async function sweepStuck(): Promise<void> {
+  try {
+    const supabase = createAdminClient();
+    const cutoff = stuckCutoffIso(Date.now(), DEFAULT_STUCK_AFTER_MS);
+    await supabase
+      .from("scheduled_posts")
+      .update({ status: "failed", error: "Publish timed out (swept by cron); please retry." })
+      .eq("status", "publishing")
+      .lte("updated_at", cutoff);
+  } catch {
+      }// Non-fatal: the dedicated /api/cron/sweep-publishing route can also run.
+
+}
+
 export async function GET(req: NextRequest) {
   if (!authorized(req)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 401 });
   }
+    await sweepStuck();
   return enqueue();
 }
 
@@ -100,3 +119,5 @@ export async function POST(req: NextRequest) {
   }
   return enqueue();
 }
+  await sweepStuck();
+  return enqueue();
