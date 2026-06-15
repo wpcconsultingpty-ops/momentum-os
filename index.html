@@ -2150,7 +2150,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       let todayEntry = entries.find(e => new Date(e.date).toDateString() === today);
       
       if (todayEntry) {
-        Object.assign(todayEntry, newData);
+        Object.assign(todayEntry, newData); { const _h = (newData.healthScore != null) ? newData.healthScore : ((todayEntry.healthScore != null) ? todayEntry.healthScore : calculateHealthScore()); const _p = (newData.personalScore != null) ? newData.personalScore : ((todayEntry.personalScore != null) ? todayEntry.personalScore : calculatePersonalScore()); todayEntry.healthScore = _h; todayEntry.personalScore = _p; todayEntry.overallScore = Math.round((_h + _p) / 2); }
       } else {
         const healthScore = newData.healthScore || calculateHealthScore();
         const personalScore = newData.personalScore || calculatePersonalScore();
