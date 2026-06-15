@@ -123,3 +123,24 @@ export async function publishPost(postId: string): Promise<ActionResult> {
     return { ok: false, error: err instanceof Error ? err.message : "Unknown error" };
   }
 }
+
+
+// Skip a post (defer it for now without rejecting). Unlike rejectPost, a
+// skipped post can be re-enqueued in a later cycle. We use a distinct
+// "skipped" status so the enqueue cron and the dashboard can tell the
+// difference between "owner said no" (rejected) and "not now" (skipped).
+export async function skipPost(postId: string): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireUser();
+    const { error } = await supabase
+      .from("scheduled_posts")
+      .update({ status: "skipped" })
+      .eq("id", postId)
+      .in("status", ["draft", "pending_approval"]);
+    if (error) return { ok: false, error: error.message };
+    revalidatePath("/dashboard/approvals");
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Unknown error" };
+  }
+}
