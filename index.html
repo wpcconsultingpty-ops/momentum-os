@@ -2093,17 +2093,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         valueText.textContent = isNaN(raw) ? 0 : raw;
       });
     }
-      const ring = document.getElementById(ringId);
-      const valueText = document.getElementById(valueId);
       
-      if (ring && valueText) {
-        const circumference = 2 * Math.PI * 52;
-        const offset = circumference - (score / 100) * circumference;
-        ring.style.strokeDasharray = circumference;
-        ring.style.strokeDashoffset = offset;
-        valueText.textContent = score;
-      }
-    }
 
     function saveHealthData() {
       const entry = {
