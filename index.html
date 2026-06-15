@@ -2039,7 +2039,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function updateScores() {
-      const healthScore = calculateHealthScore();
+      try {   const healthScore = calculateHealthScore();
       const personalScore = calculatePersonalScore();
       const _streakBonus = Math.min(15, calculateStreak(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')) * 3); const overallScore = Math.min(100, Math.round((healthScore + personalScore) / 2) + _streakBonus);
 
@@ -2064,7 +2064,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         stateElement.className = 'score-pill is-heavy';
       }
 
-      saveCurrentData();
+      saveCurrentData();   } catch(e) { console.error('updateScores failed', e); }
     }
 
         function updateDriverRings() {
@@ -2104,7 +2104,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         recovery: parseInt((document.getElementById('recovery')||{value:5}).value)
       };
 
-      saveEntry(entry);
+      saveEntry(entry);   updateScores();
       document.getElementById('saveHealthStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('saveHealthStatus').textContent = 'Saved! Nice momentum.';
@@ -2122,7 +2122,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         triggers: Array.from(document.querySelectorAll('[data-trigger]:checked')).map(el => el.dataset.trigger)
       };
 
-      saveEntry(entry);
+      saveEntry(entry);   updateScores();
       document.getElementById('savePersonalStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('savePersonalStatus').textContent = 'Saved! Nice momentum.';
@@ -2135,7 +2135,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         journalNote: document.getElementById('journalText').value
       };
 
-      saveEntry(entry);
+      saveEntry(entry);   updateScores();
       document.getElementById('journalStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('journalStatus').textContent = 'Saved! Nice momentum.';
