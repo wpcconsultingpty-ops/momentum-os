@@ -13,23 +13,23 @@ const TEXT_MUTED_LIGHT = "rgba(255,255,255,0.82)";
 // `backgroundImage: \`url(\${origin}/og-backgrounds/bg-0X.jpg)\`` and keep
 // the scrim + text overlay unchanged.
 const BACKGROUNDS = [
-  // On-brand Momentum palette: app green accent -> deep forest/charcoal.
-  // 0 - core brand green
-  "linear-gradient(160deg, #22c55e 0%, #15803d 50%, #052e16 100%)",
-  // 1 - emerald deep
-  "linear-gradient(160deg, #34d399 0%, #047857 50%, #022c22 100%)",
-  // 2 - forest charcoal
-  "linear-gradient(160deg, #16a34a 0%, #14532d 55%, #0a0a0a 100%)",
-  // 3 - teal-green
-  "linear-gradient(160deg, #2dd4bf 0%, #0f766e 50%, #042f2e 100%)",
-  // 4 - lime fresh
-  "linear-gradient(160deg, #4ade80 0%, #16a34a 50%, #14532d 100%)",
-  // 5 - green to ink
-  "linear-gradient(160deg, #15803d 0%, #064e3b 55%, #0a0a0a 100%)",
-  // 6 - mint to deep
-  "linear-gradient(160deg, #6ee7b7 0%, #059669 50%, #064e3b 100%)",
-  // 7 - dark brand
-  "linear-gradient(160deg, #166534 0%, #14532d 50%, #052e16 100%)",
+    // Dashboard-aligned palette: vivid app green accent on clean gradients.
+  // 0 - app green (primary accent)
+  "linear-gradient(160deg, #34d399 0%, #16a34a 55%, #15803d 100%)",
+  // 1 - emerald bright
+  "linear-gradient(160deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)",
+  // 2 - teal mint
+  "linear-gradient(160deg, #5eead4 0%, #2dd4bf 50%, #0d9488 100%)",
+  // 3 - lime spring
+  "linear-gradient(160deg, #a3e635 0%, #4ade80 50%, #16a34a 100%)",
+  // 4 - green to slate
+  "linear-gradient(160deg, #22c55e 0%, #15803d 55%, #1e293b 100%)",
+  // 5 - fresh mint
+  "linear-gradient(160deg, #6ee7b7 0%, #34d399 50%, #059669 100%)",
+  // 6 - deep emerald
+  "linear-gradient(160deg, #10b981 0%, #047857 55%, #064e3b 100%)",
+  // 7 - green glow
+  "linear-gradient(160deg, #86efac 0%, #22c55e 50%, #15803d 100%)",
 ];
 
 export async function GET(req: NextRequest) {
