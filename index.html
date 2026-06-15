@@ -1829,11 +1829,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
     // Initialize app
     document.addEventListener('DOMContentLoaded', () => {
-      initializeApp();
-      showWelcome();
-      setupEventListeners();
-      loadCurrentData();
-      updateAllViews();
+      var _safe=function(fn,n){try{fn();}catch(e){console.error('init step failed: '+n,e);}};_safe(setupEventListeners,'setupEventListeners');_safe(initializeApp,'initializeApp');_safe(showWelcome,'showWelcome');_safe(loadCurrentData,'loadCurrentData');_safe(updateAllViews,'updateAllViews');
     });
 
     function initializeApp() {
@@ -2053,8 +2049,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       updateProgressRing('overallProgressRing', 'overallProgressValue', overallScore);
 
       // Update score displays
-      document.getElementById('currentHealthScore').textContent = healthScore;
-      document.getElementById('currentPersonalScore').textContent = personalScore;
+      document.getElementById('currentHealthScore'); var _ch=document.getElementById('currentHealthScore'); if(_ch)_ch.textContent = healthScore; var _cp=document.getElementById('currentPersonalScore'); if(_cp)_cp.textContent = personalScore;
 
       // Update overall state
       const stateElement = document.getElementById('overallScoreState');
@@ -2167,8 +2162,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         });
       }
 
-      localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
-      updateAllViews();
+      localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries)); try { updateAllViews(); } catch(e){ console.error('updateAllViews failed', e); }
     }
 
     function updateAllViews() {
