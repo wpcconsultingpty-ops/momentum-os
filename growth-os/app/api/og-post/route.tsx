@@ -13,22 +13,23 @@ const TEXT_MUTED_LIGHT = "rgba(255,255,255,0.82)";
 // `backgroundImage: \`url(\${origin}/og-backgrounds/bg-0X.jpg)\`` and keep
 // the scrim + text overlay unchanged.
 const BACKGROUNDS = [
-  // 0 — sunrise calm
-  "linear-gradient(160deg, #f9a26c 0%, #d96b54 45%, #2b2140 100%)",
-  // 1 — ocean horizon
-  "linear-gradient(160deg, #7fd4d1 0%, #2f8f9d 50%, #10303a 100%)",
-  // 2 — forest light
-  "linear-gradient(160deg, #8fcf8b 0%, #3f8f5f 50%, #11331f 100%)",
-  // 3 — mountain dawn
-  "linear-gradient(160deg, #c9b6e4 0%, #6d6aa6 50%, #1c2233 100%)",
-  // 4 — desert warmth
-  "linear-gradient(160deg, #f4c98a 0%, #c98a52 50%, #3a2418 100%)",
-  // 5 — still water dusk
-  "linear-gradient(160deg, #8aa6c9 0%, #4a5e84 50%, #14182b 100%)",
-  // 6 — meadow morning
-  "linear-gradient(160deg, #d9e08a 0%, #8fae4f 50%, #2a331a 100%)",
-  // 7 — coastal slate
-  "linear-gradient(160deg, #a9c2c4 0%, #5a7d80 50%, #16242b 100%)",
+  // On-brand Momentum palette: app green accent -> deep forest/charcoal.
+  // 0 - core brand green
+  "linear-gradient(160deg, #22c55e 0%, #15803d 50%, #052e16 100%)",
+  // 1 - emerald deep
+  "linear-gradient(160deg, #34d399 0%, #047857 50%, #022c22 100%)",
+  // 2 - forest charcoal
+  "linear-gradient(160deg, #16a34a 0%, #14532d 55%, #0a0a0a 100%)",
+  // 3 - teal-green
+  "linear-gradient(160deg, #2dd4bf 0%, #0f766e 50%, #042f2e 100%)",
+  // 4 - lime fresh
+  "linear-gradient(160deg, #4ade80 0%, #16a34a 50%, #14532d 100%)",
+  // 5 - green to ink
+  "linear-gradient(160deg, #15803d 0%, #064e3b 55%, #0a0a0a 100%)",
+  // 6 - mint to deep
+  "linear-gradient(160deg, #6ee7b7 0%, #059669 50%, #064e3b 100%)",
+  // 7 - dark brand
+  "linear-gradient(160deg, #166534 0%, #14532d 50%, #052e16 100%)",
 ];
 
 export async function GET(req: NextRequest) {
