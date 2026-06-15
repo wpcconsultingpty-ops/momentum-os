@@ -24,7 +24,7 @@ const PENDING = new Set(["draft", "pending_approval"]);
 function previewImage(post: ScheduledPost): string {
 const firstSentence = (post.caption || "").split(/(?<=[.!?])\s/)[0].trim();
 const hook = (firstSentence || post.caption || "Momentum").slice(0, 160);
-  return `/api/og-post?hook=${encodeURIComponent(hook)}&v=2`;
+      return `/api/og-post?hook=${encodeURIComponent(hook)}&v=3`;
 }
 
 export default async function ApprovalsPage() {
