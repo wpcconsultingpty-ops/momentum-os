@@ -1939,7 +1939,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       document.getElementById('analyzeBtn')?.addEventListener('click', analyzePatterns);
     }
 
-    function switchView(viewId) {
+    function switchView(viewId) { try { updateAllViews(); } catch(_e) { console.error('refresh on switchView failed', _e); }
           const mainEl = document.querySelector('.main');
     if (mainEl) mainEl.scrollTop = 0;
     window.scrollTo(0, 0);
@@ -2104,7 +2104,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         recovery: parseInt((document.getElementById('recovery')||{value:5}).value)
       };
 
-      saveEntry(entry);   updateScores();
+      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();
       document.getElementById('saveHealthStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('saveHealthStatus').textContent = 'Saved! Nice momentum.';
@@ -2122,7 +2122,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         triggers: Array.from(document.querySelectorAll('[data-trigger]:checked')).map(el => el.dataset.trigger)
       };
 
-      saveEntry(entry);   updateScores();
+      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();
       document.getElementById('savePersonalStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('savePersonalStatus').textContent = 'Saved! Nice momentum.';
@@ -2135,7 +2135,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         journalNote: document.getElementById('journalText').value
       };
 
-      saveEntry(entry);   updateScores();
+      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();
       document.getElementById('journalStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('journalStatus').textContent = 'Saved! Nice momentum.';
