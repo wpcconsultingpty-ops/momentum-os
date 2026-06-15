@@ -22,21 +22,49 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function authorized(req: NextRequest): boolean {
-const header = req.headers.get("authorization") ?? "";
-const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-const cronSecret = process.env.CRON_SECRET;
-const publishSecret = process.env.IG_PUBLISH_SECRET;
-if (cronSecret && token === cronSecret) return true;
-if (publishSecret && token === publishSecret) return true;
-return false;
+  const header = req.headers.get("authorization") ?? "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+  const cronSecret = process.env.CRON_SECRET;
+  const publishSecret = process.env.IG_PUBLISH_SECRET;
+  if (cronSecret && token === cronSecret) return true;
+  if (publishSecret && token === publishSecret) return true;
+  return false;
 }
 
 // Derive the on-image hook the same way the Approvals preview does: first
 // sentence of the caption, capped at 160 chars, rendered via /api/og-post.
 function previewImage(caption: string): string {
-const firstSentence = (caption || "").split(/(?<=[.!?])\s/)[0].trim();
-const hook = (firstSentence || caption || "Momentum").slice(0, 160);
-return `/api/og-post?hook=${encodeURIComponent(hook)}`;
+  const firstSentence = (caption || "").split(/(?<=[.!?])\s/)[0].trim();
+  const hook = (firstSentence || caption || "Momentum").slice(0, 160);
+  return `/api/og-post?hook=${encodeURIComponent(hook)}`;
+}
+
+// Make sure every queued post ends with a clear call-to-action. Upstream
+// drafts should already include one, but this is a safety net so future posts
+// never reach the queue without a CTA. If the caption has no DM/Comment prompt,
+// we append one derived from the utm_campaign keyword (or a generic fallback).
+function ctaKeyword(campaign: string | null): string {
+const slug = (campaign || "").toLowerCase();
+if (slug.includes("journal")) return "JOURNAL";
+if (slug.includes("dashboard")) return "DASHBOARD";
+if (slug.includes("coach")) return "COACH";
+if (slug.includes("streak")) return "STREAK";
+if (slug.includes("trend") || slug.includes("weekly")) return "TREND";
+if (slug.includes("health")) return "HEALTH";
+if (slug.includes("origin")) return "ORIGIN";
+if (slug.includes("busy")) return "BUSY";
+if (slug.includes("reset")) return "RESET";
+return "MOMENTUM";
+}
+
+function ensureCta(caption: string, campaign: string | null): string {
+const text = (caption || "").trim();
+// Already has a DM/Comment-style CTA somewhere in the copy? Leave it alone.
+const hasCta = /\b(DM|Comment|Reply)\b\s+[A-Z][A-Z]+/.test(text);
+if (hasCta) return text;
+const keyword = ctaKeyword(campaign);
+const cta = `DM ${keyword} and I'll send you the details.`;
+return text ? `${text}\n\n${cta}` : cta;
 }
 
 async function enqueue() {
@@ -66,14 +94,17 @@ if (pending.length === 0) {
 return NextResponse.json({ ok: true, enqueued: 0 });
 }
 
-const rows = pending.map((d) => ({
+const rows = pending.map((d) => {
+const caption = ensureCta(d.caption ?? "", d.utm_campaign ?? null);
+return {
 owner_id: d.owner_id,
 content_id: d.id,
-caption: d.caption ?? "",
-image_url: previewImage(d.caption ?? ""),
+caption,
+image_url: previewImage(caption),
 utm_campaign: d.utm_campaign ?? null,
 status: "pending_approval",
-}));
+};
+});
 
 const { data: inserted, error: insertError } = await supabase
 .from("scheduled_posts")
