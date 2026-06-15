@@ -2039,7 +2039,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function updateScores() {
-      try {   const healthScore = calculateHealthScore();
+      try {   const healthScore = calculateHealthScore();   document.querySelectorAll('#currentHealthScore').forEach(function(_e){_e.textContent = healthScore;});
       const personalScore = calculatePersonalScore();
       const _streakBonus = Math.min(15, calculateStreak(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')) * 3); const overallScore = Math.min(100, Math.round((healthScore + personalScore) / 2) + _streakBonus);
 
