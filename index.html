@@ -2019,24 +2019,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function calculateHealthScore() {
-      const mood = parseInt(document.getElementById('mood').value);
-      const energy = parseInt(document.getElementById('energy').value);
-      const stress = 10 - parseInt(document.getElementById('stress').value);
-      const sleep = parseInt(document.getElementById('sleepQuality').value);
-      const exercise = parseInt(document.getElementById('exercise').value);
-      const nutrition = parseInt(document.getElementById('nutrition').value);
-      const hydration = parseInt(document.getElementById('hydration').value);
-      const recovery = parseInt(document.getElementById('recovery').value);
+      const mood = parseInt((document.getElementById('mood')||{value:5}).value);
+      const energy = parseInt((document.getElementById('energy')||{value:5}).value);
+      const stress = 10 - parseInt((document.getElementById('stress')||{value:5}).value);
+      const sleep = parseInt((document.getElementById('sleepQuality')||{value:5}).value);
+      const exercise = parseInt((document.getElementById('exercise')||{value:5}).value);
+      const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value);
+      const hydration = parseInt((document.getElementById('hydration')||{value:5}).value);
+      const recovery = parseInt((document.getElementById('recovery')||{value:5}).value);
 
       const score = Math.round((mood + energy + stress + sleep + exercise + nutrition + hydration + recovery) / 8 * 6 + 40);
       return Math.min(100, Math.max(0, score));
     }
 
     function calculatePersonalScore() {
-      const desire = parseInt(document.getElementById('personalDesire').value);
-      const connection = parseInt(document.getElementById('personalConnection').value);
-      const control = parseInt(document.getElementById('personalControl').value);
-      const urge = 10 - parseInt(document.getElementById('personalUrge').value);
+      const desire = parseInt((document.getElementById('personalDesire')||{value:5}).value);
+      const connection = parseInt((document.getElementById('personalConnection')||{value:5}).value);
+      const control = parseInt((document.getElementById('personalControl')||{value:5}).value);
+      const urge = 10 - parseInt((document.getElementById('personalUrge')||{value:5}).value);
 
       const score = Math.round((desire + connection + control + urge) / 4 * 6 + 40);
       return Math.min(100, Math.max(0, score));
@@ -2099,14 +2099,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const entry = {
         date: new Date().toISOString(),
         healthScore: calculateHealthScore(),
-        mood: parseInt(document.getElementById('mood').value),
-        energy: parseInt(document.getElementById('energy').value),
-        stress: parseInt(document.getElementById('stress').value),
-        sleepQuality: parseInt(document.getElementById('sleepQuality').value),
-        exercise: parseInt(document.getElementById('exercise').value),
-        nutrition: parseInt(document.getElementById('nutrition').value),
-        hydration: parseInt(document.getElementById('hydration').value),
-        recovery: parseInt(document.getElementById('recovery').value)
+        mood: parseInt((document.getElementById('mood')||{value:5}).value),
+        energy: parseInt((document.getElementById('energy')||{value:5}).value),
+        stress: parseInt((document.getElementById('stress')||{value:5}).value),
+        sleepQuality: parseInt((document.getElementById('sleepQuality')||{value:5}).value),
+        exercise: parseInt((document.getElementById('exercise')||{value:5}).value),
+        nutrition: parseInt((document.getElementById('nutrition')||{value:5}).value),
+        hydration: parseInt((document.getElementById('hydration')||{value:5}).value),
+        recovery: parseInt((document.getElementById('recovery')||{value:5}).value)
       };
 
       saveEntry(entry);
@@ -2120,10 +2120,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const entry = {
         date: new Date().toISOString(),
         personalScore: calculatePersonalScore(),
-        desire: parseInt(document.getElementById('personalDesire').value),
-        connection: parseInt(document.getElementById('personalConnection').value),
-        control: parseInt(document.getElementById('personalControl').value),
-        urge: parseInt(document.getElementById('personalUrge').value),
+        desire: parseInt((document.getElementById('personalDesire')||{value:5}).value),
+        connection: parseInt((document.getElementById('personalConnection')||{value:5}).value),
+        control: parseInt((document.getElementById('personalControl')||{value:5}).value),
+        urge: parseInt((document.getElementById('personalUrge')||{value:5}).value),
         triggers: Array.from(document.querySelectorAll('[data-trigger]:checked')).map(el => el.dataset.trigger)
       };
 
