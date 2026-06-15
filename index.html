@@ -2038,7 +2038,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       return Math.min(100, Math.max(0, score));
     }
 
-    function updateScores() {
+    function updateProgressRing(ringId, valueId, value) { try { var _pct = Math.min(100, Math.max(0, Math.round(value || 0))); var _ring = document.getElementById(ringId); if (_ring) { var _c = 327; _ring.style.strokeDasharray = _c; _ring.style.strokeDashoffset = _c - (_pct / 100) * _c; } var _vt = document.getElementById(valueId); if (_vt) _vt.textContent = _pct; } catch(_e) { console.error('updateProgressRing failed', _e); } } function updateScores() {
       try {   const healthScore = calculateHealthScore();   document.querySelectorAll('#currentHealthScore').forEach(function(_e){_e.textContent = healthScore;});
       const personalScore = calculatePersonalScore();
       const _streakBonus = Math.min(15, calculateStreak(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')) * 3); const overallScore = Math.min(100, Math.round((healthScore + personalScore) / 2) + _streakBonus);
