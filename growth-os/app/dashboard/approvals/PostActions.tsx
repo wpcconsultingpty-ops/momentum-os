@@ -3,9 +3,8 @@
 // Client-side action buttons for a single post in the Approvals dashboard.
 // Calls the server actions and shows pending / error state.
 // For pending posts (draft/pending_approval): Approve, Approve & Publish, Reject.
-// For already-approved posts: a single Publish button.
+import { approvePost, rejectPost, approveAndPublish, publishPost, skipPost } from "./actions";
 import { useState, useTransition } from "react";
-import { approvePost, rejectPost, approveAndPublish, publishPost } from "./actions";
 
 export function PostActions({ postId, status }: { postId: string; status: string }) {
   const [isPending, startTransition] = useTransition();
@@ -58,6 +57,14 @@ export function PostActions({ postId, status }: { postId: string; status: string
           >
             Reject
           </button>
+<button
+  type="button"
+  disabled={isPending}
+  onClick={() => run(skipPost)}
+  style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #d0d7de", color: "#57606a", cursor: "pointer" }}
+>
+  Skip
+</button>
         </>
       )}
       {isPending && <span style={{ fontSize: 12, color: "#57606a" }}>Working...</span>}
