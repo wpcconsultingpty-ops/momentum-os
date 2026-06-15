@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/enqueue-approvals",
-      "schedule": "0 8,20 * * *"
+      "schedule": "0 20 * * *"
     }
   ]
 }
