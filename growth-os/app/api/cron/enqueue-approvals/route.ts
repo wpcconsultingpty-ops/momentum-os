@@ -117,6 +117,7 @@ export async function POST(req: NextRequest) {
   if (!authorized(req)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 401 });
   }
+    await sweepStuck();
   return enqueue();
 }
   await sweepStuck();
