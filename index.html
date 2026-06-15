@@ -2172,7 +2172,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       updateAchievements();
     }
 
-    function updateDashboard() {       updateDriverRings();
+    function updateDashboard() { try { updateScores(); } catch(e) {}       updateDriverRings();
       const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
       
       if (entries.length > 0) {
