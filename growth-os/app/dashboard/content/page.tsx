@@ -63,7 +63,7 @@ export default async function ContentPage() {
             {rows.length === 0 && (
               <tr>
                 <td className="px-4 py-6 text-gray-500" colSpan={5}>
-                  No content yet. Use "Generate drafts" to create some.
+                  No content yet. Use the Generate drafts button to create some.
                 </td>
               </tr>
             )}
