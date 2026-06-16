@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_STUCK_AFTER_MS, stuckCutoffIso } from "@/lib/approvals/sweep";
+import { assignSlots } from "@/lib/schedule/slots";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -94,7 +95,8 @@ if (pending.length === 0) {
 return NextResponse.json({ ok: true, enqueued: 0 });
 }
 
-const rows = pending.map((d) => {
+const slots = assignSlots(Date.now(), pending.length);
+    const rows = pending.map((d, i) => {
 const caption = ensureCta(d.caption ?? "", d.utm_campaign ?? null);
 return {
 owner_id: d.owner_id,
@@ -103,6 +105,7 @@ caption,
 image_url: previewImage(caption),
 utm_campaign: d.utm_campaign ?? null,
 status: "pending_approval",
+scheduled_for: slots[i],
 };
 });
 
