@@ -3,7 +3,6 @@
 // deterministic template library as a safe fallback. Includes a dedupe guard
 // so previously-used captions are never repeated.
 
-import OpenAI from "openai";
 
 export const APP_CTA = "Start here: https://momentum-os-two.vercel.app/";
 
@@ -55,9 +54,16 @@ return s.toLowerCase().replace(/https?:\/\/\S+/g, "").replace(/[^a-z0-9 ]/g, "")
 }
 
 async function llmCaption(angle: Angle, avoid: string[]): Promise<string> {
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const apiKey = process.env.OPENAI_API_KEY;
+if (!apiKey) throw new Error("missing OPENAI_API_KEY");
 const avoidList = avoid.slice(0, 15).map((c) => `- ${c}`).join("\n") || "(none)";
-const res = await openai.chat.completions.create({
+const res = await fetch("https://api.openai.com/v1/chat/completions", {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+Authorization: `Bearer ${apiKey}`,
+},
+body: JSON.stringify({
 model: "gpt-4o-mini",
 temperature: 0.9,
 presence_penalty: 0.6,
@@ -66,8 +72,11 @@ messages: [
 { role: "system", content: `Write a short Instagram caption for Momentum OS, a habit-tracking and journaling app. Voice: honest, calm, anti-hustle, real-life. 2-4 short sentences. End with exactly: ${APP_CTA} Do NOT reuse phrasing from the AVOID list.` },
 { role: "user", content: `Theme: ${angle.hook} ${angle.body}\n\nAVOID these recent captions:\n${avoidList}` },
 ],
+}),
 });
-const out = res.choices[0]?.message?.content?.trim();
+if (!res.ok) throw new Error(`openai ${res.status}`);
+const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+const out = data.choices?.[0]?.message?.content?.trim();
 if (!out) throw new Error("empty completion");
 return out;
 }
