@@ -32,12 +32,19 @@ export async function generateContent(formData: FormData): Promise<ActionResult>
     return { ok: false, error: "Invalid count" };
   }
 
-  const drafts = generateDrafts(parsed.data);
-  let created = 0;
+  const supabase = createClient();
+const { data: recentRows } = await supabase
+.from("content")
+.select("caption")
+.eq("owner_id", ownerId)
+.order("id", { ascending: false })
+.limit(40);
+const recentCaptions = (recentRows ?? []).map((r) => r.caption as string).filter(Boolean);
+const drafts = await generateDrafts(parsed.data, recentCaptions);
+let created = 0;
 
   try {
-    const supabase = createClient();
-
+    
     for (const draft of drafts) {
       const { data: inserted, error } = await supabase
         .from("content")
