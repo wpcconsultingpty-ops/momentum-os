@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_STUCK_AFTER_MS, stuckCutoffIso } from "@/lib/approvals/sweep";
+import { assignSlots } from "@/lib/schedule/slots";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -94,7 +95,8 @@ if (pending.length === 0) {
 return NextResponse.json({ ok: true, enqueued: 0 });
 }
 
-const rows = pending.map((d) => {
+const slots = assignSlots(Date.now(), pending.length);
+    const rows = pending.map((d, i) => {
 const caption = ensureCta(d.caption ?? "", d.utm_campaign ?? null);
 return {
 owner_id: d.owner_id,
@@ -103,6 +105,7 @@ caption,
 image_url: previewImage(caption),
 utm_campaign: d.utm_campaign ?? null,
 status: "pending_approval",
+scheduled_for: slots[i],
 };
 });
 
@@ -134,11 +137,49 @@ await supabase
 }
 }
 
+// Auto-publish approved posts whose scheduled_for time has arrived. Reuses
+// the existing /api/ig/publish route verbatim (approval gate + attribution),
+// so this only releases posts the owner already approved. Best-effort: a
+// single failure never blocks the rest of the batch or the enqueue step.
+async function publishDue(req: NextRequest): Promise<void> {
+try {
+const secret = process.env.IG_PUBLISH_SECRET;
+if (!secret) return;
+const supabase = createAdminClient();
+const nowIso = new Date().toISOString();
+const { data: due } = await supabase
+.from("scheduled_posts")
+.select("id")
+.eq("status", "approved")
+.not("scheduled_for", "is", null)
+.lte("scheduled_for", nowIso);
+if (!due || due.length === 0) return;
+const origin = new URL(req.url).origin;
+for (const row of due) {
+try {
+await fetch(`${origin}/api/ig/publish`, {
+method: "POST",
+headers: {
+"content-type": "application/json",
+authorization: `Bearer ${secret}`,
+},
+body: JSON.stringify({ postId: row.id }),
+});
+} catch {
+// Non-fatal: leave the row approved so the next cron run retries it.
+}
+}
+} catch {
+// Non-fatal: never block enqueue.
+}
+}
+
 export async function GET(req: NextRequest) {
 if (!authorized(req)) {
 return NextResponse.json({ error: "Forbidden" }, { status: 401 });
 }
 await sweepStuck();
+  await publishDue(req);
 return enqueue();
 }
 
@@ -146,6 +187,7 @@ export async function POST(req: NextRequest) {
 if (!authorized(req)) {
 return NextResponse.json({ error: "Forbidden" }, { status: 401 });
 }
+  await publishDue(req);
 await sweepStuck();
 return enqueue();
 }
