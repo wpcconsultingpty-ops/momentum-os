@@ -12,7 +12,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getUserId } from "@/lib/auth";
 import { generateDrafts } from "@/lib/content/generate";
-import { buildSlides, slideImageUrl } from "@/lib/content/carousel";
+import { buildSlides } from "@/lib/content/carousel";
 
 type ActionResult = { ok: boolean; error?: string; created?: number };
 
@@ -83,7 +83,9 @@ export async function generateCarouselDraft(
           theme,
         });
         // First slide doubles as the approvals thumbnail.
-        const imageUrl = slideImageUrl("", slides[0]).replace(/^https?:\/\/[^/]*/, "");
+        const first = slides[0];
+        const imageUrl =
+`/api/og-post?hook=${encodeURIComponent(first.hook)}&kicker=${encodeURIComponent(first.kicker)}&theme=${theme}`;
         const { error: schedErr } = await supabase
           .from("scheduled_posts")
           .insert({
