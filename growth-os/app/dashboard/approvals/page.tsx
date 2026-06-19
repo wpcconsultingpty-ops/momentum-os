@@ -56,7 +56,7 @@ return (
 
 const { data, error } = await supabase
 .from("scheduled_posts")
-.select("id, caption, image_url, status, permalink, error, created_at")
+.select("id, caption, image_url, status, permalink, error, created_at, theme")
 .order("created_at", { ascending: false });
 
 const posts = (data ?? []) as ScheduledPost[];
