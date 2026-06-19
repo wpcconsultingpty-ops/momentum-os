@@ -14,6 +14,7 @@ status: string;
 permalink: string | null;
 error: string | null;
 created_at: string;
+theme?: string | null;
 }
 
 const PENDING = new Set(["draft", "pending_approval"]);
@@ -24,7 +25,18 @@ const PENDING = new Set(["draft", "pending_approval"]);
 function previewImage(post: ScheduledPost): string {
 const firstSentence = (post.caption || "").split(/(?<=[.!?])\s/)[0].trim();
 const hook = (firstSentence || post.caption || "Momentum").slice(0, 160);
-      return `/api/og-post?hook=${encodeURIComponent(hook)}&v=3`;
+const theme = post.theme === "light" || post.theme === "dark"
+? post.theme
+: hashTheme(post.id || post.caption || "");
+      return `/api/og-post?hook=${encodeURIComponent(hook)}&theme=${theme}&v=4`;
+}
+
+// Deterministically pick a light/dark slide theme when a post has no stored
+// theme, so previews still alternate sensibly across the list.
+function hashTheme(seed: string): "light" | "dark" {
+let h = 0;
+for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+return h % 2 === 0 ? "light" : "dark";
 }
 
 export default async function ApprovalsPage() {
@@ -44,7 +56,7 @@ return (
 
 const { data, error } = await supabase
 .from("scheduled_posts")
-.select("id, caption, image_url, status, permalink, error, created_at")
+.select("id, caption, image_url, status, permalink, error, created_at, theme")
 .order("created_at", { ascending: false });
 
 const posts = (data ?? []) as ScheduledPost[];
