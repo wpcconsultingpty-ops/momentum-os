@@ -46,10 +46,9 @@ const supabase = createAdminClient();
 // 3) Load the post and enforce the approval gate.
 const { data: post, error: loadError } = await supabase
 .from("scheduled_posts")
-.select("id, status, caption, image_url, content_id, utm_campaign, owner_id")
+.select("id, status, caption, image_url, content_id, utm_campaign, owner_id, theme")
 .eq("id", postId)
 .single();
-
 if (loadError || !post) {
 return NextResponse.json({ error: "Post not found" }, { status: 404 });
 }
@@ -68,7 +67,6 @@ const { data: locked, error: lockError } = await supabase
 .eq("status", "approved")
 .select("id")
 .maybeSingle();
-
 if (lockError || !locked) {
 return NextResponse.json(
 { error: "Post is no longer in an approved state" },
@@ -81,18 +79,18 @@ try {
 // Derive a short hook from the first sentence of the caption for the on-image text.
 const firstSentence = (post.caption || "").split(/(?<=[.!?])\s/)[0].trim();
 const hook = (firstSentence || post.caption || "Momentum").slice(0, 160);
-
+// Resolve the slide theme so the published image uses the correct brand palette.
+// Stored theme drives light/dark; default to light when unset (matches the generator base).
+const theme = post.theme === "dark" ? "dark" : "light";
 // Render the branded text-on-image via our og-post route (absolute URL so IG can fetch it).
 const origin = new URL(req.url).origin;
-const ogImageUrl = `${origin}/api/og-post?hook=${encodeURIComponent(hook)}`;
-
+const ogImageUrl = `${origin}/api/og-post?hook=${encodeURIComponent(hook)}&theme=${theme}`;
 const result = await publishImagePost({
 imageUrl: ogImageUrl,
 caption: post.caption,
 });
 
 const publishedAt = new Date().toISOString();
-
 await supabase
 .from("scheduled_posts")
 .update({
@@ -118,7 +116,6 @@ utm_campaign: post.utm_campaign ?? null,
 status: "published",
 published_at: publishedAt,
 };
-
 if (post.content_id) {
 await supabase
 .from("content")
