@@ -1319,7 +1319,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <div class="section-card animate-in">
           <div class="section-header">
             <h2>Today's Progress</h2>
-            <p style="color: var(--muted);">Your momentum visualized</p>
+            <p style="color: var(--muted);">See today clearly, then act on your weakest driver</p>
           </div>
 
           <div class="grid grid-3" style="margin-top: 24px;">
@@ -1373,8 +1373,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           </div>
 
           <div class="button-row">
-            <button class="btn btn-primary" onclick="switchView('health')">Update health</button>
-            <button class="btn" onclick="switchView('personal')">Update personal</button>
+            <button class="btn" onclick="switchView('health')">Update health</button>
+            <button class="btn btn-primary" onclick="switchView('personal')">Update personal</button>
             <button class="btn" onclick="switchView('aiCoach')">Ask Coach</button>
           </div>
         </div>
@@ -2266,7 +2266,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       chart.innerHTML = days.map(day => `
         <div class="chart-bar" style="height: ${Math.max(10, day.value)}%">
           <span style="position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; font-weight: 700; color: var(--accent);">
-            ${day.value || '-'}
+            
           </span>
           <span style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: var(--muted); white-space: nowrap;">
             ${day.label}
