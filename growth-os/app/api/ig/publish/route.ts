@@ -1,6 +1,9 @@
 // POST /api/ig/publish
 // Publishes an APPROVED scheduled post to Instagram via the Graph API.
 //
+// Supports both single-image posts and multi-slide CAROUSEL posts. The
+// media_type column on the scheduled_posts row selects the publish path.
+//
 // Security model:
 // - Protected by a shared secret (IG_PUBLISH_SECRET) sent as Bearer token.
 // - Uses the service-role Supabase client (bypasses RLS) for status writes.
@@ -13,6 +16,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPublishSecret } from "@/lib/instagram/env";
 import { publishImagePost } from "@/lib/instagram/publish";
+import { publishCarouselPost } from "@/lib/instagram/carousel-publish";
+import { slideImageUrl, type CarouselSlide } from "@/lib/content/carousel";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,7 +51,7 @@ const supabase = createAdminClient();
 // 3) Load the post and enforce the approval gate.
 const { data: post, error: loadError } = await supabase
 .from("scheduled_posts")
-.select("id, status, caption, image_url, content_id, utm_campaign, owner_id, theme")
+.select("id, status, caption, image_url, content_id, utm_campaign, owner_id, theme, media_type, slides")
 .eq("id", postId)
 .single();
 if (loadError || !post) {
@@ -74,21 +79,34 @@ return NextResponse.json(
 );
 }
 
-// 5) Publish via Graph API (container -> publish -> permalink).
+// 5) Publish via Graph API. CAROUSEL posts go through the multi-slide flow
+// (one child container per slide -> parent container -> publish); everything
+// else uses the single-image flow. Both return the same PublishResult shape.
 try {
+const origin = new URL(req.url).origin;
+const theme = post.theme === "dark" ? "dark" : "light";
+let result;
+
+if (post.media_type === "CAROUSEL") {
+// Render one branded og-post image per slide, in display order.
+const slides = (post.slides ?? []) as CarouselSlide[];
+const imageUrls = slides.map((slide) =>
+slideImageUrl(origin, { ...slide, theme }),
+);
+result = await publishCarouselPost({
+imageUrls,
+caption: post.caption,
+});
+} else {
 // Derive a short hook from the first sentence of the caption for the on-image text.
 const firstSentence = (post.caption || "").split(/(?<=[.!?])\s/)[0].trim();
 const hook = (firstSentence || post.caption || "Momentum").slice(0, 160);
-// Resolve the slide theme so the published image uses the correct brand palette.
-// Stored theme drives light/dark; default to light when unset (matches the generator base).
-const theme = post.theme === "dark" ? "dark" : "light";
-// Render the branded text-on-image via our og-post route (absolute URL so IG can fetch it).
-const origin = new URL(req.url).origin;
 const ogImageUrl = `${origin}/api/og-post?hook=${encodeURIComponent(hook)}&theme=${theme}`;
-const result = await publishImagePost({
+result = await publishImagePost({
 imageUrl: ogImageUrl,
 caption: post.caption,
 });
+}
 
 const publishedAt = new Date().toISOString();
 await supabase
@@ -104,8 +122,6 @@ error: null,
 .eq("id", postId);
 
 // 6) Upsert the linked `content` ledger row so Attribution stays accurate.
-// If the scheduled post is already linked to a content row, update it;
-// otherwise insert a new content row and back-link it via content_id.
 const contentRow = {
 owner_id: post.owner_id,
 platform: "instagram",
