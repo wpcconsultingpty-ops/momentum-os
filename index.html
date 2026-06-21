@@ -17,7 +17,7 @@
   <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=cabinet-grotesk@500,700,800&display=swap" rel="stylesheet">
 
   <style>
-    :root {
+    .session-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }     @media (max-width: 640px) { .session-cards { grid-template-columns: 1fr; } }     .session-card { border: 1px solid var(--border); border-radius: 16px; padding: 18px; background: var(--surface); display: flex; flex-direction: column; gap: 8px; }     .session-card.is-active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }     .session-card .sc-title { font-weight: 600; font-size: 1.05rem; }     .session-card .sc-sub { color: var(--muted); font-size: 0.9rem; }     .session-card .sc-status { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }     .session-card .sc-status.todo { color: var(--muted); }     .session-card .sc-status.done { color: var(--success); }     .session-card .sc-btn { margin-top: auto; border: none; border-radius: 12px; padding: 10px 14px; font-weight: 600; cursor: pointer; background: var(--surface-2); color: var(--text); }     .session-card.is-active .sc-btn { background: var(--accent); color: #fff; }     :root {
       --bg: #f6f4ee;
       --surface: #eef2ea;
       --surface-2: #f7f8f4;
@@ -1832,7 +1832,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       var _safe=function(fn,n){try{fn();}catch(e){console.error('init step failed: '+n,e);}};_safe(setupEventListeners,'setupEventListeners');_safe(initializeApp,'initializeApp');_safe(showWelcome,'showWelcome');_safe(loadCurrentData,'loadCurrentData');_safe(updateAllViews,'updateAllViews');
     });
 
-    function initializeApp() {
+    function getDayPhase() {   var h = new Date().getHours();   return h < 12 ? 'morning' : 'evening'; } function sessionKey(kind) {   var d = new Date();   var ymd = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();   return 'momentum_session_' + kind + '_' + ymd; } function isSessionComplete(kind) {   try { return localStorage.getItem(sessionKey(kind)) === '1'; } catch(e) { return false; } } function markSessionComplete(kind) {   try { localStorage.setItem(sessionKey(kind), '1'); } catch(e) {}   try { renderSessionCards(); } catch(e) {} } function startSession(kind) {   switchView(kind === 'morning' ? 'health' : 'personal'); } function renderSessionCards() {   var el = document.getElementById('sessionCards');   if (!el) return;   var phase = getDayPhase();   var mDone = isSessionComplete('morning');   var eDone = isSessionComplete('evening');   function card(kind, title, sub) {     var done = kind === 'morning' ? mDone : eDone;     var active = (phase === kind) && !done;     var statusCls = done ? 'done' : 'todo';     var statusTxt = done ? 'Complete' : (active ? 'Ready' : 'Not started');     var btnTxt = done ? 'Review again' : (kind === 'morning' ? 'Start morning entry' : 'Open evening review');     return '<div class="session-card ' + (active ? 'is-active' : '') + '">' +       '<div class="sc-title">' + title + '</div>' +       '<div class="sc-sub">' + sub + '</div>' +       '<div class="sc-status ' + statusCls + '">' + statusTxt + '</div>' +       '<button class="sc-btn" onclick="startSession(\'' + kind + '\')">' + btnTxt + '</button>' +       '</div>';   }   el.innerHTML = card('morning', 'Morning entry', 'Energy, focus, readiness') +                  card('evening', 'Evening review', 'Review, reflection, reset'); } function initializeApp() {
   const badge = document.getElementById('dashboardDateBadge');
   if (badge) {
     badge.textContent = new Date().toLocaleDateString(undefined, {
@@ -1847,7 +1847,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateThemeIcon(savedTheme);
 
-  updateScores();
+  updateScores();   try { renderSessionCards(); } catch(e) {}
 }
 
     function showWelcome() {
@@ -1917,7 +1917,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           if (valueSpan) {
             valueSpan.textContent = `${input.value} / 10`;
           }
-          updateScores();
+          updateScores();   try { renderSessionCards(); } catch(e) {}
         });
       });
 
@@ -2003,7 +2003,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
   }
 
-  updateScores(); // add this
+  updateScores();   try { renderSessionCards(); } catch(e) {} // add this
 }
 
     function saveCurrentData() {
@@ -2104,7 +2104,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         recovery: parseInt((document.getElementById('recovery')||{value:5}).value)
       };
 
-      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();
+      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
       document.getElementById('saveHealthStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('saveHealthStatus').textContent = 'Saved! Nice momentum.';
@@ -2122,7 +2122,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         triggers: Array.from(document.querySelectorAll('[data-trigger]:checked')).map(el => el.dataset.trigger)
       };
 
-      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();
+      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
       document.getElementById('savePersonalStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('savePersonalStatus').textContent = 'Saved! Nice momentum.';
@@ -2135,7 +2135,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         journalNote: document.getElementById('journalText').value
       };
 
-      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();
+      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
       document.getElementById('journalStatus').textContent = 'Saved! Nice momentum.';
       setTimeout(() => {
         document.getElementById('journalStatus').textContent = 'Saved! Nice momentum.';
@@ -2172,7 +2172,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       updateAchievements();
     }
 
-    function updateDashboard() { try { updateScores(); } catch(e) {}       updateDriverRings();
+    function updateDashboard() { try { updateScores();   try { renderSessionCards(); } catch(e) {} } catch(e) {}       updateDriverRings();
       const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
       
       if (entries.length > 0) {
