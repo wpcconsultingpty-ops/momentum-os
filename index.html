@@ -1477,7 +1477,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <div class="section-card">
           <div class="section-header">
             <h2>Morning Entry</h2>
-            <p style="color: var(--muted);">Sleep, energy, movement, and readiness</p>
+            <p style="color: var(--muted);">Sleep, energy, mood, and readiness to start the day</p>
           </div>
 
           <div class="grid grid-3" style="margin-top: 24px;">
@@ -1517,22 +1517,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               <input id="sleepQuality" type="range" min="1" max="10" value="7">
             </div>
             <div class="range-row">
-              <label for="exercise"><span>Exercise</span><span id="exerciseValue">5 / 10</span></label>
-              <input id="exercise" type="range" min="0" max="10" value="5">
-            </div>
-            <div class="range-row">
-              <label for="nutrition"><span>Nutrition</span><span id="nutritionValue">7 / 10</span></label>
-              <input id="nutrition" type="range" min="1" max="10" value="7">
-            </div>
-            <div class="range-row">
               <label for="hydration"><span>Hydration</span><span id="hydrationValue">7 / 10</span></label>
               <input id="hydration" type="range" min="1" max="10" value="7">
             </div>
-            <div class="range-row">
-              <label for="recovery"><span>Recovery</span><span id="recoveryValue">7 / 10</span></label>
-              <input id="recovery" type="range" min="1" max="10" value="7">
-            </div>
-          </div>
+                      </div>
 
           <div class="button-row">
             <button class="btn btn-primary" id="saveHealthBtn">Save Morning Entry</button>
@@ -1546,7 +1534,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <div class="section-card">
           <div class="section-header">
             <h2>Evening Review</h2>
-            <p style="color: var(--muted);">Connection, control, and personal wellbeing</p>
+            <p style="color: var(--muted);">How the day went: movement, nutrition, connection, and recovery</p>
           </div>
 
           <div class="grid grid-3" style="margin-top: 24px;">
@@ -1584,6 +1572,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="range-row">
               <label for="personalUrge"><span>Urge Intensity</span><span id="personalUrgeValue">5 / 10</span></label>
               <input id="personalUrge" type="range" min="0" max="10" value="5">
+            </div>
+            <div class="range-row">
+              <label for="exercise"><span>Exercise</span><span id="exerciseValue">5 / 10</span></label>
+              <input id="exercise" type="range" min="0" max="10" value="5">
+            </div>
+            <div class="range-row">
+              <label for="nutrition"><span>Nutrition</span><span id="nutritionValue">7 / 10</span></label>
+              <input id="nutrition" type="range" min="1" max="10" value="7">
+          </div>            
+            <div class="range-row">
+              <label for="recovery"><span>Recovery</span><span id="recoveryValue">7 / 10</span></label>
+              <input id="recovery" type="range" min="1" max="10" value="7">
             </div>
           </div>
 
