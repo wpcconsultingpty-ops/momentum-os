@@ -20,7 +20,7 @@ s.textContent=[
 '.mol-h1{font-family:Cabinet Grotesk,sans-serif;font-size:3.2rem;line-height:1.04;font-weight:800;margin:0 0 18px;}',
 '.mol-h2{font-family:Cabinet Grotesk,sans-serif;font-size:2rem;font-weight:800;margin:0 0 28px;}',
 '.mol-lead{font-size:1.18rem;color:#5c655d;max-width:560px;margin:0 0 28px;line-height:1.55;}',
-'.mol-hero{padding:72px 0 64px;max-width:760px;margin:0 auto;text-align:center;}','.mol-hero-copy{align-items:center;}','.mol-cta-row{justify-content:center;}','.mol-lead{margin-left:auto;margin-right:auto;}','.mol-link-btn{background:none;border:none;color:#6f8f72;font-weight:700;cursor:pointer;text-decoration:underline;font-family:inherit;font-size:.95rem;margin-top:18px;padding:0;}','.mol-survey-page{max-width:560px;margin:0 auto;padding:64px 0;text-align:center;}',
+'.mol-hero{padding:72px 0 64px;max-width:760px;margin:0 auto;text-align:center;}','.mol-hero-copy{align-items:center;}','.mol-cta-row{justify-content:center;}','.mol-lead{margin-left:auto;margin-right:auto;}',
 '.mol-hero-copy{display:flex;flex-direction:column;align-items:flex-start;}',
 '.mol-cta-row{display:flex;gap:14px;flex-wrap:wrap;}',
 '.mol-trust{margin-top:18px;font-size:.85rem;color:#8a938b;display:flex;align-items:center;gap:8px;}',
@@ -119,8 +119,7 @@ function render(){
 if(document.getElementById('mol-landing'))return;
 css();
 var root=document.createElement('div');
-  function survey(){ if(document.getElementById('mol-survey-view'))return; css(); var v=document.createElement('div'); v.className='mol-landing'; v.id='mol-survey-view'; v.innerHTML='<div class="mol-wrap"><div class="mol-nav"><div class="mol-logo"><span class="dot">MO</span> Momentum OS</div><div class="spacer"></div><button class="mol-btn ghost" id="mol-survey-back">Back to home</button></div><div class="mol-survey-page"><div class="mol-kicker">Sample check-in</div><h1 class="mol-h1">A daily check-in takes under a minute</h1><p class="mol-lead">This is a preview of the daily story survey. Your real answers feed your momentum score, dashboard and AI coach.</p>'+heroShot()+'<button class="mol-btn" id="mol-survey-start" style="margin-top:28px">Get started free</button></div><div class="mol-foot">Momentum OS</div></div>'; document.body.appendChild(v); document.body.style.overflow='hidden'; var bk=document.getElementById('mol-survey-back'); if(bk)bk.addEventListener('click',closeSurvey); var st=document.getElementById('mol-survey-start'); if(st)st.addEventListener('click',enter); }
-  function closeSurvey(){ var v=document.getElementById('mol-survey-view'); if(v&&v.parentNode){v.parentNode.removeChild(v);} if(location.hash==='#survey'){ try{history.replaceState(null,'',location.pathname+location.search);}catch(e){location.hash='';} } if(!document.getElementById('mol-landing'))document.body.style.overflow=''; }
+  
 root.className='mol-landing';
 root.id='mol-landing';
 root.innerHTML=''+
