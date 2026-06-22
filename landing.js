@@ -17,11 +17,24 @@ s.textContent=[
 '.mol-btn.ghost{background:transparent;color:#2f3a31;border:1px solid #d8ded3;}',
 '.mol-section{padding:60px 0;border-bottom:1px solid #e4ebdd;}',
 '.mol-kicker{text-transform:uppercase;letter-spacing:.08em;font-size:.75rem;font-weight:700;color:#6f8f72;margin-bottom:12px;}',
-'.mol-h1{font-family:Cabinet Grotesk,sans-serif;font-size:3rem;line-height:1.05;font-weight:800;margin:0 0 18px;}',
+'.mol-h1{font-family:Cabinet Grotesk,sans-serif;font-size:3.2rem;line-height:1.04;font-weight:800;margin:0 0 18px;}',
 '.mol-h2{font-family:Cabinet Grotesk,sans-serif;font-size:2rem;font-weight:800;margin:0 0 28px;}',
-'.mol-lead{font-size:1.15rem;color:#5c655d;max-width:620px;margin:0 0 28px;line-height:1.5;}',
-'.mol-hero{padding:70px 0 60px;display:flex;flex-direction:column;align-items:flex-start;}',
+'.mol-lead{font-size:1.18rem;color:#5c655d;max-width:560px;margin:0 0 28px;line-height:1.55;}',
+'.mol-hero{padding:64px 0 56px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;}',
+'.mol-hero-copy{display:flex;flex-direction:column;align-items:flex-start;}',
 '.mol-cta-row{display:flex;gap:14px;flex-wrap:wrap;}',
+'.mol-trust{margin-top:18px;font-size:.85rem;color:#8a938b;display:flex;align-items:center;gap:8px;}',
+'.mol-trust b{color:#5c655d;}',
+'.mol-shot{background:#fff;border:1px solid #e4ebdd;border-radius:22px;box-shadow:0 24px 60px -28px rgba(47,58,49,.45);padding:18px;}',
+'.mol-shot-bar{display:flex;align-items:center;gap:6px;margin-bottom:14px;}',
+'.mol-shot-bar i{width:10px;height:10px;border-radius:50%;background:#e4ebdd;display:block;}',
+'.mol-shot-q{font-family:Cabinet Grotesk,sans-serif;font-weight:800;font-size:1.15rem;margin:4px 0 14px;}',
+'.mol-shot-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}',
+'.mol-shot-opt{border:1px solid #e4ebdd;border-radius:12px;padding:14px;text-align:center;font-size:.9rem;font-weight:600;}',
+'.mol-shot-opt.sel{border-color:#6f8f72;background:#eef3ec;}',
+'.mol-shot-opt span{display:block;font-size:1.4rem;margin-bottom:6px;}',
+'.mol-shot-score{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid #eef0ea;font-size:.85rem;color:#6e776f;}',
+'.mol-shot-score b{font-family:Cabinet Grotesk,sans-serif;font-size:1.5rem;color:#2f3a31;}',
 '.mol-grid{display:grid;gap:18px;}',
 '.mol-grid.cols-3{grid-template-columns:repeat(3,1fr);}',
 '.mol-grid.cols-2{grid-template-columns:repeat(2,1fr);}',
@@ -43,9 +56,30 @@ s.textContent=[
 '.mol-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#6f8f72;color:#fff;padding:4px 14px;border-radius:999px;font-size:.72rem;font-weight:700;}',
 '.mol-final{text-align:center;padding:70px 0;}',
 '.mol-foot{text-align:center;color:#8a938b;font-size:.8rem;padding:28px 0;}',
-'@media(max-width:760px){.mol-grid.cols-3,.mol-grid.cols-2{grid-template-columns:1fr;}.mol-h1{font-size:2.2rem;}}'
+'@media(max-width:860px){.mol-hero{grid-template-columns:1fr;gap:32px;}.mol-shot{order:-1;}}',
+'@media(max-width:760px){.mol-grid.cols-3,.mol-grid.cols-2{grid-template-columns:1fr;}.mol-h1{font-size:2.3rem;}}'
 ].join('');
 document.head.appendChild(s);
+}
+function steps(){
+var arr=[
+['1','Check in','Answer a quick daily story survey - sleep, energy, drive, mood, focus.'],
+['2','Track','Your answers feed your dashboard, momentum score and history automatically.'],
+['3','Get coached','An AI coach reads your numbers and tells you the next honest move.']
+];
+return arr.map(function(s){
+return '<div class="mol-step"><div class="num">'+s[0]+'</div><div><h3>'+s[1]+'</h3><p>'+s[2]+'</p></div></div>';
+}).join('');
+}
+function whyCards(){
+var items=[
+['\uD83D\uDD12','Private by default','Your data is yours. Track honestly without performing for anyone.'],
+['\u26A1','Under a minute','A daily check-in that respects your time and still captures what matters.'],
+['\uD83D\uDCAC','No sugar-coating','A coach that gives it to you straight, based on your real numbers.']
+];
+return items.map(function(w){
+return '<div class="mol-card"><span class="emoji">'+w[0]+'</span><h3>'+w[1]+'</h3><p>'+w[2]+'</p></div>';
+}).join('');
 }
 function productCards(){
 var items=[
@@ -68,19 +102,12 @@ var tiers=[
 ];
 return tiers.map(function(t){
 var feats=t[3].map(function(f){return '<li>'+f+'</li>';}).join('');
-var badge=t[5]?'<span class="mol-badge">Most popular</span>':'';
+var badge=t[5]?'<div class="mol-badge">Most popular</div>':'';
 return '<div class="mol-price'+(t[5]?' feat':'')+'">'+badge+'<div class="tier">'+t[0]+'</div><div class="amt">'+t[1]+'</div><div class="per">'+t[2]+'</div><ul>'+feats+'</ul></div>';
 }).join('');
 }
-function steps(){
-var arr=[
-['1','Check in','Answer a quick daily story survey - sleep, energy, drive, mood, focus.'],
-['2','Track','Your answers feed your dashboard, momentum score and history automatically.'],
-['3','Get coached','An AI coach reads your numbers and tells you the next honest move.']
-];
-return arr.map(function(s){
-return '<div class="mol-step"><div class="num">'+s[0]+'</div><div><h3>'+s[1]+'</h3><p>'+s[2]+'</p></div></div>';
-}).join('');
+function heroShot(){
+return '<div class="mol-shot"><div class="mol-shot-bar"><i></i><i></i><i></i></div><div class="mol-kicker">Question 1 of 7</div><div class="mol-shot-q">How did you sleep last night?</div><div class="mol-shot-opts"><div class="mol-shot-opt sel"><span>\uD83D\uDE34</span>Solid 8</div><div class="mol-shot-opt"><span>\uD83D\uDE2E\u200D\uD83D\uDCA8</span>Light, broken</div><div class="mol-shot-opt"><span>\u26A1</span>Wired but tired</div><div class="mol-shot-opt"><span>\uD83D\uDC80</span>Barely slept</div></div><div class="mol-shot-score"><span>Today\u2019s momentum</span><b>72</b></div></div>';
 }
 function enter(){
 try{localStorage.setItem('momentum_entered','1');}catch(e){}
@@ -94,22 +121,17 @@ css();
 var root=document.createElement('div');
 root.className='mol-landing';
 root.id='mol-landing';
-var why=[
-['\uD83D\uDD12','Private by default','Your data is yours. Track honestly without performing for anyone.'],
-['\u26A1','Under a minute','A daily check-in that respects your time and still captures what matters.'],
-['\uD83D\uDCAC','No sugar-coating','A coach that gives it to you straight, based on your real numbers.']
-].map(function(w){return '<div class="mol-card"><span class="emoji">'+w[0]+'</span><h3>'+w[1]+'</h3><p>'+w[2]+'</p></div>';}).join('');
 root.innerHTML=''+
 '<div class="mol-wrap">'+
-'<div class="mol-nav"><div class="mol-logo"><span class="dot">MO</span> Momentum OS</div><span class="spacer"></span><button class="mol-btn ghost" id="mol-login">Log in</button><button class="mol-btn" id="mol-start">Get started</button></div>'+
-'</div>'+
-'<div class="mol-wrap"><div class="mol-hero"><div class="mol-kicker">Daily momentum, tracked honestly</div><h1 class="mol-h1">Reset. Refocus. Move.</h1><p class="mol-lead">Momentum OS turns a one-minute daily check-in into a clear picture of your health, drive and mental clarity - with an AI coach that does not sugar-coat it.</p><div class="mol-cta-row"><button class="mol-btn" id="mol-start2">Get started free</button><button class="mol-btn ghost" id="mol-login2">I already have an account</button></div></div></div>'+
-'<div class="mol-section"><div class="mol-wrap"><div class="mol-kicker">How it works</div><h2 class="mol-h2">Three steps, every day</h2>'+steps()+'</div></div>'+
-'<div class="mol-section"><div class="mol-wrap"><div class="mol-kicker">Why Momentum</div><h2 class="mol-h2">Built for the daily-walk version of you</h2><div class="mol-grid cols-3">'+why+'</div></div></div>'+
-'<div class="mol-section"><div class="mol-wrap"><div class="mol-kicker">Product preview</div><h2 class="mol-h2">Everything you get inside</h2><div class="mol-grid cols-3">'+productCards()+'</div></div></div>'+
-'<div class="mol-section"><div class="mol-wrap"><div class="mol-kicker">Pricing</div><h2 class="mol-h2">Start free, upgrade when ready</h2><div class="mol-grid cols-3">'+priceCards()+'</div></div></div>'+
-'<div class="mol-final"><div class="mol-wrap"><h2 class="mol-h2">Ready to build momentum?</h2><p class="mol-lead" style="margin-left:auto;margin-right:auto;">Create a free account and your first check-in takes under a minute.</p><button class="mol-btn" id="mol-start3">Start free</button></div></div>'+
-'<div class="mol-foot">Momentum OS</div>';
+'<div class="mol-nav"><div class="mol-logo"><span class="dot">MO</span> Momentum OS</div><div class="spacer"></div><button class="mol-btn ghost" id="mol-login">Log in</button><button class="mol-btn" id="mol-start">Get started</button></div>'+
+'<div class="mol-hero"><div class="mol-hero-copy"><div class="mol-kicker">Daily momentum, tracked honestly</div><h1 class="mol-h1">Show up for yourself in under a minute a day.</h1><p class="mol-lead">Momentum OS turns one honest daily check-in into a clear read on your sleep, energy, drive and focus - with an AI coach that tells you the next move, not what you want to hear.</p><div class="mol-cta-row"><button class="mol-btn" id="mol-start2">Get started free</button><button class="mol-btn ghost" id="mol-login2">I already have an account</button></div><div class="mol-trust">\u2713 Free forever plan &nbsp;\u00B7&nbsp; <b>Private by default</b> &nbsp;\u00B7&nbsp; No card required</div></div>'+heroShot()+'</div>'+
+'<div class="mol-section"><div class="mol-kicker">How it works</div><h2 class="mol-h2">Three steps, every day</h2>'+steps()+'</div>'+
+'<div class="mol-section"><div class="mol-kicker">Why Momentum</div><h2 class="mol-h2">Built for the daily-walk version of you</h2><div class="mol-grid cols-3">'+whyCards()+'</div></div>'+
+'<div class="mol-section"><div class="mol-kicker">Product preview</div><h2 class="mol-h2">Everything you get inside</h2><div class="mol-grid cols-3">'+productCards()+'</div></div>'+
+'<div class="mol-section"><div class="mol-kicker">Pricing</div><h2 class="mol-h2">Start free, upgrade when ready</h2><div class="mol-grid cols-3">'+priceCards()+'</div></div>'+
+'<div class="mol-final"><h2 class="mol-h2">Ready to build momentum?</h2><p class="mol-lead" style="margin:0 auto 28px;">Create a free account and your first check-in takes under a minute.</p><button class="mol-btn" id="mol-start3">Start free</button></div>'+
+'<div class="mol-foot">Momentum OS</div>'+
+'</div>';
 document.body.appendChild(root);
 document.body.style.overflow='hidden';
 ['mol-start','mol-start2','mol-start3','mol-login','mol-login2'].forEach(function(id){
@@ -121,7 +143,7 @@ function hasSession(){
 try{
 for(var i=0;i<localStorage.length;i++){
 var k=localStorage.key(i);
-if(k&&k.indexOf('-auth-token')>-1){var v=localStorage.getItem(k);if(v&&v.indexOf('access_token')>-1)return true;}
+if(k&&k.indexOf('supabase')>-1&&k.indexOf('auth')>-1){var v=localStorage.getItem(k);if(v&&v.indexOf('access_token')>-1)return true;}
 }
 }catch(e){}
 return false;
