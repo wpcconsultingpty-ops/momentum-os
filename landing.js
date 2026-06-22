@@ -126,13 +126,13 @@ root.id='mol-landing';
 root.innerHTML=''+
 '<div class="mol-wrap">'+
 '<div class="mol-nav"><div class="mol-logo"><span class="dot">MO</span> Momentum OS</div><div class="spacer"></div><button class="mol-btn ghost" id="mol-login">Log in</button><button class="mol-btn" id="mol-start">Get started</button></div>'+
-'<div class="mol-hero"><div class="mol-hero-copy"><div class="mol-kicker">Daily momentum, tracked honestly</div><h1 class="mol-h1">Show up for yourself in under a minute a day.</h1><p class="mol-lead">Momentum OS turns one honest daily check-in into a clear read on your sleep, energy, drive and focus - with an AI coach that tells you the next move, not what you want to hear.</p><div class="mol-cta-row"><button class="mol-btn" id="mol-start2">Get started free</button><button class="mol-btn ghost" id="mol-login2">I already have an account</button></div><div class="mol-trust">\u2713 Free forever plan &nbsp;\u00B7&nbsp; <b>Private by default</b> &nbsp;\u00B7&nbsp; No card required</div><button class="mol-link-btn" id="mol-survey-link">See a sample check-in \u2192</button></div></div>'+
+'<div class="mol-hero"><div class="mol-hero-copy"><div class="mol-kicker">Daily momentum, tracked honestly</div><h1 class="mol-h1">Show up for yourself in under a minute a day.</h1><p class="mol-lead">Momentum OS turns one honest daily check-in into a clear read on your sleep, energy, drive and focus - with an AI coach that tells you the next move, not what you want to hear.</p><div class="mol-cta-row"><button class="mol-btn" id="mol-start2">Get started free</button><button class="mol-btn ghost" id="mol-login2">I already have an account</button></div><div class="mol-trust">\u2713 Free forever plan &nbsp;\u00B7&nbsp; <b>Private by default</b> &nbsp;\u00B7&nbsp; No card required</div></div></div>'+
 '<div class="mol-section"><div class="mol-kicker">How it works</div><h2 class="mol-h2">Three steps, every day</h2>'+steps()+'</div>'+
 '<div class="mol-section"><div class="mol-kicker">Why Momentum</div><h2 class="mol-h2">Built for the daily-walk version of you</h2><div class="mol-grid cols-3">'+whyCards()+'</div></div>'+
 '<div class="mol-section"><div class="mol-kicker">Product preview</div><h2 class="mol-h2">Everything you get inside</h2><div class="mol-grid cols-3">'+productCards()+'</div></div>'+
 '<div class="mol-section"><div class="mol-kicker">Pricing</div><h2 class="mol-h2">Start free, upgrade when ready</h2><div class="mol-grid cols-3">'+priceCards()+'</div></div>'+
 '<div class="mol-final"><h2 class="mol-h2">Ready to build momentum?</h2><p class="mol-lead" style="margin:0 auto 28px;">Create a free account and your first check-in takes under a minute.</p><button class="mol-btn" id="mol-start3">Start free</button></div>'+
-'<div class="mol-foot">Momentum OS</div>'+window.dismissLanding=enter; window.openSurvey=survey; window.closeSurvey=closeSurvey;
+'<div class="mol-foot">Momentum OS</div>'+window.dismissLanding=enter;
 '</div>';
 document.body.appendChild(root);
 document.body.style.overflow='hidden';
@@ -143,7 +143,7 @@ if(b)b.addEventListener('click',enter);
 }
 function hasSession(){
 try{
-for(var i=0;i<localStorage.length;i++){ var sv=document.getElementById('mol-survey-link'); if(sv)sv.addEventListener('click',function(){try{location.hash='survey';}catch(e){} survey();});
+for(var i=0;i<localStorage.length;i++){ 
 var k=localStorage.key(i);
 if(k&&k.indexOf('supabase')>-1&&k.indexOf('auth')>-1){var v=localStorage.getItem(k);if(v&&v.indexOf('access_token')>-1)return true;}
 }
@@ -156,7 +156,7 @@ if(hasSession())return false;
 return true;
 }
 function maybeLanding(){
-if(shouldShow())render(); try{if(location.hash==='#survey'&&!hasSession())survey();}catch(e){}
+if(shouldShow())render(); 
 }
 window.openLanding=render;
 window.dismissLanding=enter;
