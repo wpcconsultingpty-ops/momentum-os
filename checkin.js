@@ -166,7 +166,7 @@
       '<button class="moci-btn moci-continue">Continue to Momentum \u2192</button>'+
       '<div class="moci-altbtns"><button class="moci-replay">Replay</button></div></div>');
     wireControls(card);
-    card.querySelector('.moci-continue').addEventListener('click', function(){ applyAnswers(); closeOverlay(); if (window.switchView) window.switchView('dashboard'); });
+          card.querySelector('.moci-continue').addEventListener('click', function(){ applyAnswers(); try { localStorage.setItem('moci_onboarded','1'); } catch(e){} closeOverlay(); if (window.switchView) window.switchView('dashboard'); });
     card.querySelector('.moci-replay').addEventListener('click', function(){ answers = {}; step = 0; renderQuestion(); });
     show(card);
   }
@@ -231,9 +231,18 @@
 
   window.openCheckin = start;
  injectStyle();
+    // First-login onboarding: the survey is NOT a primary nav destination.
+  // On a brand-new install (no onboarding flag), route the user straight
+  // into the survey, save answers into metrics + morningFocus, then the
+  // recap continue handler sends them to the Dashboard.
+  var ONBOARD_KEY = 'moci_onboarded';
+  function maybeOnboard(){
+    try { if (localStorage.getItem(ONBOARD_KEY)) return; } catch (e) { return; }
+    start();
+  }
   if (document.readyState === 'loading'){
-        injectStyle(); document.addEventListener('DOMContentLoaded', injectNav);
+    document.addEventListener('DOMContentLoaded', maybeOnboard);
   } else {
-    injectNav();
+    maybeOnboard();
   }
 })();
