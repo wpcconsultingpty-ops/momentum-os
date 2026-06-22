@@ -2024,7 +2024,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const hydration = parseInt((document.getElementById('hydration')||{value:5}).value);
       const recovery = parseInt((document.getElementById('recovery')||{value:5}).value);
 
-      const score = Math.round((mood + energy + stress + sleep + exercise + nutrition + hydration + recovery) / 8 * 6 + 40);
+      const score = Math.round((mood + energy + stress + sleep + hydration) / 5 * 6 + 40);
       return Math.min(100, Math.max(0, score));
     }
 
@@ -2034,7 +2034,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const control = parseInt((document.getElementById('personalControl')||{value:5}).value);
       const urge = 10 - parseInt((document.getElementById('personalUrge')||{value:5}).value);
 
-      const score = Math.round((desire + connection + control + urge) / 4 * 6 + 40);
+      const exercise = parseInt((document.getElementById('exercise')||{value:5}).value); const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value); const recovery = parseInt((document.getElementById('recovery')||{value:5}).value); const score = Math.round((desire + connection + control + urge + exercise + nutrition + recovery) / 7 * 6 + 40);
       return Math.min(100, Math.max(0, score));
     }
 
