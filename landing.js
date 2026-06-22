@@ -20,7 +20,7 @@ s.textContent=[
 '.mol-h1{font-family:Cabinet Grotesk,sans-serif;font-size:3.2rem;line-height:1.04;font-weight:800;margin:0 0 18px;}',
 '.mol-h2{font-family:Cabinet Grotesk,sans-serif;font-size:2rem;font-weight:800;margin:0 0 28px;}',
 '.mol-lead{font-size:1.18rem;color:#5c655d;max-width:560px;margin:0 0 28px;line-height:1.55;}',
-'.mol-hero{padding:64px 0 56px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;}',
+'.mol-hero{padding:64px 0 56px;display:block;max-width:640px;}',
 '.mol-hero-copy{display:flex;flex-direction:column;align-items:flex-start;}',
 '.mol-cta-row{display:flex;gap:14px;flex-wrap:wrap;}',
 '.mol-trust{margin-top:18px;font-size:.85rem;color:#8a938b;display:flex;align-items:center;gap:8px;}',
@@ -124,7 +124,7 @@ root.id='mol-landing';
 root.innerHTML=''+
 '<div class="mol-wrap">'+
 '<div class="mol-nav"><div class="mol-logo"><span class="dot">MO</span> Momentum OS</div><div class="spacer"></div><button class="mol-btn ghost" id="mol-login">Log in</button><button class="mol-btn" id="mol-start">Get started</button></div>'+
-'<div class="mol-hero"><div class="mol-hero-copy"><div class="mol-kicker">Daily momentum, tracked honestly</div><h1 class="mol-h1">Show up for yourself in under a minute a day.</h1><p class="mol-lead">Momentum OS turns one honest daily check-in into a clear read on your sleep, energy, drive and focus - with an AI coach that tells you the next move, not what you want to hear.</p><div class="mol-cta-row"><button class="mol-btn" id="mol-start2">Get started free</button><button class="mol-btn ghost" id="mol-login2">I already have an account</button></div><div class="mol-trust">\u2713 Free forever plan &nbsp;\u00B7&nbsp; <b>Private by default</b> &nbsp;\u00B7&nbsp; No card required</div></div>'+heroShot()+'</div>'+
+'<div class="mol-hero"><div class="mol-hero-copy"><div class="mol-kicker">Daily momentum, tracked honestly</div><h1 class="mol-h1">Show up for yourself in under a minute a day.</h1><p class="mol-lead">Momentum OS turns one honest daily check-in into a clear read on your sleep, energy, drive and focus - with an AI coach that tells you the next move, not what you want to hear.</p><div class="mol-cta-row"><button class="mol-btn" id="mol-start2">Get started free</button><button class="mol-btn ghost" id="mol-login2">I already have an account</button></div><div class="mol-trust">\u2713 Free forever plan &nbsp;\u00B7&nbsp; <b>Private by default</b> &nbsp;\u00B7&nbsp; No card required</div></div></div>'+
 '<div class="mol-section"><div class="mol-kicker">How it works</div><h2 class="mol-h2">Three steps, every day</h2>'+steps()+'</div>'+
 '<div class="mol-section"><div class="mol-kicker">Why Momentum</div><h2 class="mol-h2">Built for the daily-walk version of you</h2><div class="mol-grid cols-3">'+whyCards()+'</div></div>'+
 '<div class="mol-section"><div class="mol-kicker">Product preview</div><h2 class="mol-h2">Everything you get inside</h2><div class="mol-grid cols-3">'+productCards()+'</div></div>'+
