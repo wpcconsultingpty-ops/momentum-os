@@ -230,19 +230,59 @@
   }
 
   window.openCheckin = start;
- injectStyle();
-    // First-login onboarding: the survey is NOT a primary nav destination.
-  // On a brand-new install (no onboarding flag), route the user straight
-  // into the survey, save answers into metrics + morningFocus, then the
-  // recap continue handler sends them to the Dashboard.
+  injectStyle();
+
+  // First-login onboarding flow: landing -> sign up/login -> survey -> dashboard.
+  // The survey must ONLY run for an authenticated user who has not onboarded yet.
+  // A logged-out visitor sees the landing/login first; the survey never fires pre-auth.
   var ONBOARD_KEY = 'moci_onboarded';
-  function maybeOnboard(){
-    try { if (localStorage.getItem(ONBOARD_KEY)) return; } catch (e) { return; }
-    start();
+
+  function alreadyOnboarded(){
+    try { return !!localStorage.getItem(ONBOARD_KEY); } catch (e) { return true; }
   }
+
+  // Detect an active Supabase auth session from localStorage (same check the
+  // landing page uses). Returns true only when a real access_token is present.
+  function hasSession(){
+    try {
+      for (var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if (k && k.indexOf('supabase') > -1 && k.indexOf('auth') > -1){
+          var v = localStorage.getItem(k);
+          if (v && v.indexOf('access_token') > -1) return true;
+        }
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  var onboardStarted = false;
+  function tryStartOnboarding(){
+    if (onboardStarted) return true;
+    if (alreadyOnboarded()) return true;   // returning user -> straight to dashboard
+    if (!hasSession()) return false;       // not logged in yet -> wait
+    onboardStarted = true;
+    start();
+    return true;
+  }
+
+  // Because login/sign-up completes asynchronously (Supabase onAuthStateChange),
+  // a one-time check on load is not enough. Poll briefly for a session appearing
+  // right after the user signs up or logs in, then launch the survey. The poll
+  // stops as soon as onboarding starts, the user is already onboarded, or after
+  // a safety timeout.
+  function watchForLogin(){
+    if (tryStartOnboarding()) return;
+    var attempts = 0;
+    var timer = setInterval(function(){
+      attempts++;
+      if (tryStartOnboarding() || attempts > 600){ clearInterval(timer); }
+    }, 500);
+  }
+
   if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', maybeOnboard);
+    document.addEventListener('DOMContentLoaded', watchForLogin);
   } else {
-    maybeOnboard();
+    watchForLogin();
   }
 })();
