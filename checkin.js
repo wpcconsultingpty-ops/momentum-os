@@ -245,5 +245,4 @@
   } else {
     maybeOnboard();
   }
-();
 })();
