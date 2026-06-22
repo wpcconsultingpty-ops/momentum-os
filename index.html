@@ -2451,7 +2451,7 @@ async function askCoach() {
         capacity,
         bleed: bleedTriggers.join(', ') || 'none identified',
         target: '',
-        focus: '',
+        focus: document.getElementById('morningFocus')?.value || '',
         reflection: document.getElementById('journalText')?.value || '',
         freeText: prompt,
         timeHorizon: 'next hour',
