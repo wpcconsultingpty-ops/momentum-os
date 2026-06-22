@@ -20,7 +20,7 @@ s.textContent=[
 '.mol-h1{font-family:Cabinet Grotesk,sans-serif;font-size:3.2rem;line-height:1.04;font-weight:800;margin:0 0 18px;}',
 '.mol-h2{font-family:Cabinet Grotesk,sans-serif;font-size:2rem;font-weight:800;margin:0 0 28px;}',
 '.mol-lead{font-size:1.18rem;color:#5c655d;max-width:560px;margin:0 0 28px;line-height:1.55;}',
-'.mol-hero{padding:64px 0 56px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;}',
+'',
 '.mol-hero-copy{display:flex;flex-direction:column;align-items:flex-start;}',
 '.mol-cta-row{display:flex;gap:14px;flex-wrap:wrap;}',
 '.mol-trust{margin-top:18px;font-size:.85rem;color:#8a938b;display:flex;align-items:center;gap:8px;}',
