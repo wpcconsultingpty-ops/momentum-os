@@ -5,7 +5,7 @@
 // Voice + visuals follow the Momentum OS slide system: grounded, masculine,
 // practical copy for men over 40, on a forest-green / warm-stone / sage palette.
 
-export const APP_CTA = "Start here: https://momentum-os-two.vercel.app/";
+export const APP_CTA = "Start here: https://story-survey.vercel.app/";
 
 // Brand palette mirrored from the Momentum OS slide deck. Light slides use a
 // warm off-white base with deep green type; dark slides use a forest gradient
