@@ -7,6 +7,9 @@
 
 export const APP_CTA = "Start here: https://story-survey.vercel.app/";
 
+// Default hashtag set appended to every generated draft caption.
+export const HASHTAGS = "#HabitTracking #DailyCheckIn #PersonalGrowth #MindfulHabits #MomentumOS";
+
 // Brand palette mirrored from the Momentum OS slide deck. Light slides use a
 // warm off-white base with deep green type; dark slides use a forest gradient
 // with warm white type and glassy green CTAs.
@@ -155,8 +158,8 @@ if (used.has(norm(caption))) continue;
 used.add(norm(caption));
 seq += 1;
 drafts.push({
-caption,
-utm_campaign: `ig-${slug(angle.key)}-${stamp}-${String(seq).padStart(2, "0")}`,
+      caption: `${caption}\n\n${HASHTAGS}`,u
+        utm_campaign: `ig-${slug(angle.key)}-${stamp}-${String(seq).padStart(2, "0")}`,
 theme: angle.theme,
 });
 }
