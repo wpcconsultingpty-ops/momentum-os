@@ -158,8 +158,7 @@ if (used.has(norm(caption))) continue;
 used.add(norm(caption));
 seq += 1;
 drafts.push({
-      caption: `${caption}\n\n${HASHTAGS}`,u
-        utm_campaign: `ig-${slug(angle.key)}-${stamp}-${String(seq).padStart(2, "0")}`,
+      caption: `${caption}\n\n${HASHTAGS}`,        utm_campaign: `ig-${slug(angle.key)}-${stamp}-${String(seq).padStart(2, "0")}`,
 theme: angle.theme,
 });
 }
