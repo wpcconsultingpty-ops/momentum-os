@@ -114,4 +114,107 @@ describe("instagram publish (Graph API)", () => {
       publishImagePost({ imageUrl: "https://x/i.jpg", caption: "hi" }),
     ).rejects.toThrow(/failed with status: ERROR/);
   });
+
+  // Meta occasionally returns subcode 2207085 ("Generic Internal Error") from
+  // /media_publish even when the post was created successfully. The recovery
+  // path queries recent media by caption and treats a match as success.
+  it("publishImagePost recovers from subcode 2207085 by caption-matching recent media", async () => {
+    // Shorten the verification wait so the test doesn't take 6s.
+    process.env.IG_RATE_LIMIT_MAX_RETRIES = "0";
+    fetchReturning(
+      { json: { id: "container_2207085" } }, // createMediaContainer
+      { json: { status_code: "FINISHED" } }, // getContainerStatus
+      // publishMediaContainer — Meta returns the generic internal error
+      {
+        ok: false,
+        status: 400,
+        json: {
+          error: {
+            message: "An internal server error occurred. Please try again later.",
+            code: -1,
+            error_subcode: 2207085,
+            error_user_title: "Generic Internal Error",
+            error_user_msg: "An internal server error occurred. Please try again later.",
+            fbtrace_id: "trace_abc",
+          },
+        },
+      },
+      // Recovery: /me/media returns a matching post with a very recent timestamp
+      {
+        json: {
+          data: [
+            {
+              id: "recovered_media_id",
+              caption: "Hello world!",
+              timestamp: new Date().toISOString(),
+              permalink: "https://instagram.com/p/recovered",
+            },
+          ],
+        },
+      },
+    );
+    // Speed up the recovery wait for the test.
+    vi.spyOn(global, "setTimeout").mockImplementation(((fn: () => void) => {
+      fn();
+      return 0 as unknown as ReturnType<typeof setTimeout>;
+    }) as unknown as typeof setTimeout);
+    const { publishImagePost } = await import("@/lib/instagram/publish");
+    const result = await publishImagePost({
+      imageUrl: "https://x/i.jpg",
+      caption: "Hello world!",
+    });
+    expect(result).toEqual({
+      creationId: "container_2207085",
+      mediaId: "recovered_media_id",
+      permalink: "https://instagram.com/p/recovered",
+    });
+  });
+
+  it("publishImagePost re-throws when the caption is not found in recent media", async () => {
+    process.env.IG_RATE_LIMIT_MAX_RETRIES = "0";
+    fetchReturning(
+      { json: { id: "container_still_fails" } },
+      { json: { status_code: "FINISHED" } },
+      {
+        ok: false,
+        status: 400,
+        json: {
+          error: {
+            message: "An internal server error occurred.",
+            code: -1,
+            error_subcode: 2207085,
+            fbtrace_id: "trace_xyz",
+          },
+        },
+      },
+      // Recovery: recent media has no matching caption
+      {
+        json: {
+          data: [
+            {
+              id: "unrelated",
+              caption: "Some other post",
+              timestamp: new Date().toISOString(),
+              permalink: "https://instagram.com/p/other",
+            },
+          ],
+        },
+      },
+    );
+    vi.spyOn(global, "setTimeout").mockImplementation(((fn: () => void) => {
+      fn();
+      return 0 as unknown as ReturnType<typeof setTimeout>;
+    }) as unknown as typeof setTimeout);
+    const { publishImagePost, GraphApiError } = await import("@/lib/instagram/publish");
+    let caught: unknown;
+    try {
+      await publishImagePost({ imageUrl: "https://x/i.jpg", caption: "Definitely not there" });
+    } catch (e) {
+      caught = e;
+    }
+    // The re-thrown error should still carry the 2207085 subcode so callers
+    // can log it and surface diagnostic detail to the operator.
+    expect(caught).toBeInstanceOf(GraphApiError);
+    expect((caught as InstanceType<typeof GraphApiError>).subcode).toBe(2207085);
+  });
 });

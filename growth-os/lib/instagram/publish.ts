@@ -140,7 +140,7 @@ function graphErrorFrom(json: any, status: number): GraphApiError {
   });
 }
 
-async function graphPost(path: string, params: Record<string, string>): Promise<any> {
+export async function graphPost(path: string, params: Record<string, string>): Promise<any> {
   return withRateLimitRetry(async () => {
     const body = new URLSearchParams({ ...params, access_token: getIgAccessToken() });
     const res = await fetch(`${graphBase()}/${path}`, {
@@ -200,6 +200,95 @@ export async function getMediaPermalink(mediaId: string): Promise<string | null>
   }
 }
 
+// --- Publish-success verification --------------------------------------
+// Meta occasionally returns a generic internal error (code -1, subcode 2207085)
+// from POST /media_publish even when the post is actually created successfully
+// (their async worker acknowledges after the request has already errored).
+// This helper checks whether the caption we just tried to publish shows up in
+// the account's recent media within a short window — if so, treat as success.
+function shouldVerifyOnError(err: unknown): boolean {
+  if (!(err instanceof GraphApiError)) return false;
+  // 2207085 is the specific undocumented "Generic Internal Error" we've seen.
+  if (err.subcode === 2207085) return true;
+  // Meta also uses code -1 for the same class of transient publish failure.
+  if (err.code === -1) return true;
+  return false;
+}
+
+function normalizeCaption(s: string): string {
+  return s.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+// Look up the account's recent media and return one whose caption matches ours
+// AND whose timestamp is within `maxAgeSeconds` of now. Returns null if no match.
+export async function findRecentMediaByCaption(
+  caption: string,
+  opts: { limit?: number; maxAgeSeconds?: number } = {},
+): Promise<{ id: string; permalink: string | null; timestamp: string } | null> {
+  const limit = opts.limit ?? 5;
+  const maxAgeSeconds = opts.maxAgeSeconds ?? 300; // 5 minutes
+  const target = normalizeCaption(caption).slice(0, 200);
+  if (!target) return null;
+  let json: any;
+  try {
+    json = await graphGet(`${getIgUserId()}/media`, {
+      fields: "id,caption,timestamp,permalink",
+      limit: String(limit),
+    });
+  } catch {
+    return null;
+  }
+  const items = Array.isArray(json?.data) ? json.data : [];
+  const now = Date.now();
+  for (const item of items) {
+    const itemCaption = normalizeCaption(String(item?.caption ?? "")).slice(0, 200);
+    if (!itemCaption || itemCaption !== target) continue;
+    const ts = Date.parse(String(item?.timestamp ?? ""));
+    if (!Number.isFinite(ts)) continue;
+    if (now - ts > maxAgeSeconds * 1000) continue;
+    return {
+      id: String(item.id),
+      permalink: item.permalink ? String(item.permalink) : null,
+      timestamp: String(item.timestamp),
+    };
+  }
+  return null;
+}
+
+// Wrap a publish attempt: if it throws a Meta "generic internal error" that we
+// know can mask a successful publish, wait briefly and query for the post.
+// If found, return a synthetic PublishResult; otherwise re-throw the original.
+export async function withPublishVerification(
+  caption: string,
+  attempt: () => Promise<PublishResult>,
+  opts: { creationIdFallback?: string; waitMs?: number } = {},
+): Promise<PublishResult> {
+  try {
+    return await attempt();
+  } catch (err) {
+    if (!shouldVerifyOnError(err)) throw err;
+    // Give Meta's async worker a moment to finish, then look up recent media.
+    await sleep(opts.waitMs ?? 6000);
+    const recovered = await findRecentMediaByCaption(caption);
+    if (recovered) {
+      console.warn(
+        "[ig:publish] recovered from Meta generic error via caption match",
+        {
+          mediaId: recovered.id,
+          permalink: recovered.permalink,
+          originalError: err instanceof GraphApiError ? err.toDetail() : String(err),
+        },
+      );
+      return {
+        creationId: opts.creationIdFallback ?? "",
+        mediaId: recovered.id,
+        permalink: recovered.permalink,
+      };
+    }
+    throw err;
+  }
+}
+
 // Full convenience flow: container -> publish -> permalink.
 export async function publishImagePost(input: CreateContainerInput): Promise<PublishResult> {
   const creationId = await createMediaContainer(input);
@@ -214,7 +303,16 @@ export async function publishImagePost(input: CreateContainerInput): Promise<Pub
     // Not ready yet; wait before polling again (IN_PROGRESS).
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
-  const mediaId = await publishMediaContainer(creationId);
-  const permalink = await getMediaPermalink(mediaId);
-  return { creationId, mediaId, permalink };
+  // Wrap the final publish step with verification: Meta occasionally returns
+  // a generic internal error even when the post landed successfully; we recover
+  // by matching the caption against recent media on the account.
+  return withPublishVerification(
+    input.caption,
+    async () => {
+      const mediaId = await publishMediaContainer(creationId);
+      const permalink = await getMediaPermalink(mediaId);
+      return { creationId, mediaId, permalink };
+    },
+    { creationIdFallback: creationId },
+  );
 }
