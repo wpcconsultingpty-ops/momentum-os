@@ -5,37 +5,19 @@
 // Docs: https://developers.facebook.com/docs/instagram-api/guides/content-publishing
 // Server-only module: it reads IG_ACCESS_TOKEN. Never import from a client component.
 
-import { getGraphApiVersion, getIgAccessToken, getIgUserId } from "./env";
+import { getIgUserId } from "./env";
 import {
   getContainerStatus,
   publishMediaContainer,
   getMediaPermalink,
+  graphPost,
+  withPublishVerification,
   type PublishResult,
 } from "./publish";
 
 export interface CreateCarouselInput {
   imageUrls: string[]; // 2-10 slide image URLs, in display order
   caption: string;
-}
-
-function graphBase(): string {
-  return `https://graph.instagram.com/${getGraphApiVersion()}`;
-}
-
-async function graphPost(path: string, params: Record<string, string>): Promise<any> {
-  const body = new URLSearchParams({ ...params, access_token: getIgAccessToken() });
-  const res = await fetch(`${graphBase()}/${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
-    cache: "no-store",
-  });
-  const json = await res.json();
-  if (!res.ok || json.error) {
-    const message = json?.error?.message ?? `Graph API error (${res.status})`;
-    throw new Error(message);
-  }
-  return json;
 }
 
 // Step 1: create a single carousel child container from one image URL.
@@ -78,7 +60,17 @@ export async function publishCarouselPost(input: CreateCarouselInput): Promise<P
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
-  const mediaId = await publishMediaContainer(creationId);
-  const permalink = await getMediaPermalink(mediaId);
-  return { creationId, mediaId, permalink };
+  // Wrap the final publish step with verification: Meta occasionally returns
+  // a generic internal error (code -1, subcode 2207085) even when the carousel
+  // was actually created. We recover by matching the caption against recent
+  // media on the account.
+  return withPublishVerification(
+    input.caption,
+    async () => {
+      const mediaId = await publishMediaContainer(creationId);
+      const permalink = await getMediaPermalink(mediaId);
+      return { creationId, mediaId, permalink };
+    },
+    { creationIdFallback: creationId },
+  );
 }
