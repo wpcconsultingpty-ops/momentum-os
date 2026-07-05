@@ -124,7 +124,7 @@ export function summariseWeek(entries, profile = null) {
 
 // ---- Physical metrics (weight, BMI, alcohol) ---------------------------------
 
-function summarisePhysical(thisWeek, lastWeek, profile) {
+export function summarisePhysical(thisWeek, lastWeek, profile) {
   const out = {
     weight: null,     // { thisAvg, lastAvg, delta, latest, bmi }
     alcohol: null,    // { total, drinkingDays, correlation }
