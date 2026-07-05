@@ -4,6 +4,10 @@
   "type": "module",
   "dependencies": {
     "openai": "^5.0.0",
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.39.0",
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
