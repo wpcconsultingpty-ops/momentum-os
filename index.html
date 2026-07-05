@@ -1881,29 +1881,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               <input id="mood" type="range" min="1" max="10" value="7">
             </div>
             <div class="range-row">
-              <label for="energy"><span>Energy</span><span id="energyValue">7 / 10</span></label>
-              <input id="energy" type="range" min="1" max="10" value="7">
-            </div>
-            <div class="range-row">
-              <label for="stress"><span>Stress</span><span id="stressValue">5 / 10</span></label>
-              <input id="stress" type="range" min="1" max="10" value="5">
-            </div>
-            <div class="range-row">
               <label for="sleepQuality"><span>Sleep Quality</span><span id="sleepQualityValue">7 / 10</span></label>
               <input id="sleepQuality" type="range" min="1" max="10" value="7">
             </div>
             <div class="range-row">
-              <label for="hydration"><span>Hydration</span><span id="hydrationValue">7 / 10</span></label>
-              <input id="hydration" type="range" min="1" max="10" value="7">
+              <label for="energy"><span>Energy</span><span id="energyValue">7 / 10</span></label>
+              <input id="energy" type="range" min="1" max="10" value="7">
             </div>
-                      </div>
+          </div>
 
-          <!-- Body section: weight + alcohol (optional) -->
+          <details id="moreDetailDisclosure" style="margin-top:12px;">
+            <summary style="cursor:pointer;font-size:0.85rem;color:#6e776f;padding:6px 0;user-select:none;">Add more detail</summary>
+            <div class="range-list" style="margin-top:8px;">
+              <div class="range-row">
+                <label for="stress"><span>Stress</span><span id="stressValue">5 / 10</span></label>
+                <input id="stress" type="range" min="1" max="10" value="5">
+              </div>
+              <div class="range-row">
+                <label for="hydration"><span>Hydration</span><span id="hydrationValue">7 / 10</span></label>
+                <input id="hydration" type="range" min="1" max="10" value="7">
+              </div>
+            </div>
+          </details>
+
+          <!-- Body section: weight + alcohol (optional). Collapses to a summary row once logged. -->
           <h3 style="margin: 24px 0 8px; font-size: 1.1rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Body <span style="font-size:0.8rem;color:#6e776f;font-weight:400;">(optional)</span>
             <span id="bodySavedHint" style="display:none;font-size:0.72rem;color:#0c6a6f;font-weight:500;background:#e6f2f0;border:1px solid #b8d8d3;padding:2px 8px;border-radius:999px;">Saved today</span>
+            <button type="button" id="bodyEditBtn" style="display:none;font-size:0.72rem;color:#0c6a6f;background:transparent;border:1px solid #b8d8d3;padding:2px 8px;border-radius:999px;cursor:pointer;">Change</button>
             <button type="button" id="bodyClearBtn" style="display:none;font-size:0.72rem;color:#8b948b;background:transparent;border:1px solid #d5dbcf;padding:2px 8px;border-radius:999px;cursor:pointer;">Clear</button>
           </h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div id="bodySummary" style="display:none;font-size:0.9rem;color:#3a4238;background:#f4f6f2;border:1px solid #e2e7dd;padding:10px 12px;border-radius:8px;"></div>
+          <div id="bodyInputs" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
               <label for="weightInput" style="display:block;font-size:0.85rem;color:#6e776f;margin-bottom:4px;">Weight <span id="weightUnitLabel">(kg)</span></label>
               <input id="weightInput" type="number" step="0.1" min="20" max="500" placeholder="—" style="width:100%;padding:8px 10px;border:1px solid #d5dbcf;border-radius:8px;font-size:1rem;">
@@ -1921,7 +1929,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
           <div class="button-row">
             <button class="btn btn-primary" id="saveHealthBtn">Save Morning Entry</button>
-            <span class="foot-note" id="saveHealthStatus">Not saved yet</span>
           </div>
         </div>
       </section>
@@ -2553,10 +2560,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       };
 
       try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
-      document.getElementById('saveHealthStatus').textContent = 'Saved! Nice momentum.';
-      setTimeout(() => {
-        document.getElementById('saveHealthStatus').textContent = 'Saved! Nice momentum.';
-      }, 3000);
+      // (saveHealthStatus removed - the "Saved today" chip + Body summary already signal success.)
     }
 
     function savePersonalData() {
@@ -2714,9 +2718,31 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       }
       return null;
     }
+    // Pure formatter (unit-testable): produce the collapsed body-summary string.
+    // Returns '' when nothing is logged.
+    function formatBodySummary(todayEntry, unit) {
+      if (!todayEntry) return '';
+      const parts = [];
+      const kg = Number(todayEntry.weightKg);
+      if (todayEntry.weightKg != null && Number.isFinite(kg)) {
+        if (unit === 'lb') {
+          parts.push(`${(+(kg * 2.20462).toFixed(1))} lb`);
+        } else {
+          parts.push(`${(+kg.toFixed(1))} kg`);
+        }
+      }
+      const drinks = Number(todayEntry.alcoholDrinks);
+      if (todayEntry.alcoholDrinks != null && Number.isFinite(drinks)) {
+        if (drinks === 0) parts.push('no drinks');
+        else if (drinks === 1) parts.push('1 drink');
+        else parts.push(`${drinks} drinks`);
+      }
+      return parts.join(' · ');
+    }
     if (typeof window !== 'undefined') {
       window.__momentumDaily = window.__momentumDaily || {};
       window.__momentumDaily.pickTodayEntry = pickTodayEntry;
+      window.__momentumDaily.formatBodySummary = formatBodySummary;
     }
 
     function hydrateTodayInputs() {
@@ -2724,6 +2750,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const aEl = document.getElementById('alcoholInput');
       const hint = document.getElementById('bodySavedHint');
       const clearBtn = document.getElementById('bodyClearBtn');
+      const editBtn = document.getElementById('bodyEditBtn');
+      const summaryEl = document.getElementById('bodySummary');
+      const inputsEl = document.getElementById('bodyInputs');
       if (!wEl && !aEl) return; // check-in view not mounted yet
 
       let entries = [];
@@ -2755,6 +2784,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const anySaved = hasWeight || hasAlcohol;
       if (hint) hint.style.display = anySaved ? 'inline-flex' : 'none';
       if (clearBtn) clearBtn.style.display = anySaved ? 'inline-flex' : 'none';
+
+      // Collapse the inputs into a summary row once anything is logged.
+      // Respect the user's 'edit mode' preference within this session.
+      const editMode = inputsEl && inputsEl.dataset.editMode === '1';
+      if (anySaved && !editMode) {
+        const summaryText = formatBodySummary(today, window.momentumWeightUnit || 'kg');
+        if (summaryEl) { summaryEl.textContent = summaryText; summaryEl.style.display = 'block'; }
+        if (inputsEl) inputsEl.style.display = 'none';
+        if (editBtn) editBtn.style.display = 'inline-flex';
+      } else {
+        if (summaryEl) summaryEl.style.display = 'none';
+        if (inputsEl) inputsEl.style.display = 'grid';
+        if (editBtn) editBtn.style.display = 'none';
+      }
     }
     if (typeof window !== 'undefined') {
       window.hydrateTodayInputs = hydrateTodayInputs;
@@ -2769,30 +2812,42 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       hydrateTodayInputs();
     }
 
-    // Wire Clear button (delegated - element may not exist at script parse time)
+    // Wire Clear + Change buttons (delegated - elements may not exist at script parse time)
     document.addEventListener('click', function(ev) {
       const t = ev.target;
-      if (!t || t.id !== 'bodyClearBtn') return;
-      const wEl = document.getElementById('weightInput');
-      const aEl = document.getElementById('alcoholInput');
-      if (wEl) { wEl.value = ''; wEl.dataset.hydratedFor = 'user'; }
-      if (aEl) aEl.value = '';
-      // Also strip today's weight/alcohol from the stored entry so it doesn't rehydrate
-      try {
-        const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
-        const today = pickTodayEntry(entries, new Date());
-        if (today) {
-          today.weightKg = null;
-          today.alcoholDrinks = null;
-          localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
-          try { syncEntryToSupabase(today); } catch (_e) { /* fire-and-forget */ }
-        }
-      } catch (_e) { console.warn('clear body values failed', _e); }
-      const hint = document.getElementById('bodySavedHint');
-      const clearBtn = document.getElementById('bodyClearBtn');
-      if (hint) hint.style.display = 'none';
-      if (clearBtn) clearBtn.style.display = 'none';
-      try { updateAllViews(); } catch(_e) {}
+      if (!t) return;
+
+      // Change: expand the collapsed summary back into editable inputs
+      if (t.id === 'bodyEditBtn') {
+        const inputsEl = document.getElementById('bodyInputs');
+        if (inputsEl) inputsEl.dataset.editMode = '1';
+        hydrateTodayInputs();
+        setTimeout(() => { const w = document.getElementById('weightInput'); if (w) w.focus(); }, 0);
+        return;
+      }
+
+      // Clear: wipe today's weight/alcohol and re-sync the null
+      if (t.id === 'bodyClearBtn') {
+        const wEl = document.getElementById('weightInput');
+        const aEl = document.getElementById('alcoholInput');
+        if (wEl) { wEl.value = ''; wEl.dataset.hydratedFor = 'user'; }
+        if (aEl) aEl.value = '';
+        try {
+          const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+          const today = pickTodayEntry(entries, new Date());
+          if (today) {
+            today.weightKg = null;
+            today.alcoholDrinks = null;
+            localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
+            try { syncEntryToSupabase(today); } catch (_e) { /* fire-and-forget */ }
+          }
+        } catch (_e) { console.warn('clear body values failed', _e); }
+        const inputsEl = document.getElementById('bodyInputs');
+        if (inputsEl) delete inputsEl.dataset.editMode;
+        hydrateTodayInputs();
+        try { updateAllViews(); } catch(_e) {}
+        return;
+      }
     });
 
     // ---- Profile modal (one-time capture of height/sex/dob + weight unit) ----
