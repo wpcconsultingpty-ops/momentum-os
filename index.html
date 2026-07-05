@@ -1899,7 +1899,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                       </div>
 
           <!-- Body section: weight + alcohol (optional) -->
-          <h3 style="margin: 24px 0 8px; font-size: 1.1rem;">Body <span style="font-size:0.8rem;color:#6e776f;font-weight:400;">(optional)</span></h3>
+          <h3 style="margin: 24px 0 8px; font-size: 1.1rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Body <span style="font-size:0.8rem;color:#6e776f;font-weight:400;">(optional)</span>
+            <span id="bodySavedHint" style="display:none;font-size:0.72rem;color:#0c6a6f;font-weight:500;background:#e6f2f0;border:1px solid #b8d8d3;padding:2px 8px;border-radius:999px;">Saved today</span>
+            <button type="button" id="bodyClearBtn" style="display:none;font-size:0.72rem;color:#8b948b;background:transparent;border:1px solid #d5dbcf;padding:2px 8px;border-radius:999px;cursor:pointer;">Clear</button>
+          </h3>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
               <label for="weightInput" style="display:block;font-size:0.85rem;color:#6e776f;margin-bottom:4px;">Weight <span id="weightUnitLabel">(kg)</span></label>
@@ -2258,7 +2261,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
     // Initialize app
     document.addEventListener('DOMContentLoaded', () => {
-      var _safe=function(fn,n){try{fn();}catch(e){console.error('init step failed: '+n,e);}};_safe(setupEventListeners,'setupEventListeners');_safe(initializeApp,'initializeApp');_safe(showWelcome,'showWelcome');_safe(loadCurrentData,'loadCurrentData');_safe(updateAllViews,'updateAllViews');
+      var _safe=function(fn,n){try{fn();}catch(e){console.error('init step failed: '+n,e);}};_safe(setupEventListeners,'setupEventListeners');_safe(initializeApp,'initializeApp');_safe(showWelcome,'showWelcome');_safe(loadCurrentData,'loadCurrentData');_safe(updateAllViews,'updateAllViews');_safe(function(){ try { if (typeof hydrateTodayInputs === 'function') hydrateTodayInputs(); } catch(e){} },'hydrateTodayInputs');
     });
 
     function getDayPhase() {   var h = new Date().getHours();   return h < 12 ? 'morning' : 'evening'; } function sessionKey(kind) {   var d = new Date();   var ymd = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();   return 'momentum_session_' + kind + '_' + ymd; } function isSessionComplete(kind) {   try { return localStorage.getItem(sessionKey(kind)) === '1'; } catch(e) { return false; } } function markSessionComplete(kind) {   try { localStorage.setItem(sessionKey(kind), '1'); } catch(e) {}   try { renderSessionCards(); } catch(e) {} } function startSession(kind) {   switchView(kind === 'morning' ? 'health' : 'personal'); } function renderSessionCards() {   var el = document.getElementById('sessionCards');   if (!el) return;   var phase = getDayPhase();   var mDone = isSessionComplete('morning');   var eDone = isSessionComplete('evening');   function card(kind, title, sub) {     var done = kind === 'morning' ? mDone : eDone;     var active = (phase === kind) && !done;     var statusCls = done ? 'done' : 'todo';     var statusTxt = done ? 'Complete' : (active ? 'Ready' : 'Not started');     var btnTxt = done ? 'Review again' : (kind === 'morning' ? 'Start morning entry' : 'Open evening review');     return '<div class="session-card ' + (active ? 'is-active' : '') + '">' +       '<div class="sc-title">' + title + '</div>' +       '<div class="sc-sub">' + sub + '</div>' +       '<div class="sc-status ' + statusCls + '">' + statusTxt + '</div>' +       '<button class="sc-btn" onclick="startSession(\'' + kind + '\')">' + btnTxt + '</button>' +       '</div>';   }   el.innerHTML = card('morning', 'Morning entry', 'Energy, focus, readiness') +                  card('evening', 'Evening review', 'Review, reflection, reset'); } function initializeApp() {
@@ -2370,6 +2373,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function switchView(viewId) { try { updateAllViews(); } catch(_e) { console.error('refresh on switchView failed', _e); }
+      try { if (typeof hydrateTodayInputs === 'function') hydrateTodayInputs(); } catch(_e) { /* non-fatal */ }
           const mainEl = document.querySelector('.main');
     if (mainEl) mainEl.scrollTop = 0;
     window.scrollTo(0, 0);
@@ -2608,6 +2612,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
       localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries)); try { updateAllViews(); } catch(e){ console.error('updateAllViews failed', e); }
 
+      // Reflect "Saved today" chip + keep inputs in sync with what was just saved
+      try { if (typeof hydrateTodayInputs === 'function') hydrateTodayInputs(); } catch(e) { /* non-fatal */ }
+
       // Sync-on-write: push to Supabase so Sunday briefs work
       try { syncEntryToSupabase(todayEntry || entries[entries.length - 1]); } catch(e) { console.warn('syncEntryToSupabase failed', e); }
       try { ensureUserPrefs(); } catch(e) { console.warn('ensureUserPrefs failed', e); }
@@ -2670,6 +2677,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       // Expose weight-unit preference for saveHealthData
       window.momentumWeightUnit = prefs.weight_unit || 'kg';
       updateWeightUnitLabel();
+      try { hydrateTodayInputs(); } catch(_e) { /* non-fatal */ }
 
       // Expose profile (height/sex/dob) so buildPhysicalSignals can compute BMI
       window.momentumProfile = {
@@ -2690,6 +2698,102 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const lbl = document.getElementById('weightUnitLabel');
       if (lbl) lbl.textContent = window.momentumWeightUnit === 'lb' ? '(lb)' : '(kg)';
     }
+
+    // ---- Daily-input persistence: prefill today's weight/alcohol so it "remembers" the value ----
+    // Pure helper (unit-testable): given entries and a reference Date, returns today's entry or null.
+    function pickTodayEntry(entries, now) {
+      if (!Array.isArray(entries) || entries.length === 0) return null;
+      const ref = (now instanceof Date) ? now : new Date();
+      const key = ref.toDateString();
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const e = entries[i];
+        if (!e || !e.date) continue;
+        const d = new Date(e.date);
+        if (isNaN(d.getTime())) continue;
+        if (d.toDateString() === key) return e;
+      }
+      return null;
+    }
+    if (typeof window !== 'undefined') {
+      window.__momentumDaily = window.__momentumDaily || {};
+      window.__momentumDaily.pickTodayEntry = pickTodayEntry;
+    }
+
+    function hydrateTodayInputs() {
+      const wEl = document.getElementById('weightInput');
+      const aEl = document.getElementById('alcoholInput');
+      const hint = document.getElementById('bodySavedHint');
+      const clearBtn = document.getElementById('bodyClearBtn');
+      if (!wEl && !aEl) return; // check-in view not mounted yet
+
+      let entries = [];
+      try { entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); } catch (_e) { entries = []; }
+      const today = pickTodayEntry(entries, new Date());
+
+      const hasWeight = !!(today && today.weightKg != null && Number.isFinite(Number(today.weightKg)));
+      const hasAlcohol = !!(today && today.alcoholDrinks != null && Number.isFinite(Number(today.alcoholDrinks)));
+
+      if (wEl) {
+        // Only fill if the field is empty (don't clobber a value the user is currently typing)
+        if (hasWeight && wEl.value === '') {
+          const kg = Number(today.weightKg);
+          const display = (window.momentumWeightUnit === 'lb') ? +(kg * 2.20462).toFixed(1) : +kg.toFixed(1);
+          wEl.value = String(display);
+        } else if (!hasWeight && wEl.dataset.hydratedFor && wEl.dataset.hydratedFor !== 'user') {
+          // Previously hydrated but today's entry no longer has weight - clear it
+          wEl.value = '';
+        }
+        wEl.dataset.hydratedFor = hasWeight ? (window.momentumWeightUnit || 'kg') : '';
+      }
+
+      if (aEl) {
+        if (hasAlcohol && aEl.value === '') {
+          aEl.value = String(Number(today.alcoholDrinks));
+        }
+      }
+
+      const anySaved = hasWeight || hasAlcohol;
+      if (hint) hint.style.display = anySaved ? 'inline-flex' : 'none';
+      if (clearBtn) clearBtn.style.display = anySaved ? 'inline-flex' : 'none';
+    }
+    if (typeof window !== 'undefined') {
+      window.hydrateTodayInputs = hydrateTodayInputs;
+    }
+
+    // Re-hydrate when unit preference changes so kg↔lb display stays correct
+    function rehydrateOnUnitChange() {
+      const wEl = document.getElementById('weightInput');
+      if (wEl) { wEl.value = ''; wEl.dataset.hydratedFor = ''; }
+      const aEl = document.getElementById('alcoholInput');
+      if (aEl) aEl.value = '';
+      hydrateTodayInputs();
+    }
+
+    // Wire Clear button (delegated - element may not exist at script parse time)
+    document.addEventListener('click', function(ev) {
+      const t = ev.target;
+      if (!t || t.id !== 'bodyClearBtn') return;
+      const wEl = document.getElementById('weightInput');
+      const aEl = document.getElementById('alcoholInput');
+      if (wEl) { wEl.value = ''; wEl.dataset.hydratedFor = 'user'; }
+      if (aEl) aEl.value = '';
+      // Also strip today's weight/alcohol from the stored entry so it doesn't rehydrate
+      try {
+        const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+        const today = pickTodayEntry(entries, new Date());
+        if (today) {
+          today.weightKg = null;
+          today.alcoholDrinks = null;
+          localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
+          try { syncEntryToSupabase(today); } catch (_e) { /* fire-and-forget */ }
+        }
+      } catch (_e) { console.warn('clear body values failed', _e); }
+      const hint = document.getElementById('bodySavedHint');
+      const clearBtn = document.getElementById('bodyClearBtn');
+      if (hint) hint.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'none';
+      try { updateAllViews(); } catch(_e) {}
+    });
 
     // ---- Profile modal (one-time capture of height/sex/dob + weight unit) ----
     function openProfileModal(existingPrefs) {
@@ -2757,6 +2861,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           if (error) throw error;
           window.momentumWeightUnit = u;
           updateWeightUnitLabel();
+          try { rehydrateOnUnitChange(); } catch(_e) { /* non-fatal */ }
           window.momentumProfile = { height_cm: h, sex: s, dob: d, weight_unit: u };
           status.style.color = '#0c6a6f';
           status.textContent = 'Saved. Thanks.';
