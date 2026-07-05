@@ -38,7 +38,7 @@ function avg(arr) {
   return arr.reduce((s, v) => s + v, 0) / arr.length;
 }
 
-export function summariseWeek(entries) {
+export function summariseWeek(entries, profile = null) {
   const sorted = entries.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
   const thisWeek = sorted.slice(-7);
   const lastWeek = sorted.slice(-14, -7);
@@ -105,6 +105,9 @@ export function summariseWeek(entries) {
     .filter(Boolean)
     .slice(-5);
 
+  // ---- Physical metrics: weight trend + BMI + alcohol correlation --------
+  const physical = summarisePhysical(thisWeek, lastWeek, profile);
+
   return {
     daysLogged,
     thisWeekEntries: thisWeek.length,
@@ -115,7 +118,91 @@ export function summariseWeek(entries) {
     wentDark: wentDark.slice(0, 3),
     topTriggers,
     journalNotes,
+    physical,
   };
+}
+
+// ---- Physical metrics (weight, BMI, alcohol) ---------------------------------
+
+function summarisePhysical(thisWeek, lastWeek, profile) {
+  const out = {
+    weight: null,     // { thisAvg, lastAvg, delta, latest, bmi }
+    alcohol: null,    // { total, drinkingDays, correlation }
+  };
+
+  // Weight — average of logged values in each 7-day window
+  const thisWeights = thisWeek.map(e => toNumber(e.weightKg)).filter(v => v !== null && v > 0);
+  const lastWeights = lastWeek.map(e => toNumber(e.weightKg)).filter(v => v !== null && v > 0);
+  if (thisWeights.length) {
+    const thisAvg = avg(thisWeights);
+    const lastAvg = lastWeights.length ? avg(lastWeights) : null;
+    // Latest = last logged value in the week
+    const withDates = thisWeek
+      .map(e => ({ d: e.date, w: toNumber(e.weightKg) }))
+      .filter(x => x.w !== null && x.w > 0)
+      .sort((a, b) => new Date(a.d) - new Date(b.d));
+    const latest = withDates.length ? withDates[withDates.length - 1].w : thisAvg;
+
+    const heightCm = profile && toNumber(profile.height_cm);
+    let bmi = null;
+    if (heightCm && heightCm > 50) {
+      const m = heightCm / 100;
+      bmi = latest / (m * m);
+    }
+
+    out.weight = {
+      thisAvg: +thisAvg.toFixed(1),
+      lastAvg: lastAvg !== null ? +lastAvg.toFixed(1) : null,
+      delta: lastAvg !== null ? +(thisAvg - lastAvg).toFixed(1) : null,
+      latest: +latest.toFixed(1),
+      bmi: bmi !== null ? +bmi.toFixed(1) : null,
+      daysLogged: thisWeights.length,
+    };
+  }
+
+  // Alcohol — total drinks + correlation with sleep on drinking days
+  const withAlcohol = thisWeek.map(e => ({
+    drinks: toNumber(e.alcoholDrinks),
+    sleep: toNumber(e.sleepQuality),
+    mood: toNumber(e.mood),
+  })).filter(x => x.drinks !== null);
+
+  if (withAlcohol.length) {
+    const total = withAlcohol.reduce((s, x) => s + x.drinks, 0);
+    const drinkingDays = withAlcohol.filter(x => x.drinks > 0);
+    const dryDays = withAlcohol.filter(x => x.drinks === 0);
+
+    let correlation = null;
+    if (drinkingDays.length >= 2 && dryDays.length >= 2) {
+      const dSleep = drinkingDays.map(x => x.sleep).filter(v => v !== null);
+      const dryS = dryDays.map(x => x.sleep).filter(v => v !== null);
+      if (dSleep.length && dryS.length) {
+        const dSleepAvg = avg(dSleep);
+        const drySAvg = avg(dryS);
+        const gap = +(drySAvg - dSleepAvg).toFixed(1);
+        if (Math.abs(gap) >= 0.8) {
+          correlation = {
+            metric: "sleep",
+            drinkingAvg: +dSleepAvg.toFixed(1),
+            dryAvg: +drySAvg.toFixed(1),
+            gap,
+            drinkingDayCount: drinkingDays.length,
+            dryDayCount: dryDays.length,
+          };
+        }
+      }
+    }
+
+    out.alcohol = {
+      total,
+      drinkingDays: drinkingDays.length,
+      dryDays: dryDays.length,
+      daysLogged: withAlcohol.length,
+      correlation,
+    };
+  }
+
+  return out;
 }
 
 // ---- Streak stats (server-side twin of client getStreakStats) -------------
@@ -197,6 +284,7 @@ VOICE:
 - Frame the week as a debrief on an operation, not a wellness check-in.
 - Never guilt-trip about missed days. Note gaps as facts.
 - Use the user's actual numbers when they add signal. Never fabricate numbers.
+- If physical metrics are present (weight/BMI/alcohol), weave them into the moved or held bullets naturally. If alcohol correlated with worse sleep, name it. If weight moved meaningfully, name it in kg.
 
 OUTPUT SHAPE (JSON):
 - title: short brief title (e.g. "Week 27 debrief")
@@ -232,9 +320,40 @@ const BRIEF_SCHEMA = {
 };
 
 export function fallbackBrief(summary, streak) {
-  const moved = summary.moved.length ? summary.moved : ["Not enough movement to call out — a quieter week."];
+  const moved = summary.moved.slice();
   const held = summary.held.length ? summary.held : ["Nothing held long enough to name."];
   const wentDark = summary.wentDark;
+
+  // Inject physical-metrics bullets into moved/held
+  const phys = summary.physical || {};
+  if (phys.weight) {
+    const w = phys.weight;
+    if (w.delta !== null && Math.abs(w.delta) >= 0.3) {
+      const dir = w.delta > 0 ? "up" : "down";
+      const arrow = w.delta > 0 ? "↑" : "↓";
+      moved.unshift(`${arrow} weight ${dir} ${w.delta > 0 ? "+" : ""}${w.delta.toFixed(1)}kg (now ${w.latest}kg${w.bmi ? `, BMI ${w.bmi}` : ""})`);
+    } else if (w.delta !== null) {
+      held.unshift(`weight held at ${w.latest}kg${w.bmi ? ` (BMI ${w.bmi})` : ""}`);
+    } else {
+      held.unshift(`weight ${w.latest}kg${w.bmi ? ` (BMI ${w.bmi})` : ""}`);
+    }
+  }
+  if (phys.alcohol && phys.alcohol.daysLogged >= 3) {
+    const a = phys.alcohol;
+    const label = a.total === 0
+      ? `0 drinks logged across ${a.daysLogged}/7 days`
+      : `${a.total} drink${a.total === 1 ? "" : "s"} across ${a.drinkingDays}/${a.daysLogged} day${a.daysLogged === 1 ? "" : "s"}`;
+    if (a.correlation) {
+      const c = a.correlation;
+      moved.unshift(`alcohol ${label}. Sleep averaged ${c.drinkingAvg} on drinking days vs ${c.dryAvg} on dry days.`);
+    } else if (a.total > 0) {
+      held.unshift(`alcohol: ${label}`);
+    } else {
+      held.unshift(`alcohol: ${label}`);
+    }
+  }
+
+  const movedFinal = moved.length ? moved : ["Not enough movement to call out — a quieter week."];
 
   const tryThese = [];
   if (summary.stats.sleepQuality && summary.stats.sleepQuality.thisAvg !== null && summary.stats.sleepQuality.thisAvg < 6) {
@@ -261,17 +380,29 @@ export function fallbackBrief(summary, streak) {
   }
   while (askCoach.length < 3) askCoach.push({ context: "General direction check.", prompt: "Looking at this week, what's the single change that would move the most needles?" });
 
+  // Alcohol-specific try-these + ask-coach
+  if (phys.alcohol && phys.alcohol.correlation) {
+    const c = phys.alcohol.correlation;
+    if (c.gap > 0) {
+      tryThese.unshift({ action: "Pick two dry nights before Friday", why: `Sleep ran ${c.gap} points lower on drinking days (${c.drinkingAvg} vs ${c.dryAvg}). Two locked-in dry nights lifts the weekly floor.` });
+    }
+    askCoach.unshift({ context: `Sleep dropped ${c.gap} on drinking days.`, prompt: `Alcohol correlated with worse sleep this week. What's a realistic weekly cap I should try?` });
+  }
+  if (phys.weight && phys.weight.delta !== null && phys.weight.delta > 0.5) {
+    askCoach.unshift({ context: `Weight climbed ${phys.weight.delta.toFixed(1)}kg this week.`, prompt: `Weight is trending up. Where's the leak — food, alcohol, or step count?` });
+  }
+
   return {
     title: "Weekly brief",
     headline: `You logged ${summary.daysLogged} of 7 days. ${moved.length ? "Some things moved." : "The week held steady."} ${streak.current ? `Streak: ${streak.current}.` : ""}`.trim(),
-    moved, held, wentDark,
+    moved: movedFinal, held, wentDark,
     tryThese: tryThese.slice(0, 3),
     askCoach: askCoach.slice(0, 3),
   };
 }
 
-export async function generateBrief(entries, streak) {
-  const summary = summariseWeek(entries);
+export async function generateBrief(entries, streak, profile = null) {
+  const summary = summariseWeek(entries, profile);
   const briefDate = new Date();
   const day = briefDate.getUTCDay();
   if (day !== 0) briefDate.setUTCDate(briefDate.getUTCDate() - day);
@@ -337,5 +468,6 @@ export function rowToEntry(row) {
     desire: row.desire, stress: row.stress, urge: row.urge,
     healthScore: row.health_score, personalScore: row.personal_score, overallScore: row.overall_score,
     notes: row.notes, tomorrowFocus: row.tomorrow_focus,
+    weightKg: row.weight_kg, alcoholDrinks: row.alcohol_drinks,
   };
 }

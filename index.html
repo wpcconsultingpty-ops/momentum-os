@@ -1796,6 +1796,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               <input id="hydration" type="range" min="1" max="10" value="7">
             </div>
                       </div>
+
+          <!-- Body section: weight + alcohol (optional) -->
+          <h3 style="margin: 24px 0 8px; font-size: 1.1rem;">Body <span style="font-size:0.8rem;color:#6e776f;font-weight:400;">(optional)</span></h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label for="weightInput" style="display:block;font-size:0.85rem;color:#6e776f;margin-bottom:4px;">Weight <span id="weightUnitLabel">(kg)</span></label>
+              <input id="weightInput" type="number" step="0.1" min="20" max="500" placeholder="—" style="width:100%;padding:8px 10px;border:1px solid #d5dbcf;border-radius:8px;font-size:1rem;">
+            </div>
+            <div>
+              <label for="alcoholInput" style="display:block;font-size:0.85rem;color:#6e776f;margin-bottom:4px;">Alcohol (drinks yesterday)</label>
+              <input id="alcoholInput" type="number" step="1" min="0" max="30" placeholder="0" style="width:100%;padding:8px 10px;border:1px solid #d5dbcf;border-radius:8px;font-size:1rem;">
+              <div style="font-size:0.72rem;color:#8b948b;margin-top:4px;">1 beer / 1 glass wine / 1 shot ≈ 1 drink</div>
+            </div>
+          </div>
+
           <h3 style="margin: 24px 0 8px; font-size: 1.1rem;">Focus for today</h3>
           <p>What are the main things you want to focus on today?</p>
           <textarea id="morningFocus" placeholder="What are the main things you want to focus on today?"></textarea>
@@ -2405,6 +2420,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       
 
     function saveHealthData() {
+      // Physical metrics — optional. Convert lb->kg on the fly if user pref is lb.
+      const wRaw = (document.getElementById('weightInput')||{}).value;
+      let weightKg = null;
+      if (wRaw !== '' && wRaw !== undefined && wRaw !== null) {
+        const wNum = parseFloat(wRaw);
+        if (Number.isFinite(wNum) && wNum > 0) {
+          weightKg = (window.momentumWeightUnit === 'lb') ? +(wNum * 0.45359237).toFixed(2) : wNum;
+        }
+      }
+      const aRaw = (document.getElementById('alcoholInput')||{}).value;
+      const alcoholDrinks = (aRaw === '' || aRaw === undefined || aRaw === null) ? null : Math.max(0, Math.min(30, parseInt(aRaw) || 0));
+
       const entry = {
         date: new Date().toISOString(),
         healthScore: calculateHealthScore(),
@@ -2415,7 +2442,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         exercise: parseInt((document.getElementById('exercise')||{value:5}).value),
         nutrition: parseInt((document.getElementById('nutrition')||{value:5}).value),
         hydration: parseInt((document.getElementById('hydration')||{value:5}).value),
-        recovery: parseInt((document.getElementById('recovery')||{value:5}).value)
+        recovery: parseInt((document.getElementById('recovery')||{value:5}).value),
+        weightKg: weightKg,
+        alcoholDrinks: alcoholDrinks
       };
 
       try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
@@ -2510,6 +2539,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         overall_score: numOrNull(entry.overallScore),
         notes: entry.notes || null,
         tomorrow_focus: entry.tomorrowFocus || null,
+        weight_kg: numOrNull(entry.weightKg),
+        alcohol_drinks: numOrNull(entry.alcoholDrinks),
       };
       const { error } = await window.db.from('daily_entries').upsert(payload, { onConflict: 'user_id,entry_date' });
       if (error) console.warn('daily_entries upsert failed', error);
@@ -2520,14 +2551,117 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const user = window.currentUser;
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
       // Try to fetch existing; if not present, insert with defaults
-      const { data, error } = await window.db.from('user_prefs').select('user_id,timezone').eq('user_id', user.id).maybeSingle();
+      const { data, error } = await window.db.from('user_prefs')
+        .select('user_id,timezone,height_cm,sex,dob,weight_unit')
+        .eq('user_id', user.id).maybeSingle();
       if (error && error.code !== 'PGRST116') { console.warn('user_prefs read failed', error); return; }
-      if (!data) {
-        await window.db.from('user_prefs').insert({ user_id: user.id, timezone: tz });
-      } else if (data.timezone !== tz) {
-        // Keep timezone fresh in case user travels
+      let prefs = data;
+      if (!prefs) {
+        const { data: inserted } = await window.db.from('user_prefs')
+          .insert({ user_id: user.id, timezone: tz })
+          .select('user_id,timezone,height_cm,sex,dob,weight_unit')
+          .maybeSingle();
+        prefs = inserted || { user_id: user.id, timezone: tz };
+      } else if (prefs.timezone !== tz) {
         await window.db.from('user_prefs').update({ timezone: tz }).eq('user_id', user.id);
       }
+
+      // Expose weight-unit preference for saveHealthData
+      window.momentumWeightUnit = prefs.weight_unit || 'kg';
+      updateWeightUnitLabel();
+
+      // If profile fields (height + sex + dob) are missing, prompt inline
+      if (!prefs.height_cm || !prefs.sex || !prefs.dob) {
+        // Delay slightly so the DOM is ready and the user sees the app first
+        setTimeout(() => { try { openProfileModal(prefs); } catch(e) { console.warn('openProfileModal failed', e); } }, 800);
+      }
+    }
+
+    function updateWeightUnitLabel() {
+      const lbl = document.getElementById('weightUnitLabel');
+      if (lbl) lbl.textContent = window.momentumWeightUnit === 'lb' ? '(lb)' : '(kg)';
+    }
+
+    // ---- Profile modal (one-time capture of height/sex/dob + weight unit) ----
+    function openProfileModal(existingPrefs) {
+      if (document.getElementById('profileModalBackdrop')) return; // already open
+      const backdrop = document.createElement('div');
+      backdrop.id = 'profileModalBackdrop';
+      backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(15,25,20,0.6);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;';
+      backdrop.innerHTML = `
+        <div style="background:#fff;max-width:480px;width:100%;border-radius:16px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:#0c6a6f;font-weight:700;margin-bottom:8px;">One-time setup</div>
+          <h2 style="margin:0 0 6px;font-size:1.4rem;">Complete your profile</h2>
+          <p style="margin:0 0 20px;color:#6e776f;font-size:0.9rem;">Used for BMI trend + smarter Sunday briefs. Takes 20 seconds. You can update these anytime.</p>
+          <div style="display:grid;gap:14px;">
+            <div>
+              <label style="display:block;font-size:0.85rem;color:#6e776f;margin-bottom:4px;">Height (cm)</label>
+              <input id="profileHeight" type="number" step="1" min="100" max="250" value="${existingPrefs && existingPrefs.height_cm || ''}" placeholder="e.g. 178" style="width:100%;padding:10px 12px;border:1px solid #d5dbcf;border-radius:8px;font-size:1rem;">
+            </div>
+            <div>
+              <label style="display:block;font-size:0.85rem;color:#6e776f;margin-bottom:4px;">Sex</label>
+              <select id="profileSex" style="width:100%;padding:10px 12px;border:1px solid #d5dbcf;border-radius:8px;font-size:1rem;background:#fff;">
+                <option value="">Select…</option>
+                <option value="M" ${existingPrefs && existingPrefs.sex === 'M' ? 'selected' : ''}>Male</option>
+                <option value="F" ${existingPrefs && existingPrefs.sex === 'F' ? 'selected' : ''}>Female</option>
+                <option value="other" ${existingPrefs && existingPrefs.sex === 'other' ? 'selected' : ''}>Other / prefer not to say</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:0.85rem;color:#6e776f;margin-bottom:4px;">Date of birth</label>
+              <input id="profileDob" type="date" value="${existingPrefs && existingPrefs.dob || ''}" max="${new Date().toISOString().slice(0,10)}" style="width:100%;padding:10px 12px;border:1px solid #d5dbcf;border-radius:8px;font-size:1rem;">
+            </div>
+            <div>
+              <label style="display:block;font-size:0.85rem;color:#6e776f;margin-bottom:4px;">Weight unit preference</label>
+              <div style="display:flex;gap:8px;">
+                <label style="flex:1;display:flex;align-items:center;justify-content:center;padding:10px;border:1px solid #d5dbcf;border-radius:8px;cursor:pointer;background:${(!existingPrefs || existingPrefs.weight_unit !== 'lb') ? '#e6f2f3' : '#fff'};"><input type="radio" name="profileWeightUnit" value="kg" ${(!existingPrefs || existingPrefs.weight_unit !== 'lb') ? 'checked' : ''} style="margin-right:6px;">kg</label>
+                <label style="flex:1;display:flex;align-items:center;justify-content:center;padding:10px;border:1px solid #d5dbcf;border-radius:8px;cursor:pointer;background:${(existingPrefs && existingPrefs.weight_unit === 'lb') ? '#e6f2f3' : '#fff'};"><input type="radio" name="profileWeightUnit" value="lb" ${(existingPrefs && existingPrefs.weight_unit === 'lb') ? 'checked' : ''} style="margin-right:6px;">lb</label>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:24px;">
+            <button id="profileSkipBtn" style="padding:10px 18px;border:1px solid #d5dbcf;background:#fff;border-radius:8px;color:#6e776f;font-weight:500;cursor:pointer;">Skip for now</button>
+            <button id="profileSaveBtn" style="flex:1;padding:10px 18px;border:none;background:#0c6a6f;color:#fff;border-radius:8px;font-weight:600;cursor:pointer;">Save profile</button>
+          </div>
+          <div id="profileSaveStatus" style="font-size:0.8rem;color:#6e776f;margin-top:10px;text-align:center;min-height:16px;"></div>
+        </div>`;
+      document.body.appendChild(backdrop);
+
+      document.getElementById('profileSkipBtn').addEventListener('click', () => {
+        backdrop.remove();
+      });
+      document.getElementById('profileSaveBtn').addEventListener('click', async () => {
+        const status = document.getElementById('profileSaveStatus');
+        const h = parseFloat(document.getElementById('profileHeight').value);
+        const s = document.getElementById('profileSex').value;
+        const d = document.getElementById('profileDob').value;
+        const u = (document.querySelector('input[name="profileWeightUnit"]:checked') || {}).value || 'kg';
+        if (!h || h < 50 || h > 260 || !s || !d) {
+          status.textContent = 'Please fill in height, sex, and DOB.';
+          status.style.color = '#c04040';
+          return;
+        }
+        try {
+          const { error } = await window.db.from('user_prefs').update({
+            height_cm: h, sex: s, dob: d, weight_unit: u
+          }).eq('user_id', window.currentUser.id);
+          if (error) throw error;
+          window.momentumWeightUnit = u;
+          updateWeightUnitLabel();
+          status.style.color = '#0c6a6f';
+          status.textContent = 'Saved. Thanks.';
+          setTimeout(() => backdrop.remove(), 700);
+        } catch (e) {
+          console.error('profile save failed', e);
+          status.style.color = '#c04040';
+          status.textContent = 'Save failed. Try again.';
+        }
+      });
+    }
+
+    // Expose for Settings/debug
+    if (typeof window !== 'undefined') {
+      window.openProfileModal = openProfileModal;
     }
 
     function numOrNull(v) {

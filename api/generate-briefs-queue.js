@@ -62,7 +62,7 @@ export default async function handler(req, res) {
 
   let userQuery = supa
     .from("user_prefs")
-    .select("user_id, timezone, brief_subscribed, unsubscribe_token")
+    .select("user_id, timezone, brief_subscribed, unsubscribe_token, height_cm, sex, dob, weight_unit")
     .eq("brief_subscribed", true);
   if (onlyUserId) userQuery = userQuery.eq("user_id", onlyUserId);
   const { data: prefs, error: prefsErr } = await userQuery;
@@ -112,11 +112,12 @@ export default async function handler(req, res) {
     }
     const email = authUser.user.email;
 
-    // Generate brief
+    // Generate brief (pass profile for BMI etc)
     const streak = getStreakStats(entries);
+    const profile = { height_cm: p.height_cm, sex: p.sex, dob: p.dob, weight_unit: p.weight_unit };
     let brief;
     try {
-      brief = await generateBrief(entries, streak);
+      brief = await generateBrief(entries, streak, profile);
     } catch (e) {
       results.push({ user_id: p.user_id, error: "generate_failed", detail: e.message });
       continue;
