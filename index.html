@@ -2595,13 +2595,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function savePersonalData() {
+      const readInt = (id, fallback) => {
+        const el = document.getElementById(id);
+        const v = el ? parseInt(el.value, 10) : NaN;
+        return Number.isFinite(v) ? v : fallback;
+      };
       const entry = {
         date: new Date().toISOString(),
         personalScore: calculatePersonalScore(),
-        desire: parseInt((document.getElementById('personalDesire')||{value:5}).value),
-        connection: parseInt((document.getElementById('personalConnection')||{value:5}).value),
-        control: parseInt((document.getElementById('personalControl')||{value:5}).value),
-        urge: parseInt((document.getElementById('personalUrge')||{value:5}).value),
+        desire: readInt('personalDesire', 5),
+        connection: readInt('personalConnection', 5),
+        control: readInt('personalControl', 5),
+        urge: readInt('personalUrge', 5),
+        // The Evening Review page also renders these sliders — without
+        // reading them here they were being dropped on save (bug 2026-07-05).
+        exercise: readInt('exercise', 5),
+        nutrition: readInt('nutrition', 7),
+        recovery: readInt('recovery', 7),
         // Triggers block removed (2026-07); schema keeps the field for back-compat with older entries.
         triggers: []
       };
