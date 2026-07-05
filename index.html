@@ -1227,6 +1227,75 @@
 [data-theme="dark"] .coach-moves-card { background: var(--surface-2); color: var(--text); }
 [data-theme="dark"] .coach-moves-list li { background: var(--surface-3); border-color: rgba(142, 179, 146, 0.18); }
 
+/* Refresh button in the Today's Moves header (replaces the 'Get today's moves' button) */
+.coach-moves-refresh {
+  background: transparent;
+  border: 1px solid rgba(111, 143, 114, 0.24);
+  color: var(--accent);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.15s ease;
+}
+.coach-moves-refresh:hover { background: rgba(111, 143, 114, 0.10); }
+.coach-moves-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+.coach-moves-refresh.is-spinning { animation: coach-spin 0.9s linear infinite; }
+@keyframes coach-spin { to { transform: rotate(360deg); } }
+
+/* Suggested prompt chips above composer */
+.coach-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+.coach-chip {
+  background: rgba(111, 143, 114, 0.08);
+  border: 1px solid rgba(111, 143, 114, 0.18);
+  color: var(--text);
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.coach-chip:hover { background: rgba(111, 143, 114, 0.16); border-color: rgba(111, 143, 114, 0.32); }
+[data-theme="dark"] .coach-chip { background: rgba(142, 179, 146, 0.10); border-color: rgba(142, 179, 146, 0.22); color: var(--text); }
+[data-theme="dark"] .coach-chip:hover { background: rgba(142, 179, 146, 0.18); }
+
+/* Support links disclosure */
+.coach-support-disclosure {
+  margin-top: 20px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(111, 143, 114, 0.04);
+  border: 1px solid rgba(111, 143, 114, 0.10);
+}
+.coach-support-disclosure summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--muted);
+  padding: 4px 0;
+  user-select: none;
+  list-style: none;
+}
+.coach-support-disclosure summary::-webkit-details-marker { display: none; }
+.coach-support-disclosure summary::before {
+  content: '›';
+  display: inline-block;
+  margin-right: 8px;
+  transition: transform 0.15s ease;
+}
+.coach-support-disclosure[open] summary::before { transform: rotate(90deg); }
+[data-theme="dark"] .coach-support-disclosure { background: var(--surface-2); border-color: rgba(142, 179, 146, 0.14); }
+
 /* "Three things to try" card under each coach message */
 .coach-try-card {
   margin-top: 10px;
@@ -2052,93 +2121,82 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       </section>
 
       <!-- Coach View -->
-      <section id="aiCoach" class="view">
+            <section id="aiCoach" class="view">
         <div class="section-card">
           <div class="section-header">
             <h2>Coach</h2>
-            <p style="color: var(--muted);">Get personalized guidance based on your data</p>
+            <p style="color: var(--muted);">Guidance based on your check-ins, journal, and body signals.</p>
           </div>
 
+          <!-- 1. Today's Moves — top-of-page, auto-loads on view entry -->
+          <div class="coach-moves-card" id="coachMovesCard">
+            <div class="coach-moves-header">
+              <span class="coach-moves-title">Today's Moves</span>
+              <button class="coach-moves-refresh" id="getMovesBtn" type="button" title="Refresh moves" aria-label="Refresh moves">↻</button>
+            </div>
+            <p class="coach-moves-headline" id="coachMovesHeadline">Short, practical moves tuned to your day.</p>
+            <ul class="coach-moves-list" id="coachMovesList" hidden></ul>
+            <p class="coach-moves-empty" id="coachMovesEmpty">Reading today’s data…</p>
+          </div>
+
+          <!-- 2. Single message stream -->
           <div id="coachMessages" class="coach-messages">
-  <div class="message-row coach">
-    <div class="message-bubble">
-      Welcome! I'm your Coach. I analyze your morning and evening rituals along with your journal entries to provide personalized insights and actionable advice. How can I help you today?
-    </div>
-  </div>
-</div>
-
-<div class="coach-response-card">
-  <div class="coach-response-label">Latest Insight</div>
-  <div id="coachResponseText" class="coach-response-text">
-    Track your data for a few days and I'll provide personalized insights based on your patterns.
-  </div>
-</div>
-
-<div class="coach-moves-card" id="coachMovesCard">
-  <div class="coach-moves-header">
-    <span class="coach-moves-title">Today's Moves</span>
-    <button class="btn" id="getMovesBtn" type="button">Get today's moves</button>
-  </div>
-  <p class="coach-moves-headline" id="coachMovesHeadline">Short, practical moves tuned to your day. Tap the button to generate a fresh list.</p>
-  <ul class="coach-moves-list" id="coachMovesList" hidden></ul>
-  <p class="coach-moves-empty" id="coachMovesEmpty">No moves yet. Generate a list based on today's check-in.</p>
-</div>
-
-<div class="coach-composer">
-  <textarea id="coachPrompt" placeholder="Ask me anything about your momentum, habits, or how to improve..."></textarea>
-  <div class="coach-composer-actions">
-    <span class="foot-note" id="coachStatus">Ready</span>
-    <button class="btn btn-primary" id="askCoachBtn">Send Message</button>
-  </div>
-</div>
-
-<div class="coach-support-inline">
-  <span class="coach-support-kicker">Extra support</span>
-  <p class="coach-support-inline-text">
-    If today feels heavier than usual, these Australian mental health organisations can help.
-  </p>
-
- <div class="coach-support-boxes">
-  <a href="https://www.beyondblue.org.au/" target="_blank" rel="noopener noreferrer" class="coach-support-box coach-support-box-primary">
-    <div class="support-logo support-logo-text" aria-hidden="true">BB</div>
-    <div class="support-copy">
-      <span class="support-label">Need support now?</span>
-      <strong>Beyond Blue</strong>
-      <span>Free 24/7 mental health support by phone and webchat.</span>
-    </div>
-  </a>
-
-  <a href="https://www.ruok.org.au/" target="_blank" rel="noopener noreferrer" class="coach-support-box">
-    <div class="support-logo support-logo-text" aria-hidden="true">R U OK?</div>
-    <div class="support-copy">
-      <span class="support-label">Supporting someone else?</span>
-      <strong>R U OK?</strong>
-      <span>Tools for starting a supportive conversation.</span>
-    </div>
-  </a>
-
-  <a href="https://livin.org/" target="_blank" rel="noopener noreferrer" class="coach-support-box">
-    <div class="support-logo support-logo-text" aria-hidden="true">LIVIN</div>
-    <div class="support-copy">
-      <span class="support-label">Learn and explore</span>
-      <strong>LIVIN</strong>
-      <span>Mental health education and stigma reduction.</span>
-    </div>
-  </a>
-</div>
-  <p class="foot-note" style="margin-top: 12px;">
-    If you feel at immediate risk or unsafe, call emergency services right away.
-  </p>
-</div>
-
+            <div class="message-row coach">
+              <div class="message-bubble">
+                Ask me anything about your momentum, patterns, or what to try next.
+              </div>
+            </div>
           </div>
 
-          <div class="grid grid-2" style="margin-top: 24px;">
-            <button class="btn" onclick="askQuickQuestion('sleep')">💤 Improve Sleep</button>
-            <button class="btn" onclick="askQuickQuestion('energy')">⚡ Boost Energy</button>
-            <button class="btn" onclick="askQuickQuestion('stress')">😌 Manage Stress</button>
-            <button class="btn" onclick="askQuickQuestion('habits')">🎯 Build Habits</button>
+          <!-- 3. Suggested prompts — small chips above composer -->
+          <div class="coach-chips" id="coachChips">
+            <button type="button" class="coach-chip" onclick="askQuickQuestion('sleep')">How's my sleep trending?</button>
+            <button type="button" class="coach-chip" onclick="askQuickQuestion('energy')">Ideas to lift energy</button>
+            <button type="button" class="coach-chip" onclick="askQuickQuestion('patterns')">Patterns you're seeing?</button>
+            <button type="button" class="coach-chip" onclick="askQuickQuestion('habits')">Help me build a habit</button>
           </div>
+
+          <!-- 4. Composer pinned to bottom of section -->
+          <div class="coach-composer">
+            <textarea id="coachPrompt" placeholder="Ask me anything…"></textarea>
+            <div class="coach-composer-actions">
+              <button class="btn btn-primary" id="askCoachBtn">Send</button>
+            </div>
+          </div>
+
+          <!-- 5. Support links collapsed behind a disclosure -->
+          <details class="coach-support-disclosure">
+            <summary>Feeling like today is heavier than usual? Find support</summary>
+            <div class="coach-support-boxes" style="margin-top:12px;">
+              <a href="https://www.beyondblue.org.au/" target="_blank" rel="noopener noreferrer" class="coach-support-box coach-support-box-primary">
+                <div class="support-logo support-logo-text" aria-hidden="true">BB</div>
+                <div class="support-copy">
+                  <span class="support-label">Need support now?</span>
+                  <strong>Beyond Blue</strong>
+                  <span>Free 24/7 mental health support by phone and webchat.</span>
+                </div>
+              </a>
+              <a href="https://www.ruok.org.au/" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+                <div class="support-logo support-logo-text" aria-hidden="true">R U OK?</div>
+                <div class="support-copy">
+                  <span class="support-label">Supporting someone else?</span>
+                  <strong>R U OK?</strong>
+                  <span>Tools for starting a supportive conversation.</span>
+                </div>
+              </a>
+              <a href="https://livin.org/" target="_blank" rel="noopener noreferrer" class="coach-support-box">
+                <div class="support-logo support-logo-text" aria-hidden="true">LIVIN</div>
+                <div class="support-copy">
+                  <span class="support-label">Learn and explore</span>
+                  <strong>LIVIN</strong>
+                  <span>Mental health education and stigma reduction.</span>
+                </div>
+              </a>
+            </div>
+            <p class="foot-note" style="margin-top: 12px;">
+              If you feel at immediate risk or unsafe, call emergency services right away.
+            </p>
+          </details>
         </div>
       </section>
 
@@ -2374,6 +2432,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
       // Close mobile menu
       document.body.classList.remove('sidebar-open');
+
+      // Auto-generate today's moves on first Coach view entry
+      try {
+        if (viewId === 'aiCoach' && !window.__coachMovesLoaded && typeof getTodaysMoves === 'function') {
+          const list = document.getElementById('coachMovesList');
+          if (list && list.children.length === 0) {
+            getTodaysMoves();
+          }
+        }
+      } catch (_e) { /* non-fatal */ }
 
                 // Also reset after reflow
     requestAnimationFrame(() => { var views=document.querySelectorAll('.view');var info=[];views.forEach(function(v){info.push(v.id+':'+getComputedStyle(v).display+'/h'+v.offsetHeight)});var tv=document.getElementById(viewId);if(mainEl)mainEl.scrollTop=0;window.scrollTo(0,0);document.title=info.join(' ')+' oT:'+tv?.offsetTop+' sH:'+mainEl?.scrollHeight; });
@@ -3790,17 +3858,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 async function askCoach() {
   const promptInput = document.getElementById('coachPrompt');
-  const statusEl = document.getElementById('coachStatus');
   const messagesEl = document.getElementById('coachMessages');
-  const latestEl = document.getElementById('coachResponseText');
 
-  if (!promptInput || !messagesEl || !latestEl) return;
+  if (!promptInput || !messagesEl) return;
 
   const prompt = promptInput.value.trim();
-  if (!prompt) {
-    statusEl.textContent = 'Add a little detail first';
-    return;
-  }
+  if (!prompt) return;
 
   // Build context from current UI/state
   const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
@@ -3818,9 +3881,6 @@ async function askCoach() {
   const recentTriggers = (historySignals.recentTriggers || []).map(t => t.trigger);
   if (recentTriggers.length === 0) recentTriggers.push(...bleedTriggers);
 
-  statusEl.textContent = 'Thinking...';
-  statusEl.classList.add('pulse');
-
   // Show user message in thread
   const userRow = document.createElement('div');
   userRow.className = 'message-row user';
@@ -3829,6 +3889,16 @@ async function askCoach() {
   userBubble.textContent = prompt;
   userRow.appendChild(userBubble);
   messagesEl.appendChild(userRow);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  // Show a temporary thinking bubble
+  const thinkingRow = document.createElement('div');
+  thinkingRow.className = 'message-row coach coach-thinking';
+  const thinkingBubble = document.createElement('div');
+  thinkingBubble.className = 'message-bubble';
+  thinkingBubble.textContent = 'Thinking…';
+  thinkingRow.appendChild(thinkingBubble);
+  messagesEl.appendChild(thinkingRow);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 
   try {
@@ -3863,10 +3933,7 @@ async function askCoach() {
 
     const guide = data.guide;
 
-    // Render guide into the main coach card
-latestEl.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
-
-    // Also append coach message to thread
+    // Append coach message to thread
     const coachRow = document.createElement('div');
     coachRow.className = 'message-row coach';
     const coachBubble = document.createElement('div');
@@ -3903,17 +3970,24 @@ latestEl.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
       coachRow.appendChild(tryCard);
     }
 
+    // Remove thinking bubble before appending final reply
+    if (thinkingRow && thinkingRow.parentNode) thinkingRow.parentNode.removeChild(thinkingRow);
+
     messagesEl.appendChild(coachRow);
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
-    statusEl.textContent = 'Ready'; promptInput.value = '';
+    promptInput.value = '';
   } catch (err) {
     console.error(err);
-    statusEl.textContent = 'Something went wrong. Try again in a moment.';
-  } finally {
-    statusEl.classList.remove('pulse');
-    // Keep the prompt so user can tweak it; clear if you prefer:
-    // promptInput.value = '';
+    if (thinkingRow && thinkingRow.parentNode) thinkingRow.parentNode.removeChild(thinkingRow);
+    const errRow = document.createElement('div');
+    errRow.className = 'message-row coach';
+    const errBubble = document.createElement('div');
+    errBubble.className = 'message-bubble';
+    errBubble.textContent = 'Something went wrong. Try again in a moment.';
+    errRow.appendChild(errBubble);
+    messagesEl.appendChild(errRow);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 }
 // Reads the last 7 stored entries and returns a compact summary of what's
@@ -4158,11 +4232,12 @@ async function getTodaysMoves() {
   const list = document.getElementById('coachMovesList');
   const empty = document.getElementById('coachMovesEmpty');
   const headline = document.getElementById('coachMovesHeadline');
-  if (!btn || !list || !empty || !headline) return;
+  if (!list || !empty || !headline) return;
 
-  const originalLabel = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Thinking…';
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.add('is-spinning');
+  }
   empty.textContent = 'Reading today’s data…';
   empty.hidden = false;
   list.hidden = true;
@@ -4197,14 +4272,17 @@ async function getTodaysMoves() {
     });
     list.hidden = false;
     empty.hidden = true;
+    window.__coachMovesLoaded = true;
   } catch (err) {
     console.error(err);
     empty.textContent = "Couldn’t generate moves right now. Try again in a moment.";
     empty.hidden = false;
     list.hidden = true;
   } finally {
-    btn.disabled = false;
-    btn.textContent = originalLabel;
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('is-spinning');
+    }
   }
 }
 
@@ -4213,10 +4291,10 @@ function askQuickQuestion(topic) {
   if (!promptEl) return;
 
   const prompts = {
-    sleep: 'How can I improve my sleep?',
-    energy: 'How can I improve my energy?',
-    stress: 'How can I manage stress better?',
-    habits: 'How can I build better habits?'
+    sleep: "How's my sleep trending?",
+    energy: 'Ideas to lift energy — what should I try?',
+    patterns: 'What patterns are you seeing in my recent data?',
+    habits: 'Help me build a habit — where should I start?'
   };
 
   promptEl.value = prompts[topic] || `How can I improve my ${topic}?`;
