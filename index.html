@@ -1310,6 +1310,17 @@
   border-color: rgba(142, 179, 146, 0.28);
   color: #b8d8d3;
 }
+#healthSavedHint { display: none; align-items: center; }
+[data-theme="dark"] #healthSavedHint {
+  background: rgba(142, 179, 146, 0.14);
+  border-color: rgba(142, 179, 146, 0.28);
+  color: #b8d8d3;
+}
+textarea.is-locked {
+  background: var(--surface-2, #f4f6f2);
+  color: var(--muted, #6e776f);
+  cursor: default;
+}
 
 /* "Three things to try" card under each coach message */
 .coach-try-card {
@@ -1958,8 +1969,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             </article>
           </div>
 
-          <h3 style="margin: 24px 0 16px; font-size: 1.1rem;">Today's Check-in</h3>
-          <div class="range-list">
+          <div class="morning-header-row" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 16px;">
+            <h3 style="margin:0;font-size:1.1rem;">Today's Check-in</h3>
+            <span id="healthSavedHint" style="display:none;font-size:0.72rem;color:#0c6a6f;font-weight:500;background:#e6f2f0;border:1px solid #b8d8d3;padding:2px 8px;border-radius:999px;">Saved today</span>
+            <button type="button" id="healthEditBtn" class="btn btn-secondary" style="display:none;padding:4px 12px;font-size:0.8rem;">Edit</button>
+          </div>
+          <div class="range-list" id="healthRangeList">
             <div class="range-row">
               <label for="mood"><span>Mood</span><span id="moodValue">7 / 10</span></label>
               <input id="mood" type="range" min="1" max="10" value="7">
@@ -1976,7 +1991,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
           <details id="moreDetailDisclosure" style="margin-top:12px;">
             <summary style="cursor:pointer;font-size:0.85rem;color:#6e776f;padding:6px 0;user-select:none;">Add more detail</summary>
-            <div class="range-list" style="margin-top:8px;">
+            <div class="range-list" id="healthRangeListMore" style="margin-top:8px;">
               <div class="range-row">
                 <label for="stress"><span>Stress</span><span id="stressValue">5 / 10</span></label>
                 <input id="stress" type="range" min="1" max="10" value="5">
@@ -2308,7 +2323,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
     // Initialize app
     document.addEventListener('DOMContentLoaded', () => {
-      var _safe=function(fn,n){try{fn();}catch(e){console.error('init step failed: '+n,e);}};_safe(setupEventListeners,'setupEventListeners');_safe(initializeApp,'initializeApp');_safe(showWelcome,'showWelcome');_safe(loadCurrentData,'loadCurrentData');_safe(updateAllViews,'updateAllViews');_safe(function(){ try { if (typeof hydrateTodayInputs === 'function') hydrateTodayInputs(); } catch(e){} },'hydrateTodayInputs');_safe(function(){ try { if (typeof hydratePersonalLockState === 'function') hydratePersonalLockState(); } catch(e){} },'hydratePersonalLockState');
+      var _safe=function(fn,n){try{fn();}catch(e){console.error('init step failed: '+n,e);}};_safe(setupEventListeners,'setupEventListeners');_safe(initializeApp,'initializeApp');_safe(showWelcome,'showWelcome');_safe(loadCurrentData,'loadCurrentData');_safe(updateAllViews,'updateAllViews');_safe(function(){ try { if (typeof hydrateTodayInputs === 'function') hydrateTodayInputs(); } catch(e){} },'hydrateTodayInputs');_safe(function(){ try { if (typeof hydratePersonalLockState === 'function') hydratePersonalLockState(); } catch(e){} },'hydratePersonalLockState');_safe(function(){ try { if (typeof hydrateHealthLockState === 'function') hydrateHealthLockState(); } catch(e){} },'hydrateHealthLockState');
     });
 
     function getDayPhase() {   var h = new Date().getHours();   return h < 12 ? 'morning' : 'evening'; } function sessionKey(kind) {   var d = new Date();   var ymd = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();   return 'momentum_session_' + kind + '_' + ymd; } function isSessionComplete(kind) {   try { return localStorage.getItem(sessionKey(kind)) === '1'; } catch(e) { return false; } } function markSessionComplete(kind) {   try { localStorage.setItem(sessionKey(kind), '1'); } catch(e) {}   try { renderSessionCards(); } catch(e) {} } function startSession(kind) {   switchView(kind === 'morning' ? 'health' : 'personal'); } function renderSessionCards() {   var el = document.getElementById('sessionCards');   if (!el) return;   var phase = getDayPhase();   var mDone = isSessionComplete('morning');   var eDone = isSessionComplete('evening');   function card(kind, title, sub) {     var done = kind === 'morning' ? mDone : eDone;     var active = (phase === kind) && !done;     var statusCls = done ? 'done' : 'todo';     var statusTxt = done ? 'Complete' : (active ? 'Ready' : 'Not started');     var btnTxt = done ? 'Review again' : (kind === 'morning' ? 'Start morning entry' : 'Open evening review');     return '<div class="session-card ' + (active ? 'is-active' : '') + '">' +       '<div class="sc-title">' + title + '</div>' +       '<div class="sc-sub">' + sub + '</div>' +       '<div class="sc-status ' + statusCls + '">' + statusTxt + '</div>' +       '<button class="sc-btn" onclick="startSession(\'' + kind + '\')">' + btnTxt + '</button>' +       '</div>';   }   el.innerHTML = card('morning', 'Morning entry', 'Energy, focus, readiness') +                  card('evening', 'Evening review', 'Review, reflection, reset'); } function initializeApp() {
@@ -2408,6 +2423,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         if (rl) rl.dataset.editMode = '1';
         try { hydratePersonalLockState(); } catch(_e) {}
       });
+      document.getElementById('healthEditBtn')?.addEventListener('click', () => {
+        const rl = document.getElementById('healthRangeList');
+        if (rl) rl.dataset.editMode = '1';
+        try { hydrateHealthLockState(); } catch(_e) {}
+      });
       document.getElementById('saveJournalBtn')?.addEventListener('click', saveJournalEntry);
 
       // Coach
@@ -2471,6 +2491,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       try {
         if (viewId === 'personal' && typeof hydratePersonalLockState === 'function') {
           hydratePersonalLockState();
+        }
+      } catch (_e) { /* non-fatal */ }
+
+      // Reflect Morning Check-in lock state when landing on the Health page
+      try {
+        if (viewId === 'health' && typeof hydrateHealthLockState === 'function') {
+          hydrateHealthLockState();
         }
       } catch (_e) { /* non-fatal */ }
 
@@ -2606,6 +2633,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const aRaw = (document.getElementById('alcoholInput')||{}).value;
       const alcoholDrinks = (aRaw === '' || aRaw === undefined || aRaw === null) ? null : Math.max(0, Math.min(30, parseInt(aRaw) || 0));
 
+      const _focusEl = document.getElementById('morningFocus');
+      const _morningFocus = _focusEl && typeof _focusEl.value === 'string' ? _focusEl.value.trim() : '';
+
       const entry = {
         date: new Date().toISOString(),
         healthScore: calculateHealthScore(),
@@ -2618,10 +2648,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         hydration: parseInt((document.getElementById('hydration')||{value:5}).value),
         recovery: parseInt((document.getElementById('recovery')||{value:5}).value),
         weightKg: weightKg,
-        alcoholDrinks: alcoholDrinks
+        alcoholDrinks: alcoholDrinks,
+        morningFocus: _morningFocus
       };
 
       try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
+      // Clear editMode override so the just-saved values re-lock immediately.
+      const _hrl = document.getElementById('healthRangeList');
+      if (_hrl) delete _hrl.dataset.editMode;
+      // Flip session card to Complete
+      try { if (typeof markSessionComplete === 'function') markSessionComplete('morning'); } catch(_e){}
+      // Show 'Saved today' chip + disable sliders
+      try { if (typeof hydrateHealthLockState === 'function') hydrateHealthLockState(); } catch(_e){}
       // (saveHealthStatus removed - the "Saved today" chip + Body summary already signal success.)
     }
 
@@ -2923,6 +2961,57 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       }
     }
     if (typeof window !== 'undefined') window.hydratePersonalLockState = hydratePersonalLockState;
+
+    // ---- Morning Check-in lock state ------------------------------------
+    // Considers today "saved" once mood/sleepQuality/energy are all present.
+    // Locks the primary + disclosure slider lists and the morningFocus textarea.
+    // Body block (weight/alcohol) manages its own lock via hydrateTodayInputs.
+    function hydrateHealthLockState() {
+      const rangeList = document.getElementById('healthRangeList');
+      const moreList = document.getElementById('healthRangeListMore');
+      const focusEl = document.getElementById('morningFocus');
+      const hint = document.getElementById('healthSavedHint');
+      const editBtn = document.getElementById('healthEditBtn');
+      const saveBtn = document.getElementById('saveHealthBtn');
+      if (!rangeList || !hint || !editBtn || !saveBtn) return;
+
+      const unlock = () => {
+        rangeList.classList.remove('is-locked');
+        if (moreList) moreList.classList.remove('is-locked');
+        if (focusEl) { focusEl.readOnly = false; focusEl.classList.remove('is-locked'); }
+        hint.style.display = 'none';
+        editBtn.style.display = 'none';
+        saveBtn.style.display = '';
+      };
+
+      // Session-scoped override: user clicked Edit and is currently editing.
+      if (rangeList.dataset.editMode === '1') {
+        unlock();
+        saveBtn.textContent = 'Save changes';
+        return;
+      }
+
+      let entries = [];
+      try { entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); } catch (_e) { entries = []; }
+      const today = (typeof pickTodayEntry === 'function') ? pickTodayEntry(entries, new Date()) : null;
+
+      const has = (v) => v != null && Number.isFinite(Number(v));
+      const saved = !!(today && has(today.mood) && has(today.sleepQuality) && has(today.energy));
+
+      if (saved) {
+        rangeList.classList.add('is-locked');
+        if (moreList) moreList.classList.add('is-locked');
+        if (focusEl) { focusEl.readOnly = true; focusEl.classList.add('is-locked'); }
+        hint.style.display = 'inline-flex';
+        editBtn.style.display = 'inline-flex';
+        saveBtn.style.display = 'none';
+        saveBtn.textContent = 'Save Morning Entry';
+      } else {
+        unlock();
+        saveBtn.textContent = 'Save Morning Entry';
+      }
+    }
+    if (typeof window !== 'undefined') window.hydrateHealthLockState = hydrateHealthLockState;
 
     // Re-hydrate when unit preference changes so kg↔lb display stays correct
     function rehydrateOnUnitChange() {
