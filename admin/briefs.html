@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pending Briefs — Momentum OS Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f7f8f4; color: #2f3a31; margin: 0; padding: 24px; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { font-size: 13px; color: #6e776f; margin-bottom: 24px; }
+  .token-input { padding: 8px 12px; border: 1px solid #d9e0d6; border-radius: 6px; font-size: 14px; width: 400px; }
+  .btn { padding: 8px 16px; border-radius: 6px; border: 0; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-primary { background: #0c6a6f; color: #fff; }
+  .btn-ghost { background: transparent; color: #0c6a6f; border: 1px solid #d9e9ea; }
+  .btn-danger { background: #a04040; color: #fff; }
+  .brief-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e6ebe0; margin-bottom: 12px; }
+  .brief-meta { display: flex; gap: 16px; font-size: 13px; color: #6e776f; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+  .brief-subject { font-size: 16px; font-weight: 600; color: #2f3a31; margin-bottom: 8px; }
+  .brief-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .status-pending { background: #fff5e6; color: #a06020; padding: 3px 10px; border-radius: 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+  .status-sent { background: #e6f5eb; color: #2f7a4a; padding: 3px 10px; border-radius: 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+  .status-skipped { background: #f0f0f0; color: #6e776f; padding: 3px 10px; border-radius: 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+  .preview-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; padding: 40px; }
+  .preview-content { background: #fff; max-width: 720px; margin: 0 auto; border-radius: 12px; padding: 20px; max-height: 90vh; overflow-y: auto; }
+  .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .preview-html { border: 1px solid #e6ebe0; border-radius: 8px; padding: 12px; background: #f7f8f4; }
+  .empty { padding: 40px; background: #fff; border-radius: 12px; text-align: center; color: #6e776f; }
+  .copy-hint { padding: 12px; background: #f3fafb; border: 1px solid #d9e9ea; border-radius: 8px; margin-top: 12px; font-size: 13px; color: #0c6a6f; }
+  .copy-hint code { background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pending Briefs</h1>
+  <div class="sub">The Sunday cron generates briefs and queues them here. Click "Copy HTML" then paste into an Outlook compose window to send.</div>
+
+  <div id="tokenBar" style="margin-bottom:24px;">
+    <input type="password" id="tokenInput" class="token-input" placeholder="Paste BRIEF_ADMIN_TOKEN">
+    <button class="btn btn-primary" onclick="loadBriefs()">Load</button>
+    <button class="btn btn-ghost" onclick="triggerGenerate()">Generate now (force)</button>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<div id="previewModal" class="preview-modal">
+  <div class="preview-content">
+    <div class="preview-header">
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#6e776f;">Preview</div>
+        <div id="previewSubject" style="font-size:16px;font-weight:600;"></div>
+        <div id="previewTo" style="font-size:13px;color:#6e776f;"></div>
+      </div>
+      <button class="btn btn-ghost" onclick="closePreview()">Close</button>
+    </div>
+    <div class="brief-actions" style="margin-bottom:16px;">
+      <button class="btn btn-primary" onclick="copyHtml()">Copy HTML</button>
+      <button class="btn btn-ghost" onclick="copyText()">Copy plain text</button>
+      <button class="btn btn-ghost" onclick="copySubject()">Copy subject</button>
+    </div>
+    <div class="copy-hint">
+      Paste the HTML into Outlook's compose window (Format Text → HTML mode → paste). Then mark this brief as sent below.
+    </div>
+    <div class="preview-html" id="previewHtml"></div>
+  </div>
+</div>
+
+<script>
+let token = "";
+let currentBrief = null;
+
+function getToken() {
+  token = document.getElementById("tokenInput").value.trim();
+  if (!token) { alert("Paste your BRIEF_ADMIN_TOKEN"); return null; }
+  try { localStorage.setItem("brief-admin-token", token); } catch(e) {}
+  return token;
+}
+
+// Restore token
+try {
+  const saved = localStorage.getItem("brief-admin-token");
+  if (saved) document.getElementById("tokenInput").value = saved;
+} catch(e) {}
+
+async function loadBriefs() {
+  const t = getToken();
+  if (!t) return;
+  const list = document.getElementById("list");
+  list.innerHTML = "Loading...";
+  try {
+    const r = await fetch(`/api/admin-briefs?token=${encodeURIComponent(t)}`);
+    const data = await r.json();
+    if (!r.ok) { list.innerHTML = `<div class="empty">Error: ${data.error || 'unknown'}</div>`; return; }
+    if (!data.briefs.length) { list.innerHTML = `<div class="empty">No briefs queued. The Sunday cron will populate this on Sunday morning.</div>`; return; }
+    list.innerHTML = data.briefs.map(renderBrief).join("");
+  } catch (e) {
+    list.innerHTML = `<div class="empty">Network error: ${e.message}</div>`;
+  }
+}
+
+function renderBrief(b) {
+  const statusCls = `status-${b.status}`;
+  const headline = (b.brief_json && b.brief_json.headline) || "";
+  return `<div class="brief-card">
+    <div class="brief-meta">
+      <span class="${statusCls}">${b.status}</span>
+      <span>${b.user_email}</span>
+      <span>Week of ${b.week_of}</span>
+      ${b.sent_at ? `<span>Sent ${new Date(b.sent_at).toLocaleString()}</span>` : ''}
+    </div>
+    <div class="brief-subject">${b.subject}</div>
+    <div style="font-size:14px;color:#6e776f;">${headline}</div>
+    <div class="brief-actions">
+      <button class="btn btn-primary" onclick="preview('${b.id}', '${b.user_email}', ${JSON.stringify(b.subject)})">Preview + copy</button>
+      ${b.status === 'pending' ? `<button class="btn btn-ghost" onclick="markSent('${b.id}')">Mark sent</button>` : ''}
+      ${b.status === 'pending' ? `<button class="btn btn-danger" onclick="skip('${b.id}')">Skip</button>` : ''}
+    </div>
+  </div>`;
+}
+
+async function preview(id, email, subject) {
+  const r = await fetch("/api/admin-briefs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, action: "preview", id })
+  });
+  const data = await r.json();
+  if (!r.ok) { alert("Preview failed: " + (data.error || "unknown")); return; }
+  currentBrief = { ...data, id };
+  document.getElementById("previewSubject").textContent = data.subject;
+  document.getElementById("previewTo").textContent = "To: " + data.user_email;
+  document.getElementById("previewHtml").innerHTML = data.rendered_html;
+  document.getElementById("previewModal").style.display = "block";
+}
+
+function closePreview() { document.getElementById("previewModal").style.display = "none"; }
+
+async function copyHtml() {
+  if (!currentBrief) return;
+  try {
+    await navigator.clipboard.write([new ClipboardItem({
+      'text/html': new Blob([currentBrief.rendered_html], { type: 'text/html' }),
+      'text/plain': new Blob([currentBrief.rendered_text], { type: 'text/plain' })
+    })]);
+    alert("HTML copied. Paste into Outlook compose (make sure it's in HTML mode).");
+  } catch(e) {
+    // Fallback: copy as text
+    await navigator.clipboard.writeText(currentBrief.rendered_html);
+    alert("HTML source copied (rich clipboard unsupported). Paste into Outlook or a text editor.");
+  }
+}
+async function copyText() { if (currentBrief) { await navigator.clipboard.writeText(currentBrief.rendered_text); alert("Plain text copied."); } }
+async function copySubject() { if (currentBrief) { await navigator.clipboard.writeText(currentBrief.subject); alert("Subject copied."); } }
+
+async function markSent(id) {
+  const r = await fetch("/api/admin-briefs", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, action: "mark_sent", id })
+  });
+  if (r.ok) { closePreview(); loadBriefs(); } else { alert("Failed to mark sent"); }
+}
+
+async function skip(id) {
+  if (!confirm("Skip this brief? It won't be sent.")) return;
+  const r = await fetch("/api/admin-briefs", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, action: "skip", id })
+  });
+  if (r.ok) loadBriefs(); else alert("Failed to skip");
+}
+
+async function triggerGenerate() {
+  const t = getToken();
+  if (!t) return;
+  if (!confirm("Force-generate briefs now (ignore Sunday window)?")) return;
+  const r = await fetch(`/api/generate-briefs-queue?force=1`, {
+    headers: { "Authorization": "Bearer " + t }
+  });
+  const data = await r.json();
+  alert(`Done. ${data.total} users processed. See browser console for details.`);
+  console.log(data);
+  loadBriefs();
+}
+</script>
+</body>
+</html>

@@ -259,6 +259,8 @@ injectAccountNav();
         if (session && session.user) {
           currentUser = session.user;
           try { window.currentUser = session.user; } catch(e) {}
+          try { window.db = db; } catch(e) {}
+          try { window.dispatchEvent(new CustomEvent('momentum:user-ready', { detail: { userId: session.user.id } })); } catch(e) {}
           if (overlay) overlay.classList.add('hidden');
           // Update nav email display
           const emailNav = document.getElementById('userEmailNav');
