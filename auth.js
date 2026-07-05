@@ -258,6 +258,7 @@ injectAccountNav();
         const overlay = document.getElementById('authOverlay');
         if (session && session.user) {
           currentUser = session.user;
+          try { window.currentUser = session.user; } catch(e) {}
           if (overlay) overlay.classList.add('hidden');
           // Update nav email display
           const emailNav = document.getElementById('userEmailNav');
@@ -273,6 +274,7 @@ if (typeof renderAccount === 'function') renderAccount();
           }
         } else {
           currentUser = null;
+          try { window.currentUser = null; } catch(e) {}
           currentTier = 'free';
           if (overlay) overlay.classList.remove('hidden');
 if (typeof renderAccount === 'function') renderAccount();            

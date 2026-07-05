@@ -932,6 +932,156 @@
   margin-top: 16px;
 }
 
+/* Streak card */
+.streak-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(111, 143, 114, 0.16);
+  background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+  box-shadow: 0 4px 14px rgba(230, 130, 30, 0.10);
+  flex-wrap: wrap;
+}
+.streak-card.is-broken {
+  background: linear-gradient(135deg, #f4efe9 0%, #ebe4dc 100%);
+  border-color: rgba(120, 105, 90, 0.18);
+  box-shadow: 0 4px 12px rgba(60, 50, 40, 0.06);
+}
+.streak-card-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.streak-flame {
+  font-size: 2.4rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(230, 130, 30, 0.25));
+}
+.streak-card.is-broken .streak-flame { filter: grayscale(0.6) opacity(0.55); }
+.streak-card-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.streak-current {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.15;
+}
+.streak-current span { font-size: 1.8rem; margin-right: 4px; }
+.streak-sub { font-size: 0.9rem; color: var(--muted); }
+.streak-card-stats {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.streak-stat { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.streak-stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.streak-stat-value { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+
+/* Brief card (dashboard surface + debrief view) */
+.brief-card {
+  padding: 18px 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(12, 106, 111, 0.14);
+  background: linear-gradient(180deg, #f3fafb 0%, #e6f3f5 100%);
+  box-shadow: 0 4px 14px rgba(12, 106, 111, 0.06);
+}
+.brief-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.brief-card-eyebrow {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #0c6a6f;
+  font-weight: 600;
+}
+.brief-card-title { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-top: 2px; }
+.brief-card-dismiss {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.brief-card-headline { margin-top: 10px; font-size: 0.95rem; color: var(--text); line-height: 1.5; }
+.brief-card-actions { margin-top: 14px; }
+
+/* Debrief view */
+.debrief-latest { display: flex; flex-direction: column; gap: 16px; }
+.debrief-empty {
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px dashed rgba(111, 143, 114, 0.3);
+  text-align: center;
+}
+.debrief-brief {
+  padding: 22px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(111, 143, 114, 0.14);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.debrief-brief-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.debrief-brief-date {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.debrief-brief-title { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+.debrief-headline { font-size: 1rem; line-height: 1.55; color: var(--text); }
+.debrief-section h4 {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.debrief-section ul { margin: 0; padding: 0 0 0 18px; }
+.debrief-section li { font-size: 0.95rem; line-height: 1.5; color: var(--text); margin-bottom: 6px; }
+.debrief-tryThese-item { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+.debrief-tryThese-item strong { color: var(--text); font-size: 0.95rem; }
+.debrief-tryThese-item span { color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
+.debrief-prompt {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(12, 106, 111, 0.06);
+  border: 1px solid rgba(12, 106, 111, 0.12);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.debrief-prompt:hover { background: rgba(12, 106, 111, 0.10); }
+.debrief-prompt-context { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+.debrief-prompt-question { font-size: 0.95rem; color: var(--text); font-weight: 500; }
+.debrief-archive-list { display: flex; flex-direction: column; gap: 8px; }
+.debrief-archive-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s;
+}
+.debrief-archive-item:hover { background: rgba(12, 106, 111, 0.05); }
+.debrief-archive-item-date { font-size: 0.85rem; color: var(--muted); }
+.debrief-archive-item-headline { font-size: 0.9rem; color: var(--text); flex: 1; }
+
 /* Today's Moves card */
 .coach-moves-card {
   padding: 16px 18px;
@@ -1374,6 +1524,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               <span>Personalized guidance</span>
             </span>
           </button>
+          <button class="nav-link" onclick="switchView('debrief')" type="button">
+            <span class="nav-dot"></span>
+            <span class="nav-copy">
+              <strong>Debrief</strong>
+              <span>Sunday brief archive</span>
+            </span>
+          </button>
           <button class="nav-link" onclick="switchView('history')" type="button">
             <span class="nav-dot"></span>
             <span class="nav-copy">
@@ -1460,7 +1617,43 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <button class="btn" onclick="switchView('aiCoach')">Ask Coach</button>
           </div>
         </div>
-          
+
+        <!-- Streak card (don't break the chain) -->
+        <div class="streak-card animate-in" id="streakCard" style="margin-top: 16px;">
+          <div class="streak-card-main">
+            <span class="streak-flame" aria-hidden="true">🔥</span>
+            <div class="streak-card-copy">
+              <div class="streak-current"><span id="streakCurrent">0</span> day streak</div>
+              <div class="streak-sub" id="streakSub">Log today to start the chain</div>
+            </div>
+          </div>
+          <div class="streak-card-stats">
+            <div class="streak-stat">
+              <span class="streak-stat-label">Longest</span>
+              <span class="streak-stat-value" id="streakLongest">0</span>
+            </div>
+            <div class="streak-stat">
+              <span class="streak-stat-label">Freeze</span>
+              <span class="streak-stat-value" id="streakFreezeState">available</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latest weekly Brief (surfaces Sun-Wed) -->
+        <div class="brief-card animate-in" id="briefCard" style="display:none; margin-top: 16px;">
+          <div class="brief-card-header">
+            <div>
+              <div class="brief-card-eyebrow">The Brief</div>
+              <div class="brief-card-title" id="briefCardTitle">Your week</div>
+            </div>
+            <button class="brief-card-dismiss" id="briefCardDismiss" type="button" aria-label="Dismiss brief">×</button>
+          </div>
+          <div class="brief-card-headline" id="briefCardHeadline"></div>
+          <div class="brief-card-actions">
+            <button class="btn btn-primary" type="button" onclick="switchView('debrief')">Read the full brief</button>
+          </div>
+        </div>
+
         <!-- What's Driving Today (driver mini-rings) -->
         <div class="card animate-in" style="margin-top: 16px;">
           <h3 style="margin: 0 0 4px; font-size: 1.1rem;">What's driving today</h3>
@@ -1905,6 +2098,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     </div>
   </div>
 </section>
+
+      <!-- Debrief View -->
+      <section id="debrief" class="view">
+        <div class="section-card">
+          <div class="section-header">
+            <h2>The Brief</h2>
+            <p style="color: var(--muted);">Your Sunday debrief — what moved, what held, what's next.</p>
+          </div>
+          <div id="debriefLatest" class="debrief-latest" style="margin-top: 20px;">
+            <div class="debrief-empty" id="debriefEmpty">
+              <p style="color: var(--muted); margin: 0 0 16px;">No brief yet. Your first debrief drops Sunday at 7pm. You can also generate one now from at least a week of entries.</p>
+              <button class="btn btn-primary" id="debriefGenerateBtn" type="button" onclick="generateDebriefNow()">Generate this week's brief</button>
+              <div id="debriefStatus" class="muted" style="margin-top: 8px; font-size: 0.85rem;"></div>
+            </div>
+          </div>
+          <div id="debriefArchive" class="debrief-archive" style="margin-top: 32px;">
+            <h3 style="font-size: 1.05rem; margin: 0 0 12px;">Past briefs</h3>
+            <div id="debriefArchiveList" class="debrief-archive-list">
+              <div class="foot-note">Archive fills up as briefs are generated week by week.</div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -1914,7 +2130,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       entries: 'momentum-daily-entries',
       currentDraft: 'momentum-current-draft',
       firstVisit: 'momentum-first-visit',
-      theme: 'momentum-theme'
+      theme: 'momentum-theme',
+      debriefs: 'momentum-debriefs',
+      briefDismissed: 'momentum-brief-dismissed-id'
     };
 
     // Toggle menu function - MUST be defined first
@@ -2266,7 +2484,344 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       updateHistory();
       updateCharts();
       updateAchievements();
+      try { updateStreakCard(); } catch(e) { console.error('updateStreakCard failed', e); }
+      try { updateBriefCard(); } catch(e) { console.error('updateBriefCard failed', e); }
+      try { renderDebriefView(); } catch(e) { console.error('renderDebriefView failed', e); }
     }
+
+    // ---- Streak card renderer ---------------------------------------------
+    function updateStreakCard() {
+      const card = document.getElementById('streakCard');
+      if (!card) return;
+      const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+      const stats = getStreakStats(entries);
+      const curEl = document.getElementById('streakCurrent');
+      const longEl = document.getElementById('streakLongest');
+      const subEl = document.getElementById('streakSub');
+      const freezeEl = document.getElementById('streakFreezeState');
+      if (curEl) curEl.textContent = stats.current;
+      if (longEl) longEl.textContent = stats.longest;
+      if (freezeEl) freezeEl.textContent = stats.freezeUsedThisWeek ? 'used' : 'available';
+      // Tone-appropriate sub-copy
+      if (subEl) {
+        if (stats.current === 0) {
+          subEl.textContent = entries.length === 0
+            ? 'Log today to start the chain'
+            : 'Streak reset. Day 1 is the hardest. Log something.';
+        } else if (stats.current === 1) {
+          subEl.textContent = 'Day 1. Show up again tomorrow.';
+        } else if (stats.current < 7) {
+          subEl.textContent = 'Chain is forming. Keep going.';
+        } else if (stats.current < 30) {
+          subEl.textContent = 'That\u2019s the work. Don\u2019t break the chain.';
+        } else {
+          subEl.textContent = 'Serious consistency. This is who you are now.';
+        }
+      }
+      card.classList.toggle('is-broken', stats.current === 0 && entries.length > 0);
+    }
+
+    // ---- Debrief helpers ---------------------------------------------------
+    function readDebriefs() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.debriefs) || '[]'); }
+      catch(e) { return []; }
+    }
+    function writeDebriefs(list) {
+      localStorage.setItem(STORAGE_KEYS.debriefs, JSON.stringify(list));
+    }
+    function latestDebrief() {
+      const list = readDebriefs();
+      if (!list.length) return null;
+      return list.slice().sort((a,b) => (b.date||'').localeCompare(a.date||''))[0];
+    }
+
+    function updateBriefCard() {
+      const card = document.getElementById('briefCard');
+      if (!card) return;
+      const latest = latestDebrief();
+      if (!latest) { card.style.display = 'none'; return; }
+      // Show for 3 days after the brief date (Sun → Wed)
+      const briefDate = new Date(latest.date + 'T00:00:00');
+      const now = new Date();
+      const ageDays = Math.floor((now - briefDate) / (1000*60*60*24));
+      const dismissedId = localStorage.getItem(STORAGE_KEYS.briefDismissed) || '';
+      if (ageDays > 3 || dismissedId === latest.id) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const title = document.getElementById('briefCardTitle');
+      const headline = document.getElementById('briefCardHeadline');
+      if (title) title.textContent = 'Week of ' + briefDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      if (headline) headline.textContent = latest.headline || 'Your Sunday debrief is ready.';
+      const dismissBtn = document.getElementById('briefCardDismiss');
+      if (dismissBtn && !dismissBtn._bound) {
+        dismissBtn.addEventListener('click', () => {
+          localStorage.setItem(STORAGE_KEYS.briefDismissed, latest.id);
+          card.style.display = 'none';
+        });
+        dismissBtn._bound = true;
+      }
+    }
+
+    function renderDebriefView() {
+      const view = document.getElementById('debrief');
+      if (!view) return;
+      const list = readDebriefs().slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
+      const latestEl = document.getElementById('debriefLatest');
+      const emptyEl = document.getElementById('debriefEmpty');
+      const archiveList = document.getElementById('debriefArchiveList');
+      if (!list.length) {
+        if (emptyEl) emptyEl.style.display = 'block';
+        if (archiveList) archiveList.innerHTML = '<div class="foot-note">Archive fills up as briefs are generated week by week.</div>';
+        return;
+      }
+      if (emptyEl) emptyEl.style.display = 'none';
+      const latest = list[0];
+      // Render the latest brief in full
+      latestEl.innerHTML = renderBriefHtml(latest);
+      // Archive = list[1..]
+      if (list.length > 1) {
+        archiveList.innerHTML = list.slice(1).map(b => {
+          const d = new Date(b.date + 'T00:00:00');
+          const label = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+          return '<div class="debrief-archive-item" data-brief-id="' + b.id + '">' +
+            '<div class="debrief-archive-item-date">' + label + '</div>' +
+            '<div class="debrief-archive-item-headline">' + escapeHtml(b.headline || '') + '</div>' +
+          '</div>';
+        }).join('');
+        archiveList.querySelectorAll('.debrief-archive-item').forEach(el => {
+          el.addEventListener('click', () => {
+            const id = el.getAttribute('data-brief-id');
+            const brief = readDebriefs().find(b => b.id === id);
+            if (brief) latestEl.innerHTML = renderBriefHtml(brief);
+          });
+        });
+      } else {
+        archiveList.innerHTML = '<div class="foot-note">More briefs will appear here week by week.</div>';
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      })[c]);
+    }
+
+    function renderBriefHtml(brief) {
+      const d = new Date(brief.date + 'T00:00:00');
+      const label = d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      const moved = Array.isArray(brief.moved) ? brief.moved : [];
+      const held = Array.isArray(brief.held) ? brief.held : [];
+      const wentDark = Array.isArray(brief.wentDark) ? brief.wentDark : [];
+      const tryThese = Array.isArray(brief.tryThese) ? brief.tryThese : [];
+      const askCoach = Array.isArray(brief.askCoach) ? brief.askCoach : [];
+      const streak = brief.streak || {};
+      let html = '<div class="debrief-brief">';
+      html += '<div class="debrief-brief-header">' +
+        '<div><div class="debrief-brief-date">' + label + '</div>' +
+        '<div class="debrief-brief-title">' + escapeHtml(brief.title || 'The Brief') + '</div></div>' +
+        '<div style="text-align:right;font-size:0.85rem;color:var(--muted);">' +
+          '🔥 ' + (streak.current || 0) + ' day streak' +
+          (streak.longest ? ' &middot; best ' + streak.longest : '') +
+        '</div>' +
+      '</div>';
+      if (brief.headline) html += '<div class="debrief-headline">' + escapeHtml(brief.headline) + '</div>';
+      if (moved.length) {
+        html += '<div class="debrief-section"><h4>What moved</h4><ul>' +
+          moved.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul></div>';
+      }
+      if (held.length) {
+        html += '<div class="debrief-section"><h4>What held</h4><ul>' +
+          held.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul></div>';
+      }
+      if (wentDark.length) {
+        html += '<div class="debrief-section"><h4>What went dark</h4><ul>' +
+          wentDark.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul></div>';
+      }
+      if (tryThese.length) {
+        html += '<div class="debrief-section"><h4>Three things for next week</h4>' +
+          tryThese.map(t => '<div class="debrief-tryThese-item">' +
+            '<strong>' + escapeHtml(t.action || '') + '</strong>' +
+            (t.why ? '<span>' + escapeHtml(t.why) + '</span>' : '') +
+          '</div>').join('') + '</div>';
+      }
+      if (askCoach.length) {
+        html += '<div class="debrief-section"><h4>Ask Coach this week</h4>' +
+          askCoach.map(p => '<div class="debrief-prompt" data-prompt="' + escapeHtml(p.prompt || '') + '">' +
+            (p.context ? '<div class="debrief-prompt-context">' + escapeHtml(p.context) + '</div>' : '') +
+            '<div class="debrief-prompt-question">' + escapeHtml(p.prompt || '') + '</div>' +
+          '</div>').join('') + '</div>';
+      }
+      html += '<div class="debrief-section" style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        '<button class="btn" type="button" data-email-brief="' + escapeHtml(brief.id) + '">Email me this brief</button>' +
+        '<button class="btn" type="button" data-copy-brief="' + escapeHtml(brief.id) + '">Copy as text</button>' +
+      '</div>';
+      html += '</div>';
+      // Bind prompt clicks after render (deferred)
+      setTimeout(() => {
+        document.querySelectorAll('.debrief-prompt').forEach(el => {
+          el.addEventListener('click', () => {
+            const prompt = el.getAttribute('data-prompt');
+            if (!prompt) return;
+            switchView('aiCoach');
+            const input = document.getElementById('coachPrompt');
+            if (input) { input.value = prompt; input.focus(); }
+          });
+        });
+        document.querySelectorAll('[data-email-brief]').forEach(el => {
+          el.addEventListener('click', () => {
+            const id = el.getAttribute('data-email-brief');
+            const b = readDebriefs().find(x => x.id === id);
+            if (b) emailBrief(b);
+          });
+        });
+        document.querySelectorAll('[data-copy-brief]').forEach(el => {
+          el.addEventListener('click', () => {
+            const id = el.getAttribute('data-copy-brief');
+            const b = readDebriefs().find(x => x.id === id);
+            if (b) copyBriefToClipboard(b);
+          });
+        });
+      }, 0);
+      return html;
+    }
+
+    async function generateDebriefNow() {
+      const btn = document.getElementById('debriefGenerateBtn');
+      const statusEl = document.getElementById('debriefStatus');
+      if (btn) btn.disabled = true;
+      if (statusEl) statusEl.textContent = 'Building your brief...';
+      const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+      const stats = getStreakStats(entries);
+      try {
+        const res = await fetch('/api/debrief', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entries: entries.slice(-14), streak: stats })
+        });
+        if (!res.ok) throw new Error('debrief request failed: ' + res.status);
+        const brief = await res.json();
+        if (!brief || !brief.id) throw new Error('empty brief');
+        const list = readDebriefs();
+        // Replace any brief for same date (idempotent)
+        const filtered = list.filter(b => b.date !== brief.date);
+        filtered.push(brief);
+        writeDebriefs(filtered);
+        if (statusEl) statusEl.textContent = '';
+        renderDebriefView();
+        updateBriefCard();
+      } catch (err) {
+        console.error('generateDebriefNow failed', err);
+        if (statusEl) statusEl.textContent = 'Could not build brief: ' + (err.message || err);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+    window.generateDebriefNow = generateDebriefNow;
+
+    function formatBriefAsText(brief) {
+      const d = new Date(brief.date + 'T00:00:00');
+      const label = d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      const streak = brief.streak || {};
+      const lines = [];
+      lines.push('THE BRIEF — ' + label);
+      lines.push('');
+      lines.push('Streak: ' + (streak.current || 0) + ' days' + (streak.longest ? ' (best ' + streak.longest + ')' : ''));
+      if (brief.meta && brief.meta.daysLogged != null) {
+        lines.push('Logged: ' + brief.meta.daysLogged + '/7 days this week');
+      }
+      lines.push('');
+      if (brief.headline) { lines.push(brief.headline); lines.push(''); }
+      if (brief.moved && brief.moved.length) {
+        lines.push('WHAT MOVED');
+        brief.moved.forEach(x => lines.push('  • ' + x));
+        lines.push('');
+      }
+      if (brief.held && brief.held.length) {
+        lines.push('WHAT HELD');
+        brief.held.forEach(x => lines.push('  • ' + x));
+        lines.push('');
+      }
+      if (brief.wentDark && brief.wentDark.length) {
+        lines.push('WHAT WENT DARK');
+        brief.wentDark.forEach(x => lines.push('  • ' + x));
+        lines.push('');
+      }
+      if (brief.tryThese && brief.tryThese.length) {
+        lines.push('THREE THINGS FOR NEXT WEEK');
+        brief.tryThese.forEach((t, i) => {
+          lines.push('  ' + (i+1) + '. ' + (t.action || ''));
+          if (t.why) lines.push('     — ' + t.why);
+        });
+        lines.push('');
+      }
+      if (brief.askCoach && brief.askCoach.length) {
+        lines.push('ASK COACH THIS WEEK');
+        brief.askCoach.forEach(p => {
+          if (p.context) lines.push('  [' + p.context + ']');
+          lines.push('  → ' + (p.prompt || ''));
+          lines.push('');
+        });
+      }
+      lines.push('—');
+      lines.push('Open Momentum: ' + window.location.origin);
+      return lines.join('\n');
+    }
+
+    function emailBrief(brief) {
+      const subject = 'The Brief — week of ' + new Date(brief.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      const body = formatBriefAsText(brief);
+      // Try to prefill to the signed-in user's email (Supabase auth stores it on window.currentUser)
+      let to = '';
+      try { to = (window.currentUser && window.currentUser.email) || ''; } catch(e) {}
+      const url = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      // Some browsers truncate very long mailto URLs; if this happens, fall back to copy.
+      if (url.length > 6000) {
+        copyBriefToClipboard(brief);
+        alert('Brief copied to your clipboard — paste it into a new email.');
+        return;
+      }
+      window.location.href = url;
+    }
+    window.emailBrief = emailBrief;
+
+    async function copyBriefToClipboard(brief) {
+      const text = formatBriefAsText(brief);
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          alert('Brief copied to clipboard.');
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+          alert('Brief copied to clipboard.');
+        }
+      } catch (e) {
+        console.error('copy failed', e);
+        alert('Copy failed. Try selecting and copying manually.');
+      }
+    }
+    window.copyBriefToClipboard = copyBriefToClipboard;
+
+    // Auto-generate a fresh brief if today is Sunday and we don't have one yet.
+    async function maybeAutoGenerateSundayBrief() {
+      try {
+        const now = new Date();
+        if (now.getDay() !== 0) return; // 0 = Sunday
+        // Compute this week's brief id (matches server-side derivation)
+        const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+        const targetId = 'brief-' + dateStr;
+        const existing = readDebriefs().find(b => b.id === targetId);
+        if (existing) return;
+        const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+        if (entries.length < 3) return; // need at least a few days of data
+        // Silent generate
+        await generateDebriefNow();
+      } catch (e) {
+        console.warn('maybeAutoGenerateSundayBrief skipped', e);
+      }
+    }
+    // Trigger a couple of seconds after load, once app UI is ready
+    setTimeout(() => { maybeAutoGenerateSundayBrief(); }, 2500);
 
     function updateDashboard() { try { updateScores();   try { renderSessionCards(); } catch(e) {} } catch(e) {}       updateDriverRings();
       const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
@@ -2401,25 +2956,113 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       `).join('');
     }
 
-    function calculateStreak(entries) {
-      if (entries.length === 0) return 0;
-      
-      let streak = 0;   let _restUsed = 0;
-      const today = new Date();
-      
-      for (let i = 0; i < 365; i++) {
-        const checkDate = new Date(today);
-        checkDate.setDate(checkDate.getDate() - i);
-        const dayKey = checkDate.toDateString();
-        
-        if (entries.some(e => new Date(e.date).toDateString() === dayKey)) {
-          streak++;
-        } else if (i > 0 && _restUsed < 1) {       _restUsed++;     } else if (i > 0) {
-          break;
-        }
+    // ---- Streak logic ------------------------------------------------------
+    // Rules:
+    //  - A day counts if any entry is logged for it (any field).
+    //  - Current streak = consecutive days back from today (or yesterday if
+    //    today is not yet logged), using up to 1 freeze in the current ISO
+    //    week (Mon-Sun). Freeze bridges a single missed day silently.
+    //  - Longest streak = best historical streak using the same weekly-freeze
+    //    rule, tracked forward over the full log history.
+    //  - Returns { current, longest, freezeUsedThisWeek, streakBrokenToday }.
+
+    function _dateKey(d) {
+      const dt = (d instanceof Date) ? d : new Date(d);
+      // Normalise to local midnight then use YYYY-MM-DD
+      return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+    }
+
+    function _mondayKey(d) {
+      // ISO week Monday of the date d, as YYYY-MM-DD
+      const dt = new Date(d);
+      const day = (dt.getDay() + 6) % 7; // 0 = Monday
+      dt.setDate(dt.getDate() - day);
+      dt.setHours(0,0,0,0);
+      return _dateKey(dt);
+    }
+
+    function getStreakStats(entries) {
+      const stats = { current: 0, longest: 0, freezeUsedThisWeek: false, streakBrokenToday: false };
+      if (!Array.isArray(entries) || entries.length === 0) return stats;
+
+      // Build a set of logged day keys (dedupes multiple entries on same day)
+      const logged = new Set();
+      for (const e of entries) {
+        if (!e || !e.date) continue;
+        logged.add(_dateKey(e.date));
       }
-      
-      return streak;
+      if (logged.size === 0) return stats;
+
+      // ---- Current streak walk (backwards from today) ----
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const currentWeekMonday = _mondayKey(today);
+      const todayKey = _dateKey(today);
+      let cursor = new Date(today);
+
+      // If today isn't logged, don't penalise — start counting from yesterday.
+      if (!logged.has(todayKey)) {
+        cursor.setDate(cursor.getDate() - 1);
+        stats.streakBrokenToday = false; // just means today isn't logged yet
+      }
+
+      let freezeUsed = false;
+      for (let i = 0; i < 400; i++) {
+        const key = _dateKey(cursor);
+        if (logged.has(key)) {
+          stats.current++;
+        } else {
+          // Missed day — can we use the weekly freeze?
+          const cursorWeekMonday = _mondayKey(cursor);
+          if (!freezeUsed && cursorWeekMonday === currentWeekMonday) {
+            freezeUsed = true;
+            stats.freezeUsedThisWeek = true;
+            // Freeze bridges this day but does not count as a streak day.
+          } else {
+            break;
+          }
+        }
+        cursor.setDate(cursor.getDate() - 1);
+      }
+
+      // ---- Longest streak (historical walk forward) ----
+      // Sort logged days ascending.
+      const sortedKeys = Array.from(logged).sort();
+      const firstDay = new Date(sortedKeys[0] + 'T00:00:00');
+      const lastDay = new Date(sortedKeys[sortedKeys.length - 1] + 'T00:00:00');
+      let best = 0;
+      let run = 0;
+      let runWeekFreezeUsed = null; // Monday-key for current run's active week
+      let runWeekMondayCache = null;
+
+      const walker = new Date(firstDay);
+      while (walker <= lastDay) {
+        const key = _dateKey(walker);
+        const wkMonday = _mondayKey(walker);
+        // Reset freeze flag when we move into a new ISO week.
+        if (runWeekMondayCache !== wkMonday) {
+          runWeekMondayCache = wkMonday;
+          runWeekFreezeUsed = false;
+        }
+        if (logged.has(key)) {
+          run++;
+          if (run > best) best = run;
+        } else {
+          if (!runWeekFreezeUsed) {
+            runWeekFreezeUsed = true; // consume freeze, run continues
+          } else {
+            run = 0;
+          }
+        }
+        walker.setDate(walker.getDate() + 1);
+      }
+      stats.longest = Math.max(best, stats.current);
+      return stats;
+    }
+
+    // Back-compat shim — existing callers expect a plain number.
+    function calculateStreak(entries) {
+      return getStreakStats(entries).current;
     }
 
     function updateAchievements() {
