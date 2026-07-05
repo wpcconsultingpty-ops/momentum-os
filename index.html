@@ -2570,6 +2570,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       window.momentumWeightUnit = prefs.weight_unit || 'kg';
       updateWeightUnitLabel();
 
+      // Expose profile (height/sex/dob) so buildPhysicalSignals can compute BMI
+      window.momentumProfile = {
+        height_cm: prefs.height_cm || null,
+        sex: prefs.sex || null,
+        dob: prefs.dob || null,
+        weight_unit: prefs.weight_unit || 'kg',
+      };
+
       // If profile fields (height + sex + dob) are missing, prompt inline
       if (!prefs.height_cm || !prefs.sex || !prefs.dob) {
         // Delay slightly so the DOM is ready and the user sees the app first
@@ -2648,6 +2656,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           if (error) throw error;
           window.momentumWeightUnit = u;
           updateWeightUnitLabel();
+          window.momentumProfile = { height_cm: h, sex: s, dob: d, weight_unit: u };
           status.style.color = '#0c6a6f';
           status.textContent = 'Saved. Thanks.';
           setTimeout(() => backdrop.remove(), 700);
@@ -3359,6 +3368,7 @@ async function askCoach() {
   ).map(input => input.dataset.trigger || '');
 
   const historySignals = buildHistorySignals();
+  const physicalSignals = buildPhysicalSignals();
   const recentReflections = historySignals.recentJournalSnippets || [];
   const recentTriggers = (historySignals.recentTriggers || []).map(t => t.trigger);
   if (recentTriggers.length === 0) recentTriggers.push(...bleedTriggers);
@@ -3395,7 +3405,8 @@ async function askCoach() {
         recentTrends: {},
         recentReflections,
         recentTriggers,
-        historySignals
+        historySignals,
+        physicalSignals
       })
     });
 
@@ -3576,6 +3587,97 @@ function buildHistorySignals() {
   }
 }
 
+// Physical metrics signal (weight trend, BMI, alcohol pattern) for the AI coach.
+// Mirrors summarisePhysical() in api/_lib/brief.js so the counsellor / moves modes
+// see the same shape the Sunday brief does.
+function buildPhysicalSignals() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+    if (!Array.isArray(raw) || raw.length === 0) return null;
+
+    const sorted = raw.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+    const thisWeek = sorted.slice(-7);
+    const lastWeek = sorted.slice(-14, -7);
+
+    const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
+    const avgOf = (arr) => arr.reduce((s, v) => s + v, 0) / arr.length;
+
+    const out = { weight: null, alcohol: null };
+
+    // Weight
+    const thisW = thisWeek.map(e => num(e.weightKg)).filter(v => v !== null && v > 0);
+    const lastW = lastWeek.map(e => num(e.weightKg)).filter(v => v !== null && v > 0);
+    if (thisW.length) {
+      const thisAvg = avgOf(thisW);
+      const lastAvg = lastW.length ? avgOf(lastW) : null;
+      const withDates = thisWeek
+        .map(e => ({ d: e.date, w: num(e.weightKg) }))
+        .filter(x => x.w !== null && x.w > 0)
+        .sort((a, b) => new Date(a.d) - new Date(b.d));
+      const latest = withDates.length ? withDates[withDates.length - 1].w : thisAvg;
+      const heightCm = num(window.momentumProfile && window.momentumProfile.height_cm);
+      let bmi = null;
+      if (heightCm && heightCm > 50) {
+        const m = heightCm / 100;
+        bmi = latest / (m * m);
+      }
+      out.weight = {
+        thisAvg: +thisAvg.toFixed(1),
+        lastAvg: lastAvg !== null ? +lastAvg.toFixed(1) : null,
+        delta: lastAvg !== null ? +(thisAvg - lastAvg).toFixed(1) : null,
+        latest: +latest.toFixed(1),
+        bmi: bmi !== null ? +bmi.toFixed(1) : null,
+        daysLogged: thisW.length,
+      };
+    }
+
+    // Alcohol + sleep correlation
+    const withA = thisWeek.map(e => ({
+      drinks: num(e.alcoholDrinks),
+      sleep: num(e.sleepQuality),
+    })).filter(x => x.drinks !== null);
+
+    if (withA.length) {
+      const total = withA.reduce((s, x) => s + x.drinks, 0);
+      const drinking = withA.filter(x => x.drinks > 0);
+      const dry = withA.filter(x => x.drinks === 0);
+      let correlation = null;
+      if (drinking.length >= 2 && dry.length >= 2) {
+        const dS = drinking.map(x => x.sleep).filter(v => v !== null);
+        const drS = dry.map(x => x.sleep).filter(v => v !== null);
+        if (dS.length && drS.length) {
+          const dSA = avgOf(dS);
+          const drSA = avgOf(drS);
+          const gap = +(drSA - dSA).toFixed(1);
+          if (Math.abs(gap) >= 0.8) {
+            correlation = {
+              metric: 'sleep',
+              drinkingAvg: +dSA.toFixed(1),
+              dryAvg: +drSA.toFixed(1),
+              gap,
+              drinkingDayCount: drinking.length,
+              dryDayCount: dry.length,
+            };
+          }
+        }
+      }
+      out.alcohol = {
+        total,
+        drinkingDays: drinking.length,
+        dryDays: dry.length,
+        daysLogged: withA.length,
+        correlation,
+      };
+    }
+
+    if (!out.weight && !out.alcohol) return null;
+    return out;
+  } catch (err) {
+    console.error('buildPhysicalSignals failed', err);
+    return null;
+  }
+}
+
 function buildCoachPayload(extra) {
   const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
   const healthScore = parseInt(document.getElementById('healthProgressValue')?.textContent || '0', 10) || 0;
@@ -3585,6 +3687,7 @@ function buildCoachPayload(extra) {
     document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
   ).map(input => input.dataset.trigger || '');
   const historySignals = buildHistorySignals();
+  const physicalSignals = buildPhysicalSignals();
   return Object.assign({
     overallScore,
     healthScore,
@@ -3600,7 +3703,8 @@ function buildCoachPayload(extra) {
     recentTrends: {},
     recentReflections: historySignals.recentJournalSnippets || [],
     recentTriggers: (historySignals.recentTriggers || []).map(t => t.trigger),
-    historySignals
+    historySignals,
+    physicalSignals
   }, extra || {});
 }
 

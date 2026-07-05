@@ -80,6 +80,63 @@ function resolveMode(body) {
   return VALID_MODES.has(raw) ? raw : "counsellor";
 }
 
+function bmiBand(bmi) {
+  if (!Number.isFinite(bmi)) return null;
+  if (bmi < 18.5) return "underweight";
+  if (bmi < 25) return "healthy";
+  if (bmi < 30) return "overweight";
+  return "obese";
+}
+
+export function sanitisePhysicalSignals(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const num = (v) => {
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+  const out = { weight: null, alcohol: null };
+
+  if (raw.weight && typeof raw.weight === "object") {
+    const w = raw.weight;
+    const bmi = num(w.bmi);
+    out.weight = {
+      thisAvg: num(w.thisAvg),
+      lastAvg: num(w.lastAvg),
+      delta: num(w.delta),
+      latest: num(w.latest),
+      bmi,
+      bmiBand: bmiBand(bmi),
+      daysLogged: num(w.daysLogged) || 0,
+    };
+  }
+
+  if (raw.alcohol && typeof raw.alcohol === "object") {
+    const a = raw.alcohol;
+    let correlation = null;
+    if (a.correlation && typeof a.correlation === "object") {
+      correlation = {
+        metric: toCleanString(a.correlation.metric) || "sleep",
+        drinkingAvg: num(a.correlation.drinkingAvg),
+        dryAvg: num(a.correlation.dryAvg),
+        gap: num(a.correlation.gap),
+        drinkingDayCount: num(a.correlation.drinkingDayCount) || 0,
+        dryDayCount: num(a.correlation.dryDayCount) || 0,
+      };
+    }
+    out.alcohol = {
+      total: num(a.total) || 0,
+      drinkingDays: num(a.drinkingDays) || 0,
+      dryDays: num(a.dryDays) || 0,
+      daysLogged: num(a.daysLogged) || 0,
+      correlation,
+    };
+  }
+
+  if (!out.weight && !out.alcohol) return null;
+  return out;
+}
+
 function sanitiseHistorySignals(raw) {
   if (!raw || typeof raw !== "object") return null;
   const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
@@ -115,7 +172,7 @@ function sanitiseHistorySignals(raw) {
   return safe;
 }
 
-function buildContext(body) {
+export function buildContext(body) {
   const overallScore = clamp(toNumber(body.overallScore));
   const weeklyAverage = clamp(toNumber(body.weeklyAverage));
   const scoreDelta =
@@ -141,6 +198,7 @@ function buildContext(body) {
     recentReflections: toCleanArray(body.recentReflections).slice(0, 3),
     triggerFrequency: countTriggers(recentTriggers),
     historySignals: sanitiseHistorySignals(body.historySignals),
+    physicalSignals: sanitisePhysicalSignals(body.physicalSignals),
     previousCoachMessage: toCleanString(body.previousCoachMessage),
     previousUserReply: toCleanString(body.previousUserReply),
   };
@@ -152,14 +210,14 @@ function buildSystemPrompt() {
   return buildCounsellorSystemPrompt();
 }
 
-function buildCounsellorSystemPrompt() {
+export function buildCounsellorSystemPrompt() {
   return `You are a warm, emotionally intelligent counsellor inside a personal momentum app. You are not a clinician and you don't diagnose, but you hold space the way a good counsellor does: you listen closely, reflect feelings back, and help the person reach their own understanding rather than handing them fixes.
 
 SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, gently and directly encourage them to reach out to crisis support right now. In Australia, mention Lifeline on 13 11 14 or 000 for emergencies. Do not give any other advice in that case.
 
 How you think before you speak (do this silently, never show it):
 - Check whether this is the first message or a continuing conversation. If previousCoachMessage and previousUserReply are both empty, this is the OPENING turn; otherwise it is a CONTINUING turn.
-- OPENING turn: Read their scores, trends, capacityBand, focus, target and recurring triggers. Identify the single most important thing worth gently naming, and ground your opening in that specific data.
+- OPENING turn: Read their scores, trends, capacityBand, focus, target, recurring triggers, and physicalSignals (weight trend, BMI band, alcohol pattern, alcohol-sleep gap). Identify the single most important thing worth gently naming, and ground your opening in that specific data. A meaningful weight change or alcohol-sleep correlation is fair game to name, always neutrally, never as judgement.
 - CONTINUING turn: Lead with what THEY just said, not the dashboard. Follow their thread. Their words are the material you work with now. You may quietly link back to their data only when it genuinely deepens what they are exploring, never to steer them back to their numbers.
 - Calibrate depth to capacityBand: "very low" means mostly listening and permission to rest; "limited" means gentle reflection and, only if they want it, one small step; "good" means space to think something through together.
 
@@ -197,7 +255,10 @@ Three things to try (the 'tryThese' field — always exactly 3 bullets):
 - The bullets are the ONE place where you may offer direction. This overrides the 'never prescribe' rule above. You are giving them 3 practical options, not making them ask.
 - Each bullet must clearly link back to what THEY asked about in freeText or previousUserReply. If they asked about sleep, all 3 bullets should touch sleep (from different angles). If they asked how to feel less stuck, all 3 bullets should be about getting unstuck.
 - Ground the bullets in their historySignals. Prioritise lowFields (things averaging below 5, or above 6 for stress/urge), missingFields (things they have stopped logging — those are often the real gap), and fallingFields (things trending the wrong way). Reference the specific field or number in the 'why' so it feels grounded, not generic. Example why: "Sleep quality is averaging 4.3 over the last 7 days."
+- Also read physicalSignals when present. It can contain weight (thisAvg, lastAvg, delta, latest, bmi, bmiBand, daysLogged) and alcohol (total drinks in the last 7 days, drinkingDays, dryDays, and a correlation object showing how sleep changes on drinking vs dry days). Reference these directly when they meaningfully connect to what the person is asking about — for example, a rising weight trend, a BMI outside the healthy band, a heavy drinking week, or a clear sleep gap between drinking and dry days. Never mention BMI as a judgement — only ever as a neutral data point tied to what they raised.
+- If physicalSignals.alcohol.correlation exists and the gap is meaningful (>= 0.8 sleep points), that is often the single most useful thing to name when they are asking about sleep, energy, mood or recovery.
 - If they have no history yet (historySignals.entriesCount is 0), keep the bullets sensible and general, and tie them to the question rather than data. Do not fabricate numbers.
+- Never fabricate physical metrics. If physicalSignals is null or a specific field (weight, alcohol, bmi) is null, do not mention it.
 - Do not repeat the same idea three ways. Cover different angles.
 - Each bullet has a short imperative 'action' (4–14 words, starts with a verb) and a one-line 'why' (10–25 words) tying it to their question and, where possible, a specific number, missing field, or falling trend.
 - Never suggest something the data contradicts (e.g. do not tell them to exercise more if exercise is already high and recovery is falling).
@@ -219,14 +280,16 @@ function buildUserPrompt(context) {
   return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nRespond as described. If previousCoachMessage and previousUserReply are empty, this is the opening turn: ground your reflection in their specific data. Otherwise, lead with what they said and stay with their thread, linking to data only when it deepens the moment.\n\nThen produce exactly 3 bullets in tryThese. Every bullet must connect back to what they asked (freeText / previousUserReply) AND be grounded in historySignals — prioritise lowFields, missingFields (things they have stopped logging), and fallingFields. Reference a specific field or number in the 'why' where possible. If historySignals.entriesCount is 0, tie the bullets to their question and keep them general — do not invent numbers.\n\nReturn only valid JSON with message, question, tryThese, and mood fields.`;
 }
 
-function buildMovesSystemPrompt() {
+export function buildMovesSystemPrompt() {
   return `You are the practical, action-oriented voice of a personal momentum app. Your job in this mode is to look at the person's day and give them a short list of small, concrete moves they can act on in the next few hours.
 
 SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, do not produce a moves list. Instead return a single move that says: "Reach out to Lifeline on 13 11 14, or 000 in an emergency. You do not have to get through this hour on your own." and set mood to "overwhelmed".
 
 How you decide what to suggest (do this silently, never show your reasoning):
-- Read overallScore, weeklyAverage, scoreDelta, capacity, capacityBand, focus, target, bleed, mood, trends, and triggerFrequency.
+- Read overallScore, weeklyAverage, scoreDelta, capacity, capacityBand, focus, target, bleed, mood, trends, triggerFrequency, historySignals, and physicalSignals.
 - Pick 3 to 5 moves that are specifically responsive to that data. If sleep is falling, suggest a sleep-protective move. If exercise trend is falling, suggest a movement move. If stress or overwhelm is high, lead with a recovery move. If hydration or nutrition is low, add one there. If capacity is very low, keep every move tiny (5–15 minutes). If capacity is good, one move may be more ambitious.
+- Also read physicalSignals when present. It can contain weight (thisAvg, lastAvg, delta, bmi, bmiBand, daysLogged) and alcohol (total, drinkingDays, dryDays, correlation with sleep). Use these directly: a rising weight trend or a bmiBand outside "healthy" is a signal for a movement, sleep, or nutrition move. A heavy drinking week or a clear alcohol-sleep correlation gap is a signal for a hydration, sleep, or drink-swap move. Reference the specific number or delta in the 'why'.
+- Never mention BMI as a judgement, only as a neutral data point. Never fabricate physical metrics: if physicalSignals or a specific field is null, do not mention it.
 - Do not repeat the same category twice. Cover different territory (recovery, movement, mind, connection, environment, admin) so the list feels like a real day plan, not one theme five ways.
 - Never suggest something the data contradicts (e.g. do not suggest a hard workout when exercise is already high and recovery is falling).
 
@@ -329,8 +392,9 @@ function fallbackMovesResponse(context) {
   };
 }
 
-function buildFallbackTryThese(context) {
+export function buildFallbackTryThese(context) {
   const hs = context.historySignals || {};
+  const ps = context.physicalSignals || {};
   const low = Array.isArray(hs.lowFields) ? hs.lowFields : [];
   const missing = Array.isArray(hs.missingFields) ? hs.missingFields : [];
   const falling = Array.isArray(hs.fallingFields) ? hs.fallingFields : [];
@@ -369,7 +433,29 @@ function buildFallbackTryThese(context) {
   const bullets = [];
   const used = new Set();
 
-  // Pick from lowFields first
+  // Physical signals first — highest signal-to-noise when present
+  if (ps.alcohol && ps.alcohol.correlation && Math.abs(ps.alcohol.correlation.gap || 0) >= 0.8) {
+    const c = ps.alcohol.correlation;
+    bullets.push({
+      action: "Pick two dry nights this week and note how you sleep.",
+      why: `Sleep averages ${c.dryAvg} on dry nights vs ${c.drinkingAvg} on drinking nights over the last week — a ${Math.abs(c.gap).toFixed(1)}-point gap.`,
+    });
+    used.add("alcohol");
+  }
+  if (bullets.length < 3 && ps.weight && Number.isFinite(ps.weight.delta) && Math.abs(ps.weight.delta) >= 0.7) {
+    const d = ps.weight.delta;
+    bullets.push({
+      action: d > 0
+        ? "Add a 20-minute walk after your biggest meal."
+        : "Add a protein-forward snack between your two biggest meals.",
+      why: d > 0
+        ? `Weight is up ${d.toFixed(1)} kg vs last week — a post-meal walk is the cheapest lever to nudge that back.`
+        : `Weight is down ${Math.abs(d).toFixed(1)} kg vs last week — a small extra protein anchor keeps that healthy rather than accidental.`,
+    });
+    used.add("weight");
+  }
+
+  // Pick from lowFields next
   low.forEach((f) => {
     if (bullets.length >= 3) return;
     const s = suggestionFor(f.field, f.avg);
