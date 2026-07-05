@@ -932,6 +932,70 @@
   margin-top: 16px;
 }
 
+/* Today's Moves card */
+.coach-moves-card {
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(111, 143, 114, 0.14);
+  background: linear-gradient(180deg, #f8faf6 0%, #eef4ec 100%);
+  box-shadow: 0 4px 12px rgba(47, 58, 49, 0.05);
+  margin-top: 16px;
+}
+.coach-moves-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.coach-moves-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.coach-moves-headline {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+.coach-moves-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.coach-moves-list li {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(111, 143, 114, 0.10);
+}
+.coach-moves-action {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+.coach-moves-why {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.coach-moves-empty {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+[data-theme="dark"] .coach-moves-card { background: var(--surface-2); color: var(--text); }
+[data-theme="dark"] .coach-moves-list li { background: var(--surface-3); border-color: rgba(142, 179, 146, 0.18); }
+
 .coach-composer textarea {
   min-height: 120px;
   border: 1px solid rgba(111, 143, 114, 0.12);
@@ -1710,6 +1774,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   </div>
 </div>
 
+<div class="coach-moves-card" id="coachMovesCard">
+  <div class="coach-moves-header">
+    <span class="coach-moves-title">Today's Moves</span>
+    <button class="btn" id="getMovesBtn" type="button">Get today's moves</button>
+  </div>
+  <p class="coach-moves-headline" id="coachMovesHeadline">Short, practical moves tuned to your day. Tap the button to generate a fresh list.</p>
+  <ul class="coach-moves-list" id="coachMovesList" hidden></ul>
+  <p class="coach-moves-empty" id="coachMovesEmpty">No moves yet. Generate a list based on today's check-in.</p>
+</div>
+
 <div class="coach-composer">
   <textarea id="coachPrompt" placeholder="Ask me anything about your momentum, habits, or how to improve..."></textarea>
   <div class="coach-composer-actions">
@@ -1931,6 +2005,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
       // Coach
       document.getElementById('askCoachBtn')?.addEventListener('click', askCoach);
+      document.getElementById('getMovesBtn')?.addEventListener('click', getTodaysMoves);
       document.getElementById('coachPrompt')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
@@ -2493,6 +2568,87 @@ latestEl.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
     // promptInput.value = '';
   }
 }
+function buildCoachPayload(extra) {
+  const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
+  const healthScore = parseInt(document.getElementById('healthProgressValue')?.textContent || '0', 10) || 0;
+  const personalScore = parseInt(document.getElementById('personalProgressValue')?.textContent || '0', 10) || 0;
+  const capacity = parseInt(document.getElementById('energy')?.value || '0', 10) || null;
+  const bleedTriggers = Array.from(
+    document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
+  ).map(input => input.dataset.trigger || '');
+  return Object.assign({
+    overallScore,
+    healthScore,
+    personalScore,
+    capacity,
+    bleed: bleedTriggers.join(', ') || 'none identified',
+    target: '',
+    focus: document.getElementById('morningFocus')?.value || '',
+    reflection: document.getElementById('journalText')?.value || '',
+    freeText: '',
+    timeHorizon: 'next few hours',
+    view: 'reflection',
+    recentTrends: {},
+    recentReflections: [],
+    recentTriggers: bleedTriggers
+  }, extra || {});
+}
+
+async function getTodaysMoves() {
+  const btn = document.getElementById('getMovesBtn');
+  const list = document.getElementById('coachMovesList');
+  const empty = document.getElementById('coachMovesEmpty');
+  const headline = document.getElementById('coachMovesHeadline');
+  if (!btn || !list || !empty || !headline) return;
+
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Thinking…';
+  empty.textContent = 'Reading today’s data…';
+  empty.hidden = false;
+  list.hidden = true;
+
+  try {
+    const payload = buildCoachPayload({ mode: 'moves' });
+    const res = await fetch('/api/coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!data.ok || !data.guide || !Array.isArray(data.guide.moves) || data.guide.moves.length === 0) {
+      throw new Error(data.error || 'No moves returned');
+    }
+    headline.textContent = data.guide.headline || "A short list of moves for today.";
+    list.innerHTML = '';
+    data.guide.moves.forEach(function (m) {
+      if (!m || !m.action) return;
+      const li = document.createElement('li');
+      const action = document.createElement('span');
+      action.className = 'coach-moves-action';
+      action.textContent = m.action;
+      li.appendChild(action);
+      if (m.why) {
+        const why = document.createElement('span');
+        why.className = 'coach-moves-why';
+        why.textContent = m.why;
+        li.appendChild(why);
+      }
+      list.appendChild(li);
+    });
+    list.hidden = false;
+    empty.hidden = true;
+  } catch (err) {
+    console.error(err);
+    empty.textContent = "Couldn’t generate moves right now. Try again in a moment.";
+    empty.hidden = false;
+    list.hidden = true;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
 function askQuickQuestion(topic) {
   const promptEl = document.getElementById('coachPrompt');
   if (!promptEl) return;

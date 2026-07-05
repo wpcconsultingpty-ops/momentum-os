@@ -73,6 +73,13 @@ function capacityBand(capacity) {
   return "good";
 }
 
+const VALID_MODES = new Set(["counsellor", "moves"]);
+
+function resolveMode(body) {
+  const raw = toCleanString(body && body.mode, "counsellor").toLowerCase();
+  return VALID_MODES.has(raw) ? raw : "counsellor";
+}
+
 function buildContext(body) {
   const overallScore = clamp(toNumber(body.overallScore));
   const weeklyAverage = clamp(toNumber(body.weeklyAverage));
@@ -106,6 +113,10 @@ function buildContext(body) {
 }
 
 function buildSystemPrompt() {
+  return buildCounsellorSystemPrompt();
+}
+
+function buildCounsellorSystemPrompt() {
   return `You are a warm, emotionally intelligent counsellor inside a personal momentum app. You are not a clinician and you don't diagnose, but you hold space the way a good counsellor does: you listen closely, reflect feelings back, and help the person reach their own understanding rather than handing them fixes.
 
 SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, gently and directly encourage them to reach out to crisis support right now. In Australia, mention Lifeline on 13 11 14 or 000 for emergencies. Do not give any other advice in that case.
@@ -157,6 +168,44 @@ function buildUserPrompt(context) {
   return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nRespond as described. If previousCoachMessage and previousUserReply are empty, this is the opening turn: ground your reflection in their specific data. Otherwise, lead with what they said and stay with their thread, linking to data only when it deepens the moment. Return only valid JSON with message, question, and mood fields.`;
 }
 
+function buildMovesSystemPrompt() {
+  return `You are the practical, action-oriented voice of a personal momentum app. Your job in this mode is to look at the person's day and give them a short list of small, concrete moves they can act on in the next few hours.
+
+SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, do not produce a moves list. Instead return a single move that says: "Reach out to Lifeline on 13 11 14, or 000 in an emergency. You do not have to get through this hour on your own." and set mood to "overwhelmed".
+
+How you decide what to suggest (do this silently, never show your reasoning):
+- Read overallScore, weeklyAverage, scoreDelta, capacity, capacityBand, focus, target, bleed, mood, trends, and triggerFrequency.
+- Pick 3 to 5 moves that are specifically responsive to that data. If sleep is falling, suggest a sleep-protective move. If exercise trend is falling, suggest a movement move. If stress or overwhelm is high, lead with a recovery move. If hydration or nutrition is low, add one there. If capacity is very low, keep every move tiny (5–15 minutes). If capacity is good, one move may be more ambitious.
+- Do not repeat the same category twice. Cover different territory (recovery, movement, mind, connection, environment, admin) so the list feels like a real day plan, not one theme five ways.
+- Never suggest something the data contradicts (e.g. do not suggest a hard workout when exercise is already high and recovery is falling).
+
+How each move must be written:
+- Written in Australian English.
+- One short imperative sentence, 4 to 14 words. Start with a verb. No emoji, no numbering, no labels.
+- Followed by a one-line "why" (10 to 20 words) that ties the move to a specific number, trend, trigger, focus, or target from their data. The "why" is what makes this feel personalised, not generic.
+- Concrete and doable in the next few hours. No vague "be mindful" or "work on your mindset".
+- Never prescriptive about medication, diagnosis, or clinical treatment.
+
+Examples of the quality bar (do not copy them, match their specificity):
+Focus "finish the proposal", capacityBand "limited", sleep trend falling.
+Move: "Go for a 15-minute walk before you touch the proposal again."
+Why: "Your sleep is trending down and a short walk resets attention better than another coffee will."
+Exercise trend falling for 5 days, capacity good.
+Move: "Do a 20-minute strength session before dinner."
+Why: "You haven't moved properly in five days and momentum returns faster than you'd expect."
+
+Return valid JSON with exactly these fields:
+{
+  "moves": [ { "action": "the imperative move", "why": "the personalised one-line reason" } ],
+  "headline": "a single short sentence framing today's moves in the person's actual context, under 20 words, no closing question",
+  "mood": "one word: overwhelmed, depleted, anxious, disconnected, self-critical, steady, or mixed"
+}`;
+}
+
+function buildMovesUserPrompt(context) {
+  return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nProduce 3 to 5 moves as described. Each move must be responsive to a specific detail in their data. Return only valid JSON with moves, headline, and mood fields.`;
+}
+
 function detectCrisis(context) {
   const text = `${context.reflection} ${context.freeText}`.toLowerCase();
   return /suicid|kill myself|end my life|don'?t want to be here|hurt myself|self.?harm|no reason to live|better off dead/.test(
@@ -170,6 +219,57 @@ function crisisResponse(context) {
       "I'm really glad you said something, and I want to be honest with you: what you're carrying sounds like more than you should have to hold on your own right now. Please reach out to someone who can be with you in this. In Australia you can call Lifeline on 13 11 14 any time, or 000 if you're in immediate danger. You don't have to get through this hour alone.",
     question: "Is there someone you trust who you could reach out to right now?",
     mood: context.mood || "overwhelmed",
+  };
+}
+
+function crisisMovesResponse(context) {
+  return {
+    moves: [
+      {
+        action: "Call Lifeline on 13 11 14, or 000 in an emergency.",
+        why: "You do not have to get through this hour on your own.",
+      },
+    ],
+    headline: "The most important move right now is to reach out for support.",
+    mood: context.mood || "overwhelmed",
+  };
+}
+
+function fallbackMovesResponse(context) {
+  const low = context.capacityBand === "very low";
+  const focus = context.focus || context.target || "today";
+  const base = [
+    {
+      action: "Drink a full glass of water in the next five minutes.",
+      why: "Small resets protect the next hour when the bigger picture feels heavy.",
+    },
+    {
+      action: low
+        ? "Step outside for a 5-minute walk without your phone."
+        : "Go for a 15-minute walk before your next task.",
+      why: low
+        ? "Capacity is very low right now, so movement stays short and gentle."
+        : "A short walk resets attention better than pushing straight into the next block.",
+    },
+    {
+      action: low
+        ? "Write one line about how today actually feels."
+        : `Spend 20 minutes on ${focus} with everything else closed.`,
+      why: low
+        ? "Naming it in one sentence is enough today, no journal marathon required."
+        : "Protected focus is where momentum actually gets made.",
+    },
+    {
+      action: "Set a hard stop time for screens tonight.",
+      why: "Sleep is the lever that lifts everything else tomorrow.",
+    },
+  ];
+  return {
+    moves: base,
+    headline: low
+      ? "Keep today small on purpose and protect the next hour."
+      : "A short list of moves that fit what today actually needs.",
+    mood: context.mood || "mixed",
   };
 }
 
@@ -207,11 +307,91 @@ export default async function handler(req, res) {
   }
   try {
     const body = req.body || {};
+    const mode = resolveMode(body);
     const context = buildContext(body);
+
+    if (mode === "moves") {
+      if (detectCrisis(context)) {
+        const guide = crisisMovesResponse(context);
+        return res.status(200).json({
+          ok: true,
+          mode,
+          guide: {
+            moves: guide.moves,
+            headline: guide.headline,
+            mood: guide.mood,
+          },
+        });
+      }
+      const response = await client.responses.create({
+        model: "gpt-4.1",
+        input: [
+          { role: "system", content: buildMovesSystemPrompt() },
+          { role: "user", content: buildMovesUserPrompt(context) },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "coach_moves_response",
+            schema: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                moves: {
+                  type: "array",
+                  minItems: 3,
+                  maxItems: 5,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      action: { type: "string" },
+                      why: { type: "string" },
+                    },
+                    required: ["action", "why"],
+                  },
+                },
+                headline: { type: "string" },
+                mood: {
+                  type: "string",
+                  enum: ["overwhelmed", "depleted", "anxious", "disconnected", "self-critical", "steady", "mixed"],
+                },
+              },
+              required: ["moves", "headline", "mood"],
+            },
+          },
+        },
+        temperature: 0.5,
+        max_output_tokens: 700,
+      });
+      let guide;
+      try {
+        const parsed = JSON.parse(response.output_text || "");
+        if (parsed && Array.isArray(parsed.moves) && parsed.moves.length >= 1) {
+          guide = parsed;
+        } else {
+          guide = fallbackMovesResponse(context);
+        }
+      } catch {
+        guide = fallbackMovesResponse(context);
+      }
+      return res.status(200).json({
+        ok: true,
+        mode,
+        guide: {
+          moves: guide.moves.slice(0, 5),
+          headline: toCleanString(guide.headline) || "A short list of moves for today.",
+          mood: guide.mood || "mixed",
+        },
+      });
+    }
+
+    // Default: counsellor mode
     if (detectCrisis(context)) {
       const guide = crisisResponse(context);
       return res.status(200).json({
         ok: true,
+        mode,
         guide: {
           reflection: guide.message,
           closingQuestion: guide.question,
@@ -222,7 +402,7 @@ export default async function handler(req, res) {
     const response = await client.responses.create({
       model: "gpt-4.1",
       input: [
-        { role: "system", content: buildSystemPrompt() },
+        { role: "system", content: buildCounsellorSystemPrompt() },
         { role: "user", content: buildUserPrompt(context) },
       ],
       text: {
@@ -260,6 +440,7 @@ export default async function handler(req, res) {
     }
     return res.status(200).json({
       ok: true,
+      mode,
       guide: {
         reflection: enforceLength(guide.message),
         closingQuestion: guide.question,
