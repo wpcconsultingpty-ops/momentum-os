@@ -996,6 +996,24 @@
 [data-theme="dark"] .coach-moves-card { background: var(--surface-2); color: var(--text); }
 [data-theme="dark"] .coach-moves-list li { background: var(--surface-3); border-color: rgba(142, 179, 146, 0.18); }
 
+/* "Three things to try" card under each coach message */
+.coach-try-card {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(111, 143, 114, 0.06);
+  border: 1px solid rgba(111, 143, 114, 0.14);
+}
+.coach-try-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+[data-theme="dark"] .coach-try-card { background: rgba(142, 179, 146, 0.08); border-color: rgba(142, 179, 146, 0.20); }
+
 .coach-composer textarea {
   min-height: 120px;
   border: 1px solid rgba(111, 143, 114, 0.12);
@@ -2499,8 +2517,10 @@ async function askCoach() {
     document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
   ).map(input => input.dataset.trigger || '');
 
-  const recentReflections = []; // optional: could pull from history
-  const recentTriggers = bleedTriggers;
+  const historySignals = buildHistorySignals();
+  const recentReflections = historySignals.recentJournalSnippets || [];
+  const recentTriggers = (historySignals.recentTriggers || []).map(t => t.trigger);
+  if (recentTriggers.length === 0) recentTriggers.push(...bleedTriggers);
 
   statusEl.textContent = 'Thinking...';
   statusEl.classList.add('pulse');
@@ -2533,7 +2553,8 @@ async function askCoach() {
         view: 'reflection',
         recentTrends: {},
         recentReflections,
-        recentTriggers
+        recentTriggers,
+        historySignals
       })
     });
 
@@ -2555,6 +2576,36 @@ latestEl.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
     coachBubble.className = 'message-bubble';
     coachBubble.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
     coachRow.appendChild(coachBubble);
+
+    // 3 bullet-pointed things to try, linked back to the question + history
+    if (Array.isArray(guide.tryThese) && guide.tryThese.length > 0) {
+      const tryCard = document.createElement('div');
+      tryCard.className = 'coach-try-card';
+      const label = document.createElement('div');
+      label.className = 'coach-try-label';
+      label.textContent = 'Three things to try';
+      tryCard.appendChild(label);
+      const ul = document.createElement('ul');
+      ul.className = 'coach-moves-list';
+      guide.tryThese.slice(0, 3).forEach(function (t) {
+        if (!t || !t.action) return;
+        const li = document.createElement('li');
+        const a = document.createElement('span');
+        a.className = 'coach-moves-action';
+        a.textContent = t.action;
+        li.appendChild(a);
+        if (t.why) {
+          const w = document.createElement('span');
+          w.className = 'coach-moves-why';
+          w.textContent = t.why;
+          li.appendChild(w);
+        }
+        ul.appendChild(li);
+      });
+      tryCard.appendChild(ul);
+      coachRow.appendChild(tryCard);
+    }
+
     messagesEl.appendChild(coachRow);
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
@@ -2568,6 +2619,122 @@ latestEl.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
     // promptInput.value = '';
   }
 }
+// Reads the last 7 stored entries and returns a compact summary of what's
+// low, missing, or trending down. Sent to /api/coach so the AI can ground
+// bullet suggestions in real data instead of confabulating.
+function buildHistorySignals() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+    if (!Array.isArray(raw) || raw.length === 0) {
+      return {
+        entriesCount: 0,
+        daysCovered: 0,
+        lowFields: [],
+        missingFields: [],
+        fallingFields: [],
+        averages: {},
+        recentTriggers: [],
+        recentJournalSnippets: [],
+        note: 'No history yet — user has not logged any check-ins.'
+      };
+    }
+    const recent = raw.slice(-7);
+
+    // Fields where high = good. Low = below 5 on average.
+    const positive = ['mood','energy','sleepQuality','exercise','nutrition','hydration','recovery','connection','control','desire'];
+    // Fields where high = bad. High = above 6 on average is a red flag.
+    const inverse = ['stress','urge'];
+    const trackedFields = positive.concat(inverse);
+
+    const averages = {};
+    const presenceCount = {};
+    trackedFields.forEach(f => { averages[f] = null; presenceCount[f] = 0; });
+
+    trackedFields.forEach(f => {
+      const vals = recent.map(e => (typeof e[f] === 'number' ? e[f] : null)).filter(v => v !== null);
+      presenceCount[f] = vals.length;
+      if (vals.length > 0) {
+        averages[f] = Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10;
+      }
+    });
+
+    const lowFields = [];
+    positive.forEach(f => {
+      if (averages[f] !== null && averages[f] < 5) {
+        lowFields.push({ field: f, avg: averages[f], daysLogged: presenceCount[f] });
+      }
+    });
+    inverse.forEach(f => {
+      if (averages[f] !== null && averages[f] > 6) {
+        lowFields.push({ field: f, avg: averages[f], daysLogged: presenceCount[f], note: 'high (inverse field)' });
+      }
+    });
+
+    // Missing = logged on fewer than half the days in the window
+    const window = recent.length;
+    const missingFields = trackedFields
+      .filter(f => presenceCount[f] < Math.max(1, Math.ceil(window / 2)))
+      .map(f => ({ field: f, daysLogged: presenceCount[f], daysInWindow: window }));
+
+    // Falling = compare avg of first half to avg of second half
+    const fallingFields = [];
+    if (recent.length >= 4) {
+      const half = Math.floor(recent.length / 2);
+      const older = recent.slice(0, half);
+      const newer = recent.slice(-half);
+      positive.concat(inverse).forEach(f => {
+        const o = older.map(e => e[f]).filter(v => typeof v === 'number');
+        const n = newer.map(e => e[f]).filter(v => typeof v === 'number');
+        if (o.length && n.length) {
+          const oAvg = o.reduce((a,b)=>a+b,0) / o.length;
+          const nAvg = n.reduce((a,b)=>a+b,0) / n.length;
+          const delta = Math.round((nAvg - oAvg) * 10) / 10;
+          const bad = positive.includes(f) ? delta <= -1 : delta >= 1;
+          if (bad) {
+            fallingFields.push({ field: f, olderAvg: Math.round(oAvg*10)/10, newerAvg: Math.round(nAvg*10)/10, delta });
+          }
+        }
+      });
+    }
+
+    // Recent triggers frequency
+    const triggerCounts = {};
+    recent.forEach(e => {
+      if (Array.isArray(e.triggers)) {
+        e.triggers.forEach(t => {
+          if (!t) return;
+          const k = String(t).toLowerCase();
+          triggerCounts[k] = (triggerCounts[k] || 0) + 1;
+        });
+      }
+    });
+    const recentTriggers = Object.entries(triggerCounts)
+      .sort((a,b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([k,v]) => ({ trigger: k, count: v }));
+
+    // Journal snippets — last 3, trimmed to 240 chars
+    const recentJournalSnippets = recent
+      .filter(e => typeof e.journalNote === 'string' && e.journalNote.trim().length > 0)
+      .slice(-3)
+      .map(e => e.journalNote.trim().slice(0, 240));
+
+    return {
+      entriesCount: raw.length,
+      daysCovered: recent.length,
+      averages,
+      lowFields,
+      missingFields,
+      fallingFields,
+      recentTriggers,
+      recentJournalSnippets
+    };
+  } catch (err) {
+    console.error('buildHistorySignals failed', err);
+    return { entriesCount: 0, daysCovered: 0, lowFields: [], missingFields: [], fallingFields: [], averages: {}, recentTriggers: [], recentJournalSnippets: [], note: 'History unavailable.' };
+  }
+}
+
 function buildCoachPayload(extra) {
   const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
   const healthScore = parseInt(document.getElementById('healthProgressValue')?.textContent || '0', 10) || 0;
@@ -2576,6 +2743,7 @@ function buildCoachPayload(extra) {
   const bleedTriggers = Array.from(
     document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
   ).map(input => input.dataset.trigger || '');
+  const historySignals = buildHistorySignals();
   return Object.assign({
     overallScore,
     healthScore,
@@ -2589,8 +2757,9 @@ function buildCoachPayload(extra) {
     timeHorizon: 'next few hours',
     view: 'reflection',
     recentTrends: {},
-    recentReflections: [],
-    recentTriggers: bleedTriggers
+    recentReflections: historySignals.recentJournalSnippets || [],
+    recentTriggers: (historySignals.recentTriggers || []).map(t => t.trigger),
+    historySignals
   }, extra || {});
 }
 

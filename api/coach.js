@@ -80,6 +80,41 @@ function resolveMode(body) {
   return VALID_MODES.has(raw) ? raw : "counsellor";
 }
 
+function sanitiseHistorySignals(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
+  const arr = (v) => (Array.isArray(v) ? v : []);
+  const safe = {
+    entriesCount: num(raw.entriesCount) || 0,
+    daysCovered: num(raw.daysCovered) || 0,
+    averages: (raw.averages && typeof raw.averages === "object") ? raw.averages : {},
+    lowFields: arr(raw.lowFields).slice(0, 8).map((f) => ({
+      field: toCleanString(f && f.field),
+      avg: num(f && f.avg),
+      daysLogged: num(f && f.daysLogged),
+      note: toCleanString(f && f.note),
+    })).filter((f) => f.field),
+    missingFields: arr(raw.missingFields).slice(0, 8).map((f) => ({
+      field: toCleanString(f && f.field),
+      daysLogged: num(f && f.daysLogged),
+      daysInWindow: num(f && f.daysInWindow),
+    })).filter((f) => f.field),
+    fallingFields: arr(raw.fallingFields).slice(0, 8).map((f) => ({
+      field: toCleanString(f && f.field),
+      olderAvg: num(f && f.olderAvg),
+      newerAvg: num(f && f.newerAvg),
+      delta: num(f && f.delta),
+    })).filter((f) => f.field),
+    recentTriggers: arr(raw.recentTriggers).slice(0, 5).map((t) => ({
+      trigger: toCleanString(t && t.trigger),
+      count: num(t && t.count),
+    })).filter((t) => t.trigger),
+    recentJournalSnippets: arr(raw.recentJournalSnippets).slice(0, 3).map((s) => toCleanString(s).slice(0, 240)).filter(Boolean),
+    note: toCleanString(raw.note),
+  };
+  return safe;
+}
+
 function buildContext(body) {
   const overallScore = clamp(toNumber(body.overallScore));
   const weeklyAverage = clamp(toNumber(body.weeklyAverage));
@@ -105,6 +140,7 @@ function buildContext(body) {
     trends: summariseTrends(body.recentTrends),
     recentReflections: toCleanArray(body.recentReflections).slice(0, 3),
     triggerFrequency: countTriggers(recentTriggers),
+    historySignals: sanitiseHistorySignals(body.historySignals),
     previousCoachMessage: toCleanString(body.previousCoachMessage),
     previousUserReply: toCleanString(body.previousUserReply),
   };
@@ -127,13 +163,13 @@ How you think before you speak (do this silently, never show it):
 - CONTINUING turn: Lead with what THEY just said, not the dashboard. Follow their thread. Their words are the material you work with now. You may quietly link back to their data only when it genuinely deepens what they are exploring, never to steer them back to their numbers.
 - Calibrate depth to capacityBand: "very low" means mostly listening and permission to rest; "limited" means gentle reflection and, only if they want it, one small step; "good" means space to think something through together.
 
-How you speak:
+How you speak (this applies ONLY to the 'message' field, not the tryThese bullets below):
 - Write in Australian English spelling and phrasing.
 - Short paragraphs, natural pacing, like a real person talking quietly with someone they care about.
-- Never use labels, headers, bullet points, or numbered lists.
+- In the 'message' field, never use labels, headers, bullet points, or numbered lists. Bullets belong only in the 'tryThese' field.
 - Never say things like "Here are some suggestions" or "I notice a pattern".
 - Weave any observations naturally into the conversation.
-- Keep your entire response under 150 words.
+- Keep your 'message' under 150 words.
 - Do not put your closing question inside the message text. The question belongs only in the question field.
 
 What you do:
@@ -156,16 +192,31 @@ Good message: "The proposal is clearly weighing on you, and running on this litt
 Continuing turn, they replied "I just feel like if I stop I'll fall behind and never catch up."
 Good message: "That fear of falling behind sounds exhausting to carry, like rest itself has started to feel risky. I wonder how long you've been running on that feeling, and what it might be quietly costing you beyond the proposal."
 
+Three things to try (the 'tryThese' field — always exactly 3 bullets):
+- Each bullet is a small, concrete action they can try in the next day or two. Not vague, not abstract, not a mindset shift.
+- The bullets are the ONE place where you may offer direction. This overrides the 'never prescribe' rule above. You are giving them 3 practical options, not making them ask.
+- Each bullet must clearly link back to what THEY asked about in freeText or previousUserReply. If they asked about sleep, all 3 bullets should touch sleep (from different angles). If they asked how to feel less stuck, all 3 bullets should be about getting unstuck.
+- Ground the bullets in their historySignals. Prioritise lowFields (things averaging below 5, or above 6 for stress/urge), missingFields (things they have stopped logging — those are often the real gap), and fallingFields (things trending the wrong way). Reference the specific field or number in the 'why' so it feels grounded, not generic. Example why: "Sleep quality is averaging 4.3 over the last 7 days."
+- If they have no history yet (historySignals.entriesCount is 0), keep the bullets sensible and general, and tie them to the question rather than data. Do not fabricate numbers.
+- Do not repeat the same idea three ways. Cover different angles.
+- Each bullet has a short imperative 'action' (4–14 words, starts with a verb) and a one-line 'why' (10–25 words) tying it to their question and, where possible, a specific number, missing field, or falling trend.
+- Never suggest something the data contradicts (e.g. do not tell them to exercise more if exercise is already high and recovery is falling).
+
 Return valid JSON with exactly these fields:
 {
-  "message": "your full conversational response, reflection woven together naturally, with no closing question inside it",
+  "message": "your full conversational response, reflection woven together naturally, with no closing question and no bullets inside it",
   "question": "your single closing question",
+  "tryThese": [
+    { "action": "short imperative move", "why": "one-line reason tying it to their question and their history" },
+    { "action": "...", "why": "..." },
+    { "action": "...", "why": "..." }
+  ],
   "mood": "one word: overwhelmed, depleted, anxious, disconnected, self-critical, steady, or mixed"
 }`;
 }
 
 function buildUserPrompt(context) {
-  return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nRespond as described. If previousCoachMessage and previousUserReply are empty, this is the opening turn: ground your reflection in their specific data. Otherwise, lead with what they said and stay with their thread, linking to data only when it deepens the moment. Return only valid JSON with message, question, and mood fields.`;
+  return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nRespond as described. If previousCoachMessage and previousUserReply are empty, this is the opening turn: ground your reflection in their specific data. Otherwise, lead with what they said and stay with their thread, linking to data only when it deepens the moment.\n\nThen produce exactly 3 bullets in tryThese. Every bullet must connect back to what they asked (freeText / previousUserReply) AND be grounded in historySignals — prioritise lowFields, missingFields (things they have stopped logging), and fallingFields. Reference a specific field or number in the 'why' where possible. If historySignals.entriesCount is 0, tie the bullets to their question and keep them general — do not invent numbers.\n\nReturn only valid JSON with message, question, tryThese, and mood fields.`;
 }
 
 function buildMovesSystemPrompt() {
@@ -218,6 +269,11 @@ function crisisResponse(context) {
     message:
       "I'm really glad you said something, and I want to be honest with you: what you're carrying sounds like more than you should have to hold on your own right now. Please reach out to someone who can be with you in this. In Australia you can call Lifeline on 13 11 14 any time, or 000 if you're in immediate danger. You don't have to get through this hour alone.",
     question: "Is there someone you trust who you could reach out to right now?",
+    tryThese: [
+      { action: "Call Lifeline on 13 11 14 right now.", why: "They are free, 24/7, and will stay on the line with you." },
+      { action: "Message one person you trust and tell them what's happening.", why: "You do not have to explain the whole story — just that you need someone with you." },
+      { action: "If you are in immediate danger, call 000.", why: "Emergency services can help you get to a safe place tonight." },
+    ],
     mood: context.mood || "overwhelmed",
   };
 }
@@ -273,6 +329,84 @@ function fallbackMovesResponse(context) {
   };
 }
 
+function buildFallbackTryThese(context) {
+  const hs = context.historySignals || {};
+  const low = Array.isArray(hs.lowFields) ? hs.lowFields : [];
+  const missing = Array.isArray(hs.missingFields) ? hs.missingFields : [];
+  const falling = Array.isArray(hs.fallingFields) ? hs.fallingFields : [];
+
+  const suggestionFor = (field, avg) => {
+    switch (field) {
+      case "sleepQuality":
+        return { action: "Set a hard lights-out time tonight and hold it.", why: `Sleep quality is averaging ${avg ?? "low"} lately, and everything else lifts when sleep does.` };
+      case "exercise":
+        return { action: "Go for a 20-minute walk before your next meal.", why: `Exercise has been sitting around ${avg ?? "low"} — short movement now beats a perfect session you never do.` };
+      case "hydration":
+        return { action: "Drink a full glass of water in the next five minutes.", why: `Hydration is averaging ${avg ?? "low"} — the smallest move that actually changes how you feel.` };
+      case "nutrition":
+        return { action: "Plan one protein-forward meal today, not all of them.", why: `Nutrition is averaging ${avg ?? "low"} — one deliberate meal is more useful than a full overhaul.` };
+      case "energy":
+        return { action: "Step outside for 10 minutes without your phone.", why: `Energy is averaging ${avg ?? "low"} — daylight and quiet reset it faster than caffeine will.` };
+      case "mood":
+        return { action: "Message one person you actually like today.", why: `Mood is averaging ${avg ?? "low"} — connection is the lever that shifts it, not more thinking.` };
+      case "recovery":
+        return { action: "Book a genuine rest block into today.", why: `Recovery is averaging ${avg ?? "low"} — rest scheduled in advance is more likely to actually happen.` };
+      case "connection":
+        return { action: "Reach out to one person today, not to catch up, just to say hello.", why: `Connection is averaging ${avg ?? "low"} — a small check-in counts as connection.` };
+      case "control":
+        return { action: "Pick the single most important thing for today and start there.", why: `Sense of control is averaging ${avg ?? "low"} — one clear next step returns it faster than a plan.` };
+      case "stress":
+        return { action: "Take five slow breaths before the next task.", why: `Stress is averaging ${avg ?? "high"} — a five-breath pause changes the physiology before it changes the story.` };
+      case "urge":
+        return { action: "Name the urge out loud and delay acting for 10 minutes.", why: `Urge intensity is averaging ${avg ?? "high"} — naming and delaying breaks the automatic loop.` };
+      case "desire":
+        return { action: "Write down one thing that would make today feel meaningful.", why: `Desire is averaging ${avg ?? "low"} — clarity on what you actually want is the first move.` };
+      default:
+        return null;
+    }
+  };
+
+  const bullets = [];
+  const used = new Set();
+
+  // Pick from lowFields first
+  low.forEach((f) => {
+    if (bullets.length >= 3) return;
+    const s = suggestionFor(f.field, f.avg);
+    if (s && !used.has(f.field)) { bullets.push(s); used.add(f.field); }
+  });
+  // Then missingFields (things they stopped logging)
+  missing.forEach((f) => {
+    if (bullets.length >= 3) return;
+    if (used.has(f.field)) return;
+    bullets.push({
+      action: `Log ${f.field} tonight, even if the answer is boring.`,
+      why: `You have only logged ${f.field} on ${f.daysLogged || 0} of the last ${f.daysInWindow || 7} days — the gap itself is data.`,
+    });
+    used.add(f.field);
+  });
+  // Then fallingFields
+  falling.forEach((f) => {
+    if (bullets.length >= 3) return;
+    if (used.has(f.field)) return;
+    const s = suggestionFor(f.field, f.newerAvg);
+    if (s) { bullets.push(s); used.add(f.field); }
+  });
+
+  // Generic top-ups
+  const generics = [
+    { action: "Go for a 15-minute walk before your next block of work.", why: "Movement resets attention better than pushing straight into the next thing." },
+    { action: "Drink a full glass of water in the next five minutes.", why: "Smallest possible reset when the bigger picture feels heavy." },
+    { action: "Set a hard stop time for screens tonight.", why: "Sleep is the lever that lifts almost every other number tomorrow." },
+  ];
+  for (const g of generics) {
+    if (bullets.length >= 3) break;
+    bullets.push(g);
+  }
+
+  return bullets.slice(0, 3);
+}
+
 function fallbackResponse(context) {
   const detail =
     context.focus || context.target || context.bleed || "what's on your plate";
@@ -284,6 +418,7 @@ function fallbackResponse(context) {
     question: low
       ? "What is one thing you could take off your plate for the rest of today?"
       : "What does the next hour actually need to look like for you?",
+    tryThese: buildFallbackTryThese(context),
     mood: context.mood || "mixed",
   };
 }
@@ -395,6 +530,7 @@ export default async function handler(req, res) {
         guide: {
           reflection: guide.message,
           closingQuestion: guide.question,
+          tryThese: guide.tryThese,
           mood: guide.mood,
         },
       });
@@ -415,23 +551,42 @@ export default async function handler(req, res) {
             properties: {
               message: { type: "string" },
               question: { type: "string" },
+              tryThese: {
+                type: "array",
+                minItems: 3,
+                maxItems: 3,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    action: { type: "string" },
+                    why: { type: "string" },
+                  },
+                  required: ["action", "why"],
+                },
+              },
               mood: {
                 type: "string",
                 enum: ["overwhelmed", "depleted", "anxious", "disconnected", "self-critical", "steady", "mixed"],
               },
             },
-            required: ["message", "question", "mood"],
+            required: ["message", "question", "tryThese", "mood"],
           },
         },
       },
       temperature: 0.6,
-      max_output_tokens: 600,
+      max_output_tokens: 900,
     });
     let guide;
     try {
       const parsed = JSON.parse(response.output_text || "");
       if (parsed && parsed.message && parsed.question) {
         guide = parsed;
+        if (!Array.isArray(guide.tryThese) || guide.tryThese.length < 3) {
+          guide.tryThese = buildFallbackTryThese(context);
+        } else {
+          guide.tryThese = guide.tryThese.slice(0, 3);
+        }
       } else {
         guide = fallbackResponse(context);
       }
@@ -444,6 +599,7 @@ export default async function handler(req, res) {
       guide: {
         reflection: enforceLength(guide.message),
         closingQuestion: guide.question,
+        tryThese: guide.tryThese || buildFallbackTryThese(context),
         mood: guide.mood || "mixed",
       },
     });
