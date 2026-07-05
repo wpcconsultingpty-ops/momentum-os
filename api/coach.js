@@ -73,6 +73,48 @@ function capacityBand(capacity) {
   return "good";
 }
 
+const VALID_MODES = new Set(["counsellor", "moves"]);
+
+function resolveMode(body) {
+  const raw = toCleanString(body && body.mode, "counsellor").toLowerCase();
+  return VALID_MODES.has(raw) ? raw : "counsellor";
+}
+
+function sanitiseHistorySignals(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
+  const arr = (v) => (Array.isArray(v) ? v : []);
+  const safe = {
+    entriesCount: num(raw.entriesCount) || 0,
+    daysCovered: num(raw.daysCovered) || 0,
+    averages: (raw.averages && typeof raw.averages === "object") ? raw.averages : {},
+    lowFields: arr(raw.lowFields).slice(0, 8).map((f) => ({
+      field: toCleanString(f && f.field),
+      avg: num(f && f.avg),
+      daysLogged: num(f && f.daysLogged),
+      note: toCleanString(f && f.note),
+    })).filter((f) => f.field),
+    missingFields: arr(raw.missingFields).slice(0, 8).map((f) => ({
+      field: toCleanString(f && f.field),
+      daysLogged: num(f && f.daysLogged),
+      daysInWindow: num(f && f.daysInWindow),
+    })).filter((f) => f.field),
+    fallingFields: arr(raw.fallingFields).slice(0, 8).map((f) => ({
+      field: toCleanString(f && f.field),
+      olderAvg: num(f && f.olderAvg),
+      newerAvg: num(f && f.newerAvg),
+      delta: num(f && f.delta),
+    })).filter((f) => f.field),
+    recentTriggers: arr(raw.recentTriggers).slice(0, 5).map((t) => ({
+      trigger: toCleanString(t && t.trigger),
+      count: num(t && t.count),
+    })).filter((t) => t.trigger),
+    recentJournalSnippets: arr(raw.recentJournalSnippets).slice(0, 3).map((s) => toCleanString(s).slice(0, 240)).filter(Boolean),
+    note: toCleanString(raw.note),
+  };
+  return safe;
+}
+
 function buildContext(body) {
   const overallScore = clamp(toNumber(body.overallScore));
   const weeklyAverage = clamp(toNumber(body.weeklyAverage));
@@ -98,6 +140,7 @@ function buildContext(body) {
     trends: summariseTrends(body.recentTrends),
     recentReflections: toCleanArray(body.recentReflections).slice(0, 3),
     triggerFrequency: countTriggers(recentTriggers),
+    historySignals: sanitiseHistorySignals(body.historySignals),
     previousCoachMessage: toCleanString(body.previousCoachMessage),
     previousUserReply: toCleanString(body.previousUserReply),
   };
@@ -106,6 +149,10 @@ function buildContext(body) {
 }
 
 function buildSystemPrompt() {
+  return buildCounsellorSystemPrompt();
+}
+
+function buildCounsellorSystemPrompt() {
   return `You are a warm, emotionally intelligent counsellor inside a personal momentum app. You are not a clinician and you don't diagnose, but you hold space the way a good counsellor does: you listen closely, reflect feelings back, and help the person reach their own understanding rather than handing them fixes.
 
 SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, gently and directly encourage them to reach out to crisis support right now. In Australia, mention Lifeline on 13 11 14 or 000 for emergencies. Do not give any other advice in that case.
@@ -116,13 +163,13 @@ How you think before you speak (do this silently, never show it):
 - CONTINUING turn: Lead with what THEY just said, not the dashboard. Follow their thread. Their words are the material you work with now. You may quietly link back to their data only when it genuinely deepens what they are exploring, never to steer them back to their numbers.
 - Calibrate depth to capacityBand: "very low" means mostly listening and permission to rest; "limited" means gentle reflection and, only if they want it, one small step; "good" means space to think something through together.
 
-How you speak:
+How you speak (this applies ONLY to the 'message' field, not the tryThese bullets below):
 - Write in Australian English spelling and phrasing.
 - Short paragraphs, natural pacing, like a real person talking quietly with someone they care about.
-- Never use labels, headers, bullet points, or numbered lists.
+- In the 'message' field, never use labels, headers, bullet points, or numbered lists. Bullets belong only in the 'tryThese' field.
 - Never say things like "Here are some suggestions" or "I notice a pattern".
 - Weave any observations naturally into the conversation.
-- Keep your entire response under 150 words.
+- Keep your 'message' under 150 words.
 - Do not put your closing question inside the message text. The question belongs only in the question field.
 
 What you do:
@@ -145,16 +192,69 @@ Good message: "The proposal is clearly weighing on you, and running on this litt
 Continuing turn, they replied "I just feel like if I stop I'll fall behind and never catch up."
 Good message: "That fear of falling behind sounds exhausting to carry, like rest itself has started to feel risky. I wonder how long you've been running on that feeling, and what it might be quietly costing you beyond the proposal."
 
+Three things to try (the 'tryThese' field — always exactly 3 bullets):
+- Each bullet is a small, concrete action they can try in the next day or two. Not vague, not abstract, not a mindset shift.
+- The bullets are the ONE place where you may offer direction. This overrides the 'never prescribe' rule above. You are giving them 3 practical options, not making them ask.
+- Each bullet must clearly link back to what THEY asked about in freeText or previousUserReply. If they asked about sleep, all 3 bullets should touch sleep (from different angles). If they asked how to feel less stuck, all 3 bullets should be about getting unstuck.
+- Ground the bullets in their historySignals. Prioritise lowFields (things averaging below 5, or above 6 for stress/urge), missingFields (things they have stopped logging — those are often the real gap), and fallingFields (things trending the wrong way). Reference the specific field or number in the 'why' so it feels grounded, not generic. Example why: "Sleep quality is averaging 4.3 over the last 7 days."
+- If they have no history yet (historySignals.entriesCount is 0), keep the bullets sensible and general, and tie them to the question rather than data. Do not fabricate numbers.
+- Do not repeat the same idea three ways. Cover different angles.
+- Each bullet has a short imperative 'action' (4–14 words, starts with a verb) and a one-line 'why' (10–25 words) tying it to their question and, where possible, a specific number, missing field, or falling trend.
+- Never suggest something the data contradicts (e.g. do not tell them to exercise more if exercise is already high and recovery is falling).
+
 Return valid JSON with exactly these fields:
 {
-  "message": "your full conversational response, reflection woven together naturally, with no closing question inside it",
+  "message": "your full conversational response, reflection woven together naturally, with no closing question and no bullets inside it",
   "question": "your single closing question",
+  "tryThese": [
+    { "action": "short imperative move", "why": "one-line reason tying it to their question and their history" },
+    { "action": "...", "why": "..." },
+    { "action": "...", "why": "..." }
+  ],
   "mood": "one word: overwhelmed, depleted, anxious, disconnected, self-critical, steady, or mixed"
 }`;
 }
 
 function buildUserPrompt(context) {
-  return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nRespond as described. If previousCoachMessage and previousUserReply are empty, this is the opening turn: ground your reflection in their specific data. Otherwise, lead with what they said and stay with their thread, linking to data only when it deepens the moment. Return only valid JSON with message, question, and mood fields.`;
+  return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nRespond as described. If previousCoachMessage and previousUserReply are empty, this is the opening turn: ground your reflection in their specific data. Otherwise, lead with what they said and stay with their thread, linking to data only when it deepens the moment.\n\nThen produce exactly 3 bullets in tryThese. Every bullet must connect back to what they asked (freeText / previousUserReply) AND be grounded in historySignals — prioritise lowFields, missingFields (things they have stopped logging), and fallingFields. Reference a specific field or number in the 'why' where possible. If historySignals.entriesCount is 0, tie the bullets to their question and keep them general — do not invent numbers.\n\nReturn only valid JSON with message, question, tryThese, and mood fields.`;
+}
+
+function buildMovesSystemPrompt() {
+  return `You are the practical, action-oriented voice of a personal momentum app. Your job in this mode is to look at the person's day and give them a short list of small, concrete moves they can act on in the next few hours.
+
+SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, do not produce a moves list. Instead return a single move that says: "Reach out to Lifeline on 13 11 14, or 000 in an emergency. You do not have to get through this hour on your own." and set mood to "overwhelmed".
+
+How you decide what to suggest (do this silently, never show your reasoning):
+- Read overallScore, weeklyAverage, scoreDelta, capacity, capacityBand, focus, target, bleed, mood, trends, and triggerFrequency.
+- Pick 3 to 5 moves that are specifically responsive to that data. If sleep is falling, suggest a sleep-protective move. If exercise trend is falling, suggest a movement move. If stress or overwhelm is high, lead with a recovery move. If hydration or nutrition is low, add one there. If capacity is very low, keep every move tiny (5–15 minutes). If capacity is good, one move may be more ambitious.
+- Do not repeat the same category twice. Cover different territory (recovery, movement, mind, connection, environment, admin) so the list feels like a real day plan, not one theme five ways.
+- Never suggest something the data contradicts (e.g. do not suggest a hard workout when exercise is already high and recovery is falling).
+
+How each move must be written:
+- Written in Australian English.
+- One short imperative sentence, 4 to 14 words. Start with a verb. No emoji, no numbering, no labels.
+- Followed by a one-line "why" (10 to 20 words) that ties the move to a specific number, trend, trigger, focus, or target from their data. The "why" is what makes this feel personalised, not generic.
+- Concrete and doable in the next few hours. No vague "be mindful" or "work on your mindset".
+- Never prescriptive about medication, diagnosis, or clinical treatment.
+
+Examples of the quality bar (do not copy them, match their specificity):
+Focus "finish the proposal", capacityBand "limited", sleep trend falling.
+Move: "Go for a 15-minute walk before you touch the proposal again."
+Why: "Your sleep is trending down and a short walk resets attention better than another coffee will."
+Exercise trend falling for 5 days, capacity good.
+Move: "Do a 20-minute strength session before dinner."
+Why: "You haven't moved properly in five days and momentum returns faster than you'd expect."
+
+Return valid JSON with exactly these fields:
+{
+  "moves": [ { "action": "the imperative move", "why": "the personalised one-line reason" } ],
+  "headline": "a single short sentence framing today's moves in the person's actual context, under 20 words, no closing question",
+  "mood": "one word: overwhelmed, depleted, anxious, disconnected, self-critical, steady, or mixed"
+}`;
+}
+
+function buildMovesUserPrompt(context) {
+  return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nProduce 3 to 5 moves as described. Each move must be responsive to a specific detail in their data. Return only valid JSON with moves, headline, and mood fields.`;
 }
 
 function detectCrisis(context) {
@@ -169,8 +269,142 @@ function crisisResponse(context) {
     message:
       "I'm really glad you said something, and I want to be honest with you: what you're carrying sounds like more than you should have to hold on your own right now. Please reach out to someone who can be with you in this. In Australia you can call Lifeline on 13 11 14 any time, or 000 if you're in immediate danger. You don't have to get through this hour alone.",
     question: "Is there someone you trust who you could reach out to right now?",
+    tryThese: [
+      { action: "Call Lifeline on 13 11 14 right now.", why: "They are free, 24/7, and will stay on the line with you." },
+      { action: "Message one person you trust and tell them what's happening.", why: "You do not have to explain the whole story — just that you need someone with you." },
+      { action: "If you are in immediate danger, call 000.", why: "Emergency services can help you get to a safe place tonight." },
+    ],
     mood: context.mood || "overwhelmed",
   };
+}
+
+function crisisMovesResponse(context) {
+  return {
+    moves: [
+      {
+        action: "Call Lifeline on 13 11 14, or 000 in an emergency.",
+        why: "You do not have to get through this hour on your own.",
+      },
+    ],
+    headline: "The most important move right now is to reach out for support.",
+    mood: context.mood || "overwhelmed",
+  };
+}
+
+function fallbackMovesResponse(context) {
+  const low = context.capacityBand === "very low";
+  const focus = context.focus || context.target || "today";
+  const base = [
+    {
+      action: "Drink a full glass of water in the next five minutes.",
+      why: "Small resets protect the next hour when the bigger picture feels heavy.",
+    },
+    {
+      action: low
+        ? "Step outside for a 5-minute walk without your phone."
+        : "Go for a 15-minute walk before your next task.",
+      why: low
+        ? "Capacity is very low right now, so movement stays short and gentle."
+        : "A short walk resets attention better than pushing straight into the next block.",
+    },
+    {
+      action: low
+        ? "Write one line about how today actually feels."
+        : `Spend 20 minutes on ${focus} with everything else closed.`,
+      why: low
+        ? "Naming it in one sentence is enough today, no journal marathon required."
+        : "Protected focus is where momentum actually gets made.",
+    },
+    {
+      action: "Set a hard stop time for screens tonight.",
+      why: "Sleep is the lever that lifts everything else tomorrow.",
+    },
+  ];
+  return {
+    moves: base,
+    headline: low
+      ? "Keep today small on purpose and protect the next hour."
+      : "A short list of moves that fit what today actually needs.",
+    mood: context.mood || "mixed",
+  };
+}
+
+function buildFallbackTryThese(context) {
+  const hs = context.historySignals || {};
+  const low = Array.isArray(hs.lowFields) ? hs.lowFields : [];
+  const missing = Array.isArray(hs.missingFields) ? hs.missingFields : [];
+  const falling = Array.isArray(hs.fallingFields) ? hs.fallingFields : [];
+
+  const suggestionFor = (field, avg) => {
+    switch (field) {
+      case "sleepQuality":
+        return { action: "Set a hard lights-out time tonight and hold it.", why: `Sleep quality is averaging ${avg ?? "low"} lately, and everything else lifts when sleep does.` };
+      case "exercise":
+        return { action: "Go for a 20-minute walk before your next meal.", why: `Exercise has been sitting around ${avg ?? "low"} — short movement now beats a perfect session you never do.` };
+      case "hydration":
+        return { action: "Drink a full glass of water in the next five minutes.", why: `Hydration is averaging ${avg ?? "low"} — the smallest move that actually changes how you feel.` };
+      case "nutrition":
+        return { action: "Plan one protein-forward meal today, not all of them.", why: `Nutrition is averaging ${avg ?? "low"} — one deliberate meal is more useful than a full overhaul.` };
+      case "energy":
+        return { action: "Step outside for 10 minutes without your phone.", why: `Energy is averaging ${avg ?? "low"} — daylight and quiet reset it faster than caffeine will.` };
+      case "mood":
+        return { action: "Message one person you actually like today.", why: `Mood is averaging ${avg ?? "low"} — connection is the lever that shifts it, not more thinking.` };
+      case "recovery":
+        return { action: "Book a genuine rest block into today.", why: `Recovery is averaging ${avg ?? "low"} — rest scheduled in advance is more likely to actually happen.` };
+      case "connection":
+        return { action: "Reach out to one person today, not to catch up, just to say hello.", why: `Connection is averaging ${avg ?? "low"} — a small check-in counts as connection.` };
+      case "control":
+        return { action: "Pick the single most important thing for today and start there.", why: `Sense of control is averaging ${avg ?? "low"} — one clear next step returns it faster than a plan.` };
+      case "stress":
+        return { action: "Take five slow breaths before the next task.", why: `Stress is averaging ${avg ?? "high"} — a five-breath pause changes the physiology before it changes the story.` };
+      case "urge":
+        return { action: "Name the urge out loud and delay acting for 10 minutes.", why: `Urge intensity is averaging ${avg ?? "high"} — naming and delaying breaks the automatic loop.` };
+      case "desire":
+        return { action: "Write down one thing that would make today feel meaningful.", why: `Desire is averaging ${avg ?? "low"} — clarity on what you actually want is the first move.` };
+      default:
+        return null;
+    }
+  };
+
+  const bullets = [];
+  const used = new Set();
+
+  // Pick from lowFields first
+  low.forEach((f) => {
+    if (bullets.length >= 3) return;
+    const s = suggestionFor(f.field, f.avg);
+    if (s && !used.has(f.field)) { bullets.push(s); used.add(f.field); }
+  });
+  // Then missingFields (things they stopped logging)
+  missing.forEach((f) => {
+    if (bullets.length >= 3) return;
+    if (used.has(f.field)) return;
+    bullets.push({
+      action: `Log ${f.field} tonight, even if the answer is boring.`,
+      why: `You have only logged ${f.field} on ${f.daysLogged || 0} of the last ${f.daysInWindow || 7} days — the gap itself is data.`,
+    });
+    used.add(f.field);
+  });
+  // Then fallingFields
+  falling.forEach((f) => {
+    if (bullets.length >= 3) return;
+    if (used.has(f.field)) return;
+    const s = suggestionFor(f.field, f.newerAvg);
+    if (s) { bullets.push(s); used.add(f.field); }
+  });
+
+  // Generic top-ups
+  const generics = [
+    { action: "Go for a 15-minute walk before your next block of work.", why: "Movement resets attention better than pushing straight into the next thing." },
+    { action: "Drink a full glass of water in the next five minutes.", why: "Smallest possible reset when the bigger picture feels heavy." },
+    { action: "Set a hard stop time for screens tonight.", why: "Sleep is the lever that lifts almost every other number tomorrow." },
+  ];
+  for (const g of generics) {
+    if (bullets.length >= 3) break;
+    bullets.push(g);
+  }
+
+  return bullets.slice(0, 3);
 }
 
 function fallbackResponse(context) {
@@ -184,6 +418,7 @@ function fallbackResponse(context) {
     question: low
       ? "What is one thing you could take off your plate for the rest of today?"
       : "What does the next hour actually need to look like for you?",
+    tryThese: buildFallbackTryThese(context),
     mood: context.mood || "mixed",
   };
 }
@@ -207,14 +442,95 @@ export default async function handler(req, res) {
   }
   try {
     const body = req.body || {};
+    const mode = resolveMode(body);
     const context = buildContext(body);
+
+    if (mode === "moves") {
+      if (detectCrisis(context)) {
+        const guide = crisisMovesResponse(context);
+        return res.status(200).json({
+          ok: true,
+          mode,
+          guide: {
+            moves: guide.moves,
+            headline: guide.headline,
+            mood: guide.mood,
+          },
+        });
+      }
+      const response = await client.responses.create({
+        model: "gpt-4.1",
+        input: [
+          { role: "system", content: buildMovesSystemPrompt() },
+          { role: "user", content: buildMovesUserPrompt(context) },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "coach_moves_response",
+            schema: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                moves: {
+                  type: "array",
+                  minItems: 3,
+                  maxItems: 5,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      action: { type: "string" },
+                      why: { type: "string" },
+                    },
+                    required: ["action", "why"],
+                  },
+                },
+                headline: { type: "string" },
+                mood: {
+                  type: "string",
+                  enum: ["overwhelmed", "depleted", "anxious", "disconnected", "self-critical", "steady", "mixed"],
+                },
+              },
+              required: ["moves", "headline", "mood"],
+            },
+          },
+        },
+        temperature: 0.5,
+        max_output_tokens: 700,
+      });
+      let guide;
+      try {
+        const parsed = JSON.parse(response.output_text || "");
+        if (parsed && Array.isArray(parsed.moves) && parsed.moves.length >= 1) {
+          guide = parsed;
+        } else {
+          guide = fallbackMovesResponse(context);
+        }
+      } catch {
+        guide = fallbackMovesResponse(context);
+      }
+      return res.status(200).json({
+        ok: true,
+        mode,
+        guide: {
+          moves: guide.moves.slice(0, 5),
+          headline: toCleanString(guide.headline) || "A short list of moves for today.",
+          mood: guide.mood || "mixed",
+        },
+      });
+    }
+
+    // Default: counsellor mode
     if (detectCrisis(context)) {
       const guide = crisisResponse(context);
       return res.status(200).json({
         ok: true,
+        mode,
         guide: {
           reflection: guide.message,
           closingQuestion: guide.question,
+          tryThese: guide.tryThese,
           mood: guide.mood,
         },
       });
@@ -222,7 +538,7 @@ export default async function handler(req, res) {
     const response = await client.responses.create({
       model: "gpt-4.1",
       input: [
-        { role: "system", content: buildSystemPrompt() },
+        { role: "system", content: buildCounsellorSystemPrompt() },
         { role: "user", content: buildUserPrompt(context) },
       ],
       text: {
@@ -235,23 +551,42 @@ export default async function handler(req, res) {
             properties: {
               message: { type: "string" },
               question: { type: "string" },
+              tryThese: {
+                type: "array",
+                minItems: 3,
+                maxItems: 3,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    action: { type: "string" },
+                    why: { type: "string" },
+                  },
+                  required: ["action", "why"],
+                },
+              },
               mood: {
                 type: "string",
                 enum: ["overwhelmed", "depleted", "anxious", "disconnected", "self-critical", "steady", "mixed"],
               },
             },
-            required: ["message", "question", "mood"],
+            required: ["message", "question", "tryThese", "mood"],
           },
         },
       },
       temperature: 0.6,
-      max_output_tokens: 600,
+      max_output_tokens: 900,
     });
     let guide;
     try {
       const parsed = JSON.parse(response.output_text || "");
       if (parsed && parsed.message && parsed.question) {
         guide = parsed;
+        if (!Array.isArray(guide.tryThese) || guide.tryThese.length < 3) {
+          guide.tryThese = buildFallbackTryThese(context);
+        } else {
+          guide.tryThese = guide.tryThese.slice(0, 3);
+        }
       } else {
         guide = fallbackResponse(context);
       }
@@ -260,9 +595,11 @@ export default async function handler(req, res) {
     }
     return res.status(200).json({
       ok: true,
+      mode,
       guide: {
         reflection: enforceLength(guide.message),
         closingQuestion: guide.question,
+        tryThese: guide.tryThese || buildFallbackTryThese(context),
         mood: guide.mood || "mixed",
       },
     });
