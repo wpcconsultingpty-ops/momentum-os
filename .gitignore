@@ -3,3 +3,4 @@ tests/
 *.log
 .env
 .env.local
+.vercel

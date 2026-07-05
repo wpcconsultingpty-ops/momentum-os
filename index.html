@@ -2477,6 +2477,70 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       }
 
       localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries)); try { updateAllViews(); } catch(e){ console.error('updateAllViews failed', e); }
+
+      // Sync-on-write: push to Supabase so Sunday briefs work
+      try { syncEntryToSupabase(todayEntry || entries[entries.length - 1]); } catch(e) { console.warn('syncEntryToSupabase failed', e); }
+      try { ensureUserPrefs(); } catch(e) { console.warn('ensureUserPrefs failed', e); }
+    }
+
+    // ---- Supabase sync (Phase 2: Sunday Brief) ----------------------------
+    async function syncEntryToSupabase(entry) {
+      if (!entry || !window.db || !window.currentUser) return;
+      const user = window.currentUser;
+      const entryDate = (entry.date ? new Date(entry.date) : new Date());
+      const dateStr = entryDate.toISOString().slice(0, 10);
+      // Map camelCase (client) -> snake_case (db)
+      const payload = {
+        user_id: user.id,
+        entry_date: dateStr,
+        mood: numOrNull(entry.mood),
+        energy: numOrNull(entry.energy),
+        sleep_quality: numOrNull(entry.sleepQuality),
+        exercise: numOrNull(entry.exercise),
+        nutrition: numOrNull(entry.nutrition),
+        hydration: numOrNull(entry.hydration),
+        recovery: numOrNull(entry.recovery),
+        connection: numOrNull(entry.connection),
+        control: numOrNull(entry.control),
+        desire: numOrNull(entry.desire),
+        stress: numOrNull(entry.stress),
+        urge: numOrNull(entry.urge),
+        health_score: numOrNull(entry.healthScore),
+        personal_score: numOrNull(entry.personalScore),
+        overall_score: numOrNull(entry.overallScore),
+        notes: entry.notes || null,
+        tomorrow_focus: entry.tomorrowFocus || null,
+      };
+      const { error } = await window.db.from('daily_entries').upsert(payload, { onConflict: 'user_id,entry_date' });
+      if (error) console.warn('daily_entries upsert failed', error);
+    }
+
+    async function ensureUserPrefs() {
+      if (!window.db || !window.currentUser) return;
+      const user = window.currentUser;
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      // Try to fetch existing; if not present, insert with defaults
+      const { data, error } = await window.db.from('user_prefs').select('user_id,timezone').eq('user_id', user.id).maybeSingle();
+      if (error && error.code !== 'PGRST116') { console.warn('user_prefs read failed', error); return; }
+      if (!data) {
+        await window.db.from('user_prefs').insert({ user_id: user.id, timezone: tz });
+      } else if (data.timezone !== tz) {
+        // Keep timezone fresh in case user travels
+        await window.db.from('user_prefs').update({ timezone: tz }).eq('user_id', user.id);
+      }
+    }
+
+    function numOrNull(v) {
+      if (v === null || v === undefined || v === '') return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    // Call ensureUserPrefs on login (fire-and-forget)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('momentum:user-ready', () => {
+        try { ensureUserPrefs(); } catch(e) { console.warn('ensureUserPrefs on login failed', e); }
+      });
     }
 
     function updateAllViews() {
