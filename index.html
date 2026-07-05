@@ -1296,6 +1296,21 @@
 .coach-support-disclosure[open] summary::before { transform: rotate(90deg); }
 [data-theme="dark"] .coach-support-disclosure { background: var(--surface-2); border-color: rgba(142, 179, 146, 0.14); }
 
+/* Evening Review locked state ------------------------------------------- */
+.range-list.is-locked .dial-svg {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.72;
+}
+.range-list.is-locked circle.dial-fill { stroke: var(--muted); }
+.range-list.is-locked .dial-label { color: var(--muted); }
+#personalSavedHint { display: none; align-items: center; }
+[data-theme="dark"] #personalSavedHint {
+  background: rgba(142, 179, 146, 0.14);
+  border-color: rgba(142, 179, 146, 0.28);
+  color: #b8d8d3;
+}
+
 /* "Three things to try" card under each coach message */
 .coach-try-card {
   margin-top: 10px;
@@ -2028,8 +2043,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             </article>
           </div>
 
-          <h3 style="margin: 24px 0 16px; font-size: 1.1rem;">Evening Check-in</h3>
-          <div class="range-list">
+          <div class="evening-header-row" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 16px;">
+            <h3 style="margin:0;font-size:1.1rem;">Evening Check-in</h3>
+            <span id="personalSavedHint" style="display:none;font-size:0.72rem;color:#0c6a6f;font-weight:500;background:#e6f2f0;border:1px solid #b8d8d3;padding:2px 8px;border-radius:999px;">Saved today</span>
+            <button type="button" id="personalEditBtn" class="btn btn-secondary" style="display:none;padding:4px 12px;font-size:0.8rem;">Edit</button>
+          </div>
+          <div class="range-list" id="personalRangeList">
             <div class="range-row">
               <label for="personalDesire"><span>Desire</span><span id="personalDesireValue">5 / 10</span></label>
               <input id="personalDesire" type="range" min="0" max="10" value="5">
@@ -2289,7 +2308,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
     // Initialize app
     document.addEventListener('DOMContentLoaded', () => {
-      var _safe=function(fn,n){try{fn();}catch(e){console.error('init step failed: '+n,e);}};_safe(setupEventListeners,'setupEventListeners');_safe(initializeApp,'initializeApp');_safe(showWelcome,'showWelcome');_safe(loadCurrentData,'loadCurrentData');_safe(updateAllViews,'updateAllViews');_safe(function(){ try { if (typeof hydrateTodayInputs === 'function') hydrateTodayInputs(); } catch(e){} },'hydrateTodayInputs');
+      var _safe=function(fn,n){try{fn();}catch(e){console.error('init step failed: '+n,e);}};_safe(setupEventListeners,'setupEventListeners');_safe(initializeApp,'initializeApp');_safe(showWelcome,'showWelcome');_safe(loadCurrentData,'loadCurrentData');_safe(updateAllViews,'updateAllViews');_safe(function(){ try { if (typeof hydrateTodayInputs === 'function') hydrateTodayInputs(); } catch(e){} },'hydrateTodayInputs');_safe(function(){ try { if (typeof hydratePersonalLockState === 'function') hydratePersonalLockState(); } catch(e){} },'hydratePersonalLockState');
     });
 
     function getDayPhase() {   var h = new Date().getHours();   return h < 12 ? 'morning' : 'evening'; } function sessionKey(kind) {   var d = new Date();   var ymd = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();   return 'momentum_session_' + kind + '_' + ymd; } function isSessionComplete(kind) {   try { return localStorage.getItem(sessionKey(kind)) === '1'; } catch(e) { return false; } } function markSessionComplete(kind) {   try { localStorage.setItem(sessionKey(kind), '1'); } catch(e) {}   try { renderSessionCards(); } catch(e) {} } function startSession(kind) {   switchView(kind === 'morning' ? 'health' : 'personal'); } function renderSessionCards() {   var el = document.getElementById('sessionCards');   if (!el) return;   var phase = getDayPhase();   var mDone = isSessionComplete('morning');   var eDone = isSessionComplete('evening');   function card(kind, title, sub) {     var done = kind === 'morning' ? mDone : eDone;     var active = (phase === kind) && !done;     var statusCls = done ? 'done' : 'todo';     var statusTxt = done ? 'Complete' : (active ? 'Ready' : 'Not started');     var btnTxt = done ? 'Review again' : (kind === 'morning' ? 'Start morning entry' : 'Open evening review');     return '<div class="session-card ' + (active ? 'is-active' : '') + '">' +       '<div class="sc-title">' + title + '</div>' +       '<div class="sc-sub">' + sub + '</div>' +       '<div class="sc-status ' + statusCls + '">' + statusTxt + '</div>' +       '<button class="sc-btn" onclick="startSession(\'' + kind + '\')">' + btnTxt + '</button>' +       '</div>';   }   el.innerHTML = card('morning', 'Morning entry', 'Energy, focus, readiness') +                  card('evening', 'Evening review', 'Review, reflection, reset'); } function initializeApp() {
@@ -2384,6 +2403,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       // Save buttons
       document.getElementById('saveHealthBtn')?.addEventListener('click', saveHealthData);
       document.getElementById('savePersonalBtn')?.addEventListener('click', savePersonalData);
+      document.getElementById('personalEditBtn')?.addEventListener('click', () => {
+        const rl = document.getElementById('personalRangeList');
+        if (rl) rl.dataset.editMode = '1';
+        try { hydratePersonalLockState(); } catch(_e) {}
+      });
       document.getElementById('saveJournalBtn')?.addEventListener('click', saveJournalEntry);
 
       // Coach
@@ -2440,6 +2464,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           if (list && list.children.length === 0) {
             getTodaysMoves();
           }
+        }
+      } catch (_e) { /* non-fatal */ }
+
+      // Reflect Evening Review lock state when landing on the Evening page
+      try {
+        if (viewId === 'personal' && typeof hydratePersonalLockState === 'function') {
+          hydratePersonalLockState();
         }
       } catch (_e) { /* non-fatal */ }
 
@@ -2617,6 +2648,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       };
 
       try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
+      // Clear editMode override so the just-saved values re-lock immediately.
+      const _rl = document.getElementById('personalRangeList');
+      if (_rl) delete _rl.dataset.editMode;
+      // Flip session card to Complete
+      try { if (typeof markSessionComplete === 'function') markSessionComplete('evening'); } catch(_e){}
+      // Show 'Saved today' chip + disable sliders
+      try { if (typeof hydratePersonalLockState === 'function') hydratePersonalLockState(); } catch(_e){}
       // (savePersonalStatus removed - the Saved today chip already signals success.)
     }
 
@@ -2841,6 +2879,50 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     if (typeof window !== 'undefined') {
       window.hydrateTodayInputs = hydrateTodayInputs;
     }
+
+    // ---- Evening Review lock state --------------------------------------
+    // Considers today "saved" once desire/connection/control/urge and
+    // exercise/nutrition/recovery are all present on today's entry.
+    function hydratePersonalLockState() {
+      const rangeList = document.getElementById('personalRangeList');
+      const hint = document.getElementById('personalSavedHint');
+      const editBtn = document.getElementById('personalEditBtn');
+      const saveBtn = document.getElementById('savePersonalBtn');
+      if (!rangeList || !hint || !editBtn || !saveBtn) return;
+
+      // Session-scoped override: user clicked Edit and is currently editing.
+      if (rangeList.dataset.editMode === '1') {
+        rangeList.classList.remove('is-locked');
+        hint.style.display = 'none';
+        editBtn.style.display = 'none';
+        saveBtn.style.display = '';
+        saveBtn.textContent = 'Save changes';
+        return;
+      }
+
+      let entries = [];
+      try { entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); } catch (_e) { entries = []; }
+      const today = (typeof pickTodayEntry === 'function') ? pickTodayEntry(entries, new Date()) : null;
+
+      const has = (v) => v != null && Number.isFinite(Number(v));
+      const saved = !!(today && has(today.desire) && has(today.connection) && has(today.control) && has(today.urge)
+                       && has(today.exercise) && has(today.nutrition) && has(today.recovery));
+
+      if (saved) {
+        rangeList.classList.add('is-locked');
+        hint.style.display = 'inline-flex';
+        editBtn.style.display = 'inline-flex';
+        saveBtn.style.display = 'none';
+        saveBtn.textContent = 'Save Evening Review';
+      } else {
+        rangeList.classList.remove('is-locked');
+        hint.style.display = 'none';
+        editBtn.style.display = 'none';
+        saveBtn.style.display = '';
+        saveBtn.textContent = 'Save Evening Review';
+      }
+    }
+    if (typeof window !== 'undefined') window.hydratePersonalLockState = hydratePersonalLockState;
 
     // Re-hydrate when unit preference changes so kg↔lb display stays correct
     function rehydrateOnUnitChange() {
