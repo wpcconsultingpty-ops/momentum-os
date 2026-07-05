@@ -131,9 +131,10 @@ root.innerHTML=''+
 '<div class="mol-section"><div class="mol-kicker">Product preview</div><h2 class="mol-h2">Everything you get inside</h2><div class="mol-grid cols-3">'+productCards()+'</div></div>'+
 '<div class="mol-section"><div class="mol-kicker">Pricing</div><h2 class="mol-h2">Start free, upgrade when ready</h2><div class="mol-grid cols-3">'+priceCards()+'</div></div>'+
 '<div class="mol-final"><h2 class="mol-h2">Ready to build momentum?</h2><p class="mol-lead" style="margin:0 auto 28px;">Create a free account and your first check-in takes under a minute.</p><button class="mol-btn" id="mol-start3">Start free</button></div>'+
-'<div class="mol-foot">Momentum OS</div>'+window.dismissLanding=enter;
+'<div class="mol-foot">Momentum OS</div>'+
 '</div>';
 document.body.appendChild(root);
+window.dismissLanding=enter;
 document.body.style.overflow='hidden';
 ['mol-start','mol-start2','mol-start3','mol-login','mol-login2'].forEach(function(id){
 var b=document.getElementById(id);
