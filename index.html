@@ -1991,45 +1991,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             </div>
           </div>
 
-          <h3 style="margin: 24px 0 16px; font-size: 1.1rem;">Triggers & Recovery</h3>
-          <div class="habit-grid">
-            <label class="habit-card">
-              <input type="checkbox" data-trigger="stress">
-              <span class="habit-check"></span>
-              <span class="habit-copy">
-                <strong>Stress</strong>
-                <small>Pressure or tension today</small>
-              </span>
-            </label>
-            <label class="habit-card">
-              <input type="checkbox" data-trigger="isolation">
-              <span class="habit-check"></span>
-              <span class="habit-copy">
-                <strong>Isolation</strong>
-                <small>Too much time alone</small>
-              </span>
-            </label>
-            <label class="habit-card">
-              <input type="checkbox" data-trigger="fatigue">
-              <span class="habit-check"></span>
-              <span class="habit-copy">
-                <strong>Fatigue</strong>
-                <small>Physical or mental tiredness</small>
-              </span>
-            </label>
-            <label class="habit-card">
-              <input type="checkbox" data-trigger="boredom">
-              <span class="habit-check"></span>
-              <span class="habit-copy">
-                <strong>Boredom</strong>
-                <small>Lack of stimulation</small>
-              </span>
-            </label>
-          </div>
-
           <div class="button-row">
             <button class="btn btn-primary" id="savePersonalBtn">Save Evening Review</button>
-            <span class="foot-note" id="savePersonalStatus">Not saved yet</span>
           </div>
         </div>
       </section>
@@ -2571,14 +2534,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         connection: parseInt((document.getElementById('personalConnection')||{value:5}).value),
         control: parseInt((document.getElementById('personalControl')||{value:5}).value),
         urge: parseInt((document.getElementById('personalUrge')||{value:5}).value),
-        triggers: Array.from(document.querySelectorAll('[data-trigger]:checked')).map(el => el.dataset.trigger)
+        // Triggers block removed (2026-07); schema keeps the field for back-compat with older entries.
+        triggers: []
       };
 
       try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
-      document.getElementById('savePersonalStatus').textContent = 'Saved! Nice momentum.';
-      setTimeout(() => {
-        document.getElementById('savePersonalStatus').textContent = 'Saved! Nice momentum.';
-      }, 3000);
+      // (savePersonalStatus removed - the Saved today chip already signals success.)
     }
 
     function saveJournalEntry() {
