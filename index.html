@@ -4043,6 +4043,84 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 // reloads or resets. Kept small and lightweight; the API caps it defensively.
 window.__coachConversation = window.__coachConversation || [];
 
+// Lightweight retrieval over the user's last 60 days of check-in + journal
+// entries. We rank locally with a tiny TF-IDF-style scorer so the coach can
+// reference SPECIFIC prior entries when they help — no embeddings round-trip
+// per turn, no server storage change, just a smarter payload.
+function buildRetrievedContext(question, maxEntries) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+    if (!Array.isArray(raw) || raw.length === 0) return [];
+    const cutoff = Date.now() - 60 * 24 * 60 * 60 * 1000;
+    // Keep only entries in the last 60 days that carry usable text.
+    const candidates = raw.filter(function (e) {
+      if (!e) return false;
+      const t = new Date(e.date || e.timestamp || 0).getTime();
+      if (!t || t < cutoff) return false;
+      return (e.journalNote && e.journalNote.trim()) || (e.morningFocus && e.morningFocus.trim());
+    });
+    if (candidates.length === 0) return [];
+
+    // Token the question, drop tiny stopwords, keep the rest lowercase.
+    const stop = new Set(['the','a','an','and','or','but','of','in','on','to','for','is','are','was','were','be','been','being','it','this','that','i','me','my','you','your','we','our','they','them','with','as','at','by','from','have','has','had','do','does','did','so','if','not','no','yes','can','could','should','would','will','just','about','into','than','then','how','what','why','when','who','which','where']);
+    const qTokens = (question || '').toLowerCase().match(/[a-z0-9']+/g) || [];
+    const qSet = qTokens.filter(function (w) { return w.length > 2 && !stop.has(w); });
+    if (qSet.length === 0) {
+      // No meaningful query terms — return the most recent entries by recency.
+      return candidates
+        .sort(function (a, b) { return new Date(b.date).getTime() - new Date(a.date).getTime(); })
+        .slice(0, maxEntries || 6)
+        .map(function (e) { return formatEntryForContext(e); });
+    }
+
+    // Score each candidate: term-frequency of query terms + a recency bonus.
+    const now = Date.now();
+    const scored = candidates.map(function (e) {
+      const text = ((e.morningFocus || '') + ' ' + (e.journalNote || '')).toLowerCase();
+      let score = 0;
+      for (const term of qSet) {
+        const matches = text.split(term).length - 1;
+        if (matches > 0) score += matches;
+      }
+      // Recency bonus: entries from the last 7 days get up to +1.5.
+      const ageDays = (now - new Date(e.date).getTime()) / (24 * 60 * 60 * 1000);
+      score += Math.max(0, 1.5 - ageDays / 5);
+      return { entry: e, score: score };
+    });
+
+    // Only surface entries that actually matched something, capped at maxEntries.
+    // If nothing scored, fall back to most-recent-with-content.
+    const hits = scored.filter(function (s) { return s.score > 0.6; })
+      .sort(function (a, b) { return b.score - a.score; })
+      .slice(0, maxEntries || 6);
+    if (hits.length === 0) {
+      return candidates
+        .sort(function (a, b) { return new Date(b.date).getTime() - new Date(a.date).getTime(); })
+        .slice(0, 3)
+        .map(function (e) { return formatEntryForContext(e); });
+    }
+    return hits.map(function (h) { return formatEntryForContext(h.entry); });
+  } catch (err) {
+    console.warn('buildRetrievedContext failed', err);
+    return [];
+  }
+}
+
+function formatEntryForContext(entry) {
+  const d = new Date(entry.date || entry.timestamp || Date.now());
+  const dateStr = isNaN(d.getTime()) ? 'unknown' : d.toISOString().slice(0, 10);
+  const out = { date: dateStr };
+  if (entry.morningFocus && entry.morningFocus.trim()) out.focus = entry.morningFocus.trim().slice(0, 300);
+  if (entry.journalNote && entry.journalNote.trim()) out.journal = entry.journalNote.trim().slice(0, 500);
+  // A tiny set of the most useful signal fields — not the whole slider dump.
+  const signals = {};
+  ['mood','energy','sleepQuality','stress','exercise','recovery'].forEach(function (f) {
+    if (typeof entry[f] === 'number') signals[f] = entry[f];
+  });
+  if (Object.keys(signals).length) out.signals = signals;
+  return out;
+}
+
 async function askCoach(opts) {
   opts = opts || {};
   const wantsCard = opts.wantsCard === true;
@@ -4114,6 +4192,10 @@ async function askCoach(opts) {
         // Real conversation memory — the API uses this as the message history
         // so the coach actually remembers what you were talking about.
         conversation: (window.__coachConversation || []).slice(-10),
+        // Retrieved entries from the user's last 60 days that look relevant
+        // to the current question. The API surfaces these to the model as
+        // additional context so answers can cite specific prior entries.
+        retrievedContext: buildRetrievedContext(prompt, 6),
         // Chat by default; card only when the user asks for something to try.
         wantsCard: wantsCard
       })
