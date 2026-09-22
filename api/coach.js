@@ -98,6 +98,37 @@ function sanitiseConversation(raw) {
   return out;
 }
 
+// Sanitise retrieved entries the client selected as relevant to the question.
+// This is our lightweight-RAG channel: the frontend picks the top matches
+// from the user's last 60 days and hands them here, we cap size, and pass
+// them to the model as grounded context.
+function sanitiseRetrievedContext(raw) {
+  if (!Array.isArray(raw)) return [];
+  const allowedSignalKeys = new Set(['mood','energy','sleepQuality','stress','exercise','recovery']);
+  const out = [];
+  for (const item of raw.slice(0, 8)) {
+    if (!item || typeof item !== 'object') continue;
+    const entry = {};
+    entry.date = toCleanString(item.date).slice(0, 10);
+    if (!entry.date) continue;
+    const focus = toCleanString(item.focus).slice(0, 300);
+    const journal = toCleanString(item.journal).slice(0, 500);
+    if (focus) entry.focus = focus;
+    if (journal) entry.journal = journal;
+    if (item.signals && typeof item.signals === 'object') {
+      const s = {};
+      for (const [k, v] of Object.entries(item.signals)) {
+        if (!allowedSignalKeys.has(k)) continue;
+        const n = Number(v);
+        if (Number.isFinite(n)) s[k] = n;
+      }
+      if (Object.keys(s).length) entry.signals = s;
+    }
+    if (entry.focus || entry.journal) out.push(entry);
+  }
+  return out;
+}
+
 // Whether the client wants a full guidance card (message + closing question +
 // three things to try) or a plain conversational reply. Default is chat-only:
 // the card is the exception, not the rule, and that alone stops the coach
@@ -230,6 +261,7 @@ export function buildContext(body) {
     previousCoachMessage: toCleanString(body.previousCoachMessage),
     previousUserReply: toCleanString(body.previousUserReply),
     conversation: sanitiseConversation(body.conversation),
+    retrievedContext: sanitiseRetrievedContext(body.retrievedContext),
   };
   context.mood = readMood(context);
   return context;
@@ -273,6 +305,8 @@ HOW YOU RESPOND — the rules that override everything else:
    - Emotional share ("I feel overwhelmed", "I'm exhausted"): acknowledge it briefly (one line), then move to what would actually help. Don't dwell.
 
 6. BRING SUBSTANCE. Users came for real advice, not a one-liner. When a question deserves depth, deliver it: name the recommendation, then give your reasoning (why this over the alternatives), then a concrete first step they can take today. If a data point genuinely supports the answer, name it — the specific number, not "your scores". Depth means more useful content, never more filler.
+
+7. USE THE RETRIEVED ENTRIES WHEN THEY HELP. The user prompt may include a retrievedContext array — recent journal entries and morning focuses the user has written themselves, scored as relevant to what they just asked. Treat them as ground truth. When one of them genuinely deepens the answer, reference it directly: "On Sep 14 you wrote you were feeling stuck on Varipack’s sales surface — that’s still the constraint here." Cite the date, quote or paraphrase what they said, and connect it to the current question. Do not fabricate details that aren't in the retrieved entries. Do not force a reference in if none of the retrieved entries genuinely fit — silence beats a wedged-in quote.
 
 VOICE:
 - Australian English.
@@ -366,7 +400,7 @@ function buildUserPrompt(context) {
 }
 
 function buildChatUserPrompt(context) {
-  const { conversation: _c, previousCoachMessage: _p1, previousUserReply: _p2, ...rest } = context;
+  const { conversation: _c, previousCoachMessage: _p1, previousUserReply: _p2, retrievedContext: _rc, ...rest } = context;
   const isContinuing = context.conversation && context.conversation.length > 0;
   // Compact, high-signal data block — what an executive coach would actually
   // glance at before answering. Full context is available if they ask for it.
@@ -386,7 +420,15 @@ function buildChatUserPrompt(context) {
     fallingFields: (hs.fallingFields || []).slice(0, 4),
     daysCovered: hs.daysCovered,
   }, null, 2)}`;
-  return `${dataBlock}\n\n${isContinuing ? "CONTINUING CONVERSATION. The prior turns are in the message history above. Build on them. Do not re-ask what they already told you. Do not restart." : "OPENING TURN. This is the first thing they've said. Answer directly."}\n\nRemember: answer first (their question deserves a real answer), no therapist openers, one pointed question maximum only if it sharpens their thinking, and never open with \"Sounds like...\" or \"It sounds like...\".`;
+
+  // The retrieval channel. Only inject if we actually got matches; keeping
+  // the prompt clean when there's nothing to say beats a hollow header.
+  const rc = Array.isArray(context.retrievedContext) ? context.retrievedContext : [];
+  const retrievedBlock = rc.length
+    ? `\n\nRetrieved entries (their own words, from the last 60 days, ranked as relevant to this question). Cite specific dates and paraphrase directly when one of these actually deepens the answer:\n${JSON.stringify(rc, null, 2)}`
+    : "";
+
+  return `${dataBlock}${retrievedBlock}\n\n${isContinuing ? "CONTINUING CONVERSATION. The prior turns are in the message history above. Build on them. Do not re-ask what they already told you. Do not restart." : "OPENING TURN. This is the first thing they've said. Answer directly."}\n\nRemember: answer first (their question deserves a real answer), no therapist openers, one pointed question maximum only if it sharpens their thinking, and never open with \"Sounds like...\" or \"It sounds like...\".`;
 }
 
 export function buildMovesSystemPrompt() {
@@ -815,6 +857,7 @@ export default async function handler(req, res) {
           coach_debug: true,
           mode: "chat",
           turns_received: conversationTurns.length,
+          retrieved_entries: (context.retrievedContext || []).length,
           reply_first_words: message.split(/\s+/).slice(0, 6).join(" "),
           reply_word_count: message.split(/\s+/).length,
         }));
