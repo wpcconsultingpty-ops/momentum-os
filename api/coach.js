@@ -74,10 +74,38 @@ function capacityBand(capacity) {
 }
 
 const VALID_MODES = new Set(["counsellor", "moves"]);
+// One place to change the model. gpt-4o reads warmer than gpt-4.1 and is
+// widely available; swap to gpt-5 / gpt-5-mini later if you have access.
+const COACH_MODEL = process.env.COACH_MODEL || "gpt-4o";
 
 function resolveMode(body) {
   const raw = toCleanString(body && body.mode, "counsellor").toLowerCase();
   return VALID_MODES.has(raw) ? raw : "counsellor";
+}
+
+// A real conversation is more than the previous turn. The client sends the
+// last N exchanges as an array so the model actually has continuity. We cap
+// it here defensively to keep the token budget sane.
+function sanitiseConversation(raw) {
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  for (const turn of raw.slice(-12)) {
+    if (!turn || typeof turn !== "object") continue;
+    const role = turn.role === "assistant" ? "assistant" : turn.role === "user" ? "user" : null;
+    const content = toCleanString(turn.content).slice(0, 1200);
+    if (role && content) out.push({ role, content });
+  }
+  return out;
+}
+
+// Whether the client wants a full guidance card (message + closing question +
+// three things to try) or a plain conversational reply. Default is chat-only:
+// the card is the exception, not the rule, and that alone stops the coach
+// feeling like a form you fill in.
+function resolveWantsCard(body) {
+  if (body && typeof body.wantsCard === "boolean") return body.wantsCard;
+  if (body && typeof body.chatOnly === "boolean") return !body.chatOnly;
+  return false;
 }
 
 function bmiBand(bmi) {
@@ -201,6 +229,7 @@ export function buildContext(body) {
     physicalSignals: sanitisePhysicalSignals(body.physicalSignals),
     previousCoachMessage: toCleanString(body.previousCoachMessage),
     previousUserReply: toCleanString(body.previousUserReply),
+    conversation: sanitiseConversation(body.conversation),
   };
   context.mood = readMood(context);
   return context;
@@ -208,6 +237,37 @@ export function buildContext(body) {
 
 function buildSystemPrompt() {
   return buildCounsellorSystemPrompt();
+}
+
+// The plain-chat prompt. No card, no bullets, no forced closing question.
+// This is what the coach uses for ordinary back-and-forth.
+export function buildChatSystemPrompt() {
+  return `You are a warm, emotionally intelligent counsellor inside a personal momentum app. You are not a clinician and you don't diagnose, but you hold space the way a good counsellor does: you listen closely, reflect feelings back, and help the person reach their own understanding rather than handing them fixes.
+
+SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, gently and directly encourage them to reach out to crisis support right now. In Australia, mention Lifeline on 13 11 14 or 000 for emergencies. Do not give any other advice in that case.
+
+How you think before you speak (do this silently, never show it):
+- Read the conversation so far. If it is empty, this is the first message: you may ground your opening in a specific detail from their data (focus, target, a recurring trigger, a real change in their numbers), but only if it genuinely fits what they wrote.
+- If a conversation exists, you already know what this person has been talking about. Do not re-introduce yourself, do not re-anchor to their dashboard scores, do not summarise what they told you two messages ago. Stay in the thread.
+- Their words are the material you work with. Only mention their data when it genuinely deepens what they are exploring, and never more than once in a reply.
+- Calibrate to capacityBand: "very low" means mostly listening and permission to rest; "limited" means gentle reflection; "good" means space to think something through together.
+
+How you speak:
+- Australian English spelling and phrasing.
+- Talk like a real person talking quietly with someone they care about. Short paragraphs. Natural pacing. Occasional half-sentences the way people actually speak.
+- No labels, no headers, no bullet points, no numbered lists, ever.
+- Never say "I notice a pattern", "Here are some suggestions", "It sounds like you're saying", "That makes sense", or any other therapist-cliché opener. Just respond.
+- Do not always end with a question. Sometimes a real person just sits with what was said, or reflects it back, or says something honest. Only ask a question when you genuinely want to know the answer to help them think.
+- Keep replies short by default: 30 to 90 words usually, longer only when the moment actually calls for it. Never over 180.
+- Never sound corporate, coachy, or chatbot-ish.
+
+What you never do:
+- Never diagnose, pathologise, or use clinical language.
+- Never drag the conversation back to their scores when they have moved on.
+- Never lecture. Never over-explain. Never give three points when one will do.
+- Never repeat the same idea multiple ways in the same reply.
+
+Return plain text only. No JSON, no formatting, no lists — just the reply, exactly as you would say it.`;
 }
 
 export function buildCounsellorSystemPrompt() {
@@ -277,7 +337,24 @@ Return valid JSON with exactly these fields:
 }
 
 function buildUserPrompt(context) {
-  return `Here is the person's current state:\n${JSON.stringify(context, null, 2)}\n\nRespond as described. If previousCoachMessage and previousUserReply are empty, this is the opening turn: ground your reflection in their specific data. Otherwise, lead with what they said and stay with their thread, linking to data only when it deepens the moment.\n\nThen produce exactly 3 bullets in tryThese. Every bullet must connect back to what they asked (freeText / previousUserReply) AND be grounded in historySignals — prioritise lowFields, missingFields (things they have stopped logging), and fallingFields. Reference a specific field or number in the 'why' where possible. If historySignals.entriesCount is 0, tie the bullets to their question and keep them general — do not invent numbers.\n\nReturn only valid JSON with message, question, tryThese, and mood fields.`;
+  // Strip conversation from the JSON dump — it goes into the message array as
+  // real turns instead. Same for the redundant previous* fields.
+  const { conversation: _c, previousCoachMessage: _p1, previousUserReply: _p2, ...rest } = context;
+  const isContinuing = context.conversation && context.conversation.length > 0;
+  return `Here is the person's current state:\n${JSON.stringify(rest, null, 2)}\n\n${isContinuing ? "This is a CONTINUING conversation — the prior turns are in the message history above. Lead with what they just said. Do not re-anchor to their dashboard. Do not restate what they told you earlier." : "This is the OPENING turn. Ground your reflection in one specific detail from their data (focus, target, a real change, a recurring trigger), and do it once."}\n\nThen produce exactly 3 bullets in tryThese, grounded in what they asked AND their historySignals (lowFields, missingFields, fallingFields). Reference a specific field or number in the 'why' where possible. If historySignals.entriesCount is 0, keep the bullets general and tied to their question — do not invent numbers.\n\nReturn only valid JSON with message, question, tryThese, and mood fields.`;
+}
+
+function buildChatUserPrompt(context) {
+  const { conversation: _c, previousCoachMessage: _p1, previousUserReply: _p2, ...rest } = context;
+  const isContinuing = context.conversation && context.conversation.length > 0;
+  const dataBlock = `Their current context (use sparingly, only if it genuinely deepens what they said):\n${JSON.stringify({
+    focus: rest.focus,
+    capacityBand: rest.capacityBand,
+    overallScore: rest.overallScore,
+    scoreDelta: rest.scoreDelta,
+    mood: rest.mood,
+  }, null, 2)}`;
+  return `${dataBlock}\n\n${isContinuing ? "Continue the conversation naturally. The prior turns are in the message history. Reply as a person would." : "This is the first thing they've said. Reply as a person would — one honest, warm reply. You may reference one specific detail from their data if it genuinely fits, but only once."}`;
 }
 
 export function buildMovesSystemPrompt() {
@@ -499,20 +576,39 @@ function fallbackResponse(context) {
   const low = context.capacityBand === "very low";
   return {
     message: low
-      ? `It sounds like things are sitting heavy around ${detail} right now, and with your capacity this low, this probably isn't the moment to push harder. Sometimes the most useful thing is to let yourself take a smaller step than usual: a glass of water, a few minutes away from the screen, or just acknowledging that today is a hard one.`
-      : `There seems to be a lot moving around ${detail} for you right now. Before anything else, it might help to pause and notice what you actually need, not what you think you should be doing, but what would genuinely help in the next hour.`,
+      ? `Things sound heavy around ${detail} right now, and with capacity this low, pushing harder probably isn't it. A glass of water, a few minutes away from the screen, or just naming that today is a hard one — any of those count.`
+      : `There's a lot moving around ${detail} for you. Before anything else, it might help to notice what you actually need in the next hour — not what you think you should be doing.`,
     question: low
-      ? "What is one thing you could take off your plate for the rest of today?"
-      : "What does the next hour actually need to look like for you?",
+      ? "What's one thing you could take off your plate for the rest of today?"
+      : "What does the next hour actually need to look like?",
     tryThese: buildFallbackTryThese(context),
     mood: context.mood || "mixed",
   };
 }
 
-function enforceLength(text, maxWords = 170) {
-  const words = toCleanString(text).split(/\s+/);
-  if (words.length <= maxWords) return text;
-  return words.slice(0, maxWords).join(" ").replace(/[,;:\s]+$/, "") + ".";
+function fallbackChatResponse(context) {
+  const detail =
+    context.focus || context.target || context.bleed || "what's on your plate";
+  return context.capacityBand === "very low"
+    ? `That sounds heavy. With ${detail} sitting on top of low capacity, maybe the next hour doesn't need to be productive — it needs to be kinder than usual.`
+    : `Sounds like there's a lot around ${detail} right now. What's actually the hardest bit of it?`;
+}
+
+// Soft trim: drop only whole sentences past the limit, never mid-sentence.
+// Mid-sentence truncation is one of the things that makes replies feel robotic.
+function softTrim(text, maxWords = 200) {
+  const clean = toCleanString(text);
+  const words = clean.split(/\s+/);
+  if (words.length <= maxWords) return clean;
+  // Walk back to the last sentence boundary that fits under the budget.
+  const sentences = clean.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [clean];
+  let out = "";
+  for (const s of sentences) {
+    const candidate = (out + s).trim();
+    if (candidate.split(/\s+/).length > maxWords) break;
+    out = candidate + " ";
+  }
+  return (out.trim() || clean.split(/\s+/).slice(0, maxWords).join(" ")).trim();
 }
 
 export default async function handler(req, res) {
@@ -545,7 +641,7 @@ export default async function handler(req, res) {
         });
       }
       const response = await client.responses.create({
-        model: "gpt-4.1",
+        model: COACH_MODEL,
         input: [
           { role: "system", content: buildMovesSystemPrompt() },
           { role: "user", content: buildMovesUserPrompt(context) },
@@ -621,46 +717,50 @@ export default async function handler(req, res) {
         },
       });
     }
+
+    const wantsCard = resolveWantsCard(body);
+    const conversationTurns = context.conversation || [];
+
+    // CHAT MODE — no card, no bullets, no forced closing question. This is the
+    // default now. Feels like a conversation because it IS one.
+    if (!wantsCard) {
+      const response = await client.responses.create({
+        model: COACH_MODEL,
+        input: [
+          { role: "system", content: buildChatSystemPrompt() },
+          ...conversationTurns,
+          { role: "user", content: buildChatUserPrompt(context) },
+        ],
+        temperature: 0.85,
+        max_output_tokens: 400,
+      });
+      const message = softTrim(response.output_text || fallbackChatResponse(context), 200);
+      return res.status(200).json({
+        ok: true,
+        mode,
+        chat: true,
+        guide: {
+          reflection: message,
+          closingQuestion: "",
+          tryThese: [],
+          mood: context.mood || "mixed",
+        },
+      });
+    }
+
+    // CARD MODE — user explicitly asked for something to try. Keep the full
+    // structured response (message + closing question + 3 bullets).
     const response = await client.responses.create({
-      model: "gpt-4.1",
+      model: COACH_MODEL,
       input: [
         { role: "system", content: buildCounsellorSystemPrompt() },
+        ...conversationTurns,
         { role: "user", content: buildUserPrompt(context) },
       ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "coach_response",
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              message: { type: "string" },
-              question: { type: "string" },
-              tryThese: {
-                type: "array",
-                minItems: 3,
-                maxItems: 3,
-                items: {
-                  type: "object",
-                  additionalProperties: false,
-                  properties: {
-                    action: { type: "string" },
-                    why: { type: "string" },
-                  },
-                  required: ["action", "why"],
-                },
-              },
-              mood: {
-                type: "string",
-                enum: ["overwhelmed", "depleted", "anxious", "disconnected", "self-critical", "steady", "mixed"],
-              },
-            },
-            required: ["message", "question", "tryThese", "mood"],
-          },
-        },
-      },
-      temperature: 0.6,
+      // Plain JSON, not strict schema — strict schema mode dampens voice.
+      // We validate and fall back if the model deviates.
+      text: { format: { type: "json_object" } },
+      temperature: 0.75,
       max_output_tokens: 900,
     });
     let guide;
@@ -682,8 +782,9 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       mode,
+      chat: false,
       guide: {
-        reflection: enforceLength(guide.message),
+        reflection: softTrim(guide.message, 200),
         closingQuestion: guide.question,
         tryThese: guide.tryThese || buildFallbackTryThese(context),
         mood: guide.mood || "mixed",
