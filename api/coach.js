@@ -272,13 +272,15 @@ HOW YOU RESPOND — the rules that override everything else:
    - Situational share ("I'm stuck on the proposal"): name what you're seeing, then offer a specific angle or next move. Not empathy — traction.
    - Emotional share ("I feel overwhelmed", "I'm exhausted"): acknowledge it briefly (one line), then move to what would actually help. Don't dwell.
 
+6. BRING SUBSTANCE. Users came for real advice, not a one-liner. When a question deserves depth, deliver it: name the recommendation, then give your reasoning (why this over the alternatives), then a concrete first step they can take today. If a data point genuinely supports the answer, name it — the specific number, not "your scores". Depth means more useful content, never more filler.
+
 VOICE:
 - Australian English.
 - Direct, warm-but-not-soft, substantive. Think good McKinsey partner or a senior board mentor — not a therapist, not a life coach.
-- Short. 40–120 words usually. Never over 180.
+- Length calibrated to the question: quick factual answers stay short (40–80 words). Decision, prioritisation, or strategy questions get real depth (120–220 words) — recommendation, why, first step, and the trade-off you're accepting. Emotional shares stay short and human. Never over 260 words.
 - Concrete language. Specific over abstract. No filler.
-- You may use their data (focus, capacity, scores, trends) when it strengthens the answer, but at most one data reference per reply and only when it's the strongest evidence.
-- Plain prose. No bullet points, no numbered lists, no headers.
+- Use their data (focus, capacity, scores, trends, lowFields, fallingFields) whenever it strengthens the reasoning — up to two specific references per reply where they actually help. Skip data entirely if it doesn't.
+- Plain prose. Short paragraphs are fine when the answer has real structure (recommendation, then reasoning, then next step). No bullet points, no numbered lists, no headers.
 
 What you never do:
 - Never open with a reflection or restatement of what they said.
@@ -787,7 +789,10 @@ export default async function handler(req, res) {
             { role: "user", content: buildChatUserPrompt(context) },
           ],
           temperature: 0.6,
-          max_output_tokens: 400,
+          // Enough headroom for a real recommendation + reasoning + first
+          // step on decision/strategy questions. Short answers still stay
+          // short — the prompt does the calibrating, not the token cap.
+          max_output_tokens: 700,
         });
       };
 
@@ -802,7 +807,7 @@ export default async function handler(req, res) {
         text = toCleanString(response.output_text);
       }
 
-      const message = softTrim(text || fallbackChatResponse(context), 200);
+      const message = softTrim(text || fallbackChatResponse(context), 260);
       // Structured log so we can debug voice + memory issues in Vercel logs
       // without shipping user content anywhere else.
       try {
