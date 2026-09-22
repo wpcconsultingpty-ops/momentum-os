@@ -2194,6 +2194,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           <div class="coach-composer">
             <textarea id="coachPrompt" placeholder="Ask me anything…"></textarea>
             <div class="coach-composer-actions">
+              <button class="btn btn-secondary" id="askCoachTryBtn" title="Get 3 concrete things to try">Give me something to try</button>
               <button class="btn btn-primary" id="askCoachBtn">Send</button>
             </div>
           </div>
@@ -2431,12 +2432,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       document.getElementById('saveJournalBtn')?.addEventListener('click', saveJournalEntry);
 
       // Coach
-      document.getElementById('askCoachBtn')?.addEventListener('click', askCoach);
+      document.getElementById('askCoachBtn')?.addEventListener('click', () => askCoach({ wantsCard: false }));
+      document.getElementById('askCoachTryBtn')?.addEventListener('click', () => askCoach({ wantsCard: true }));
       document.getElementById('getMovesBtn')?.addEventListener('click', getTodaysMoves);
       document.getElementById('coachPrompt')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          askCoach();
+          askCoach({ wantsCard: false });
         }
       });
 
@@ -4037,7 +4039,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       output.textContent = analysis;
     }
 
-async function askCoach() {
+// In-memory conversation for the current Coach session. Reset when the user
+// reloads or resets. Kept small and lightweight; the API caps it defensively.
+window.__coachConversation = window.__coachConversation || [];
+
+async function askCoach(opts) {
+  opts = opts || {};
+  const wantsCard = opts.wantsCard === true;
   const promptInput = document.getElementById('coachPrompt');
   const messagesEl = document.getElementById('coachMessages');
 
@@ -4102,7 +4110,12 @@ async function askCoach() {
         recentReflections,
         recentTriggers,
         historySignals,
-        physicalSignals
+        physicalSignals,
+        // Real conversation memory — the API uses this as the message history
+        // so the coach actually remembers what you were talking about.
+        conversation: (window.__coachConversation || []).slice(-10),
+        // Chat by default; card only when the user asks for something to try.
+        wantsCard: wantsCard
       })
     });
 
@@ -4113,17 +4126,33 @@ async function askCoach() {
     }
 
     const guide = data.guide;
+    const isChat = data.chat === true;
 
     // Append coach message to thread
     const coachRow = document.createElement('div');
     coachRow.className = 'message-row coach';
     const coachBubble = document.createElement('div');
     coachBubble.className = 'message-bubble';
-    coachBubble.textContent = guide.reflection + '\n\n' + guide.closingQuestion;
+    // Only append the closing question if there actually is one. In chat mode
+    // there is no forced question, and appending an empty line looks broken.
+    const closing = (guide.closingQuestion || '').trim();
+    coachBubble.textContent = closing
+      ? guide.reflection + '\n\n' + closing
+      : guide.reflection;
     coachRow.appendChild(coachBubble);
 
-    // 3 bullet-pointed things to try, linked back to the question + history
-    if (Array.isArray(guide.tryThese) && guide.tryThese.length > 0) {
+    // Record this exchange in the running conversation memory. We store the
+    // coach's spoken reply (message + question), not the JSON card content.
+    window.__coachConversation.push({ role: 'user', content: prompt });
+    window.__coachConversation.push({ role: 'assistant', content: coachBubble.textContent });
+    if (window.__coachConversation.length > 20) {
+      window.__coachConversation = window.__coachConversation.slice(-20);
+    }
+
+    // 3 bullet-pointed things to try — only when the user asked for them.
+    // In plain chat mode we skip the card entirely so replies feel like
+    // conversation, not a form.
+    if (!isChat && Array.isArray(guide.tryThese) && guide.tryThese.length > 0) {
       const tryCard = document.createElement('div');
       tryCard.className = 'coach-try-card';
       const label = document.createElement('div');
@@ -4479,7 +4508,7 @@ function askQuickQuestion(topic) {
   };
 
   promptEl.value = prompts[topic] || `How can I improve my ${topic}?`;
-  askCoach();
+  askCoach({ wantsCard: false });
 }
     // Export functions for HTML
     window.toggleMenu = toggleMenu;
