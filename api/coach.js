@@ -239,35 +239,54 @@ function buildSystemPrompt() {
   return buildCounsellorSystemPrompt();
 }
 
-// The plain-chat prompt. No card, no bullets, no forced closing question.
-// This is what the coach uses for ordinary back-and-forth.
+// Executive-coach chat prompt. Direct, substantive, answers first. This is
+// the voice a busy professional wants when they open the coach: they asked
+// a question, they want an actual answer, and one sharp follow-up question
+// only if it genuinely moves the thinking forward.
 export function buildChatSystemPrompt() {
-  return `You are a warm, emotionally intelligent counsellor inside a personal momentum app. You are not a clinician and you don't diagnose, but you hold space the way a good counsellor does: you listen closely, reflect feelings back, and help the person reach their own understanding rather than handing them fixes.
+  return `You are a sharp, experienced executive coach embedded in a personal momentum app. Your users are working professionals — founders, operators, senior managers — who don't have time for platitudes. They came here to think more clearly and get real answers, not to be soothed.
 
-SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, gently and directly encourage them to reach out to crisis support right now. In Australia, mention Lifeline on 13 11 14 or 000 for emergencies. Do not give any other advice in that case.
+SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, direct them to Lifeline on 13 11 14 (or 000 for emergencies). Do not give any other advice in that case.
 
-How you think before you speak (do this silently, never show it):
-- Read the conversation so far. If it is empty, this is the first message: you may ground your opening in a specific detail from their data (focus, target, a recurring trigger, a real change in their numbers), but only if it genuinely fits what they wrote.
-- If a conversation exists, you already know what this person has been talking about. Do not re-introduce yourself, do not re-anchor to their dashboard scores, do not summarise what they told you two messages ago. Stay in the thread.
-- Their words are the material you work with. Only mention their data when it genuinely deepens what they are exploring, and never more than once in a reply.
-- Calibrate to capacityBand: "very low" means mostly listening and permission to rest; "limited" means gentle reflection; "good" means space to think something through together.
+HOW YOU RESPOND — the rules that override everything else:
 
-How you speak:
-- Australian English spelling and phrasing.
-- Talk like a real person talking quietly with someone they care about. Short paragraphs. Natural pacing. Occasional half-sentences the way people actually speak.
-- No labels, no headers, no bullet points, no numbered lists, ever.
-- Never say "I notice a pattern", "Here are some suggestions", "It sounds like you're saying", "That makes sense", or any other therapist-cliché opener. Just respond.
-- Do not always end with a question. Sometimes a real person just sits with what was said, or reflects it back, or says something honest. Only ask a question when you genuinely want to know the answer to help them think.
-- Keep replies short by default: 30 to 90 words usually, longer only when the moment actually calls for it. Never over 180.
-- Never sound corporate, coachy, or chatbot-ish.
+1. ANSWER FIRST. If they asked a question, the first sentence of your reply is the answer. Not a preamble, not a reflection back, not "it sounds like". If they asked "how's my sleep trending", start with the trend. If they asked "what should I do about X", start with what you'd actually do.
+
+2. NO THERAPIST OPENERS. These openers are BANNED and will make your response wrong:
+   - "Sounds like you've got a lot on your plate"
+   - "It sounds like..."
+   - "That makes sense"
+   - "I hear you"
+   - "I can imagine that..."
+   - "How are you feeling about..."
+   - "What's coming up for you..."
+   - Any variant of these. If you catch yourself writing one, delete it and start with the substantive answer instead.
+
+3. ONE QUESTION MAXIMUM, and only if it genuinely sharpens their thinking. Most replies should end on a statement or a specific next step, not a question. If you do ask a question, it must be pointed and useful — "Which of the three is the highest-leverage one this week?" not "How are you feeling about that?".
+
+4. USE THE CONVERSATION. If there is prior turn history, you already know what they're working on. Do not re-ask what they told you. Do not restart the conversation each reply. Build on what was said.
+
+5. MATCH THE QUESTION TYPE:
+   - Analytical question ("how's my sleep", "what's driving my score"): give the analysis. Reference specific numbers from their data. Be direct.
+   - Decision question ("should I do X", "how do I prioritise"): give a recommendation with your reasoning, not a set of options.
+   - Situational share ("I'm stuck on the proposal"): name what you're seeing, then offer a specific angle or next move. Not empathy — traction.
+   - Emotional share ("I feel overwhelmed", "I'm exhausted"): acknowledge it briefly (one line), then move to what would actually help. Don't dwell.
+
+VOICE:
+- Australian English.
+- Direct, warm-but-not-soft, substantive. Think good McKinsey partner or a senior board mentor — not a therapist, not a life coach.
+- Short. 40–120 words usually. Never over 180.
+- Concrete language. Specific over abstract. No filler.
+- You may use their data (focus, capacity, scores, trends) when it strengthens the answer, but at most one data reference per reply and only when it's the strongest evidence.
+- Plain prose. No bullet points, no numbered lists, no headers.
 
 What you never do:
+- Never open with a reflection or restatement of what they said.
+- Never end with "Any particular part you're drawn to?" or similar vague probes.
 - Never diagnose, pathologise, or use clinical language.
-- Never drag the conversation back to their scores when they have moved on.
-- Never lecture. Never over-explain. Never give three points when one will do.
-- Never repeat the same idea multiple ways in the same reply.
+- Never lecture. Never pad. Never repeat.
 
-Return plain text only. No JSON, no formatting, no lists — just the reply, exactly as you would say it.`;
+Return plain text only, ready to display. No JSON, no formatting.`;
 }
 
 export function buildCounsellorSystemPrompt() {
@@ -347,14 +366,25 @@ function buildUserPrompt(context) {
 function buildChatUserPrompt(context) {
   const { conversation: _c, previousCoachMessage: _p1, previousUserReply: _p2, ...rest } = context;
   const isContinuing = context.conversation && context.conversation.length > 0;
-  const dataBlock = `Their current context (use sparingly, only if it genuinely deepens what they said):\n${JSON.stringify({
+  // Compact, high-signal data block — what an executive coach would actually
+  // glance at before answering. Full context is available if they ask for it.
+  const hs = rest.historySignals || {};
+  const dataBlock = `Their current state (reference at most one number in your reply, only if it strengthens the answer):\n${JSON.stringify({
     focus: rest.focus,
+    capacity: rest.capacity,
     capacityBand: rest.capacityBand,
     overallScore: rest.overallScore,
+    weeklyAverage: rest.weeklyAverage,
     scoreDelta: rest.scoreDelta,
+    healthScore: rest.healthScore,
+    personalScore: rest.personalScore,
     mood: rest.mood,
+    trends: rest.trends,
+    lowFields: (hs.lowFields || []).slice(0, 4),
+    fallingFields: (hs.fallingFields || []).slice(0, 4),
+    daysCovered: hs.daysCovered,
   }, null, 2)}`;
-  return `${dataBlock}\n\n${isContinuing ? "Continue the conversation naturally. The prior turns are in the message history. Reply as a person would." : "This is the first thing they've said. Reply as a person would — one honest, warm reply. You may reference one specific detail from their data if it genuinely fits, but only once."}`;
+  return `${dataBlock}\n\n${isContinuing ? "CONTINUING CONVERSATION. The prior turns are in the message history above. Build on them. Do not re-ask what they already told you. Do not restart." : "OPENING TURN. This is the first thing they've said. Answer directly."}\n\nRemember: answer first (their question deserves a real answer), no therapist openers, one pointed question maximum only if it sharpens their thinking, and never open with \"Sounds like...\" or \"It sounds like...\".`;
 }
 
 export function buildMovesSystemPrompt() {
@@ -594,6 +624,26 @@ function fallbackChatResponse(context) {
     : `Sounds like there's a lot around ${detail} right now. What's actually the hardest bit of it?`;
 }
 
+// Detect the therapist-cliché openers the model keeps producing despite the
+// prompt saying not to. When we spot one, we regenerate with a stronger
+// system message. Keep this list tight — false positives are worse than
+// letting one through occasionally.
+const BANNED_OPENERS = [
+  /^\s*sounds like\b/i,
+  /^\s*it sounds like\b/i,
+  /^\s*that makes sense\b/i,
+  /^\s*i hear you\b/i,
+  /^\s*i can imagine\b/i,
+  /^\s*how are you feeling\b/i,
+  /^\s*what'?s coming up\b/i,
+  /^\s*i can see (that|why)\b/i,
+];
+
+function hasBannedOpener(text) {
+  const t = toCleanString(text);
+  return BANNED_OPENERS.some((re) => re.test(t));
+}
+
 // Soft trim: drop only whole sentences past the limit, never mid-sentence.
 // Mid-sentence truncation is one of the things that makes replies feel robotic.
 function softTrim(text, maxWords = 200) {
@@ -721,20 +771,50 @@ export default async function handler(req, res) {
     const wantsCard = resolveWantsCard(body);
     const conversationTurns = context.conversation || [];
 
-    // CHAT MODE — no card, no bullets, no forced closing question. This is the
-    // default now. Feels like a conversation because it IS one.
+    // CHAT MODE — executive-coach voice, answers first. If the model still
+    // opens with a therapist cliché (it sometimes does under pressure), we
+    // retry once with a stronger corrective system message.
     if (!wantsCard) {
-      const response = await client.responses.create({
-        model: COACH_MODEL,
-        input: [
-          { role: "system", content: buildChatSystemPrompt() },
-          ...conversationTurns,
-          { role: "user", content: buildChatUserPrompt(context) },
-        ],
-        temperature: 0.85,
-        max_output_tokens: 400,
-      });
-      const message = softTrim(response.output_text || fallbackChatResponse(context), 200);
+      const runChat = async (extraSystem) => {
+        const systemContent = extraSystem
+          ? `${buildChatSystemPrompt()}\n\nCRITICAL CORRECTION: ${extraSystem}`
+          : buildChatSystemPrompt();
+        return client.responses.create({
+          model: COACH_MODEL,
+          input: [
+            { role: "system", content: systemContent },
+            ...conversationTurns,
+            { role: "user", content: buildChatUserPrompt(context) },
+          ],
+          temperature: 0.6,
+          max_output_tokens: 400,
+        });
+      };
+
+      let response = await runChat();
+      let text = toCleanString(response.output_text);
+
+      if (hasBannedOpener(text) || !text) {
+        // One retry with an explicit correction, colder temperature.
+        response = await runChat(
+          `Your previous attempt started with a banned therapist cliché ("Sounds like..." / "It sounds like..." / "How are you feeling..." / etc). Do NOT do that. Start with the substantive answer to what they asked. If they asked a question, the first sentence IS the answer. If they shared a situation, the first sentence names the strongest angle or next move.`
+        );
+        text = toCleanString(response.output_text);
+      }
+
+      const message = softTrim(text || fallbackChatResponse(context), 200);
+      // Structured log so we can debug voice + memory issues in Vercel logs
+      // without shipping user content anywhere else.
+      try {
+        console.log(JSON.stringify({
+          coach_debug: true,
+          mode: "chat",
+          turns_received: conversationTurns.length,
+          reply_first_words: message.split(/\s+/).slice(0, 6).join(" "),
+          reply_word_count: message.split(/\s+/).length,
+        }));
+      } catch (_) { /* logging must never break the response */ }
+
       return res.status(200).json({
         ok: true,
         mode,
