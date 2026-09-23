@@ -3078,7 +3078,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         const input = document.getElementById(c.input);
         if (!card || !input) return;
         const st = tapState[c.key];
-        const dial = input.closest('.dial') || input.closest('.range-row');
+        const dial = input.closest('.range-row') || input.closest('.dial');
         st.active = c.needsFocus ? !!focus : true;
         card.hidden = !st.active;
         if (dial) dial.style.display = st.active ? 'none' : '';
