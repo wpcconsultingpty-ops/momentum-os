@@ -49,6 +49,8 @@
       opts: [ {e:'\uD83D\uDD25',l:'Fired up',v:9}, {e:'\uD83E\uDDED',l:'Steady',v:7}, {e:'\uD83D\uDE10',l:'Flat',v:4}, {e:'\uD83D\uDCA8',l:'Gone',v:2} ] },
     { q: 'Your head, right now.', sub: 'Pick the closest match.', target: 'mood', type: 'cards',
       opts: [ {e:'\uD83C\uDF0A',l:'Clear',v:9}, {e:'\u26F0\uFE0F',l:'Focused',v:8}, {e:'\uD83C\uDF00',l:'Scattered',v:5}, {e:'\uD83C\uDF2B\uFE0F',l:'Foggy',v:3} ] },
+    { q: 'When you commit to something, do you follow through?', sub: 'Honest answer. Nobody else sees this.', target: 'personalDiscipline', type: 'cards',
+      opts: [ {e:'\uD83C\uDFAF',l:'Every time',v:9}, {e:'\uD83D\uDCAA',l:'Mostly',v:7}, {e:'\uD83C\uDFB2',l:'Hit and miss',v:4}, {e:'\uD83E\uDEAB',l:'Rarely',v:2} ] },
     { q: 'How clear is your thinking today?', sub: 'Tap a star.', target: 'personalControl', type: 'stars' },
     { q: 'One thing to lock in this week.', sub: 'Pick one. Just one.', target: 'morningFocus', type: 'lock',
       opts: [ {e:'\uD83D\uDEB6',l:'20-min walk daily'}, {e:'\uD83D\uDCD3',l:'Journal 3 lines nightly'}, {e:'\uD83D\uDE34',l:'Lights out by 10'}, {e:'\uD83C\uDFCB\uFE0F',l:'Train / lift 3x'} ] }
@@ -56,11 +58,11 @@
 
   var NARRATIVE = [
     { tag:'SOUND FAMILIAR?', e:'\uD83C\uDF2B\uFE0F', title:"You're running on fumes more often than you'd admit.", body:"Sleep dips. Drive flatlines. The head gets foggy. You tell yourself you'll reset - and the week rolls on.", list:["Sleep that doesn't fully refill the tank","Drive you'd rather not track out loud","A head that won't quite clear"] },
-    { tag:'MEET MOMENTUM', e:'\uD83E\uDDED', title:'Reset. Refocus. Move.', body:'A private space to track what actually matters - and a coach in your pocket that does not sugar-coat it.', list:['Track health, drive, mental clarity','Journal what is actually going on','AI coach that does not sugar-coat it'] },
+    { tag:'MEET MOMENTUM', e:'\uD83E\uDDED', title:'Reset. Refocus. Move.', body:'A private space to track what actually matters - and a coach in your pocket that does not sugar-coat it.', list:['Track health, drive, discipline, clarity','Journal what is actually going on','AI coach that does not sugar-coat it'] },
     { tag:'YOUR MOVE', e:'\uD83D\uDE80', title:'Built for the daily-walk version of you.', body:'What you just answered comes with you. Momentum picks it up and keeps the streak honest.', list:[] }
   ];
 
-  var RECAP_LABELS = { sleepQuality:'Sleep', energy:'Energy', personalDesire:'Drive', mood:'Headspace', personalControl:'Mental clarity', morningFocus:"This week's lock-in" };
+  var RECAP_LABELS = { sleepQuality:'Sleep', energy:'Energy', personalDesire:'Drive', mood:'Headspace', personalDiscipline:'Follow-through', personalControl:'Mental clarity', morningFocus:"This week's lock-in" };
 
   var answers = {}; // target -> { value, label }
   var step = 0;     // 0..QUESTIONS.length-1 = questions, then narrative, then recap

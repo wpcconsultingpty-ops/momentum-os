@@ -1875,6 +1875,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               </div>
               <div style="color: var(--muted); font-size: 0.8rem;">Mood</div>
             </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <div class="progress-ring" style="width: 72px; height: 72px;">
+                <svg width="72" height="72">
+                  <circle cx="36" cy="36" r="30" class="progress-ring-circle" />
+                  <circle cx="36" cy="36" r="30" class="progress-ring-value" id="driverDisciplineRing" />
+                </svg>
+                <div class="progress-value-text" id="driverDisciplineValue" style="font-size: 0.95rem;">0</div>
+              </div>
+              <div style="color: var(--muted); font-size: 0.8rem;">Discipline</div>
+            </div>
           </div>
         </div>
 
@@ -2027,7 +2037,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <div class="section-card">
           <div class="section-header">
             <h2>Evening Review</h2>
-            <p style="color: var(--muted);">How the day went: movement, nutrition, and recovery</p>
+            <p style="color: var(--muted);">How the day went: follow-through, movement, nutrition, and recovery</p>
           </div>
 
           <div class="grid grid-3" style="margin-top: 24px;">
@@ -2057,6 +2067,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="range-row">
               <label for="personalDesire"><span>Desire</span><span id="personalDesireValue">5 / 10</span></label>
               <input id="personalDesire" type="range" min="0" max="10" value="5">
+            </div>
+            <div class="range-row">
+              <label for="personalDiscipline"><span>Discipline</span><span id="personalDisciplineValue">5 / 10</span></label>
+              <input id="personalDiscipline" type="range" min="0" max="10" value="5" title="Did I do what I told myself I'd do today?">
             </div>
             <div class="range-row">
               <label for="personalControl"><span>Control</span><span id="personalControlValue">5 / 10</span></label>
@@ -2548,10 +2562,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
     function calculatePersonalScore() {
       const desire = parseInt((document.getElementById('personalDesire')||{value:5}).value);
+      const discipline = parseInt((document.getElementById('personalDiscipline')||{value:5}).value);
       const control = parseInt((document.getElementById('personalControl')||{value:5}).value);
       const urge = 10 - parseInt((document.getElementById('personalUrge')||{value:5}).value);
 
-      const exercise = parseInt((document.getElementById('exercise')||{value:5}).value); const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value); const recovery = parseInt((document.getElementById('recovery')||{value:5}).value); const score = Math.round((desire + control + urge + exercise + nutrition + recovery) / 6 * 6 + 40);
+      const exercise = parseInt((document.getElementById('exercise')||{value:5}).value); const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value); const recovery = parseInt((document.getElementById('recovery')||{value:5}).value); const score = Math.round((desire + discipline + control + urge + exercise + nutrition + recovery) / 7 * 6 + 40);
       return Math.min(100, Math.max(0, score));
     }
 
@@ -2589,7 +2604,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         { ringId: 'driverSleepRing', valueId: 'driverSleepValue', inputId: 'sleepQuality' },
         { ringId: 'driverEnergyRing', valueId: 'driverEnergyValue', inputId: 'energy' },
         { ringId: 'driverRecoveryRing', valueId: 'driverRecoveryValue', inputId: 'recovery' },
-        { ringId: 'driverMoodRing', valueId: 'driverMoodValue', inputId: 'mood' }
+        { ringId: 'driverMoodRing', valueId: 'driverMoodValue', inputId: 'mood' },
+        { ringId: 'driverDisciplineRing', valueId: 'driverDisciplineValue', inputId: 'personalDiscipline' }
       ];
       const circumference = 2 * Math.PI * 30;
       drivers.forEach(function (d) {
@@ -2597,7 +2613,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         const valueText = document.getElementById(d.valueId);
         const input = document.getElementById(d.inputId);
         if (!ring || !valueText) return;
-        const _e = JSON.parse(localStorage.getItem('momentum-daily-entries') || '[]'); const _se = _e.length ? (_e[_e.length - 1] || {}) : {}; const _key = d.inputId; const _sv = _se[_key]; const raw = (_sv !== undefined && _sv !== null && _sv !== '') ? parseInt(_sv, 10) : (input ? parseInt(input.value, 10) : 0);
+        const _e = JSON.parse(localStorage.getItem('momentum-daily-entries') || '[]'); const _se = _e.length ? (_e[_e.length - 1] || {}) : {}; const _key = d.inputId === 'personalDiscipline' ? 'discipline' : d.inputId; const _sv = _se[_key]; const raw = (_sv !== undefined && _sv !== null && _sv !== '') ? parseInt(_sv, 10) : (input ? parseInt(input.value, 10) : 0);
         const pct = Math.min(100, Math.max(0, (isNaN(raw) ? 0 : raw) * 10));
         ring.style.strokeDasharray = circumference;
         ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
@@ -2659,6 +2675,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         date: new Date().toISOString(),
         personalScore: calculatePersonalScore(),
         desire: readInt('personalDesire', 5),
+        discipline: readInt('personalDiscipline', 5),
         control: readInt('personalControl', 5),
         urge: readInt('personalUrge', 5),
         // The Evening Review page also renders these sliders — without
@@ -2741,6 +2758,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         nutrition: numOrNull(entry.nutrition),
         hydration: numOrNull(entry.hydration),
         recovery: numOrNull(entry.recovery),
+        discipline: numOrNull(entry.discipline),
         control: numOrNull(entry.control),
         desire: numOrNull(entry.desire),
         stress: numOrNull(entry.stress),
@@ -2903,7 +2921,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     // ---- Evening Review lock state --------------------------------------
-    // Considers today "saved" once desire/control/urge and
+    // Considers today "saved" once desire/discipline/control/urge and
     // exercise/nutrition/recovery are all present on today's entry.
     function hydratePersonalLockState() {
       const rangeList = document.getElementById('personalRangeList');
@@ -2927,7 +2945,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const today = (typeof pickTodayEntry === 'function') ? pickTodayEntry(entries, new Date()) : null;
 
       const has = (v) => v != null && Number.isFinite(Number(v));
-      const saved = !!(today && has(today.desire) && has(today.control) && has(today.urge)
+      const saved = !!(today && has(today.desire) && has(today.discipline) && has(today.control) && has(today.urge)
                        && has(today.exercise) && has(today.nutrition) && has(today.recovery));
 
       if (saved) {
@@ -4356,7 +4374,7 @@ function buildHistorySignals() {
     const recent = raw.slice(-7);
 
     // Fields where high = good. Low = below 5 on average.
-    const positive = ['mood','energy','sleepQuality','exercise','nutrition','hydration','recovery','control','desire'];
+    const positive = ['mood','energy','sleepQuality','exercise','nutrition','hydration','recovery','discipline','control','desire'];
     // Fields where high = bad. High = above 6 on average is a red flag.
     const inverse = ['stress','urge'];
     const trackedFields = positive.concat(inverse);

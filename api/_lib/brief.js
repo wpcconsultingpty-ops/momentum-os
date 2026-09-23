@@ -12,7 +12,7 @@ function toCleanString(value, fallback = "") {
   return String(value).trim();
 }
 
-export const POSITIVE_FIELDS = ["mood", "energy", "sleepQuality", "exercise", "nutrition", "hydration", "recovery", "control", "desire"];
+export const POSITIVE_FIELDS = ["mood", "energy", "sleepQuality", "exercise", "nutrition", "hydration", "recovery", "discipline", "control", "desire"];
 export const INVERSE_FIELDS = ["stress", "urge"];
 const ALL_TRACKED = [...POSITIVE_FIELDS, ...INVERSE_FIELDS];
 
@@ -25,6 +25,7 @@ function niceLabel(key) {
     nutrition: "nutrition",
     hydration: "hydration",
     recovery: "recovery",
+    discipline: "discipline (follow-through)",
     control: "control",
     desire: "desire",
     stress: "stress",
@@ -463,7 +464,7 @@ export function rowToEntry(row) {
     date: row.entry_date,
     mood: row.mood, energy: row.energy, sleepQuality: row.sleep_quality,
     exercise: row.exercise, nutrition: row.nutrition, hydration: row.hydration,
-    recovery: row.recovery, control: row.control,
+    recovery: row.recovery, discipline: row.discipline, control: row.control,
     desire: row.desire, stress: row.stress, urge: row.urge,
     healthScore: row.health_score, personalScore: row.personal_score, overallScore: row.overall_score,
     notes: row.notes, tomorrowFocus: row.tomorrow_focus,
