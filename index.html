@@ -4044,15 +4044,32 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 window.__coachConversation = window.__coachConversation || [];
 
 // Lightweight retrieval over the user's last 60 days of check-in + journal
-// entries. We rank locally with a tiny TF-IDF-style scorer so the coach can
-// reference SPECIFIC prior entries when they help — no embeddings round-trip
-// per turn, no server storage change, just a smarter payload.
+// entries. Ranks locally with a BM25-style scorer plus a bigram bonus and a
+// mild recency prior, so the coach can reference SPECIFIC prior entries when
+// they help — no embeddings round-trip per turn, no server storage change.
+//
+// Design notes:
+//   - BM25 gives us proper IDF: rare terms like project names dominate common
+//     ones without us having to hand-tune weights.
+//   - Bigram bonus catches phrases ("sales surface", "demand test") that get
+//     lost when scored as bag-of-words.
+//   - Word-boundary matching (not substring) avoids "ink" matching "thinking".
+//   - Recency is a tiebreaker, not a dominant signal.
+// Standard stopwords PLUS words that appear in prompts but shouldn't drive
+// retrieval ("question", "help", "project", "back" etc). These are the words
+// that most commonly cause false hits when scored against journal text.
+const COACH_STOPWORDS = new Set(['the','a','an','and','or','but','of','in','on','to','for','is','are','was','were','be','been','being','it','this','that','i','me','my','you','your','we','our','they','them','with','as','at','by','from','have','has','had','do','does','did','so','if','not','no','yes','can','could','should','would','will','just','about','into','than','then','how','what','why','when','who','which','where','get','got','make','made','want','wants','need','needs','feel','feels','felt','think','thinks','thought','know','knows','knew','one','two','three','today','yesterday','tomorrow','now','question','help','helped','helping','project','projects','back','moment','moments','time','times','things','thing','stuff','still','yet','again','maybe','probably','something','anything','nothing','someone','anyone','also','really','actually','pretty','quite','very','much','many','more','less','said','say','saying','tell','told','ask','asked','asking','give','given','take','taken','put','use','used','using','way','ways','part','parts']);
+
+function _coachTokenise(text) {
+  const raw = (text || '').toLowerCase().match(/[a-z0-9]+(?:['’][a-z]+)?/g) || [];
+  return raw.filter(function (w) { return w.length > 2 && !COACH_STOPWORDS.has(w); });
+}
+
 function buildRetrievedContext(question, maxEntries) {
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
     if (!Array.isArray(raw) || raw.length === 0) return [];
     const cutoff = Date.now() - 60 * 24 * 60 * 60 * 1000;
-    // Keep only entries in the last 60 days that carry usable text.
     const candidates = raw.filter(function (e) {
       if (!e) return false;
       const t = new Date(e.date || e.timestamp || 0).getTime();
@@ -4061,36 +4078,89 @@ function buildRetrievedContext(question, maxEntries) {
     });
     if (candidates.length === 0) return [];
 
-    // Token the question, drop tiny stopwords, keep the rest lowercase.
-    const stop = new Set(['the','a','an','and','or','but','of','in','on','to','for','is','are','was','were','be','been','being','it','this','that','i','me','my','you','your','we','our','they','them','with','as','at','by','from','have','has','had','do','does','did','so','if','not','no','yes','can','could','should','would','will','just','about','into','than','then','how','what','why','when','who','which','where']);
-    const qTokens = (question || '').toLowerCase().match(/[a-z0-9']+/g) || [];
-    const qSet = qTokens.filter(function (w) { return w.length > 2 && !stop.has(w); });
-    if (qSet.length === 0) {
-      // No meaningful query terms — return the most recent entries by recency.
+    // Build the document set once. Each doc is the tokenised concatenation of
+    // morning focus and journal note. Morning focus gets counted twice so it
+    // weighs more per word — focus lines are shorter and higher-signal.
+    const docs = candidates.map(function (e) {
+      const focusTokens = _coachTokenise(e.morningFocus || '');
+      const journalTokens = _coachTokenise(e.journalNote || '');
+      const tokens = focusTokens.concat(focusTokens, journalTokens);
+      const bigrams = [];
+      for (let i = 0; i < tokens.length - 1; i++) bigrams.push(tokens[i] + ' ' + tokens[i + 1]);
+      const tf = Object.create(null);
+      for (const t of tokens) tf[t] = (tf[t] || 0) + 1;
+      const bg = Object.create(null);
+      for (const b of bigrams) bg[b] = (bg[b] || 0) + 1;
+      return { entry: e, tokens: tokens, tf: tf, bg: bg, len: tokens.length };
+    });
+
+    // Document frequency for IDF.
+    const df = Object.create(null);
+    for (const d of docs) {
+      for (const term of Object.keys(d.tf)) df[term] = (df[term] || 0) + 1;
+    }
+    const N = docs.length;
+    const avgLen = docs.reduce(function (s, d) { return s + d.len; }, 0) / Math.max(1, N);
+    const idf = function (term) {
+      const n = df[term] || 0;
+      // Standard BM25 IDF with a +1 to keep it strictly positive.
+      return Math.log(1 + (N - n + 0.5) / (n + 0.5));
+    };
+
+    // Query tokens + query bigrams.
+    const qTokens = _coachTokenise(question);
+    const uniqQ = Array.from(new Set(qTokens));
+    const qBigrams = [];
+    for (let i = 0; i < qTokens.length - 1; i++) qBigrams.push(qTokens[i] + ' ' + qTokens[i + 1]);
+
+    // If the query has nothing meaningful, return most recent entries.
+    if (uniqQ.length === 0) {
       return candidates
         .sort(function (a, b) { return new Date(b.date).getTime() - new Date(a.date).getTime(); })
         .slice(0, maxEntries || 6)
         .map(function (e) { return formatEntryForContext(e); });
     }
 
-    // Score each candidate: term-frequency of query terms + a recency bonus.
+    // BM25 parameters. k1 controls term-frequency saturation, b controls
+    // length normalisation. These are the standard defaults from the paper.
+    const k1 = 1.5;
+    const b = 0.75;
     const now = Date.now();
-    const scored = candidates.map(function (e) {
-      const text = ((e.morningFocus || '') + ' ' + (e.journalNote || '')).toLowerCase();
-      let score = 0;
-      for (const term of qSet) {
-        const matches = text.split(term).length - 1;
-        if (matches > 0) score += matches;
+
+    const scored = docs.map(function (d) {
+      let s = 0;
+      for (const term of uniqQ) {
+        const tf = d.tf[term] || 0;
+        if (tf === 0) continue;
+        const norm = 1 - b + b * (d.len / (avgLen || 1));
+        s += idf(term) * ((tf * (k1 + 1)) / (tf + k1 * norm));
       }
-      // Recency bonus: entries from the last 7 days get up to +1.5.
-      const ageDays = (now - new Date(e.date).getTime()) / (24 * 60 * 60 * 1000);
-      score += Math.max(0, 1.5 - ageDays / 5);
-      return { entry: e, score: score };
+      // Bigram bonus — phrases like "sales surface" or "demand test" score
+      // meaningfully more when they appear together, not just as separate words.
+      for (const qb of qBigrams) {
+        if (d.bg[qb]) s += 2.0 * d.bg[qb];
+      }
+      // Mild recency prior: up to +0.8, halving every 21 days. Never enough
+      // to overwhelm a strong content match, plenty to break ties.
+      const ageDays = (now - new Date(d.entry.date).getTime()) / (24 * 60 * 60 * 1000);
+      const recency = 0.8 * Math.exp(-ageDays / 30);
+      s += recency;
+      return { entry: d.entry, score: s, tokens: d.len };
     });
 
-    // Only surface entries that actually matched something, capped at maxEntries.
-    // If nothing scored, fall back to most-recent-with-content.
-    const hits = scored.filter(function (s) { return s.score > 0.6; })
+    // Threshold: to count as a real match, the entry needs to score at least
+    // 1.5 above its own recency contribution. This means a single common-word
+    // hit isn't enough — there has to be either a rare-term match, a bigram
+    // match, or multiple content-word hits. Prevents the false-positives that
+    // happen when a filler word like "question" appears in both the query and
+    // an unrelated entry.
+    const hits = scored
+      .map(function (r) {
+        const age = (now - new Date(r.entry.date).getTime()) / (24 * 60 * 60 * 1000);
+        const recency = 0.8 * Math.exp(-age / 30);
+        return { entry: r.entry, score: r.score, contentScore: r.score - recency };
+      })
+      .filter(function (r) { return r.contentScore > 1.5; })
       .sort(function (a, b) { return b.score - a.score; })
       .slice(0, maxEntries || 6);
     if (hits.length === 0) {
