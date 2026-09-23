@@ -1304,6 +1304,25 @@
 }
 .range-list.is-locked circle.dial-fill { stroke: var(--muted); }
 .range-list.is-locked .dial-label { color: var(--muted); }
+/* Follow-through (Discipline) card */
+.ft-card{background:var(--surface-2,#f4f3ee);border:1px solid var(--border,#e1e0d8);border-radius:16px;padding:18px;margin:0 0 20px;}
+.ft-eyebrow{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;}
+.ft-focus{color:var(--muted);font-size:.9rem;margin-bottom:10px;line-height:1.4;}
+.ft-focus span{color:var(--text);font-weight:600;}
+.ft-q{font-weight:700;font-size:1.05rem;margin-bottom:10px;}
+.ft-q-sm{font-size:.92rem;margin:14px 0 8px;}
+.ft-opt-label{font-weight:500;color:var(--muted);font-size:.78rem;margin-left:4px;}
+.ft-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.ft-opt{padding:12px 8px;border-radius:12px;border:1px solid var(--border,#d5dbcf);background:var(--surface,#fff);font-weight:600;font-size:.95rem;cursor:pointer;color:var(--text);}
+.ft-opt.on{background:var(--accent,#0c6a6f);border-color:var(--accent,#0c6a6f);color:#fff;}
+.ft-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.ft-chip{padding:7px 12px;border-radius:999px;border:1px solid var(--border,#d5dbcf);background:var(--surface,#fff);font-size:.85rem;cursor:pointer;color:var(--text);}
+.ft-chip.on{background:var(--accent,#0c6a6f);border-color:var(--accent,#0c6a6f);color:#fff;}
+.ft-note{width:100%;margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border,#d5dbcf);font-size:.9rem;background:var(--surface,#fff);color:var(--text);box-sizing:border-box;}
+.ft-err{color:#b3261e;font-size:.85rem;margin-top:10px;}
+.ft-card.is-locked{opacity:.75;}
+.ft-card.is-locked button,.ft-card.is-locked input{pointer-events:none;}
+
 #personalSavedHint { display: none; align-items: center; }
 [data-theme="dark"] #personalSavedHint {
   background: rgba(142, 179, 146, 0.14);
@@ -2063,6 +2082,28 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <span id="personalSavedHint" style="display:none;font-size:0.72rem;color:#0c6a6f;font-weight:500;background:#e6f2f0;border:1px solid #b8d8d3;padding:2px 8px;border-radius:999px;">Saved today</span>
             <button type="button" id="personalEditBtn" class="btn btn-secondary" style="display:none;padding:4px 12px;font-size:0.8rem;">Edit</button>
           </div>
+          <div class="ft-card" id="ftCard" hidden>
+            <div class="ft-eyebrow">Follow-through</div>
+            <div class="ft-focus">This morning you said: <span id="ftFocus"></span></div>
+            <div class="ft-q">Did you follow through?</div>
+            <div class="ft-opts" role="group" aria-label="Did you follow through?">
+              <button type="button" class="ft-opt" data-k="yes" data-v="9">Yes</button>
+              <button type="button" class="ft-opt" data-k="partly" data-v="5">Partly</button>
+              <button type="button" class="ft-opt" data-k="no" data-v="2">No</button>
+            </div>
+            <div class="ft-block" id="ftBlock" hidden>
+              <div class="ft-q ft-q-sm">What got in the way? <span class="ft-opt-label">Optional</span></div>
+              <div class="ft-chips" role="group" aria-label="What got in the way?">
+                <button type="button" class="ft-chip">Time</button>
+                <button type="button" class="ft-chip">Energy</button>
+                <button type="button" class="ft-chip">Forgot</button>
+                <button type="button" class="ft-chip">Other people</button>
+                <button type="button" class="ft-chip">Didn't want to</button>
+              </div>
+              <input type="text" id="ftNote" class="ft-note" maxlength="140" placeholder="Or a few words of your own">
+            </div>
+            <div class="ft-err" id="ftErr" hidden>Tap Yes, Partly or No first.</div>
+          </div>
           <div class="range-list" id="personalRangeList">
             <div class="range-row">
               <label for="personalDesire"><span>Drive</span><span id="personalDesireValue">5 / 10</span></label>
@@ -2661,6 +2702,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function savePersonalData() {
+      try { initFollowThrough(); renderFollowThrough(false); } catch (_e) {}
+      if (ftState.active && !ftState.answer) {
+        const err = document.getElementById('ftErr'); if (err) err.hidden = false;
+        const card = document.getElementById('ftCard'); if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
       const readInt = (id, fallback) => {
         const el = document.getElementById(id);
         const v = el ? parseInt(el.value, 10) : NaN;
@@ -2671,6 +2718,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         personalScore: calculatePersonalScore(),
         desire: readInt('personalDesire', 5),
         discipline: readInt('personalDiscipline', 5),
+        disciplineAnswer: ftState.active ? ftState.answer : null,
+        disciplineBlocker: ftState.active ? ftBlockerString() : null,
         control: readInt('personalControl', 5),
         // The Evening Review page also renders these sliders — without
         // reading them here they were being dropped on save (bug 2026-07-05).
@@ -2753,6 +2802,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         hydration: numOrNull(entry.hydration),
         recovery: numOrNull(entry.recovery),
         discipline: numOrNull(entry.discipline),
+        discipline_blocker: entry.disciplineBlocker || null,
         control: numOrNull(entry.control),
         desire: numOrNull(entry.desire),
         stress: numOrNull(entry.stress),
@@ -2925,6 +2975,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
       // Session-scoped override: user clicked Edit and is currently editing.
       if (rangeList.dataset.editMode === '1') {
+        try { initFollowThrough(); renderFollowThrough(false); } catch (_e) {}
         rangeList.classList.remove('is-locked');
         hint.style.display = 'none';
         editBtn.style.display = 'none';
@@ -2941,7 +2992,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const saved = !!(today && has(today.desire) && has(today.discipline) && has(today.control)
                        && has(today.exercise) && has(today.nutrition) && has(today.recovery));
 
+      try { initFollowThrough(); renderFollowThrough(saved); } catch (_e) { console.error('follow-through render failed', _e); }
       if (saved) {
+        const _ftc = document.getElementById('ftCard'); if (_ftc) delete _ftc.dataset.touched;
         rangeList.classList.add('is-locked');
         hint.style.display = 'inline-flex';
         editBtn.style.display = 'inline-flex';
@@ -2956,6 +3009,80 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       }
     }
     if (typeof window !== 'undefined') window.hydratePersonalLockState = hydratePersonalLockState;
+
+    // ---- Follow-through (Discipline) ------------------------------------
+    // When today's Morning Focus exists, Discipline is asked as a
+    // Yes / Partly / No follow-through question (saved as 9 / 5 / 2 into
+    // the existing discipline field), with an optional "what got in the
+    // way?" blocker. Without a focus, the Discipline dial is the fallback.
+    const ftState = { active: false, answer: null, chip: null };
+    const FT_CHIPS = ['Time', 'Energy', 'Forgot', 'Other people', "Didn't want to"];
+    function ftTodayFocus() {
+      let entries = [];
+      try { entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); } catch (_e) {}
+      const today = pickTodayEntry(entries, new Date());
+      let f = (today && typeof today.morningFocus === 'string') ? today.morningFocus.trim() : '';
+      if (!f) { const el = document.getElementById('morningFocus'); f = el && el.value ? el.value.trim() : ''; }
+      return { focus: f.replace(/^Lock-in:\s*/i, ''), today };
+    }
+    function ftBlockerString() {
+      if (!ftState.answer || ftState.answer === 'yes') return null;
+      const note = ((document.getElementById('ftNote') || {}).value || '').trim().slice(0, 140);
+      const parts = [ftState.chip, note].filter(Boolean);
+      return parts.length ? parts.join(' · ') : null;
+    }
+    function ftPaint() {
+      const card = document.getElementById('ftCard'); if (!card) return;
+      card.querySelectorAll('.ft-opt').forEach(b => b.classList.toggle('on', b.dataset.k === ftState.answer));
+      card.querySelectorAll('.ft-chip').forEach(b => b.classList.toggle('on', b.textContent === ftState.chip));
+      const block = document.getElementById('ftBlock');
+      if (block) block.hidden = !(ftState.answer === 'partly' || ftState.answer === 'no');
+    }
+    function renderFollowThrough(locked) {
+      const card = document.getElementById('ftCard');
+      const input = document.getElementById('personalDiscipline');
+      if (!card || !input) return;
+      const dial = input.closest('.dial') || input.closest('.range-row');
+      const { focus, today } = ftTodayFocus();
+      ftState.active = !!focus;
+      card.hidden = !ftState.active;
+      if (dial) dial.style.display = ftState.active ? 'none' : '';
+      if (!ftState.active) return;
+      const fEl = document.getElementById('ftFocus');
+      if (fEl) fEl.textContent = focus.length > 140 ? focus.slice(0, 137) + '...' : focus;
+      // Rehydrate from today's saved entry unless the user is mid-edit
+      if (today && today.disciplineAnswer && card.dataset.touched !== '1') {
+        ftState.answer = today.disciplineAnswer;
+        const b = today.disciplineBlocker || '';
+        const first = b.split(' · ')[0];
+        ftState.chip = FT_CHIPS.includes(first) ? first : null;
+        const note = ftState.chip ? b.split(' · ').slice(1).join(' · ') : b;
+        const nEl = document.getElementById('ftNote'); if (nEl) nEl.value = note;
+      }
+      card.classList.toggle('is-locked', !!locked);
+      ftPaint();
+    }
+    function initFollowThrough() {
+      const card = document.getElementById('ftCard'); if (!card || card.dataset.ready) return;
+      card.dataset.ready = '1';
+      card.querySelectorAll('.ft-opt').forEach(b => b.addEventListener('click', () => {
+        card.dataset.touched = '1';
+        ftState.answer = b.dataset.k;
+        if (ftState.answer === 'yes') ftState.chip = null;
+        const input = document.getElementById('personalDiscipline');
+        if (input) { input.value = b.dataset.v; input.dispatchEvent(new Event('input', { bubbles: true })); }
+        const err = document.getElementById('ftErr'); if (err) err.hidden = true;
+        ftPaint();
+      }));
+      card.querySelectorAll('.ft-chip').forEach(b => b.addEventListener('click', () => {
+        card.dataset.touched = '1';
+        ftState.chip = (ftState.chip === b.textContent) ? null : b.textContent;
+        ftPaint();
+      }));
+      const n = document.getElementById('ftNote'); if (n) n.addEventListener('input', () => { card.dataset.touched = '1'; });
+    }
+    if (typeof window !== 'undefined') { window.renderFollowThrough = renderFollowThrough; window.initFollowThrough = initFollowThrough; }
+
 
     // ---- Morning Check-in lock state ------------------------------------
     // Considers today "saved" once mood/sleepQuality/energy are all present.
@@ -4445,9 +4572,27 @@ function buildHistorySignals() {
       .slice(-3)
       .map(e => e.journalNote.trim().slice(0, 240));
 
+    // Follow-through: Yes/Partly/No answers vs morning focus, plus blockers
+    const followThrough = { yes: 0, partly: 0, no: 0, blockers: [], recent: [] };
+    const blockerCounts = {};
+    recent.forEach(e => {
+      if (!e || !e.disciplineAnswer) return;
+      if (followThrough[e.disciplineAnswer] != null) followThrough[e.disciplineAnswer]++;
+      const b = typeof e.disciplineBlocker === 'string' ? e.disciplineBlocker.trim() : '';
+      if (b) { const k = b.split(' · ')[0]; blockerCounts[k] = (blockerCounts[k] || 0) + 1; }
+      followThrough.recent.push({
+        date: String(e.date || '').slice(0, 10),
+        focus: String(e.morningFocus || '').replace(/^Lock-in:\s*/i, '').slice(0, 160),
+        answer: e.disciplineAnswer,
+        blocker: b.slice(0, 160) || null
+      });
+    });
+    followThrough.blockers = Object.entries(blockerCounts).sort((a,b) => b[1]-a[1]).slice(0, 5).map(([blocker, count]) => ({ blocker, count }));
+
     return {
       entriesCount: raw.length,
       daysCovered: recent.length,
+      followThrough,
       averages,
       lowFields,
       missingFields,

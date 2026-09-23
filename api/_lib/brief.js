@@ -99,6 +99,19 @@ export function summariseWeek(entries, profile = null) {
     .slice(0, 3)
     .map(([trigger, count]) => ({ trigger, count }));
 
+  // Follow-through blockers ("what got in the way") from Evening Review
+  const blockerCounts = {};
+  for (const e of thisWeek) {
+    const b = toCleanString(e.disciplineBlocker);
+    if (!b) continue;
+    const k = b.split(" · ")[0];
+    blockerCounts[k] = (blockerCounts[k] || 0) + 1;
+  }
+  const topBlockers = Object.entries(blockerCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([blocker, count]) => ({ blocker, count }));
+
   const journalNotes = thisWeek
     .map(e => toCleanString(e.journalNote))
     .filter(Boolean)
@@ -116,6 +129,7 @@ export function summariseWeek(entries, profile = null) {
     held: held.slice(0, 3),
     wentDark: wentDark.slice(0, 3),
     topTriggers,
+    topBlockers,
     journalNotes,
     physical,
   };
@@ -463,7 +477,7 @@ export function rowToEntry(row) {
     date: row.entry_date,
     mood: row.mood, energy: row.energy, sleepQuality: row.sleep_quality,
     exercise: row.exercise, nutrition: row.nutrition, hydration: row.hydration,
-    recovery: row.recovery, discipline: row.discipline, control: row.control,
+    recovery: row.recovery, discipline: row.discipline, disciplineBlocker: row.discipline_blocker, control: row.control,
     desire: row.desire, stress: row.stress,
     healthScore: row.health_score, personalScore: row.personal_score, overallScore: row.overall_score,
     notes: row.notes, tomorrowFocus: row.tomorrow_focus,

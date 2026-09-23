@@ -226,6 +226,21 @@ function sanitiseHistorySignals(raw) {
       count: num(t && t.count),
     })).filter((t) => t.trigger),
     recentJournalSnippets: arr(raw.recentJournalSnippets).slice(0, 3).map((s) => toCleanString(s).slice(0, 240)).filter(Boolean),
+    followThrough: (raw.followThrough && typeof raw.followThrough === "object") ? {
+      yes: num(raw.followThrough.yes) || 0,
+      partly: num(raw.followThrough.partly) || 0,
+      no: num(raw.followThrough.no) || 0,
+      blockers: arr(raw.followThrough.blockers).slice(0, 5).map((b) => ({
+        blocker: toCleanString(b && b.blocker).slice(0, 60),
+        count: num(b && b.count),
+      })).filter((b) => b.blocker),
+      recent: arr(raw.followThrough.recent).slice(-7).map((r) => ({
+        date: toCleanString(r && r.date).slice(0, 10),
+        focus: toCleanString(r && r.focus).slice(0, 160),
+        answer: ["yes", "partly", "no"].includes(r && r.answer) ? r.answer : null,
+        blocker: toCleanString(r && r.blocker).slice(0, 160) || null,
+      })).filter((r) => r.answer),
+    } : null,
     note: toCleanString(raw.note),
   };
   return safe;
@@ -442,7 +457,7 @@ How you decide what to suggest (do this silently, never show your reasoning):
 - Also read physicalSignals when present. It can contain weight (thisAvg, lastAvg, delta, bmi, bmiBand, daysLogged) and alcohol (total, drinkingDays, dryDays, correlation with sleep). Use these directly: a rising weight trend or a bmiBand outside "healthy" is a signal for a movement, sleep, or nutrition move. A heavy drinking week or a clear alcohol-sleep correlation gap is a signal for a hydration, sleep, or drink-swap move. Reference the specific number or delta in the 'why'.
 - Never mention BMI as a judgement, only as a neutral data point. Never fabricate physical metrics: if physicalSignals or a specific field is null, do not mention it.
 - The field named desire is shown to the user as Drive (ambition, hunger to get things done). Always call it drive, never desire.
-- Discipline is the user's self-rated follow-through (0-10: did I do what I told myself I'd do). Read it against focus: a stated focus with low discipline means the commitment is too big or badly timed, so suggest shrinking or re-timing it rather than trying harder. Never shame low discipline.
+- Discipline is the user's self-rated follow-through (0-10: did I do what I told myself I'd do). historySignals.followThrough holds their Yes/Partly/No answers against each day's morning focus plus what got in the way (blockers). When a blocker repeats (e.g. Energy 3 times), address that blocker directly and name it. Read it against focus: a stated focus with low discipline means the commitment is too big or badly timed, so suggest shrinking or re-timing it rather than trying harder. Never shame low discipline.
 - Do not repeat the same category twice. Cover different territory (recovery, movement, mind, environment, admin) so the list feels like a real day plan, not one theme five ways.
 - Never suggest something the data contradicts (e.g. do not suggest a hard workout when exercise is already high and recovery is falling).
 
