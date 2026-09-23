@@ -15,16 +15,104 @@ function toCleanString(value, fallback = "") {
 export const POSITIVE_FIELDS = ["mood", "energy", "sleepQuality", "exercise", "nutrition", "hydration", "discipline", "control", "desire"];
 export const INVERSE_FIELDS = ["stress"];
 const ALL_TRACKED = [...POSITIVE_FIELDS, ...INVERSE_FIELDS];
+// Evening tap questions: reported as day counts (scorecard), never as averages.
+export const TAP_FIELDS = ["discipline", "exercise", "nutrition"];
+
+// Bucket a 0-10 value into the tap answer it represents. Tap answers save as
+// discipline 9/5/2, exercise 9/6/2, nutrition 9/5/2; older dial values map to
+// the nearest bucket.
+function tapBucket(field, v) {
+  if (v === null || v === undefined) return null;
+  if (field === "exercise") return v >= 8 ? "trained" : v >= 5 ? "light" : "none";
+  if (field === "discipline") return v >= 8 ? "yes" : v >= 4 ? "partly" : "no";
+  return v >= 8 ? "on" : v >= 4 ? "mixed" : "off";
+}
+
+function tallyTop(list, n = 3) {
+  const counts = {};
+  for (const d of list) {
+    const k = toCleanString(d).split(" · ")[0];
+    if (k) counts[k] = (counts[k] || 0) + 1;
+  }
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, n).map(([detail, count]) => ({ detail, count }));
+}
+
+function tapWeek(week) {
+  const out = {
+    followThrough: { yes: 0, partly: 0, no: 0, days: 0, blockers: [] },
+    movement: { trained: 0, light: 0, none: 0, days: 0, activities: [], blockers: [] },
+    eating: { on: 0, mixed: 0, off: 0, days: 0, misses: [] },
+  };
+  const dBlock = [], mDid = [], mBlock = [], eMiss = [];
+  for (const e of week) {
+    const d = tapBucket("discipline", toNumber(e.discipline));
+    if (d) { out.followThrough[d] += 1; out.followThrough.days += 1; if (d !== "yes" && e.disciplineBlocker) dBlock.push(e.disciplineBlocker); }
+    const m = tapBucket("exercise", toNumber(e.exercise));
+    if (m) {
+      out.movement[m] += 1; out.movement.days += 1;
+      if (e.exerciseDetail) (m === "none" ? mBlock : mDid).push(e.exerciseDetail);
+    }
+    const n = tapBucket("nutrition", toNumber(e.nutrition));
+    if (n) { out.eating[n] += 1; out.eating.days += 1; if (n !== "on" && e.nutritionDetail) eMiss.push(e.nutritionDetail); }
+  }
+  out.followThrough.blockers = tallyTop(dBlock);
+  out.movement.activities = tallyTop(mDid);
+  out.movement.blockers = tallyTop(mBlock);
+  out.eating.misses = tallyTop(eMiss);
+  return out;
+}
+
+const topStr = (list) => list.length ? `${list[0].detail} (${list[0].count})` : "";
+
+// Plain-English scorecard lines, e.g. "Followed through 4 of 6 days".
+// Goes to moved (with arrow) when good days shifted by 2+ vs last week, else held.
+function scorecardLines(thisTap, lastTap) {
+  const moved = [];
+  const held = [];
+  // main: the count sentence without a full stop; extras: follow-up detail sentences
+  const place = (main, extras, goodNow, goodLast, lastDays) => {
+    const tail = extras.length ? " " + extras.join(" ") : "";
+    if (lastDays >= 3 && Math.abs(goodNow - goodLast) >= 2) {
+      moved.push(`${goodNow > goodLast ? "↑" : "↓"} ${main}, up from ${goodLast} last week.${tail}`.replace(", up from", goodNow > goodLast ? ", up from" : ", down from"));
+    } else {
+      held.push(`${main}.${tail}`);
+    }
+  };
+  const ft = thisTap.followThrough, ftL = lastTap.followThrough;
+  if (ft.days) {
+    const extra = [ft.partly ? `partly ${ft.partly}` : "", ft.no ? `missed ${ft.no}` : ""].filter(Boolean).join(", ");
+    const main = `Followed through on your focus ${ft.yes} of ${ft.days} days${extra ? ` (${extra})` : ""}`;
+    const extras = ft.blockers.length ? [`Main blocker: ${topStr(ft.blockers)}.`] : [];
+    place(main, extras, ft.yes, ftL.yes, ftL.days);
+  }
+  const mv = thisTap.movement, mvL = lastTap.movement;
+  if (mv.days) {
+    const active = mv.trained + mv.light;
+    const main = `Moved ${active} of ${mv.days} days (trained ${mv.trained}, light ${mv.light})`;
+    const extras = [];
+    if (mv.activities.length) extras.push(`Mostly ${topStr(mv.activities)}.`);
+    if (mv.blockers.length) extras.push(`Stopped by: ${topStr(mv.blockers)}.`);
+    place(main, extras, active, mvL.trained + mvL.light, mvL.days);
+  }
+  const ea = thisTap.eating, eaL = lastTap.eating;
+  if (ea.days) {
+    const extra = [ea.mixed ? `mixed ${ea.mixed}` : "", ea.off ? `off track ${ea.off}` : ""].filter(Boolean).join(", ");
+    const main = `Ate on point ${ea.on} of ${ea.days} days${extra ? ` (${extra})` : ""}`;
+    const extras = ea.misses.length ? [`What threw it: ${topStr(ea.misses)}.`] : [];
+    place(main, extras, ea.on, eaL.on, eaL.days);
+  }
+  return { moved, held };
+}
 
 function niceLabel(key) {
   return ({
     mood: "mood",
     energy: "energy",
     sleepQuality: "sleep quality",
-    exercise: "exercise",
+    exercise: "movement",
     nutrition: "nutrition",
     hydration: "hydration",
-    discipline: "discipline (follow-through)",
+    discipline: "follow-through",
     control: "control",
     desire: "drive",
     stress: "stress",
@@ -70,6 +158,7 @@ export function summariseWeek(entries, profile = null) {
       wentDark.push(`${label}: stopped logging (was ${s.lastCount}/7 days, now ${s.thisCount}/7)`);
     }
     if (s.delta === null) continue;
+    if (TAP_FIELDS.includes(f)) continue;
     const abs = Math.abs(s.delta);
     if (abs >= 1.0) {
       const dir = s.delta > 0 ? "climbed" : "dropped";
@@ -98,20 +187,10 @@ export function summariseWeek(entries, profile = null) {
     .slice(0, 3)
     .map(([trigger, count]) => ({ trigger, count }));
 
-  // Evening follow-up details (quick pick before " · ") tallied for the week
-  const tallyDetail = (field) => {
-    const counts = {};
-    for (const e of thisWeek) {
-      const d = toCleanString(e[field]);
-      if (!d) continue;
-      const k = d.split(" · ")[0];
-      counts[k] = (counts[k] || 0) + 1;
-    }
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([detail, count]) => ({ detail, count }));
-  };
-  const topBlockers = tallyDetail("disciplineBlocker");
-  const topMovement = tallyDetail("exerciseDetail");
-  const topFoodMisses = tallyDetail("nutritionDetail");
+  // Evening tap questions: day counts + follow-up details for this and last week
+  const tap = tapWeek(thisWeek);
+  const tapLast = tapWeek(lastWeek);
+  const scorecard = scorecardLines(tap, tapLast);
 
   const journalNotes = thisWeek
     .map(e => toCleanString(e.journalNote))
@@ -126,13 +205,12 @@ export function summariseWeek(entries, profile = null) {
     thisWeekEntries: thisWeek.length,
     lastWeekEntries: lastWeek.length,
     stats,
-    moved: moved.slice(0, 5),
-    held: held.slice(0, 3),
+    moved: [...scorecard.moved, ...moved].slice(0, 6),
+    held: [...scorecard.held, ...held].slice(0, 5),
     wentDark: wentDark.slice(0, 3),
     topTriggers,
-    topBlockers,
-    topMovement,
-    topFoodMisses,
+    tap,
+    tapLastWeek: tapLast,
     journalNotes,
     physical,
   };
@@ -292,7 +370,16 @@ export function getStreakStats(entries) {
 // ---- LLM ------------------------------------------------------------------
 
 function buildSystemPrompt() {
-  return `You are the writer of "The Brief" — Momentum OS's weekly Sunday debrief for a self-tracking user (a professional man in his 40s-50s who logs mood, energy, sleep, stress, exercise etc daily).
+  return `You are the writer of "The Brief" — Momentum OS's weekly Sunday debrief for a self-tracking user (a professional man in his 40s-50s).
+
+WHAT HE LOGS:
+- Morning: mood, energy, sleep quality (dials), optional stress and hydration, weight and alcohol, and a written focus for the day.
+- Evening: three tap questions plus two dials.
+  - Follow-through: did he do what his morning focus said? Yes / Partly / No, with what got in the way.
+  - Movement: Trained / Light / Nothing, with what he did or what stopped him.
+  - Nutrition: On point / Mixed / Off track, with what threw it (e.g. Takeaway, Snacking, Alcohol).
+  - Drive (ambition, hunger to get things done) and Control (mental clarity) as 0-10 dials.
+- There is no recovery, connection, desire or urge metric. Never mention them.
 
 VOICE:
 - Terse. Scoreboard-style. Not therapy-style.
@@ -301,6 +388,10 @@ VOICE:
 - Never guilt-trip about missed days. Note gaps as facts.
 - Use the user's actual numbers when they add signal. Never fabricate numbers.
 - If physical metrics are present (weight/BMI/alcohol), weave them into the moved or held bullets naturally. If alcohol correlated with worse sleep, name it. If weight moved meaningfully, name it in kg.
+- Report follow-through, movement and nutrition as day counts from summary.tap (compare with summary.tapLastWeek), never as averages or scores out of 10. Write them like: "Followed through on your focus 4 of 6 days", "Trained 3 days, light 2, nothing 2", "Ate on point 3 of 6 days".
+- Name the top follow-up detail when it repeats: the main follow-through blocker, what threw eating, or what he mostly did for movement. Quote the pick as logged (e.g. Energy, Snacking, Gym).
+- Use "drive" (never "desire") and "movement" for exercise. Use Australian English.
+- At least one tryThese item should target the most repeated blocker or miss, when one exists.
 
 OUTPUT SHAPE (JSON):
 - title: short brief title (e.g. "Week 27 debrief")
@@ -309,7 +400,7 @@ OUTPUT SHAPE (JSON):
 - held: array of short bullet strings for what stayed steady
 - wentDark: array of short bullet strings for fields the user stopped logging
 - tryThese: array of exactly 3 items, each { action, why }
-- askCoach: array of exactly 3 items, each { context, prompt }
+- askCoach: array of exactly 3 items, each { context, prompt }. context is a short factual line addressed to him ("Energy got in the way 3 times."). prompt is written in HIS voice, first person, as the question he taps to ask the Coach (e.g. "Energy keeps getting in the way of my focus. How do I plan around it next week?"). Never write prompt as a question to him.
 
 Do not invent metrics that weren't in the summary. If the week was quiet, keep the brief short and honest.`;
 }
@@ -375,15 +466,40 @@ export function fallbackBrief(summary, streak) {
   if (summary.stats.sleepQuality && summary.stats.sleepQuality.thisAvg !== null && summary.stats.sleepQuality.thisAvg < 6) {
     tryThese.push({ action: "Pick one non-negotiable sleep window", why: `Sleep is averaging ${summary.stats.sleepQuality.thisAvg.toFixed(1)}. A fixed lights-out beats a fixed alarm.` });
   }
-  if (summary.stats.exercise && summary.stats.exercise.thisAvg !== null && summary.stats.exercise.thisAvg < 5) {
-    tryThese.push({ action: "Book two 20-minute sessions", why: `Exercise averaged ${summary.stats.exercise.thisAvg.toFixed(1)}. Two short sessions beats one hero session that never happens.` });
+  const tap = summary.tap || null;
+  if (tap && tap.followThrough.days >= 3 && tap.followThrough.yes < Math.ceil(tap.followThrough.days / 2)) {
+    const ft = tap.followThrough;
+    const b = ft.blockers[0];
+    tryThese.push({ action: "Shrink tomorrow's focus to one thing", why: `You followed through ${ft.yes} of ${ft.days} days${b ? `, and ${b.detail} got in the way ${b.count} time${b.count === 1 ? "" : "s"}` : ""}. A smaller promise you keep beats a big one you don't.` });
+  }
+  if (tap && tap.movement.days >= 3 && (tap.movement.trained + tap.movement.light) < 3) {
+    const mv = tap.movement;
+    const b = mv.blockers[0];
+    tryThese.push({ action: "Book two 20-minute sessions", why: `You moved ${mv.trained + mv.light} of ${mv.days} days${b ? `; ${b.detail} stopped you ${b.count} time${b.count === 1 ? "" : "s"}` : ""}. Two short sessions beat one big session that never happens.` });
+  }
+  if (tap && tap.eating.misses.length && tap.eating.misses[0].count >= 2) {
+    const m = tap.eating.misses[0];
+    tryThese.push({ action: `Plan around ${m.detail.toLowerCase()} before it happens`, why: `${m.detail} threw your eating ${m.count} times this week. Decide the swap in advance, not in the moment.` });
   }
   if (summary.stats.stress && summary.stats.stress.thisAvg !== null && summary.stats.stress.thisAvg > 6) {
     tryThese.push({ action: "Name the trigger before Monday", why: `Stress ran high (${summary.stats.stress.thisAvg.toFixed(1)}). If it hit twice, it will hit again — plan for it.` });
   }
-  while (tryThese.length < 3) tryThese.push({ action: "Log one full day this week", why: "Cleanest signal comes from unbroken data. One complete day is enough to see patterns." });
+  const fillers = [
+    { action: "Log every evening this week", why: "Your evening answers are what the Coach reads to spot patterns. Seven nights gives it a full picture." },
+    { action: "Copy your best day", why: "Pick the day that went best this week and repeat its first two hours on Monday." },
+    { action: "Log one full day this week", why: "Cleanest signal comes from unbroken data. One complete day is enough to see patterns." },
+  ];
+  for (const f of fillers) { if (tryThese.length >= 3) break; if (!tryThese.some(t => t.action === f.action)) tryThese.push(f); }
 
   const askCoach = [];
+  if (tap && tap.followThrough.blockers.length) {
+    const b = tap.followThrough.blockers[0];
+    askCoach.push({ context: `${b.detail} got in the way of your focus ${b.count} time${b.count === 1 ? "" : "s"}.`, prompt: `${b.detail} keeps getting in the way of what I set out to do. How do I plan around it next week?` });
+  }
+  if (tap && tap.eating.misses.length) {
+    const m = tap.eating.misses[0];
+    askCoach.push({ context: `${m.detail} threw your eating ${m.count} time${m.count === 1 ? "" : "s"}.`, prompt: `${m.detail} is what knocks my eating off track. What's a realistic fix for next week?` });
+  }
   if (summary.topTriggers.length) {
     const t = summary.topTriggers[0];
     askCoach.push({ context: `"${t.trigger}" showed up ${t.count} times this week.`, prompt: `You logged "${t.trigger}" ${t.count} times this week — how do I handle it differently next week?` });
