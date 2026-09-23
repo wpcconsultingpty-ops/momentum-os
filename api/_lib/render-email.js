@@ -17,8 +17,8 @@ function movedArrow(line) {
   const first = line.trim().charAt(0);
   if (first === "↓") return { arrow: "↓", color: "#a04040", rest: line.trim().slice(1).trim() };
   if (first === "↑") {
-    // Green if the movement is good (mood/energy/sleep up), red if bad (stress/urge up)
-    const badKeywords = /(stress|urge)/i;
+    // Green if the movement is good (mood/energy/sleep up), red if bad (stress up)
+    const badKeywords = /(stress)/i;
     return { arrow: "↑", color: badKeywords.test(line) ? "#a04040" : "#2f7a4a", rest: line.trim().slice(1).trim() };
   }
   return { arrow: "•", color: "#6e776f", rest: line.trim() };

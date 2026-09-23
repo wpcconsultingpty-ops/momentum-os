@@ -2065,7 +2065,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           </div>
           <div class="range-list" id="personalRangeList">
             <div class="range-row">
-              <label for="personalDesire"><span>Desire</span><span id="personalDesireValue">5 / 10</span></label>
+              <label for="personalDesire"><span>Drive</span><span id="personalDesireValue">5 / 10</span></label>
               <input id="personalDesire" type="range" min="0" max="10" value="5">
             </div>
             <div class="range-row">
@@ -2075,10 +2075,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="range-row">
               <label for="personalControl"><span>Control</span><span id="personalControlValue">5 / 10</span></label>
               <input id="personalControl" type="range" min="0" max="10" value="5">
-            </div>
-            <div class="range-row">
-              <label for="personalUrge"><span>Urge Intensity</span><span id="personalUrgeValue">5 / 10</span></label>
-              <input id="personalUrge" type="range" min="0" max="10" value="5">
             </div>
             <div class="range-row">
               <label for="exercise"><span>Exercise</span><span id="exerciseValue">5 / 10</span></label>
@@ -2564,9 +2560,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const desire = parseInt((document.getElementById('personalDesire')||{value:5}).value);
       const discipline = parseInt((document.getElementById('personalDiscipline')||{value:5}).value);
       const control = parseInt((document.getElementById('personalControl')||{value:5}).value);
-      const urge = 10 - parseInt((document.getElementById('personalUrge')||{value:5}).value);
 
-      const exercise = parseInt((document.getElementById('exercise')||{value:5}).value); const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value); const recovery = parseInt((document.getElementById('recovery')||{value:5}).value); const score = Math.round((desire + discipline + control + urge + exercise + nutrition + recovery) / 7 * 6 + 40);
+      const exercise = parseInt((document.getElementById('exercise')||{value:5}).value); const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value); const recovery = parseInt((document.getElementById('recovery')||{value:5}).value); const score = Math.round((desire + discipline + control + exercise + nutrition + recovery) / 6 * 6 + 40);
       return Math.min(100, Math.max(0, score));
     }
 
@@ -2677,7 +2672,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         desire: readInt('personalDesire', 5),
         discipline: readInt('personalDiscipline', 5),
         control: readInt('personalControl', 5),
-        urge: readInt('personalUrge', 5),
         // The Evening Review page also renders these sliders — without
         // reading them here they were being dropped on save (bug 2026-07-05).
         exercise: readInt('exercise', 5),
@@ -2762,7 +2756,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         control: numOrNull(entry.control),
         desire: numOrNull(entry.desire),
         stress: numOrNull(entry.stress),
-        urge: numOrNull(entry.urge),
         health_score: numOrNull(entry.healthScore),
         personal_score: numOrNull(entry.personalScore),
         overall_score: numOrNull(entry.overallScore),
@@ -2921,7 +2914,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     // ---- Evening Review lock state --------------------------------------
-    // Considers today "saved" once desire/discipline/control/urge and
+    // Considers today "saved" once drive (desire)/discipline/control and
     // exercise/nutrition/recovery are all present on today's entry.
     function hydratePersonalLockState() {
       const rangeList = document.getElementById('personalRangeList');
@@ -2945,7 +2938,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const today = (typeof pickTodayEntry === 'function') ? pickTodayEntry(entries, new Date()) : null;
 
       const has = (v) => v != null && Number.isFinite(Number(v));
-      const saved = !!(today && has(today.desire) && has(today.discipline) && has(today.control) && has(today.urge)
+      const saved = !!(today && has(today.desire) && has(today.discipline) && has(today.control)
                        && has(today.exercise) && has(today.nutrition) && has(today.recovery));
 
       if (saved) {
@@ -4376,7 +4369,7 @@ function buildHistorySignals() {
     // Fields where high = good. Low = below 5 on average.
     const positive = ['mood','energy','sleepQuality','exercise','nutrition','hydration','recovery','discipline','control','desire'];
     // Fields where high = bad. High = above 6 on average is a red flag.
-    const inverse = ['stress','urge'];
+    const inverse = ['stress'];
     const trackedFields = positive.concat(inverse);
 
     const averages = {};

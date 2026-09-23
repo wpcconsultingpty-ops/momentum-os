@@ -369,7 +369,7 @@ Three things to try (the 'tryThese' field — always exactly 3 bullets):
 - Each bullet is a small, concrete action they can try in the next day or two. Not vague, not abstract, not a mindset shift.
 - The bullets are the ONE place where you may offer direction. This overrides the 'never prescribe' rule above. You are giving them 3 practical options, not making them ask.
 - Each bullet must clearly link back to what THEY asked about in freeText or previousUserReply. If they asked about sleep, all 3 bullets should touch sleep (from different angles). If they asked how to feel less stuck, all 3 bullets should be about getting unstuck.
-- Ground the bullets in their historySignals. Prioritise lowFields (things averaging below 5, or above 6 for stress/urge), missingFields (things they have stopped logging — those are often the real gap), and fallingFields (things trending the wrong way). Reference the specific field or number in the 'why' so it feels grounded, not generic. Example why: "Sleep quality is averaging 4.3 over the last 7 days."
+- Ground the bullets in their historySignals. Prioritise lowFields (things averaging below 5, or above 6 for stress), missingFields (things they have stopped logging — those are often the real gap), and fallingFields (things trending the wrong way). Reference the specific field or number in the 'why' so it feels grounded, not generic. Example why: "Sleep quality is averaging 4.3 over the last 7 days."
 - Also read physicalSignals when present. It can contain weight (thisAvg, lastAvg, delta, latest, bmi, bmiBand, daysLogged) and alcohol (total drinks in the last 7 days, drinkingDays, dryDays, and a correlation object showing how sleep changes on drinking vs dry days). Reference these directly when they meaningfully connect to what the person is asking about — for example, a rising weight trend, a BMI outside the healthy band, a heavy drinking week, or a clear sleep gap between drinking and dry days. Never mention BMI as a judgement — only ever as a neutral data point tied to what they raised.
 - If physicalSignals.alcohol.correlation exists and the gap is meaningful (>= 0.8 sleep points), that is often the single most useful thing to name when they are asking about sleep, energy, mood or recovery.
 - If they have no history yet (historySignals.entriesCount is 0), keep the bullets sensible and general, and tie them to the question rather than data. Do not fabricate numbers.
@@ -441,6 +441,7 @@ How you decide what to suggest (do this silently, never show your reasoning):
 - Pick 3 to 5 moves that are specifically responsive to that data. If sleep is falling, suggest a sleep-protective move. If exercise trend is falling, suggest a movement move. If stress or overwhelm is high, lead with a recovery move. If hydration or nutrition is low, add one there. If capacity is very low, keep every move tiny (5–15 minutes). If capacity is good, one move may be more ambitious.
 - Also read physicalSignals when present. It can contain weight (thisAvg, lastAvg, delta, bmi, bmiBand, daysLogged) and alcohol (total, drinkingDays, dryDays, correlation with sleep). Use these directly: a rising weight trend or a bmiBand outside "healthy" is a signal for a movement, sleep, or nutrition move. A heavy drinking week or a clear alcohol-sleep correlation gap is a signal for a hydration, sleep, or drink-swap move. Reference the specific number or delta in the 'why'.
 - Never mention BMI as a judgement, only as a neutral data point. Never fabricate physical metrics: if physicalSignals or a specific field is null, do not mention it.
+- The field named desire is shown to the user as Drive (ambition, hunger to get things done). Always call it drive, never desire.
 - Discipline is the user's self-rated follow-through (0-10: did I do what I told myself I'd do). Read it against focus: a stated focus with low discipline means the commitment is too big or badly timed, so suggest shrinking or re-timing it rather than trying harder. Never shame low discipline.
 - Do not repeat the same category twice. Cover different territory (recovery, movement, mind, environment, admin) so the list feels like a real day plan, not one theme five ways.
 - Never suggest something the data contradicts (e.g. do not suggest a hard workout when exercise is already high and recovery is falling).
@@ -573,10 +574,8 @@ export function buildFallbackTryThese(context) {
         return { action: "Pick the single most important thing for today and start there.", why: `Sense of control is averaging ${avg ?? "low"} — one clear next step returns it faster than a plan.` };
       case "stress":
         return { action: "Take five slow breaths before the next task.", why: `Stress is averaging ${avg ?? "high"} — a five-breath pause changes the physiology before it changes the story.` };
-      case "urge":
-        return { action: "Name the urge out loud and delay acting for 10 minutes.", why: `Urge intensity is averaging ${avg ?? "high"} — naming and delaying breaks the automatic loop.` };
       case "desire":
-        return { action: "Write down one thing that would make today feel meaningful.", why: `Desire is averaging ${avg ?? "low"} — clarity on what you actually want is the first move.` };
+        return { action: "Write down one thing that would make today feel meaningful.", why: `Drive is averaging ${avg ?? "low"} — clarity on what you actually want is the first move.` };
       default:
         return null;
     }
