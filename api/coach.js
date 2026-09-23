@@ -104,7 +104,7 @@ function sanitiseConversation(raw) {
 // them to the model as grounded context.
 function sanitiseRetrievedContext(raw) {
   if (!Array.isArray(raw)) return [];
-  const allowedSignalKeys = new Set(['mood','energy','sleepQuality','stress','exercise','recovery']);
+  const allowedSignalKeys = new Set(['mood','energy','sleepQuality','stress','exercise','nutrition']);
   const out = [];
   for (const item of raw.slice(0, 8)) {
     if (!item || typeof item !== 'object') continue;
@@ -196,6 +196,31 @@ export function sanitisePhysicalSignals(raw) {
   return out;
 }
 
+// Evening tap-question summaries (Discipline / Movement / Nutrition)
+function sanitiseTap(raw, answers, withFocus) {
+  if (!raw || typeof raw !== "object") return null;
+  const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
+  const arr = (v) => (Array.isArray(v) ? v : []);
+  const counts = {};
+  for (const a of answers) counts[a] = num(raw.counts && raw.counts[a]) || 0;
+  return {
+    counts,
+    details: arr(raw.details).slice(0, 5).map((d) => ({
+      detail: toCleanString(d && d.detail).slice(0, 60),
+      count: num(d && d.count),
+    })).filter((d) => d.detail),
+    recent: arr(raw.recent).slice(-7).map((r) => {
+      const row = {
+        date: toCleanString(r && r.date).slice(0, 10),
+        answer: answers.includes(r && r.answer) ? r.answer : null,
+        detail: toCleanString(r && r.detail).slice(0, 160) || null,
+      };
+      if (withFocus) row.focus = toCleanString(r && r.focus).slice(0, 160);
+      return row;
+    }).filter((r) => r.answer),
+  };
+}
+
 function sanitiseHistorySignals(raw) {
   if (!raw || typeof raw !== "object") return null;
   const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
@@ -226,21 +251,9 @@ function sanitiseHistorySignals(raw) {
       count: num(t && t.count),
     })).filter((t) => t.trigger),
     recentJournalSnippets: arr(raw.recentJournalSnippets).slice(0, 3).map((s) => toCleanString(s).slice(0, 240)).filter(Boolean),
-    followThrough: (raw.followThrough && typeof raw.followThrough === "object") ? {
-      yes: num(raw.followThrough.yes) || 0,
-      partly: num(raw.followThrough.partly) || 0,
-      no: num(raw.followThrough.no) || 0,
-      blockers: arr(raw.followThrough.blockers).slice(0, 5).map((b) => ({
-        blocker: toCleanString(b && b.blocker).slice(0, 60),
-        count: num(b && b.count),
-      })).filter((b) => b.blocker),
-      recent: arr(raw.followThrough.recent).slice(-7).map((r) => ({
-        date: toCleanString(r && r.date).slice(0, 10),
-        focus: toCleanString(r && r.focus).slice(0, 160),
-        answer: ["yes", "partly", "no"].includes(r && r.answer) ? r.answer : null,
-        blocker: toCleanString(r && r.blocker).slice(0, 160) || null,
-      })).filter((r) => r.answer),
-    } : null,
+    followThrough: sanitiseTap(raw.followThrough, ["yes", "partly", "no"], true),
+    movement: sanitiseTap(raw.movement, ["trained", "light", "none"], false),
+    eating: sanitiseTap(raw.eating, ["on", "mixed", "off"], false),
     note: toCleanString(raw.note),
   };
   return safe;
@@ -391,7 +404,7 @@ Three things to try (the 'tryThese' field — always exactly 3 bullets):
 - Never fabricate physical metrics. If physicalSignals is null or a specific field (weight, alcohol, bmi) is null, do not mention it.
 - Do not repeat the same idea three ways. Cover different angles.
 - Each bullet has a short imperative 'action' (4–14 words, starts with a verb) and a one-line 'why' (10–25 words) tying it to their question and, where possible, a specific number, missing field, or falling trend.
-- Never suggest something the data contradicts (e.g. do not tell them to exercise more if exercise is already high and recovery is falling).
+- Never suggest something the data contradicts (e.g. do not tell them to exercise more if exercise is already high and sleep or energy is falling).
 
 Return valid JSON with exactly these fields:
 {
@@ -457,9 +470,9 @@ How you decide what to suggest (do this silently, never show your reasoning):
 - Also read physicalSignals when present. It can contain weight (thisAvg, lastAvg, delta, bmi, bmiBand, daysLogged) and alcohol (total, drinkingDays, dryDays, correlation with sleep). Use these directly: a rising weight trend or a bmiBand outside "healthy" is a signal for a movement, sleep, or nutrition move. A heavy drinking week or a clear alcohol-sleep correlation gap is a signal for a hydration, sleep, or drink-swap move. Reference the specific number or delta in the 'why'.
 - Never mention BMI as a judgement, only as a neutral data point. Never fabricate physical metrics: if physicalSignals or a specific field is null, do not mention it.
 - The field named desire is shown to the user as Drive (ambition, hunger to get things done). Always call it drive, never desire.
-- Discipline is the user's self-rated follow-through (0-10: did I do what I told myself I'd do). historySignals.followThrough holds their Yes/Partly/No answers against each day's morning focus plus what got in the way (blockers). When a blocker repeats (e.g. Energy 3 times), address that blocker directly and name it. Read it against focus: a stated focus with low discipline means the commitment is too big or badly timed, so suggest shrinking or re-timing it rather than trying harder. Never shame low discipline.
+- Discipline is the user's self-rated follow-through (0-10: did I do what I told myself I'd do). historySignals.followThrough holds their yes/partly/no answers against each day's morning focus plus what got in the way (details). historySignals.movement holds trained/light/none answers with what they did or what stopped them, and historySignals.eating holds on/mixed/off answers with what threw it (e.g. Takeaway, Snacking, Alcohol). When a detail repeats (e.g. Energy 3 times, or Snacking 4 times), address it directly and name it. Read it against focus: a stated focus with low discipline means the commitment is too big or badly timed, so suggest shrinking or re-timing it rather than trying harder. Never shame low discipline.
 - Do not repeat the same category twice. Cover different territory (recovery, movement, mind, environment, admin) so the list feels like a real day plan, not one theme five ways.
-- Never suggest something the data contradicts (e.g. do not suggest a hard workout when exercise is already high and recovery is falling).
+- Never suggest something the data contradicts (e.g. do not suggest a hard workout when exercise is already high and sleep or energy is falling).
 
 How each move must be written:
 - Written in Australian English.
@@ -581,8 +594,6 @@ export function buildFallbackTryThese(context) {
         return { action: "Step outside for 10 minutes without your phone.", why: `Energy is averaging ${avg ?? "low"} — daylight and quiet reset it faster than caffeine will.` };
       case "mood":
         return { action: "Step outside and move for 10 minutes, no phone.", why: `Mood is averaging ${avg ?? "low"} — small movement shifts it faster than more thinking does.` };
-      case "recovery":
-        return { action: "Book a genuine rest block into today.", why: `Recovery is averaging ${avg ?? "low"} — rest scheduled in advance is more likely to actually happen.` };
       case "discipline":
         return { action: "Pick one promise to yourself today and make it tiny.", why: `Follow-through is averaging ${avg ?? "low"} — shrink the commitment until you can keep it, then build.` };
       case "control":
