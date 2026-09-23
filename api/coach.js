@@ -441,7 +441,8 @@ How you decide what to suggest (do this silently, never show your reasoning):
 - Pick 3 to 5 moves that are specifically responsive to that data. If sleep is falling, suggest a sleep-protective move. If exercise trend is falling, suggest a movement move. If stress or overwhelm is high, lead with a recovery move. If hydration or nutrition is low, add one there. If capacity is very low, keep every move tiny (5–15 minutes). If capacity is good, one move may be more ambitious.
 - Also read physicalSignals when present. It can contain weight (thisAvg, lastAvg, delta, bmi, bmiBand, daysLogged) and alcohol (total, drinkingDays, dryDays, correlation with sleep). Use these directly: a rising weight trend or a bmiBand outside "healthy" is a signal for a movement, sleep, or nutrition move. A heavy drinking week or a clear alcohol-sleep correlation gap is a signal for a hydration, sleep, or drink-swap move. Reference the specific number or delta in the 'why'.
 - Never mention BMI as a judgement, only as a neutral data point. Never fabricate physical metrics: if physicalSignals or a specific field is null, do not mention it.
-- Do not repeat the same category twice. Cover different territory (recovery, movement, mind, connection, environment, admin) so the list feels like a real day plan, not one theme five ways.
+- Discipline is the user's self-rated follow-through (0-10: did I do what I told myself I'd do). Read it against focus: a stated focus with low discipline means the commitment is too big or badly timed, so suggest shrinking or re-timing it rather than trying harder. Never shame low discipline.
+- Do not repeat the same category twice. Cover different territory (recovery, movement, mind, environment, admin) so the list feels like a real day plan, not one theme five ways.
 - Never suggest something the data contradicts (e.g. do not suggest a hard workout when exercise is already high and recovery is falling).
 
 How each move must be written:
@@ -563,11 +564,11 @@ export function buildFallbackTryThese(context) {
       case "energy":
         return { action: "Step outside for 10 minutes without your phone.", why: `Energy is averaging ${avg ?? "low"} — daylight and quiet reset it faster than caffeine will.` };
       case "mood":
-        return { action: "Message one person you actually like today.", why: `Mood is averaging ${avg ?? "low"} — connection is the lever that shifts it, not more thinking.` };
+        return { action: "Step outside and move for 10 minutes, no phone.", why: `Mood is averaging ${avg ?? "low"} — small movement shifts it faster than more thinking does.` };
       case "recovery":
         return { action: "Book a genuine rest block into today.", why: `Recovery is averaging ${avg ?? "low"} — rest scheduled in advance is more likely to actually happen.` };
-      case "connection":
-        return { action: "Reach out to one person today, not to catch up, just to say hello.", why: `Connection is averaging ${avg ?? "low"} — a small check-in counts as connection.` };
+      case "discipline":
+        return { action: "Pick one promise to yourself today and make it tiny.", why: `Follow-through is averaging ${avg ?? "low"} — shrink the commitment until you can keep it, then build.` };
       case "control":
         return { action: "Pick the single most important thing for today and start there.", why: `Sense of control is averaging ${avg ?? "low"} — one clear next step returns it faster than a plan.` };
       case "stress":
