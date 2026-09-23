@@ -1878,16 +1878,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               <div class="progress-ring" style="width: 72px; height: 72px;">
                 <svg width="72" height="72">
                   <circle cx="36" cy="36" r="30" class="progress-ring-circle" />
-                  <circle cx="36" cy="36" r="30" class="progress-ring-value" id="driverRecoveryRing" />
-                </svg>
-                <div class="progress-value-text" id="driverRecoveryValue" style="font-size: 0.95rem;">0</div>
-              </div>
-              <div style="color: var(--muted); font-size: 0.8rem;">Recovery</div>
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-              <div class="progress-ring" style="width: 72px; height: 72px;">
-                <svg width="72" height="72">
-                  <circle cx="36" cy="36" r="30" class="progress-ring-circle" />
                   <circle cx="36" cy="36" r="30" class="progress-ring-value" id="driverMoodRing" />
                 </svg>
                 <div class="progress-value-text" id="driverMoodValue" style="font-size: 0.95rem;">0</div>
@@ -2056,7 +2046,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <div class="section-card">
           <div class="section-header">
             <h2>Evening Review</h2>
-            <p style="color: var(--muted);">How the day went: follow-through, movement, nutrition, and recovery</p>
+            <p style="color: var(--muted);">How the day went: follow-through, movement and nutrition</p>
           </div>
 
           <div class="grid grid-3" style="margin-top: 24px;">
@@ -2082,28 +2072,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <span id="personalSavedHint" style="display:none;font-size:0.72rem;color:#0c6a6f;font-weight:500;background:#e6f2f0;border:1px solid #b8d8d3;padding:2px 8px;border-radius:999px;">Saved today</span>
             <button type="button" id="personalEditBtn" class="btn btn-secondary" style="display:none;padding:4px 12px;font-size:0.8rem;">Edit</button>
           </div>
-          <div class="ft-card" id="ftCard" hidden>
-            <div class="ft-eyebrow">Follow-through</div>
-            <div class="ft-focus">This morning you said: <span id="ftFocus"></span></div>
-            <div class="ft-q">Did you follow through?</div>
-            <div class="ft-opts" role="group" aria-label="Did you follow through?">
-              <button type="button" class="ft-opt" data-k="yes" data-v="9">Yes</button>
-              <button type="button" class="ft-opt" data-k="partly" data-v="5">Partly</button>
-              <button type="button" class="ft-opt" data-k="no" data-v="2">No</button>
-            </div>
-            <div class="ft-block" id="ftBlock" hidden>
-              <div class="ft-q ft-q-sm">What got in the way? <span class="ft-opt-label">Optional</span></div>
-              <div class="ft-chips" role="group" aria-label="What got in the way?">
-                <button type="button" class="ft-chip">Time</button>
-                <button type="button" class="ft-chip">Energy</button>
-                <button type="button" class="ft-chip">Forgot</button>
-                <button type="button" class="ft-chip">Other people</button>
-                <button type="button" class="ft-chip">Didn't want to</button>
-              </div>
-              <input type="text" id="ftNote" class="ft-note" maxlength="140" placeholder="Or a few words of your own">
-            </div>
-            <div class="ft-err" id="ftErr" hidden>Tap Yes, Partly or No first.</div>
-          </div>
+          <div id="tapCards"></div>
           <div class="range-list" id="personalRangeList">
             <div class="range-row">
               <label for="personalDesire"><span>Drive</span><span id="personalDesireValue">5 / 10</span></label>
@@ -2125,10 +2094,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               <label for="nutrition"><span>Nutrition</span><span id="nutritionValue">7 / 10</span></label>
               <input id="nutrition" type="range" min="1" max="10" value="7">
           </div>            
-            <div class="range-row">
-              <label for="recovery"><span>Recovery</span><span id="recoveryValue">7 / 10</span></label>
-              <input id="recovery" type="range" min="1" max="10" value="7">
-            </div>
           </div>
 
           <div class="button-row">
@@ -2591,7 +2556,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const exercise = parseInt((document.getElementById('exercise')||{value:5}).value);
       const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value);
       const hydration = parseInt((document.getElementById('hydration')||{value:5}).value);
-      const recovery = parseInt((document.getElementById('recovery')||{value:5}).value);
 
       const score = Math.round((mood + energy + stress + sleep + hydration) / 5 * 6 + 40);
       return Math.min(100, Math.max(0, score));
@@ -2602,7 +2566,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const discipline = parseInt((document.getElementById('personalDiscipline')||{value:5}).value);
       const control = parseInt((document.getElementById('personalControl')||{value:5}).value);
 
-      const exercise = parseInt((document.getElementById('exercise')||{value:5}).value); const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value); const recovery = parseInt((document.getElementById('recovery')||{value:5}).value); const score = Math.round((desire + discipline + control + exercise + nutrition + recovery) / 6 * 6 + 40);
+      const exercise = parseInt((document.getElementById('exercise')||{value:5}).value); const nutrition = parseInt((document.getElementById('nutrition')||{value:5}).value); const score = Math.round((desire + discipline + control + exercise + nutrition) / 5 * 6 + 40);
       return Math.min(100, Math.max(0, score));
     }
 
@@ -2639,7 +2603,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const drivers = [
         { ringId: 'driverSleepRing', valueId: 'driverSleepValue', inputId: 'sleepQuality' },
         { ringId: 'driverEnergyRing', valueId: 'driverEnergyValue', inputId: 'energy' },
-        { ringId: 'driverRecoveryRing', valueId: 'driverRecoveryValue', inputId: 'recovery' },
         { ringId: 'driverMoodRing', valueId: 'driverMoodValue', inputId: 'mood' },
         { ringId: 'driverDisciplineRing', valueId: 'driverDisciplineValue', inputId: 'personalDiscipline' }
       ];
@@ -2681,10 +2644,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         energy: parseInt((document.getElementById('energy')||{value:5}).value),
         stress: parseInt((document.getElementById('stress')||{value:5}).value),
         sleepQuality: parseInt((document.getElementById('sleepQuality')||{value:5}).value),
-        exercise: parseInt((document.getElementById('exercise')||{value:5}).value),
-        nutrition: parseInt((document.getElementById('nutrition')||{value:5}).value),
         hydration: parseInt((document.getElementById('hydration')||{value:5}).value),
-        recovery: parseInt((document.getElementById('recovery')||{value:5}).value),
         weightKg: weightKg,
         alcoholDrinks: alcoholDrinks,
         morningFocus: _morningFocus
@@ -2702,12 +2662,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function savePersonalData() {
-      try { initFollowThrough(); renderFollowThrough(false); } catch (_e) {}
-      if (ftState.active && !ftState.answer) {
-        const err = document.getElementById('ftErr'); if (err) err.hidden = false;
-        const card = document.getElementById('ftCard'); if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
+      try { renderTapCards(false); } catch (_e) {}
+      if (!tapValidate()) return;
       const readInt = (id, fallback) => {
         const el = document.getElementById(id);
         const v = el ? parseInt(el.value, 10) : NaN;
@@ -2718,14 +2674,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         personalScore: calculatePersonalScore(),
         desire: readInt('personalDesire', 5),
         discipline: readInt('personalDiscipline', 5),
-        disciplineAnswer: ftState.active ? ftState.answer : null,
-        disciplineBlocker: ftState.active ? ftBlockerString() : null,
+        ...tapEntryFields(),
         control: readInt('personalControl', 5),
         // The Evening Review page also renders these sliders — without
         // reading them here they were being dropped on save (bug 2026-07-05).
         exercise: readInt('exercise', 5),
         nutrition: readInt('nutrition', 7),
-        recovery: readInt('recovery', 7),
         // Triggers block removed (2026-07); schema keeps the field for back-compat with older entries.
         triggers: []
       };
@@ -2800,9 +2754,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         exercise: numOrNull(entry.exercise),
         nutrition: numOrNull(entry.nutrition),
         hydration: numOrNull(entry.hydration),
-        recovery: numOrNull(entry.recovery),
         discipline: numOrNull(entry.discipline),
         discipline_blocker: entry.disciplineBlocker || null,
+        exercise_detail: entry.exerciseDetail || null,
+        nutrition_detail: entry.nutritionDetail || null,
         control: numOrNull(entry.control),
         desire: numOrNull(entry.desire),
         stress: numOrNull(entry.stress),
@@ -2965,7 +2920,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
     // ---- Evening Review lock state --------------------------------------
     // Considers today "saved" once drive (desire)/discipline/control and
-    // exercise/nutrition/recovery are all present on today's entry.
+    // exercise/nutrition are all present on today's entry.
     function hydratePersonalLockState() {
       const rangeList = document.getElementById('personalRangeList');
       const hint = document.getElementById('personalSavedHint');
@@ -2975,7 +2930,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
       // Session-scoped override: user clicked Edit and is currently editing.
       if (rangeList.dataset.editMode === '1') {
-        try { initFollowThrough(); renderFollowThrough(false); } catch (_e) {}
+        try { renderTapCards(false); } catch (_e) {}
         rangeList.classList.remove('is-locked');
         hint.style.display = 'none';
         editBtn.style.display = 'none';
@@ -2990,11 +2945,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
       const has = (v) => v != null && Number.isFinite(Number(v));
       const saved = !!(today && has(today.desire) && has(today.discipline) && has(today.control)
-                       && has(today.exercise) && has(today.nutrition) && has(today.recovery));
+                       && has(today.exercise) && has(today.nutrition));
 
-      try { initFollowThrough(); renderFollowThrough(saved); } catch (_e) { console.error('follow-through render failed', _e); }
+      if (saved) tapClearTouched();
+      try { renderTapCards(saved); } catch (_e) { console.error('tap cards render failed', _e); }
       if (saved) {
-        const _ftc = document.getElementById('ftCard'); if (_ftc) delete _ftc.dataset.touched;
         rangeList.classList.add('is-locked');
         hint.style.display = 'inline-flex';
         editBtn.style.display = 'inline-flex';
@@ -3010,14 +2965,35 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
     if (typeof window !== 'undefined') window.hydratePersonalLockState = hydratePersonalLockState;
 
-    // ---- Follow-through (Discipline) ------------------------------------
-    // When today's Morning Focus exists, Discipline is asked as a
-    // Yes / Partly / No follow-through question (saved as 9 / 5 / 2 into
-    // the existing discipline field), with an optional "what got in the
-    // way?" blocker. Without a focus, the Discipline dial is the fallback.
-    const ftState = { active: false, answer: null, chip: null };
-    const FT_CHIPS = ['Time', 'Energy', 'Forgot', 'Other people', "Didn't want to"];
-    function ftTodayFocus() {
+    // ---- Evening tap questions (Discipline, Movement, Nutrition) --------
+    // Each question saves a 0-10 value into its existing field (so scores,
+    // trends and the Brief keep working) plus an answer key and an optional
+    // follow-up detail (quick pick and/or short note).
+    // Discipline only appears when today's Morning Focus exists; otherwise
+    // its dial is the fallback.
+    const TAP_BLOCKERS = ['Time', 'Energy', 'Forgot', 'Other people', "Didn't want to"];
+    const TAP_MOVES = ['Gym', 'Run', 'Walk', 'Sport', 'Mobility'];
+    const TAP_FOOD = ['Takeaway', 'Skipped meals', 'Snacking', 'Alcohol', 'Eating out'];
+    const TAP_CARDS = [
+      { key: 'discipline', input: 'personalDiscipline', detailField: 'disciplineBlocker', eyebrow: 'Follow-through', needsFocus: true,
+        q: 'Did you follow through?',
+        opts: [{ k: 'yes', l: 'Yes', v: 9 }, { k: 'partly', l: 'Partly', v: 5 }, { k: 'no', l: 'No', v: 2 }],
+        follow: { partly: { q: 'What got in the way?', chips: TAP_BLOCKERS }, no: { q: 'What got in the way?', chips: TAP_BLOCKERS } } },
+      { key: 'exercise', input: 'exercise', detailField: 'exerciseDetail', eyebrow: 'Movement',
+        q: 'Did you move today?',
+        opts: [{ k: 'trained', l: 'Trained', v: 9 }, { k: 'light', l: 'Light', v: 6 }, { k: 'none', l: 'Nothing', v: 2 }],
+        follow: { trained: { q: 'What did you do?', chips: TAP_MOVES }, light: { q: 'What did you do?', chips: TAP_MOVES },
+                  none: { q: 'What got in the way?', chips: ['Time', 'Energy', 'Sore or injured', 'Forgot', "Didn't want to"] } } },
+      { key: 'nutrition', input: 'nutrition', detailField: 'nutritionDetail', eyebrow: 'Nutrition',
+        q: 'How did you eat today?',
+        opts: [{ k: 'on', l: 'On point', v: 9 }, { k: 'mixed', l: 'Mixed', v: 5 }, { k: 'off', l: 'Off track', v: 2 }],
+        follow: { mixed: { q: 'What threw it?', chips: TAP_FOOD }, off: { q: 'What threw it?', chips: TAP_FOOD } } }
+    ];
+    const tapState = {};
+    TAP_CARDS.forEach(c => { tapState[c.key] = { active: false, answer: null, chip: null, touched: false }; });
+    const tapEsc = (t) => String(t).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+
+    function tapToday() {
       let entries = [];
       try { entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); } catch (_e) {}
       const today = pickTodayEntry(entries, new Date());
@@ -3025,63 +3001,129 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       if (!f) { const el = document.getElementById('morningFocus'); f = el && el.value ? el.value.trim() : ''; }
       return { focus: f.replace(/^Lock-in:\s*/i, ''), today };
     }
-    function ftBlockerString() {
-      if (!ftState.answer || ftState.answer === 'yes') return null;
-      const note = ((document.getElementById('ftNote') || {}).value || '').trim().slice(0, 140);
-      const parts = [ftState.chip, note].filter(Boolean);
+    function tapDetail(c) {
+      const st = tapState[c.key];
+      if (!st.answer || !c.follow[st.answer]) return null;
+      const n = document.getElementById('tc-note-' + c.key);
+      const note = ((n && n.value) || '').trim().slice(0, 140);
+      const parts = [st.chip, note].filter(Boolean);
       return parts.length ? parts.join(' · ') : null;
     }
-    function ftPaint() {
-      const card = document.getElementById('ftCard'); if (!card) return;
-      card.querySelectorAll('.ft-opt').forEach(b => b.classList.toggle('on', b.dataset.k === ftState.answer));
-      card.querySelectorAll('.ft-chip').forEach(b => b.classList.toggle('on', b.textContent === ftState.chip));
-      const block = document.getElementById('ftBlock');
-      if (block) block.hidden = !(ftState.answer === 'partly' || ftState.answer === 'no');
-    }
-    function renderFollowThrough(locked) {
-      const card = document.getElementById('ftCard');
-      const input = document.getElementById('personalDiscipline');
-      if (!card || !input) return;
-      const dial = input.closest('.dial') || input.closest('.range-row');
-      const { focus, today } = ftTodayFocus();
-      ftState.active = !!focus;
-      card.hidden = !ftState.active;
-      if (dial) dial.style.display = ftState.active ? 'none' : '';
-      if (!ftState.active) return;
-      const fEl = document.getElementById('ftFocus');
-      if (fEl) fEl.textContent = focus.length > 140 ? focus.slice(0, 137) + '...' : focus;
-      // Rehydrate from today's saved entry unless the user is mid-edit
-      if (today && today.disciplineAnswer && card.dataset.touched !== '1') {
-        ftState.answer = today.disciplineAnswer;
-        const b = today.disciplineBlocker || '';
-        const first = b.split(' · ')[0];
-        ftState.chip = FT_CHIPS.includes(first) ? first : null;
-        const note = ftState.chip ? b.split(' · ').slice(1).join(' · ') : b;
-        const nEl = document.getElementById('ftNote'); if (nEl) nEl.value = note;
+    function tapPaint(c) {
+      const card = document.getElementById('tc-' + c.key); if (!card) return;
+      const st = tapState[c.key];
+      card.querySelectorAll('.ft-opt').forEach(b => b.classList.toggle('on', b.dataset.k === st.answer));
+      const f = st.answer ? c.follow[st.answer] : null;
+      const block = card.querySelector('.ft-block');
+      block.hidden = !f;
+      if (f) {
+        const qEl = block.querySelector('.tc-fq'); if (qEl) qEl.textContent = f.q;
+        const chipsEl = block.querySelector('.ft-chips');
+        if (chipsEl.dataset.for !== st.answer) {
+          chipsEl.dataset.for = st.answer;
+          chipsEl.innerHTML = f.chips.map(ch => '<button type="button" class="ft-chip">' + tapEsc(ch) + '</button>').join('');
+          chipsEl.querySelectorAll('.ft-chip').forEach(btn => btn.addEventListener('click', () => {
+            st.touched = true;
+            st.chip = (st.chip === btn.textContent) ? null : btn.textContent;
+            tapPaint(c);
+          }));
+        }
+        chipsEl.querySelectorAll('.ft-chip').forEach(btn => btn.classList.toggle('on', btn.textContent === st.chip));
       }
-      card.classList.toggle('is-locked', !!locked);
-      ftPaint();
     }
-    function initFollowThrough() {
-      const card = document.getElementById('ftCard'); if (!card || card.dataset.ready) return;
-      card.dataset.ready = '1';
-      card.querySelectorAll('.ft-opt').forEach(b => b.addEventListener('click', () => {
-        card.dataset.touched = '1';
-        ftState.answer = b.dataset.k;
-        if (ftState.answer === 'yes') ftState.chip = null;
-        const input = document.getElementById('personalDiscipline');
-        if (input) { input.value = b.dataset.v; input.dispatchEvent(new Event('input', { bubbles: true })); }
-        const err = document.getElementById('ftErr'); if (err) err.hidden = true;
-        ftPaint();
-      }));
-      card.querySelectorAll('.ft-chip').forEach(b => b.addEventListener('click', () => {
-        card.dataset.touched = '1';
-        ftState.chip = (ftState.chip === b.textContent) ? null : b.textContent;
-        ftPaint();
-      }));
-      const n = document.getElementById('ftNote'); if (n) n.addEventListener('input', () => { card.dataset.touched = '1'; });
+    function initTapCards() {
+      const host = document.getElementById('tapCards'); if (!host || host.dataset.ready) return;
+      host.dataset.ready = '1';
+      host.innerHTML = TAP_CARDS.map(c => (
+        '<div class="ft-card" id="tc-' + c.key + '" hidden>' +
+          '<div class="ft-eyebrow">' + tapEsc(c.eyebrow) + '</div>' +
+          (c.needsFocus ? '<div class="ft-focus">This morning you said: <span class="tc-focus"></span></div>' : '') +
+          '<div class="ft-q">' + tapEsc(c.q) + '</div>' +
+          '<div class="ft-opts" role="group" aria-label="' + tapEsc(c.q) + '">' +
+            c.opts.map(o => '<button type="button" class="ft-opt" data-k="' + o.k + '" data-v="' + o.v + '">' + tapEsc(o.l) + '</button>').join('') +
+          '</div>' +
+          '<div class="ft-block" hidden>' +
+            '<div class="ft-q ft-q-sm"><span class="tc-fq"></span> <span class="ft-opt-label">Optional</span></div>' +
+            '<div class="ft-chips"></div>' +
+            '<input type="text" class="ft-note" id="tc-note-' + c.key + '" maxlength="140" placeholder="Or a few words of your own">' +
+          '</div>' +
+          '<div class="ft-err" hidden>Pick one to save.</div>' +
+        '</div>')).join('');
+      TAP_CARDS.forEach(c => {
+        const card = document.getElementById('tc-' + c.key);
+        const st = tapState[c.key];
+        card.querySelectorAll('.ft-opt').forEach(b => b.addEventListener('click', () => {
+          st.touched = true;
+          if (st.answer !== b.dataset.k) {
+            const prev = st.answer ? c.follow[st.answer] : null;
+            const next = c.follow[b.dataset.k];
+            if (!next || !prev || prev.chips !== next.chips) st.chip = null;
+            if (!next) { const n = document.getElementById('tc-note-' + c.key); if (n) n.value = ''; }
+          }
+          st.answer = b.dataset.k;
+          const input = document.getElementById(c.input);
+          if (input) { input.value = b.dataset.v; input.dispatchEvent(new Event('input', { bubbles: true })); }
+          card.querySelector('.ft-err').hidden = true;
+          tapPaint(c);
+        }));
+        const n = document.getElementById('tc-note-' + c.key);
+        if (n) n.addEventListener('input', () => { st.touched = true; });
+      });
     }
-    if (typeof window !== 'undefined') { window.renderFollowThrough = renderFollowThrough; window.initFollowThrough = initFollowThrough; }
+    function renderTapCards(locked) {
+      initTapCards();
+      const { focus, today } = tapToday();
+      TAP_CARDS.forEach(c => {
+        const card = document.getElementById('tc-' + c.key);
+        const input = document.getElementById(c.input);
+        if (!card || !input) return;
+        const st = tapState[c.key];
+        const dial = input.closest('.range-row') || input.closest('.dial');
+        st.active = c.needsFocus ? !!focus : true;
+        card.hidden = !st.active;
+        if (dial) dial.style.display = st.active ? 'none' : '';
+        if (!st.active) return;
+        if (c.needsFocus) {
+          const fEl = card.querySelector('.tc-focus');
+          if (fEl) fEl.textContent = focus.length > 140 ? focus.slice(0, 137) + '...' : focus;
+        }
+        const saved = today ? today[c.key + 'Answer'] : null;
+        if (!st.touched) {
+          st.answer = saved || null;
+          const d = (today && today[c.detailField]) || '';
+          const f = st.answer ? c.follow[st.answer] : null;
+          const first = d.split(' · ')[0];
+          st.chip = (f && f.chips.includes(first)) ? first : null;
+          const note = st.chip ? d.split(' · ').slice(1).join(' · ') : d;
+          const nEl = document.getElementById('tc-note-' + c.key); if (nEl) nEl.value = note;
+        }
+        card.classList.toggle('is-locked', !!locked);
+        tapPaint(c);
+      });
+    }
+    // Returns false (and flags the first unanswered card) if a visible question is unanswered
+    function tapValidate() {
+      for (const c of TAP_CARDS) {
+        const st = tapState[c.key];
+        if (st.active && !st.answer) {
+          const card = document.getElementById('tc-' + c.key);
+          if (card) { card.querySelector('.ft-err').hidden = false; card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+          return false;
+        }
+      }
+      return true;
+    }
+    function tapEntryFields() {
+      const out = {};
+      TAP_CARDS.forEach(c => {
+        const st = tapState[c.key];
+        out[c.key + 'Answer'] = st.active ? st.answer : null;
+        out[c.detailField] = st.active ? tapDetail(c) : null;
+      });
+      return out;
+    }
+    function tapClearTouched() { TAP_CARDS.forEach(c => { tapState[c.key].touched = false; }); }
+    if (typeof window !== 'undefined') { window.renderTapCards = renderTapCards; }
 
 
     // ---- Morning Check-in lock state ------------------------------------
@@ -4304,7 +4346,7 @@ function formatEntryForContext(entry) {
   if (entry.journalNote && entry.journalNote.trim()) out.journal = entry.journalNote.trim().slice(0, 500);
   // A tiny set of the most useful signal fields — not the whole slider dump.
   const signals = {};
-  ['mood','energy','sleepQuality','stress','exercise','recovery'].forEach(function (f) {
+  ['mood','energy','sleepQuality','stress','exercise','nutrition'].forEach(function (f) {
     if (typeof entry[f] === 'number') signals[f] = entry[f];
   });
   if (Object.keys(signals).length) out.signals = signals;
@@ -4494,7 +4536,7 @@ function buildHistorySignals() {
     const recent = raw.slice(-7);
 
     // Fields where high = good. Low = below 5 on average.
-    const positive = ['mood','energy','sleepQuality','exercise','nutrition','hydration','recovery','discipline','control','desire'];
+    const positive = ['mood','energy','sleepQuality','exercise','nutrition','hydration','discipline','control','desire'];
     // Fields where high = bad. High = above 6 on average is a red flag.
     const inverse = ['stress'];
     const trackedFields = positive.concat(inverse);
@@ -4572,27 +4614,33 @@ function buildHistorySignals() {
       .slice(-3)
       .map(e => e.journalNote.trim().slice(0, 240));
 
-    // Follow-through: Yes/Partly/No answers vs morning focus, plus blockers
-    const followThrough = { yes: 0, partly: 0, no: 0, blockers: [], recent: [] };
-    const blockerCounts = {};
-    recent.forEach(e => {
-      if (!e || !e.disciplineAnswer) return;
-      if (followThrough[e.disciplineAnswer] != null) followThrough[e.disciplineAnswer]++;
-      const b = typeof e.disciplineBlocker === 'string' ? e.disciplineBlocker.trim() : '';
-      if (b) { const k = b.split(' · ')[0]; blockerCounts[k] = (blockerCounts[k] || 0) + 1; }
-      followThrough.recent.push({
-        date: String(e.date || '').slice(0, 10),
-        focus: String(e.morningFocus || '').replace(/^Lock-in:\s*/i, '').slice(0, 160),
-        answer: e.disciplineAnswer,
-        blocker: b.slice(0, 160) || null
+    // Evening tap questions: answers + follow-up detail tallies
+    const tapSummary = (key, detailField, withFocus) => {
+      const out = { counts: {}, details: [], recent: [] };
+      const tally = {};
+      recent.forEach(e => {
+        const ans = e && e[key + 'Answer'];
+        if (!ans) return;
+        out.counts[ans] = (out.counts[ans] || 0) + 1;
+        const d = typeof e[detailField] === 'string' ? e[detailField].trim() : '';
+        if (d) { const k = d.split(' · ')[0]; tally[k] = (tally[k] || 0) + 1; }
+        const row = { date: String(e.date || '').slice(0, 10), answer: ans, detail: d.slice(0, 160) || null };
+        if (withFocus) row.focus = String(e.morningFocus || '').replace(/^Lock-in:\s*/i, '').slice(0, 160);
+        out.recent.push(row);
       });
-    });
-    followThrough.blockers = Object.entries(blockerCounts).sort((a,b) => b[1]-a[1]).slice(0, 5).map(([blocker, count]) => ({ blocker, count }));
+      out.details = Object.entries(tally).sort((a,b) => b[1]-a[1]).slice(0, 5).map(([detail, count]) => ({ detail, count }));
+      return out;
+    };
+    const followThrough = tapSummary('discipline', 'disciplineBlocker', true);
+    const movement = tapSummary('exercise', 'exerciseDetail', false);
+    const eating = tapSummary('nutrition', 'nutritionDetail', false);
 
     return {
       entriesCount: raw.length,
       daysCovered: recent.length,
       followThrough,
+      movement,
+      eating,
       averages,
       lowFields,
       missingFields,
