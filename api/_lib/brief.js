@@ -400,7 +400,7 @@ OUTPUT SHAPE (JSON):
 - held: array of short bullet strings for what stayed steady
 - wentDark: array of short bullet strings for fields the user stopped logging
 - tryThese: array of exactly 3 items, each { action, why }
-- askCoach: array of exactly 3 items, each { context, prompt }
+- askCoach: array of exactly 3 items, each { context, prompt }. context is a short factual line addressed to him ("Energy got in the way 3 times."). prompt is written in HIS voice, first person, as the question he taps to ask the Coach (e.g. "Energy keeps getting in the way of my focus. How do I plan around it next week?"). Never write prompt as a question to him.
 
 Do not invent metrics that weren't in the summary. If the week was quiet, keep the brief short and honest.`;
 }
