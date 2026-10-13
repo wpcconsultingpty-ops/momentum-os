@@ -435,7 +435,7 @@ VOICE:
 - At least one tryThese item should target the most repeated blocker or miss, when one exists.
 
 OUTPUT SHAPE (JSON):
-- title: short brief title (e.g. "Week 27 debrief")
+- title: short brief title (it is replaced with the real week date)
 - headline: 2-3 sentence opener that reads like an ops report
 - moved: array of short bullet strings for movers
 - held: array of short bullet strings for what stayed steady
@@ -614,7 +614,8 @@ export async function generateBrief(entries, streak, profile = null, weekOf = nu
     id,
     date: dateStr,
     generatedAt: new Date().toISOString(),
-    title: briefBody.title || "Weekly brief",
+    // Title is set from the real date; the model was copying "Week 27" from the prompt example.
+    title: `Week ending ${new Date(dateStr + "T00:00:00Z").toLocaleDateString("en-AU", { day: "numeric", month: "short", timeZone: "UTC" })}`,
     headline: briefBody.headline || "",
     moved: briefBody.moved || [],
     held: briefBody.held || [],
