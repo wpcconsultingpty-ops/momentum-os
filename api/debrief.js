@@ -1,6 +1,6 @@
 // Client-called endpoint: takes entries + streak, returns a brief.
 // Shared logic lives in _lib/brief.js so the Sunday cron can reuse it.
-import { generateBrief } from "./_lib/brief.js";
+import { generateBrief, isDateKey } from "./_lib/brief.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -17,7 +17,9 @@ export default async function handler(req, res) {
       freezeUsedThisWeek: !!rawStreak.freezeUsedThisWeek,
     };
 
-    const brief = await generateBrief(entries, streak);
+    // Client sends its local Sunday so the brief date matches the user's calendar.
+    const weekOf = isDateKey(body.weekOf) ? body.weekOf : null;
+    const brief = await generateBrief(entries, streak, null, weekOf);
     return res.status(200).json(brief);
   } catch (err) {
     console.error("[debrief] handler failed", err);

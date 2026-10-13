@@ -124,10 +124,51 @@ function avg(arr) {
   return arr.reduce((s, v) => s + v, 0) / arr.length;
 }
 
-export function summariseWeek(entries, profile = null) {
-  const sorted = entries.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
-  const thisWeek = sorted.slice(-7);
-  const lastWeek = sorted.slice(-14, -7);
+// ---- Week windows -----------------------------------------------------------
+// Dates are compared as YYYY-MM-DD strings in the user's local calendar.
+// The client sends local day keys; Supabase rows store local entry_date.
+export function isDateKey(v) {
+  return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+}
+
+export function addDays(dateKey, n) {
+  const d = new Date(dateKey + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+// Most recent Sunday (inclusive) for a local date key.
+export function sundayOnOrBefore(dateKey) {
+  const dow = new Date(dateKey + "T00:00:00Z").getUTCDay();
+  return addDays(dateKey, -dow);
+}
+
+// Local date key for "now" in an IANA timezone.
+export function localDateKey(tz, at = new Date()) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: tz || "UTC", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(at);
+    const get = (t) => parts.find(p => p.type === t)?.value;
+    return `${get("year")}-${get("month")}-${get("day")}`;
+  } catch (e) {
+    return at.toISOString().slice(0, 10);
+  }
+}
+
+const dayKey = (e) => String((e && e.date) || "").slice(0, 10);
+
+export function summariseWeek(entries, profile = null, weekOf = null) {
+  const sorted = entries.slice().sort((a, b) => dayKey(a).localeCompare(dayKey(b)));
+  let thisWeek, lastWeek;
+  if (isDateKey(weekOf)) {
+    // Calendar windows: Mon-Sun ending on weekOf, and the 7 days before that.
+    const thisStart = addDays(weekOf, -6);
+    const lastStart = addDays(weekOf, -13);
+    thisWeek = sorted.filter(e => dayKey(e) >= thisStart && dayKey(e) <= weekOf);
+    lastWeek = sorted.filter(e => dayKey(e) >= lastStart && dayKey(e) < thisStart);
+  } else {
+    thisWeek = sorted.slice(-7);
+    lastWeek = sorted.slice(-14, -7);
+  }
 
   const stats = {};
   for (const f of ALL_TRACKED) {
@@ -394,7 +435,7 @@ VOICE:
 - At least one tryThese item should target the most repeated blocker or miss, when one exists.
 
 OUTPUT SHAPE (JSON):
-- title: short brief title (e.g. "Week 27 debrief")
+- title: short brief title (it is replaced with the real week date)
 - headline: 2-3 sentence opener that reads like an ops report
 - moved: array of short bullet strings for movers
 - held: array of short bullet strings for what stayed steady
@@ -533,12 +574,11 @@ export function fallbackBrief(summary, streak) {
   };
 }
 
-export async function generateBrief(entries, streak, profile = null) {
-  const summary = summariseWeek(entries, profile);
-  const briefDate = new Date();
-  const day = briefDate.getUTCDay();
-  if (day !== 0) briefDate.setUTCDate(briefDate.getUTCDate() - day);
-  const dateStr = briefDate.toISOString().slice(0, 10);
+export async function generateBrief(entries, streak, profile = null, weekOf = null) {
+  // weekOf is the user's local Sunday. Falling back to the UTC calendar put
+  // Australian Sunday-morning briefs on the previous Sunday (bug 2026-10).
+  const dateStr = isDateKey(weekOf) ? weekOf : sundayOnOrBefore(new Date().toISOString().slice(0, 10));
+  const summary = summariseWeek(entries, profile, dateStr);
   const id = "brief-" + dateStr;
 
   let llmBrief = null;
@@ -574,7 +614,8 @@ export async function generateBrief(entries, streak, profile = null) {
     id,
     date: dateStr,
     generatedAt: new Date().toISOString(),
-    title: briefBody.title || "Weekly brief",
+    // Title is set from the real date; the model was copying "Week 27" from the prompt example.
+    title: `Week ending ${new Date(dateStr + "T00:00:00Z").toLocaleDateString("en-AU", { day: "numeric", month: "short", timeZone: "UTC" })}`,
     headline: briefBody.headline || "",
     moved: briefBody.moved || [],
     held: briefBody.held || [],
