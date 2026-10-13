@@ -6,7 +6,7 @@
 // This lets the cron fire hourly-ish while only generating on Sundays per user.
 
 import { getAdminClient } from "./_lib/supabase-admin.js";
-import { generateBrief, getStreakStats, rowToEntry } from "./_lib/brief.js";
+import { generateBrief, getStreakStats, rowToEntry, localDateKey, sundayOnOrBefore, addDays } from "./_lib/brief.js";
 import { renderBriefEmail } from "./_lib/render-email.js";
 
 function isSundayLocalWindow(tz) {
@@ -32,11 +32,12 @@ function unsubscribeUrl(token) {
   return `${base}/api/unsubscribe?token=${encodeURIComponent(token)}`;
 }
 
-function currentSundayISO() {
-  const d = new Date();
-  const day = d.getUTCDay();
-  if (day !== 0) d.setUTCDate(d.getUTCDate() - day);
-  return d.toISOString().slice(0, 10);
+// The Sunday this brief covers, in the user's own timezone. Late Saturday
+// local time (inside the send window) maps to the next day's Sunday.
+function weekOfForTimezone(tz) {
+  const today = localDateKey(tz || "UTC");
+  const dow = new Date(today + "T00:00:00Z").getUTCDay();
+  return dow === 6 ? addDays(today, 1) : sundayOnOrBefore(today);
 }
 
 export default async function handler(req, res) {
@@ -68,10 +69,10 @@ export default async function handler(req, res) {
   const { data: prefs, error: prefsErr } = await userQuery;
   if (prefsErr) return res.status(500).json({ error: "prefs_query_failed", detail: prefsErr.message });
 
-  const weekOf = currentSundayISO();
   const results = [];
 
   for (const p of prefs || []) {
+    const weekOf = weekOfForTimezone(p.timezone || "UTC");
     if (!force && !isSundayLocalWindow(p.timezone || "UTC")) {
       results.push({ user_id: p.user_id, skipped: "not_in_local_sunday_window" });
       continue;
@@ -117,7 +118,7 @@ export default async function handler(req, res) {
     const profile = { height_cm: p.height_cm, sex: p.sex, dob: p.dob, weight_unit: p.weight_unit };
     let brief;
     try {
-      brief = await generateBrief(entries, streak, profile);
+      brief = await generateBrief(entries, streak, profile, weekOf);
     } catch (e) {
       results.push({ user_id: p.user_id, error: "generate_failed", detail: e.message });
       continue;
@@ -153,5 +154,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ weekOf, total: results.length, results });
+  return res.status(200).json({ total: results.length, results });
 }

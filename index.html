@@ -2290,11 +2290,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <h2>The Brief</h2>
             <p style="color: var(--muted);">Your Sunday debrief — what moved, what held, what's next.</p>
           </div>
+          <div id="debriefActions" style="margin-top: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="debriefGenerateBtn" type="button" onclick="generateDebriefNow()">Build latest brief</button>
+            <div id="debriefStatus" class="muted" style="font-size: 0.85rem;"></div>
+          </div>
           <div id="debriefLatest" class="debrief-latest" style="margin-top: 20px;">
             <div class="debrief-empty" id="debriefEmpty">
-              <p style="color: var(--muted); margin: 0 0 16px;">No brief yet. Your first debrief drops Sunday at 7pm. You can also generate one now from at least a week of entries.</p>
-              <button class="btn btn-primary" id="debriefGenerateBtn" type="button" onclick="generateDebriefNow()">Generate this week's brief</button>
-              <div id="debriefStatus" class="muted" style="margin-top: 8px; font-size: 0.85rem;"></div>
+              <p style="color: var(--muted); margin: 0;">No brief yet. Each brief covers Monday to Sunday and builds itself when you open the app from Sunday onwards. You need at least three days logged.</p>
             </div>
           </div>
           <div id="debriefArchive" class="debrief-archive" style="margin-top: 32px;">
@@ -2743,7 +2745,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       if (!entry || !window.db || !window.currentUser) return;
       const user = window.currentUser;
       const entryDate = (entry.date ? new Date(entry.date) : new Date());
-      const dateStr = entryDate.toISOString().slice(0, 10);
+      const dateStr = localDayKey(entryDate);
       // Map camelCase (client) -> snake_case (db)
       const payload = {
         user_id: user.id,
@@ -3308,10 +3310,49 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       window.openProfileModal = openProfileModal;
     }
 
+    // Local calendar day key (YYYY-MM-DD). toISOString() is UTC, which put
+    // Brisbane mornings on the previous day (bug 2026-10).
+    function localDayKey(d) {
+      const x = (d instanceof Date) ? d : new Date(d);
+      return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+    }
+    // Most recent Sunday (today if Sunday), as a local day key.
+    function briefWeekOf(now) {
+      const d = now ? new Date(now) : new Date();
+      d.setDate(d.getDate() - d.getDay());
+      return localDayKey(d);
+    }
+    function addDayKey(key, n) {
+      const d = new Date(key + 'T00:00:00');
+      d.setDate(d.getDate() + n);
+      return localDayKey(d);
+    }
+
     function numOrNull(v) {
       if (v === null || v === undefined || v === '') return null;
       const n = Number(v);
       return Number.isFinite(n) ? n : null;
+    }
+
+    // One-time repair: re-sync the last 60 days of local entries with local
+    // dates. Before the fix, a morning check-in before 10am Brisbane time was
+    // upserted onto the previous day's row and wiped its Evening Review.
+    async function resyncEntriesWithLocalDates() {
+      const FLAG = 'momentum-resync-localdate-v1';
+      if (!window.db || !window.currentUser) return;
+      if (localStorage.getItem(FLAG)) return;
+      const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
+      const cutoff = addDayKey(localDayKey(new Date()), -60);
+      const recent = entries.filter(e => e && e.date && localDayKey(e.date) >= cutoff);
+      for (const e of recent) {
+        try { await syncEntryToSupabase(e); } catch (err) { console.warn('resync failed', err); return; }
+      }
+      localStorage.setItem(FLAG, new Date().toISOString());
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('momentum:user-ready', () => {
+        setTimeout(() => { resyncEntriesWithLocalDates(); }, 1500);
+      });
     }
 
     // Call ensureUserPrefs on login (fire-and-forget)
@@ -3410,6 +3451,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const latestEl = document.getElementById('debriefLatest');
       const emptyEl = document.getElementById('debriefEmpty');
       const archiveList = document.getElementById('debriefArchiveList');
+      const genBtn = document.getElementById('debriefGenerateBtn');
+      if (genBtn) {
+        const hasThisWeek = list.some(b => b.date === briefWeekOf());
+        genBtn.textContent = hasThisWeek ? "Refresh latest brief" : "Build latest brief";
+      }
       if (!list.length) {
         if (emptyEl) emptyEl.style.display = 'block';
         if (archiveList) archiveList.innerHTML = '<div class="foot-note">Archive fills up as briefs are generated week by week.</div>';
@@ -3533,11 +3579,25 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       if (statusEl) statusEl.textContent = 'Building your brief...';
       const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
       const stats = getStreakStats(entries);
+      // Brief covers Mon-Sun ending on the most recent local Sunday, compared
+      // with the week before. Send local day keys so the server never has to
+      // guess the user's calendar from UTC timestamps.
+      const weekOf = briefWeekOf();
+      const from = addDayKey(weekOf, -13);
+      const windowed = entries
+        .filter(e => e && e.date)
+        .map(e => Object.assign({}, e, { date: localDayKey(e.date) }))
+        .filter(e => e.date >= from && e.date <= weekOf);
+      if (windowed.filter(e => e.date > addDayKey(weekOf, -7)).length < 3) {
+        if (statusEl) statusEl.textContent = 'Log at least three days this week (Monday to Sunday) to build a brief.';
+        if (btn) btn.disabled = false;
+        return;
+      }
       try {
         const res = await fetch('/api/debrief', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ entries: entries.slice(-14), streak: stats })
+          body: JSON.stringify({ entries: windowed, streak: stats, weekOf })
         });
         if (!res.ok) throw new Error('debrief request failed: ' + res.status);
         const brief = await res.json();
@@ -3547,7 +3607,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         const filtered = list.filter(b => b.date !== brief.date);
         filtered.push(brief);
         writeDebriefs(filtered);
-        if (statusEl) statusEl.textContent = '';
+        if (statusEl) statusEl.textContent = 'Brief updated.';
         renderDebriefView();
         updateBriefCard();
       } catch (err) {
@@ -3644,18 +3704,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
     window.copyBriefToClipboard = copyBriefToClipboard;
 
-    // Auto-generate a fresh brief if today is Sunday and we don't have one yet.
+    // Auto-build the brief for the most recent Sunday the first time the app
+    // is opened from Sunday onwards. Previously this only ran on a Sunday, so
+    // missing Sunday meant no brief that week. If the brief was built on the
+    // Sunday itself (before the evening review), rebuild once on a later day.
     async function maybeAutoGenerateSundayBrief() {
       try {
-        const now = new Date();
-        if (now.getDay() !== 0) return; // 0 = Sunday
-        // Compute this week's brief id (matches server-side derivation)
-        const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
-        const targetId = 'brief-' + dateStr;
-        const existing = readDebriefs().find(b => b.id === targetId);
-        if (existing) return;
+        const weekOf = briefWeekOf();
+        const today = localDayKey(new Date());
+        const existing = readDebriefs().find(b => b.date === weekOf);
+        if (existing) {
+          const builtOn = existing.generatedAt ? localDayKey(existing.generatedAt) : weekOf;
+          if (!(builtOn <= weekOf && today > weekOf)) return;
+        }
         const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
-        if (entries.length < 3) return; // need at least a few days of data
+        const thisWeekDays = new Set(entries.filter(e => e && e.date).map(e => localDayKey(e.date))
+          .filter(k => k > addDayKey(weekOf, -7) && k <= weekOf)).size;
+        if (thisWeekDays < 3) return; // need at least a few days of data
         // Silent generate
         await generateDebriefNow();
       } catch (e) {
