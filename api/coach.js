@@ -427,13 +427,13 @@ function buildUserPrompt(context) {
   return `Here is the person's current state:\n${JSON.stringify(rest, null, 2)}\n\n${isContinuing ? "This is a CONTINUING conversation — the prior turns are in the message history above. Lead with what they just said. Do not re-anchor to their dashboard. Do not restate what they told you earlier." : "This is the OPENING turn. Ground your reflection in one specific detail from their data (focus, target, a real change, a recurring trigger), and do it once."}\n\nThen produce exactly 3 bullets in tryThese, grounded in what they asked AND their historySignals (lowFields, missingFields, fallingFields). Reference a specific field or number in the 'why' where possible. If historySignals.entriesCount is 0, keep the bullets general and tied to their question — do not invent numbers.\n\nReturn only valid JSON with message, question, tryThese, and mood fields.`;
 }
 
-function buildChatUserPrompt(context) {
+export function buildChatUserPrompt(context) {
   const { conversation: _c, previousCoachMessage: _p1, previousUserReply: _p2, retrievedContext: _rc, ...rest } = context;
   const isContinuing = context.conversation && context.conversation.length > 0;
   // Compact, high-signal data block — what an executive coach would actually
   // glance at before answering. Full context is available if they ask for it.
   const hs = rest.historySignals || {};
-  const dataBlock = `Their current state (reference at most one number in your reply, only if it strengthens the answer):\n${JSON.stringify({
+  const dataBlock = `Their current state (reference up to two numbers, only if they strengthen the answer):\n${JSON.stringify({
     focus: rest.focus,
     capacity: rest.capacity,
     capacityBand: rest.capacityBand,
@@ -456,7 +456,16 @@ function buildChatUserPrompt(context) {
     ? `\n\nRetrieved entries (their own words, from the last 60 days, ranked as relevant to this question). Cite specific dates and paraphrase directly when one of these actually deepens the answer:\n${JSON.stringify(rc, null, 2)}`
     : "";
 
-  return `${dataBlock}${retrievedBlock}\n\n${isContinuing ? "CONTINUING CONVERSATION. The prior turns are in the message history above. Build on them. Do not re-ask what they already told you. Do not restart." : "OPENING TURN. This is the first thing they've said. Answer directly."}\n\nRemember: answer first (their question deserves a real answer), no therapist openers, one pointed question maximum only if it sharpens their thinking, and never open with \"Sounds like...\" or \"It sounds like...\".`;
+  const reflectionBlock = rest.reflection
+    ? `\n\nToday's journal note (their own words): ${JSON.stringify(rest.reflection.slice(0, 800))}`
+    : "";
+
+  // The user's actual message. It MUST be in the prompt and clearly labelled.
+  // Without it the model only sees the dashboard and answers their morning
+  // focus instead of what they actually asked.
+  const question = rest.freeText || "(no message)";
+
+  return `BACKGROUND (use only if it helps answer their message; never let it replace their message):\n${dataBlock}${retrievedBlock}${reflectionBlock}\n\n${isContinuing ? "CONTINUING CONVERSATION. The prior turns are in the message history above. Build on them. Do not re-ask what they already told you. Do not restart." : "OPENING TURN. This is the first thing they've said. Answer directly."}\n\nTHEIR MESSAGE (this is what you are answering):\n\"\"\"\n${question}\n\"\"\"\n\nAnswer THEIR MESSAGE directly and specifically. If it has nothing to do with their focus or scores, do not bring those up. Remember: answer first (their question deserves a real answer), no therapist openers, one pointed question maximum only if it sharpens their thinking, and never open with \"Sounds like...\" or \"It sounds like...\".`;
 }
 
 export function buildMovesSystemPrompt() {
