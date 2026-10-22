@@ -76,7 +76,24 @@ function capacityBand(capacity) {
 const VALID_MODES = new Set(["counsellor", "moves"]);
 // One place to change the model. gpt-4o reads warmer than gpt-4.1 and is
 // widely available; swap to gpt-5 / gpt-5-mini later if you have access.
-const COACH_MODEL = process.env.COACH_MODEL || "gpt-4o";
+// gpt-4o is deprecated (API shutdown 14 Jan 2027); gpt-6-luna is OpenAI's
+// recommended replacement and is cheaper per token. COACH_MODEL_OVERRIDE
+// wins over the legacy COACH_MODEL env var so an old "gpt-4o" value set in
+// Vercel can't silently pin the coach to the retiring model.
+const COACH_MODEL = process.env.COACH_MODEL_OVERRIDE || "gpt-6-luna";
+const COACH_REASONING_EFFORT = process.env.COACH_REASONING_EFFORT || "low";
+
+// Reasoning models (gpt-5+, gpt-6, o-series) reject temperature and spend
+// part of max_output_tokens on hidden reasoning, so give them headroom.
+function isReasoningModel(model) {
+  return /^(gpt-[5-9]|o\d)/i.test(model);
+}
+function sampling(temperature, maxTokens) {
+  if (isReasoningModel(COACH_MODEL)) {
+    return { reasoning: { effort: COACH_REASONING_EFFORT }, max_output_tokens: maxTokens + 2000 };
+  }
+  return { temperature, max_output_tokens: maxTokens };
+}
 
 function resolveMode(body) {
   const raw = toCleanString(body && body.mode, "counsellor").toLowerCase();
@@ -814,8 +831,7 @@ export default async function handler(req, res) {
             },
           },
         },
-        temperature: 0.5,
-        max_output_tokens: 700,
+        ...sampling(0.5, 700),
       });
       let guide;
       try {
@@ -872,11 +888,7 @@ export default async function handler(req, res) {
             ...conversationTurns,
             { role: "user", content: buildChatUserPrompt(context) },
           ],
-          temperature: 0.6,
-          // Enough headroom for a real recommendation + reasoning + first
-          // step on decision/strategy questions. Short answers still stay
-          // short — the prompt does the calibrating, not the token cap.
-          max_output_tokens: 1400,
+          ...sampling(0.6, 1400),
         });
       };
 
@@ -904,6 +916,7 @@ export default async function handler(req, res) {
           retrieved_entries: (context.retrievedContext || []).length,
           reply_first_words: message.split(/\s+/).slice(0, 6).join(" "),
           reply_word_count: message.split(/\s+/).length,
+          model: COACH_MODEL,
         }));
       } catch (_) { /* logging must never break the response */ }
 
@@ -911,6 +924,7 @@ export default async function handler(req, res) {
         ok: true,
         mode,
         chat: true,
+        model: COACH_MODEL,
         guide: {
           reflection: message,
           closingQuestion: "",
@@ -932,8 +946,7 @@ export default async function handler(req, res) {
       // Plain JSON, not strict schema — strict schema mode dampens voice.
       // We validate and fall back if the model deviates.
       text: { format: { type: "json_object" } },
-      temperature: 0.75,
-      max_output_tokens: 900,
+      ...sampling(0.75, 900),
     });
     let guide;
     try {
