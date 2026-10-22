@@ -92,7 +92,7 @@ function sanitiseConversation(raw) {
   for (const turn of raw.slice(-12)) {
     if (!turn || typeof turn !== "object") continue;
     const role = turn.role === "assistant" ? "assistant" : turn.role === "user" ? "user" : null;
-    const content = toCleanString(turn.content).slice(0, 1200);
+    const content = toCleanString(turn.content).slice(0, 3500);
     if (role && content) out.push({ role, content });
   }
   return out;
@@ -332,17 +332,17 @@ HOW YOU RESPOND — the rules that override everything else:
    - Situational share ("I'm stuck on the proposal"): name what you're seeing, then offer a specific angle or next move. Not empathy — traction.
    - Emotional share ("I feel overwhelmed", "I'm exhausted"): acknowledge it briefly (one line), then move to what would actually help. Don't dwell.
 
-6. BRING SUBSTANCE. Users came for real advice, not a one-liner. When a question deserves depth, deliver it: name the recommendation, then give your reasoning (why this over the alternatives), then a concrete first step they can take today. If a data point genuinely supports the answer, name it — the specific number, not "your scores". Depth means more useful content, never more filler.
+6. BRING SUBSTANCE. Users came for real advice, not a one-liner or generic tips they could find anywhere. Default to a thorough answer: name the recommendation, explain the reasoning (why this over the alternatives, and what is actually driving the situation), give concrete steps with specifics (times, amounts, wording, sequence), and say what to watch for or when to change course. Tailor it to their situation and data; if a data point genuinely supports the answer, name it — the specific number, not "your scores". Depth means more useful, specific content, never more filler or repetition.
 
 7. USE THE RETRIEVED ENTRIES WHEN THEY HELP. The user prompt may include a retrievedContext array — recent journal entries and morning focuses the user has written themselves, scored as relevant to what they just asked. Treat them as ground truth. When one of them genuinely deepens the answer, reference it directly: "On Sep 14 you wrote you were feeling stuck on Varipack’s sales surface — that’s still the constraint here." Cite the date, quote or paraphrase what they said, and connect it to the current question. Do not fabricate details that aren't in the retrieved entries. Do not force a reference in if none of the retrieved entries genuinely fit — silence beats a wedged-in quote.
 
 VOICE:
 - Australian English.
 - Direct, warm-but-not-soft, substantive. Think good McKinsey partner or a senior board mentor — not a therapist, not a life coach.
-- Length calibrated to the question: quick factual answers stay short (40–80 words). Decision, prioritisation, or strategy questions get real depth (120–220 words) — recommendation, why, first step, and the trade-off you're accepting. Emotional shares stay short and human. Never over 260 words.
+- Length calibrated to the question: a simple factual question gets a direct answer plus useful context (60–120 words). Advice, decision, health, prioritisation, or strategy questions get real depth (200–400 words) — recommendation, reasoning, concrete steps, and the trade-off or risk to watch. Emotional shares: one line of acknowledgement, then genuinely helpful substance (100–200 words). If they ask for more detail, go deeper still (up to 550 words). If they ask for a short answer, keep it short.
 - Concrete language. Specific over abstract. No filler.
 - Use their data (focus, capacity, scores, trends, lowFields, fallingFields) whenever it strengthens the reasoning — up to two specific references per reply where they actually help. Skip data entirely if it doesn't.
-- Plain prose. Short paragraphs are fine when the answer has real structure (recommendation, then reasoning, then next step). No bullet points, no numbered lists, no headers.
+- Write in short paragraphs. When the answer includes steps or options, a short list is fine: put each item on its own line starting with "- " or "1. ". No markdown headers, no bold, no asterisks.
 
 What you never do:
 - Never open with a reflection or restatement of what they said.
@@ -350,7 +350,7 @@ What you never do:
 - Never diagnose, pathologise, or use clinical language.
 - Never lecture. Never pad. Never repeat.
 
-Return plain text only, ready to display. No JSON, no formatting.`;
+Return plain text only, ready to display. No JSON, no markdown symbols other than simple "- " or "1. " list lines.`;
 }
 
 export function buildCounsellorSystemPrompt() {
@@ -465,7 +465,7 @@ export function buildChatUserPrompt(context) {
   // focus instead of what they actually asked.
   const question = rest.freeText || "(no message)";
 
-  return `BACKGROUND (use only if it helps answer their message; never let it replace their message):\n${dataBlock}${retrievedBlock}${reflectionBlock}\n\n${isContinuing ? "CONTINUING CONVERSATION. The prior turns are in the message history above. Build on them. Do not re-ask what they already told you. Do not restart." : "OPENING TURN. This is the first thing they've said. Answer directly."}\n\nTHEIR MESSAGE (this is what you are answering):\n\"\"\"\n${question}\n\"\"\"\n\nAnswer THEIR MESSAGE directly and specifically. If it has nothing to do with their focus or scores, do not bring those up. Remember: answer first (their question deserves a real answer), no therapist openers, one pointed question maximum only if it sharpens their thinking, and never open with \"Sounds like...\" or \"It sounds like...\".`;
+  return `BACKGROUND (use only if it helps answer their message; never let it replace their message):\n${dataBlock}${retrievedBlock}${reflectionBlock}\n\n${isContinuing ? "CONTINUING CONVERSATION. The prior turns are in the message history above. Build on them. Do not re-ask what they already told you. Do not restart." : "OPENING TURN. This is the first thing they've said. Answer directly."}\n\nTHEIR MESSAGE (this is what you are answering):\n\"\"\"\n${question}\n\"\"\"\n\nAnswer THEIR MESSAGE directly, specifically and thoroughly — reasoning and concrete steps, not generic tips. If it has nothing to do with their focus or scores, do not bring those up. Remember: answer first (their question deserves a real answer), no therapist openers, one pointed question maximum only if it sharpens their thinking, and never open with \"Sounds like...\" or \"It sounds like...\".`;
 }
 
 export function buildMovesSystemPrompt() {
@@ -869,7 +869,7 @@ export default async function handler(req, res) {
           // Enough headroom for a real recommendation + reasoning + first
           // step on decision/strategy questions. Short answers still stay
           // short — the prompt does the calibrating, not the token cap.
-          max_output_tokens: 700,
+          max_output_tokens: 1400,
         });
       };
 
@@ -884,7 +884,9 @@ export default async function handler(req, res) {
         text = toCleanString(response.output_text);
       }
 
-      const message = softTrim(text || fallbackChatResponse(context), 260);
+      // Strip stray markdown the chat bubble can't render (bold, headers).
+      const cleaned = toCleanString(text).replace(/\*\*/g, "").replace(/^#{1,6}\s+/gm, "");
+      const message = softTrim(cleaned || fallbackChatResponse(context), 600);
       // Structured log so we can debug voice + memory issues in Vercel logs
       // without shipping user content anywhere else.
       try {
