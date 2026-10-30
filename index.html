@@ -1772,7 +1772,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <div class="progress-value-text" id="overallProgressValue">0</div>
               </div>
               <div style="text-align: center;">
-                <div class="card-label">Overall Score</div>
+                <div class="card-label">Consistency</div>
                 <div class="score-pill is-mixed" id="overallScoreState">Not tracked</div>
               </div>
             </div>
@@ -1786,8 +1786,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <div class="progress-value-text" id="healthProgressValue">0</div>
               </div>
               <div style="text-align: center;">
-                <div class="card-label">Morning Score</div>
-                <div style="color: var(--muted); font-size: 0.9rem;">Energy & readiness</div>
+                <div class="card-label">Readiness</div>
+                <div style="color: var(--muted); font-size: 0.9rem;">Today's starting capacity · /100</div>
               </div>
             </div>
 
@@ -1800,8 +1800,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <div class="progress-value-text" id="personalProgressValue">0</div>
               </div>
               <div style="text-align: center;">
-                <div class="card-label">Evening Score</div>
-                <div style="color: var(--muted); font-size: 0.9rem;">Reflection & reset</div>
+                <div class="card-label">Follow-through</div>
+                <div style="color: var(--muted); font-size: 0.9rem;">How you responded today · /100</div>
               </div>
             </div>
           </div>
@@ -1852,7 +1852,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <!-- What's Driving Today (driver mini-rings) -->
         <div class="card animate-in" style="margin-top: 16px;">
           <h3 style="margin: 0 0 4px; font-size: 1.1rem;">What's driving today</h3>
-          <div style="color: var(--muted); font-size: 0.9rem; margin: 0 0 16px;">Contributing factors behind your scores</div>
+          <div style="color: var(--muted); font-size: 0.9rem; margin: 0 0 16px;">Saved ratings from today only. Missing ratings stay empty.</div>
           <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-around;">
             <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
               <div class="progress-ring" style="width: 72px; height: 72px;">
@@ -1892,7 +1892,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 </svg>
                 <div class="progress-value-text" id="driverDisciplineValue" style="font-size: 0.95rem;">0</div>
               </div>
-              <div style="color: var(--muted); font-size: 0.8rem;">Discipline</div>
+              <div style="color: var(--muted); font-size: 0.8rem;">Stress</div>
             </div>
           </div>
         </div>
@@ -1912,7 +1912,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="ptrend-toggle" role="tablist" aria-label="Overlay metric">
               <button type="button" data-overlay="none" class="active" onclick="setPhysicalOverlay('none')">None</button>
               <button type="button" data-overlay="sleep" onclick="setPhysicalOverlay('sleep')">Sleep</button>
-              <button type="button" data-overlay="score" onclick="setPhysicalOverlay('score')">Overall score</button>
+              <button type="button" data-overlay="score" onclick="setPhysicalOverlay('score')">Readiness</button>
             </div>
           </div>
           <div class="ptrend-legend" id="physicalTrendsLegend">
@@ -1962,7 +1962,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
           <div class="grid grid-3" style="margin-top: 24px;">
             <article class="card">
-              <div class="card-label">Morning Score</div>
+              <div class="card-label">Readiness</div>
               <div class="score-value" id="currentHealthScore">0</div>
               <div class="score-subtext">Today's score</div>
             </article>
@@ -1972,9 +1972,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               <div class="score-subtext">Recent baseline</div>
             </article>
             <article class="card">
-              <div class="card-label">Streak</div>
+              <div class="card-label">7-day check-ins</div>
               <div class="score-value" id="healthStreak">0</div>
-              <div class="score-subtext">Days tracked</div>
+              <div class="score-subtext">Morning + evening, out of 14</div>
             </article>
           </div>
 
@@ -1985,16 +1985,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           </div>
           <div class="range-list" id="healthRangeList">
             <div class="range-row">
-              <label for="mood"><span>Mood</span><span id="moodValue">7 / 10</span></label>
-              <input id="mood" type="range" min="1" max="10" value="7">
+              <label for="mood"><span>Mood</span><span id="moodValue">5 / 10</span></label>
+              <input id="mood" type="range" min="0" max="10" value="5">
             </div>
             <div class="range-row">
-              <label for="sleepQuality"><span>Sleep Quality</span><span id="sleepQualityValue">7 / 10</span></label>
-              <input id="sleepQuality" type="range" min="1" max="10" value="7">
+              <label for="sleepQuality"><span>Sleep Quality</span><span id="sleepQualityValue">5 / 10</span></label>
+              <input id="sleepQuality" type="range" min="0" max="10" value="5">
             </div>
             <div class="range-row">
-              <label for="energy"><span>Energy</span><span id="energyValue">7 / 10</span></label>
-              <input id="energy" type="range" min="1" max="10" value="7">
+              <label for="energy"><span>Energy</span><span id="energyValue">5 / 10</span></label>
+              <input id="energy" type="range" min="0" max="10" value="5">
             </div>
           </div>
 
@@ -2003,7 +2003,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="range-list" id="healthRangeListMore" style="margin-top:8px;">
               <div class="range-row">
                 <label for="stress"><span>Stress</span><span id="stressValue">5 / 10</span></label>
-                <input id="stress" type="range" min="1" max="10" value="5">
+                <input id="stress" type="range" min="0" max="10" value="5">
               </div>
               <div class="range-row">
                 <label for="hydration"><span>Hydration</span><span id="hydrationValue">7 / 10</span></label>
@@ -2046,12 +2046,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <div class="section-card">
           <div class="section-header">
             <h2>Evening Review</h2>
-            <p style="color: var(--muted);">How the day went: follow-through, movement and nutrition</p>
+            <p style="color: var(--muted);">Close the day with a little perspective and one clear next step. A few taps, a few words if you want.</p>
           </div>
 
-          <div class="grid grid-3" style="margin-top: 24px;">
+          <div class="grid grid-3" id="eveningScoreCards" style="margin-top: 24px;">
             <article class="card">
-              <div class="card-label">Evening Score</div>
+              <div class="card-label">Follow-through</div>
               <div class="score-value" id="currentPersonalScore">0</div>
               <div class="score-subtext">Today's score</div>
             </article>
@@ -2068,7 +2068,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           </div>
 
           <div class="evening-header-row" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 16px;">
-            <h3 style="margin:0;font-size:1.1rem;">Evening Check-in</h3>
+            <h3 style="margin:0;font-size:1.1rem;">Your daily debrief</h3>
             <span id="personalSavedHint" style="display:none;font-size:0.72rem;color:#0c6a6f;font-weight:500;background:#e6f2f0;border:1px solid #b8d8d3;padding:2px 8px;border-radius:999px;">Saved today</span>
             <button type="button" id="personalEditBtn" class="btn btn-secondary" style="display:none;padding:4px 12px;font-size:0.8rem;">Edit</button>
           </div>
@@ -2252,14 +2252,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <div class="score-subtext">Tracked</div>
       </article>
       <article class="card">
-        <div class="card-label">Average Score</div>
+        <div class="card-label">Readiness average</div>
         <div class="score-value" id="avgScore">0</div>
-        <div class="score-subtext">Overall</div>
+        <div class="score-subtext">Last 7 calendar days · logged mornings</div>
       </article>
       <article class="card">
-        <div class="card-label">Best Score</div>
+        <div class="card-label">Follow-through average</div>
         <div class="score-value" id="bestScore">0</div>
-        <div class="score-subtext">All time</div>
+        <div class="score-subtext">Last 7 calendar days · scored evenings</div>
       </article>
     </div>
 
@@ -2276,7 +2276,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     </div>
 
     <div class="button-row">
-      <button class="btn" onclick="shareMomentum()">Share Momentum</button>
+      <button class="btn" onclick="shareMomentum()">Download ring summary</button>
         <button class="btn" onclick="exportData()">Export Data</button>
       <button class="btn" onclick="clearData()">Clear All Data</button>
     </div>
@@ -2551,6 +2551,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function calculateHealthScore() {
+      // Historical storage contract only. Current UI uses MomentumScores.
       const mood = parseInt((document.getElementById('mood')||{value:5}).value);
       const energy = parseInt((document.getElementById('energy')||{value:5}).value);
       const stress = 10 - parseInt((document.getElementById('stress')||{value:5}).value);
@@ -2564,6 +2565,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function calculatePersonalScore() {
+      // Historical storage contract only. Do not use for current rings or trends.
       const desire = parseInt((document.getElementById('personalDesire')||{value:5}).value);
       const discipline = parseInt((document.getElementById('personalDiscipline')||{value:5}).value);
       const control = parseInt((document.getElementById('personalControl')||{value:5}).value);
@@ -2573,6 +2575,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function updateProgressRing(ringId, valueId, value) { try { var _pct = Math.min(100, Math.max(0, Math.round(value || 0))); var _ring = document.getElementById(ringId); if (_ring) { var _c = 327; _ring.style.strokeDasharray = _c; _ring.style.strokeDashoffset = _c - (_pct / 100) * _c; } var _vt = document.getElementById(valueId); if (_vt) _vt.textContent = _pct; } catch(_e) { console.error('updateProgressRing failed', _e); } } function updateScores() {
+      // Current rings never use form defaults or the historical score scale.
+      if (window.ScoreRings) { window.ScoreRings.render(); saveCurrentData(); return; }
       try {   const healthScore = calculateHealthScore();   document.querySelectorAll('#currentHealthScore').forEach(function(_e){_e.textContent = healthScore;});
       const personalScore = calculatePersonalScore();
       const _streakBonus = Math.min(15, calculateStreak(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')) * 3); const overallScore = Math.min(100, Math.round((healthScore + personalScore) / 2) + _streakBonus);
@@ -2602,6 +2606,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
         function updateDriverRings() {
+      if (window.ScoreRings) { window.ScoreRings.renderDrivers(); return; }
       const drivers = [
         { ringId: 'driverSleepRing', valueId: 'driverSleepValue', inputId: 'sleepQuality' },
         { ringId: 'driverEnergyRing', valueId: 'driverEnergyValue', inputId: 'energy' },
@@ -2683,10 +2688,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         exercise: readInt('exercise', 5),
         nutrition: readInt('nutrition', 7),
         // Triggers block removed (2026-07); schema keeps the field for back-compat with older entries.
-        triggers: []
+        triggers: [],
+        ...(window.EveningReview ? window.EveningReview.read() : {})
       };
 
-      try { saveEntry(entry); var _chk = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]'); updateAllViews(); var _st = document.getElementById('saveHealthStatus'); if(_st) _st.textContent = _chk.length ? 'Saved! Nice momentum.' : 'Save failed - not persisted'; } catch(_err) { console.error('saveHealthData failed', _err); var _st2 = document.getElementById('saveHealthStatus'); if(_st2) _st2.textContent = 'Save error: ' + (_err && _err.message ? _err.message : _err); return; }   updateScores();   try { renderSessionCards(); } catch(e) {}
+      try { saveEntry(entry); updateAllViews(); } catch(_err) {
+        console.error('savePersonalData failed', _err);
+        if (window.EveningReview) window.EveningReview.saveError();
+        return;
+      }
+      updateScores(); try { renderSessionCards(); } catch(e) {}
       // Clear editMode override so the just-saved values re-lock immediately.
       const _rl = document.getElementById('personalRangeList');
       if (_rl) delete _rl.dataset.editMode;
@@ -2718,15 +2729,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       let todayEntry = entries.find(e => new Date(e.date).toDateString() === today);
       
       if (todayEntry) {
-        Object.assign(todayEntry, newData); { const _h = (newData.healthScore != null) ? newData.healthScore : ((todayEntry.healthScore != null) ? todayEntry.healthScore : calculateHealthScore()); const _p = (newData.personalScore != null) ? newData.personalScore : ((todayEntry.personalScore != null) ? todayEntry.personalScore : calculatePersonalScore()); todayEntry.healthScore = _h; todayEntry.personalScore = _p; todayEntry.overallScore = Math.round((_h + _p) / 2); }
+        Object.assign(todayEntry, newData);
+        todayEntry.overallScore = (todayEntry.healthScore != null && todayEntry.personalScore != null)
+          ? Math.round((todayEntry.healthScore + todayEntry.personalScore) / 2) : null;
       } else {
-        const healthScore = newData.healthScore || calculateHealthScore();
-        const personalScore = newData.personalScore || calculatePersonalScore();
+        const healthScore = newData.healthScore ?? null;
+        const personalScore = newData.personalScore ?? null;
         entries.push({
           ...newData,
           healthScore,
           personalScore,
-          overallScore: Math.round((healthScore + personalScore) / 2)
+          overallScore: (healthScore !== null && personalScore !== null) ? Math.round((healthScore + personalScore) / 2) : null
         });
       }
 
@@ -2736,13 +2749,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       try { if (typeof hydrateTodayInputs === 'function') hydrateTodayInputs(); } catch(e) { /* non-fatal */ }
 
       // Sync-on-write: push to Supabase so Sunday briefs work
-      try { syncEntryToSupabase(todayEntry || entries[entries.length - 1]); } catch(e) { console.warn('syncEntryToSupabase failed', e); }
+      try {
+        const savedEntry = todayEntry || entries[entries.length - 1];
+        syncEntryToSupabase(savedEntry).then(result => {
+          window.dispatchEvent(new CustomEvent('momentum:sync', { detail: { date: savedEntry.date, ...result } }));
+        }).catch(() => {
+          window.dispatchEvent(new CustomEvent('momentum:sync', { detail: { date: savedEntry.date, ok: false } }));
+        });
+      } catch(e) { console.warn('syncEntryToSupabase failed', e); }
       try { ensureUserPrefs(); } catch(e) { console.warn('ensureUserPrefs failed', e); }
     }
 
     // ---- Supabase sync (Phase 2: Sunday Brief) ----------------------------
     async function syncEntryToSupabase(entry) {
-      if (!entry || !window.db || !window.currentUser) return;
+      if (!entry || !window.db || !window.currentUser) return { ok: false, localOnly: true };
       const user = window.currentUser;
       const entryDate = (entry.date ? new Date(entry.date) : new Date());
       const dateStr = localDayKey(entryDate);
@@ -2771,8 +2791,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         weight_kg: numOrNull(entry.weightKg),
         alcohol_drinks: numOrNull(entry.alcoholDrinks),
       };
+      // Omit for legacy entries so a background resync cannot erase a newer review.
+      if (entry.eveningReview) payload.evening_review = entry.eveningReview;
       const { error } = await window.db.from('daily_entries').upsert(payload, { onConflict: 'user_id,entry_date' });
       if (error) console.warn('daily_entries upsert failed', error);
+      return { ok: !error };
     }
 
     async function ensureUserPrefs() {
@@ -2933,6 +2956,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       // Session-scoped override: user clicked Edit and is currently editing.
       if (rangeList.dataset.editMode === '1') {
         try { renderTapCards(false); } catch (_e) {}
+        if (window.EveningReview) window.EveningReview.hydrate(false);
         rangeList.classList.remove('is-locked');
         hint.style.display = 'none';
         editBtn.style.display = 'none';
@@ -2948,6 +2972,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const has = (v) => v != null && Number.isFinite(Number(v));
       const saved = !!(today && has(today.desire) && has(today.discipline) && has(today.control)
                        && has(today.exercise) && has(today.nutrition));
+      if (window.EveningReview) window.EveningReview.hydrate(saved);
 
       if (saved) tapClearTouched();
       try { renderTapCards(saved); } catch (_e) { console.error('tap cards render failed', _e); }
@@ -2982,14 +3007,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         opts: [{ k: 'yes', l: 'Yes', v: 9 }, { k: 'partly', l: 'Partly', v: 5 }, { k: 'no', l: 'No', v: 2 }],
         follow: { partly: { q: 'What got in the way?', chips: TAP_BLOCKERS }, no: { q: 'What got in the way?', chips: TAP_BLOCKERS } } },
       { key: 'exercise', input: 'exercise', detailField: 'exerciseDetail', eyebrow: 'Movement',
-        q: 'Did you move today?',
-        opts: [{ k: 'trained', l: 'Trained', v: 9 }, { k: 'light', l: 'Light', v: 6 }, { k: 'none', l: 'Nothing', v: 2 }],
+        q: 'How did you support your body today?',
+        opts: [{ k: 'trained', l: 'Trained', v: 9 }, { k: 'light', l: 'Light movement', v: 6 }, { k: 'rest', l: 'Planned recovery', v: 9 }, { k: 'none', l: 'No movement', v: 2 }],
         follow: { trained: { q: 'What did you do?', chips: TAP_MOVES }, light: { q: 'What did you do?', chips: TAP_MOVES },
                   none: { q: 'What got in the way?', chips: ['Time', 'Energy', 'Sore or injured', 'Forgot', "Didn't want to"] } } },
       { key: 'nutrition', input: 'nutrition', detailField: 'nutritionDetail', eyebrow: 'Nutrition',
         q: 'How did you eat today?',
-        opts: [{ k: 'on', l: 'On point', v: 9 }, { k: 'mixed', l: 'Mixed', v: 5 }, { k: 'off', l: 'Off track', v: 2 }],
-        follow: { mixed: { q: 'What threw it?', chips: TAP_FOOD }, off: { q: 'What threw it?', chips: TAP_FOOD } } }
+        opts: [{ k: 'on', l: 'Mostly well', v: 9 }, { k: 'mixed', l: 'Mixed', v: 5 }, { k: 'off', l: 'Not so well', v: 2 }],
+        follow: { mixed: { q: 'What made it harder?', chips: TAP_FOOD }, off: { q: 'What made it harder?', chips: TAP_FOOD } } },
+      { key: 'desire', input: 'personalDesire', detailField: 'driveDetail', eyebrow: 'Drive',
+        q: 'How much motivation did you have today?',
+        opts: [{ k: 'low', l: 'Hard to get going', v: 2 }, { k: 'some', l: 'Some drive', v: 5 }, { k: 'strong', l: 'Plenty of drive', v: 9 }], follow: {} },
+      { key: 'control', input: 'personalControl', detailField: 'controlDetail', eyebrow: 'Control',
+        q: 'How deliberately did you respond to the day?',
+        opts: [{ k: 'reactive', l: 'Mostly reactive', v: 2 }, { k: 'mixed', l: 'A bit of both', v: 5 }, { k: 'intentional', l: 'Mostly intentional', v: 9 }], follow: {} }
     ];
     const tapState = {};
     TAP_CARDS.forEach(c => { tapState[c.key] = { active: false, answer: null, chip: null, touched: false }; });
@@ -3014,7 +3045,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     function tapPaint(c) {
       const card = document.getElementById('tc-' + c.key); if (!card) return;
       const st = tapState[c.key];
-      card.querySelectorAll('.ft-opt').forEach(b => b.classList.toggle('on', b.dataset.k === st.answer));
+      card.querySelectorAll('.ft-opt').forEach(b => {
+        b.classList.toggle('on', b.dataset.k === st.answer);
+        b.setAttribute('aria-pressed', String(b.dataset.k === st.answer));
+      });
       const f = st.answer ? c.follow[st.answer] : null;
       const block = card.querySelector('.ft-block');
       block.hidden = !f;
@@ -3030,7 +3064,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             tapPaint(c);
           }));
         }
-        chipsEl.querySelectorAll('.ft-chip').forEach(btn => btn.classList.toggle('on', btn.textContent === st.chip));
+        chipsEl.querySelectorAll('.ft-chip').forEach(btn => {
+          btn.classList.toggle('on', btn.textContent === st.chip);
+          btn.setAttribute('aria-pressed', String(btn.textContent === st.chip));
+        });
       }
     }
     function initTapCards() {
@@ -3047,7 +3084,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           '<div class="ft-block" hidden>' +
             '<div class="ft-q ft-q-sm"><span class="tc-fq"></span> <span class="ft-opt-label">Optional</span></div>' +
             '<div class="ft-chips"></div>' +
-            '<input type="text" class="ft-note" id="tc-note-' + c.key + '" maxlength="140" placeholder="Or a few words of your own">' +
+            '<input type="text" class="ft-note" id="tc-note-' + c.key + '" aria-label="' + tapEsc(c.eyebrow) + ' optional detail" maxlength="140" placeholder="Or a few words of your own">' +
           '</div>' +
           '<div class="ft-err" hidden>Pick one to save.</div>' +
         '</div>')).join('');
@@ -3081,17 +3118,41 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         if (!card || !input) return;
         const st = tapState[c.key];
         const dial = input.closest('.range-row') || input.closest('.dial');
-        st.active = c.needsFocus ? !!focus : true;
+        st.active = true;
         card.hidden = !st.active;
         if (dial) dial.style.display = st.active ? 'none' : '';
         if (!st.active) return;
         if (c.needsFocus) {
           const fEl = card.querySelector('.tc-focus');
-          if (fEl) fEl.textContent = focus.length > 140 ? focus.slice(0, 137) + '...' : focus;
+          if (fEl) {
+            fEl.textContent = focus;
+            fEl.parentElement.hidden = !focus;
+          }
+          const qEl = card.querySelector('.ft-q');
+          if (qEl) qEl.textContent = focus ? 'Did you follow through on your morning intentions?' : 'Did you do what mattered to you today?';
         }
         const saved = today ? today[c.key + 'Answer'] : null;
         if (!st.touched) {
           st.answer = saved || null;
+          // Preserve older numeric values without inventing a categorical response.
+          card.querySelector('.ft-legacy')?.remove();
+          const prior = today && today[c.key];
+          if (!saved && prior != null && Number.isFinite(Number(prior))) {
+            const keep = document.createElement('button');
+            keep.type = 'button'; keep.className = 'ft-opt ft-legacy';
+            keep.dataset.k = 'legacy'; keep.dataset.v = String(prior);
+            keep.textContent = `Keep saved rating (${prior}/10)`;
+            keep.addEventListener('click', () => {
+              st.touched = true; st.answer = 'legacy'; input.value = String(prior);
+              input.dispatchEvent(new Event('input', { bubbles: true })); tapPaint(c);
+            });
+            card.querySelector('.ft-opts').appendChild(keep);
+            st.answer = 'legacy';
+          }
+          if (today && prior != null) {
+            input.value = String(prior);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          }
           const d = (today && today[c.detailField]) || '';
           const f = st.answer ? c.follow[st.answer] : null;
           const first = d.split(' · ')[0];
@@ -3100,6 +3161,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           const nEl = document.getElementById('tc-note-' + c.key); if (nEl) nEl.value = note;
         }
         card.classList.toggle('is-locked', !!locked);
+        card.querySelectorAll('button, input').forEach(el => { el.disabled = !!locked; });
         tapPaint(c);
       });
     }
@@ -3109,7 +3171,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         const st = tapState[c.key];
         if (st.active && !st.answer) {
           const card = document.getElementById('tc-' + c.key);
-          if (card) { card.querySelector('.ft-err').hidden = false; card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+          if (window.EveningReview) window.EveningReview.showQuestion(c.key);
+          if (card) { card.querySelector('.ft-err').hidden = false; card.querySelector('button')?.focus(); }
           return false;
         }
       }
@@ -3119,8 +3182,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       const out = {};
       TAP_CARDS.forEach(c => {
         const st = tapState[c.key];
-        out[c.key + 'Answer'] = st.active ? st.answer : null;
-        out[c.detailField] = st.active ? tapDetail(c) : null;
+        out[c.key + 'Answer'] = st.active && st.answer !== 'legacy' ? st.answer : null;
+        out[c.detailField] = st.answer === 'legacy' ? (tapToday().today?.[c.detailField] || null) : (st.active ? tapDetail(c) : null);
       });
       return out;
     }
@@ -3733,7 +3796,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     function updateDashboard() { try { updateScores();   try { renderSessionCards(); } catch(e) {} } catch(e) {}       updateDriverRings();
       const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
       
-      if (entries.length > 0) {
+      if (!window.ScoreRings && entries.length > 0) {
         const recent = entries.slice(-7);
         const avgHealth = Math.round(recent.reduce((sum, e) => sum + (e.healthScore || 0), 0) / recent.length);
         const avgPersonal = Math.round(recent.reduce((sum, e) => sum + (e.personalScore || 0), 0) / recent.length);
@@ -3755,6 +3818,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function updateHistory() {
+      if (window.ScoreRings) { window.ScoreRings.history(); return; }
       const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
       
       document.getElementById('totalDays').textContent = entries.length;
@@ -3776,7 +3840,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   <div class="history-item">
     <div>
       <strong>${new Date(entry.date).toLocaleDateString()}</strong>
-      <div class="foot-note">${entry.journalNote || 'No journal entry'}</div>
+      <div class="foot-note">${tapEsc(entry.journalNote || 'No journal entry')}</div>
+      ${entry.eveningReview ? `<div class="er-history"><strong>Evening review</strong>${entry.eveningReview.win ? '<br>Win: ' + tapEsc(entry.eveningReview.win) : ''}${entry.eveningReview.challenge ? '<br>Challenge: ' + tapEsc(entry.eveningReview.challenge) : ''}${entry.tomorrowFocus ? '<br>Next action: ' + tapEsc(entry.tomorrowFocus) : ''}</div>` : ''}
     </div>
     <div>
       <div class="card-label">Overall</div>
@@ -3796,6 +3861,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function updateCharts() {
+      if (window.ScoreRings) { window.ScoreRings.charts(); renderPhysicalTrends(); return; }
       renderWeeklyChart();
       renderMonthlyChart();
       renderPhysicalTrends();
@@ -3843,7 +3909,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           weightKg: num(e.weightKg),
           alcoholDrinks: num(e.alcoholDrinks),
           sleepQuality: num(e.sleepQuality),
-          overallScore: num(e.overallScore),
+          overallScore: window.MomentumScores ? window.MomentumScores.readiness(e) : num(e.overallScore),
         });
       }
       // Precompute per-series presence (used to decide empty state)
@@ -3900,7 +3966,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       // Overlay scale is metric-specific (0–10 for sleep, 0–100 for score)
       let overlayMax = 10, overlayLabel = '', overlayKey = null;
       if (overlay === 'sleep') { overlayKey = 'sleepQuality'; overlayMax = 10; overlayLabel = 'Sleep quality (0–10)'; }
-      else if (overlay === 'score') { overlayKey = 'overallScore'; overlayMax = 100; overlayLabel = 'Overall score (0–100)'; }
+      else if (overlay === 'score') { overlayKey = 'overallScore'; overlayMax = 100; overlayLabel = 'Readiness (0–100)'; }
 
       // Coordinate helpers
       const xAt = function (i) { return padL + step * i; };
@@ -4002,7 +4068,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     function describePhysicalCorrelation(shaped, overlay) {
       if (overlay === 'none') return null;
       const key = overlay === 'sleep' ? 'sleepQuality' : 'overallScore';
-      const label = overlay === 'sleep' ? 'sleep quality' : 'overall score';
+      const label = overlay === 'sleep' ? 'sleep quality' : 'readiness';
       const threshold = overlay === 'sleep' ? 0.8 : 6; // score is 0–100 so we use ~6 points
 
       const withAlc = shaped.days.filter(function (d) { return d.alcoholDrinks !== null && d[key] !== null; });
@@ -4301,7 +4367,7 @@ function buildRetrievedContext(question, maxEntries) {
       if (!e) return false;
       const t = new Date(e.date || e.timestamp || 0).getTime();
       if (!t || t < cutoff) return false;
-      return (e.journalNote && e.journalNote.trim()) || (e.morningFocus && e.morningFocus.trim());
+      return (e.journalNote && e.journalNote.trim()) || (e.morningFocus && e.morningFocus.trim()) || e.eveningReview;
     });
     if (candidates.length === 0) return [];
 
@@ -4310,7 +4376,7 @@ function buildRetrievedContext(question, maxEntries) {
     // weighs more per word — focus lines are shorter and higher-signal.
     const docs = candidates.map(function (e) {
       const focusTokens = _coachTokenise(e.morningFocus || '');
-      const journalTokens = _coachTokenise(e.journalNote || '');
+      const journalTokens = _coachTokenise([e.journalNote, e.eveningReview?.win, e.eveningReview?.challenge, e.tomorrowFocus].filter(Boolean).join(' '));
       const tokens = focusTokens.concat(focusTokens, journalTokens);
       const bigrams = [];
       for (let i = 0; i < tokens.length - 1; i++) bigrams.push(tokens[i] + ' ' + tokens[i + 1]);
@@ -4407,6 +4473,11 @@ function formatEntryForContext(entry) {
   const d = new Date(entry.date || entry.timestamp || Date.now());
   const dateStr = isNaN(d.getTime()) ? 'unknown' : d.toISOString().slice(0, 10);
   const out = { date: dateStr };
+  if (entry.eveningReview) out.eveningReview = {
+    win: String(entry.eveningReview.win || '').slice(0, 500),
+    challenge: String(entry.eveningReview.challenge || '').slice(0, 500),
+    nextAction: String(entry.tomorrowFocus || '').slice(0, 300)
+  };
   if (entry.morningFocus && entry.morningFocus.trim()) out.focus = entry.morningFocus.trim().slice(0, 300);
   if (entry.journalNote && entry.journalNote.trim()) out.journal = entry.journalNote.trim().slice(0, 500);
   // A tiny set of the most useful signal fields — not the whole slider dump.
@@ -4429,11 +4500,8 @@ async function askCoach(opts) {
   const prompt = promptInput.value.trim();
   if (!prompt) return;
 
-  // Build context from current UI/state
-  const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
-  const healthScore = parseInt(document.getElementById('healthProgressValue')?.textContent || '0', 10) || 0;
-  const personalScore = parseInt(document.getElementById('personalProgressValue')?.textContent || '0', 10) || 0;
-  const capacity = parseInt(document.getElementById('energy')?.value || '0', 10) || null;
+  // Shared saved-state context for both chat and Today's Moves.
+  const { overallScore, healthScore, personalScore, capacity, ringScores } = buildCoachPayload();
 
   const bleedTriggers = Array.from(
     document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
@@ -4471,6 +4539,7 @@ async function askCoach(opts) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         overallScore,
+        ringScores,
         healthScore,
         personalScore,
         capacity,
@@ -4703,6 +4772,12 @@ function buildHistorySignals() {
     return {
       entriesCount: raw.length,
       daysCovered: recent.length,
+      eveningReviews: recent.filter(e => e.eveningReview).map(e => ({
+        date: localDayKey(e.date),
+        win: String(e.eveningReview.win || '').slice(0, 500),
+        challenge: String(e.eveningReview.challenge || '').slice(0, 500),
+        nextAction: String(e.tomorrowFocus || '').slice(0, 300)
+      })),
       followThrough,
       movement,
       eating,
@@ -4811,10 +4886,11 @@ function buildPhysicalSignals() {
 }
 
 function buildCoachPayload(extra) {
-  const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
-  const healthScore = parseInt(document.getElementById('healthProgressValue')?.textContent || '0', 10) || 0;
-  const personalScore = parseInt(document.getElementById('personalProgressValue')?.textContent || '0', 10) || 0;
-  const capacity = parseInt(document.getElementById('energy')?.value || '0', 10) || null;
+  const ringScores = window.ScoreRings ? window.ScoreRings.current() : null;
+  // Do not pass consistency as "overall", or mix the new scales into legacy fields.
+  const overallScore = null, healthScore = null, personalScore = null;
+  const savedToday = window.MomentumScores?.dayMap(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')).get(localDayKey(new Date()));
+  const capacity = savedToday ? window.MomentumScores.number(savedToday.energy) : null;
   const bleedTriggers = Array.from(
     document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
   ).map(input => input.dataset.trigger || '');
@@ -4822,6 +4898,7 @@ function buildCoachPayload(extra) {
   const physicalSignals = buildPhysicalSignals();
   return Object.assign({
     overallScore,
+    ringScores,
     healthScore,
     personalScore,
     capacity,
@@ -4956,6 +5033,11 @@ function askQuickQuestion(topic) {
     window.askQuickQuestion = askQuickQuestion;
     window.switchView = switchView;
   </script>
+  <link rel="stylesheet" href="score-rings.css">
+  <script src="momentum-scores.js"></script>
+  <script src="score-rings.js"></script>
+  <link rel="stylesheet" href="evening-review.css">
+  <script src="evening-review.js"></script>
   <script src="checkin.js" defer></script>   <script src="auth.js"></script>
   <script src="landing.js" defer></script>
 </body>

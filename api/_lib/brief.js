@@ -1,5 +1,6 @@
 // Shared brief-generation logic — used by /api/debrief.js and /api/generate-briefs-queue.js
 import OpenAI from "openai";
+import "../../momentum-scores.js";
 
 function toNumber(value, fallback = null) {
   if (value === null || value === undefined || value === "") return fallback;
@@ -253,6 +254,18 @@ export function summariseWeek(entries, profile = null, weekOf = null) {
     tap,
     tapLastWeek: tapLast,
     journalNotes,
+    eveningReviews: thisWeek.filter(e => e.eveningReview).map(e => ({
+      date: e.date,
+      win: toCleanString(e.eveningReview.win).slice(0, 500),
+      challenge: toCleanString(e.eveningReview.challenge).slice(0, 500),
+      nextAction: toCleanString(e.tomorrowFocus).slice(0, 300),
+    })),
+    ringMeasures: {
+      version: globalThis.MomentumScores.version,
+      note: 'Separate readiness (capacity) and follow-through (behaviour). Do not compare these with legacy health/personal/overall scores. Motivation does not reduce follow-through. Consistency counts AM/PM check-ins, not a performance bonus.',
+      consistency: globalThis.MomentumScores.summary(thisWeek, isDateKey(weekOf) ? new Date(weekOf + 'T12:00:00') : new Date()).consistency,
+      days: thisWeek.map(e => ({ date:e.date, readiness:globalThis.MomentumScores.readiness(e), followThrough:globalThis.MomentumScores.followThrough(e), morningLogged:globalThis.MomentumScores.morningComplete(e), eveningLogged:globalThis.MomentumScores.eveningComplete(e) }))
+    },
     physical,
   };
 }
@@ -640,7 +653,7 @@ export function rowToEntry(row) {
     discipline: row.discipline, disciplineBlocker: row.discipline_blocker, exerciseDetail: row.exercise_detail, nutritionDetail: row.nutrition_detail, control: row.control,
     desire: row.desire, stress: row.stress,
     healthScore: row.health_score, personalScore: row.personal_score, overallScore: row.overall_score,
-    notes: row.notes, tomorrowFocus: row.tomorrow_focus,
+    notes: row.notes, tomorrowFocus: row.tomorrow_focus, eveningReview: row.evening_review,
     weightKg: row.weight_kg, alcoholDrinks: row.alcohol_drinks,
   };
 }
