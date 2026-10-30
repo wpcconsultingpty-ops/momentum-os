@@ -253,6 +253,12 @@ export function summariseWeek(entries, profile = null, weekOf = null) {
     tap,
     tapLastWeek: tapLast,
     journalNotes,
+    eveningReviews: thisWeek.filter(e => e.eveningReview).map(e => ({
+      date: e.date,
+      win: toCleanString(e.eveningReview.win).slice(0, 500),
+      challenge: toCleanString(e.eveningReview.challenge).slice(0, 500),
+      nextAction: toCleanString(e.tomorrowFocus).slice(0, 300),
+    })),
     physical,
   };
 }
@@ -640,7 +646,7 @@ export function rowToEntry(row) {
     discipline: row.discipline, disciplineBlocker: row.discipline_blocker, exerciseDetail: row.exercise_detail, nutritionDetail: row.nutrition_detail, control: row.control,
     desire: row.desire, stress: row.stress,
     healthScore: row.health_score, personalScore: row.personal_score, overallScore: row.overall_score,
-    notes: row.notes, tomorrowFocus: row.tomorrow_focus,
+    notes: row.notes, tomorrowFocus: row.tomorrow_focus, eveningReview: row.evening_review,
     weightKg: row.weight_kg, alcoholDrinks: row.alcohol_drinks,
   };
 }

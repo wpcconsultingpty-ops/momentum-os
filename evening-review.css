@@ -1,0 +1,43 @@
+/* Keep the existing Momentum palette and shell; give the ritual a quieter hierarchy. */
+#personal .section-card { max-width: 900px; }
+html:not([data-theme="dark"]) #personal { --muted: #576257; }
+#personal .ft-opt.on, #personal .ft-chip.on, #personal .btn-primary { background: #45684b; border-color: #45684b; color: #fff; }
+#personal .ft-eyebrow { font-size: .75rem; }
+#personal .section-header p { max-width: 58ch; }
+.er-progress { display: flex; gap: 8px; margin: 24px 0; padding: 0; list-style: none; }
+.er-progress li { flex: 1; border-top: 3px solid var(--border); padding-top: 10px; font-size: .875rem; color: var(--muted); }
+.er-progress li[aria-current="step"] { border-color: var(--accent); color: var(--text); font-weight: 700; }
+.er-step h3 { margin: 0 0 8px; font-size: 1.2rem; }
+.er-step > p, .er-help { color: var(--muted); font-size: .9rem; line-height: 1.6; }
+.er-field { display: block; margin: 24px 0; }
+.er-field > span { display: block; font-weight: 600; margin-bottom: 8px; }
+.er-field small { display: block; margin: 6px 0; color: var(--muted); font-size: .8rem; line-height: 1.5; }
+#personal .er-field textarea { min-height: 88px; resize: vertical; font: inherit; line-height: 1.5; }
+.er-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 24px; }
+#personal button, .er-carry button { min-height: 44px; }
+#personal .ft-opts { display: flex; flex-wrap: wrap; }
+#personal .ft-opt { flex: 1 1 90px; }
+#personal .ft-focus { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+#personal .ft-note { font-size: 1rem; }
+#personal [hidden] { display: none !important; }
+#personal .evening-header-row { margin-top: 12px !important; }
+.er-scores { margin-top: 28px; border-top: 1px solid var(--border); padding-top: 16px; }
+.er-scores summary { cursor: pointer; color: var(--muted); padding: 8px 0; font-size: .875rem; }
+.er-scores .grid { margin-top: 12px !important; }
+.er-summary { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; margin-top: 20px; }
+.er-summary h3 { margin: 0 0 8px; font-size: 1.2rem; }
+.er-summary h4 { font-size: .875rem; margin: 22px 0 6px; color: var(--muted); }
+.er-summary p { margin: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.er-summary ul { padding-left: 20px; line-height: 1.8; }
+.er-status { margin-top: 12px; font-size: .875rem; line-height: 1.5; color: var(--muted); }
+.er-status[data-error="true"], .er-error { color: var(--danger); }
+.er-carry { padding: 16px; margin: 16px 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.er-carry p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.er-history { margin-top: 12px; font-size: .875rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+#personal :focus-visible, .er-carry :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .er-progress li { font-size: .8rem; }
+  .er-summary { padding: 16px; }
+  .er-actions > button { flex: 1 1 auto; }
+  #personal .ft-opts { gap: 8px; }
+}

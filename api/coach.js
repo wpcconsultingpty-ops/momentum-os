@@ -132,6 +132,13 @@ function sanitiseRetrievedContext(raw) {
     const journal = toCleanString(item.journal).slice(0, 500);
     if (focus) entry.focus = focus;
     if (journal) entry.journal = journal;
+    if (item.eveningReview && typeof item.eveningReview === 'object') {
+      entry.eveningReview = {
+        win: toCleanString(item.eveningReview.win).slice(0, 500),
+        challenge: toCleanString(item.eveningReview.challenge).slice(0, 500),
+        nextAction: toCleanString(item.eveningReview.nextAction).slice(0, 300),
+      };
+    }
     if (item.signals && typeof item.signals === 'object') {
       const s = {};
       for (const [k, v] of Object.entries(item.signals)) {
@@ -141,7 +148,7 @@ function sanitiseRetrievedContext(raw) {
       }
       if (Object.keys(s).length) entry.signals = s;
     }
-    if (entry.focus || entry.journal) out.push(entry);
+    if (entry.focus || entry.journal || entry.eveningReview) out.push(entry);
   }
   return out;
 }
@@ -245,6 +252,12 @@ function sanitiseHistorySignals(raw) {
   const safe = {
     entriesCount: num(raw.entriesCount) || 0,
     daysCovered: num(raw.daysCovered) || 0,
+    eveningReviews: arr(raw.eveningReviews).slice(-7).filter(r => r && typeof r === 'object').map(r => ({
+      date: toCleanString(r.date).slice(0, 10),
+      win: toCleanString(r.win).slice(0, 500),
+      challenge: toCleanString(r.challenge).slice(0, 500),
+      nextAction: toCleanString(r.nextAction).slice(0, 300),
+    })),
     averages: (raw.averages && typeof raw.averages === "object") ? raw.averages : {},
     lowFields: arr(raw.lowFields).slice(0, 8).map((f) => ({
       field: toCleanString(f && f.field),
@@ -471,6 +484,7 @@ export function buildChatUserPrompt(context) {
     followThrough: hs.followThrough || null,
     movement: hs.movement || null,
     eating: hs.eating || null,
+    eveningReviews: hs.eveningReviews || null,
   }, null, 2)}`;
 
   // The retrieval channel. Only inject if we actually got matches; keeping
