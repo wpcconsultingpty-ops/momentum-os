@@ -12,6 +12,7 @@
     if (e.disciplineAnswer === 'no') facts.push('You did not follow through today. That is information for tomorrow, not a verdict on you.');
     if (e.exerciseAnswer === 'trained') facts.push('You made time to train.');
     if (e.exerciseAnswer === 'light') facts.push('You got some movement in.');
+    if (e.exerciseAnswer === 'rest') facts.push('You chose planned recovery for your body.');
     if (e.nutritionAnswer === 'on') facts.push('You felt you ate mostly well.');
     let suggestion = 'Keep tomorrow manageable: choose one useful action and decide when you will start.';
     const blocker = text(e.disciplineBlocker).split(' · ')[0];
@@ -38,7 +39,7 @@
   function today() { return entries().find(e => keyOf(e.date) === keyOf(new Date())) || {}; }
   function read() {
     return {
-      eveningReview: { version: 1, win: text($('erWin').value).slice(0, 500), challenge: text($('erChallenge').value).slice(0, 500), savedAt: new Date().toISOString() },
+      eveningReview: { version: 1, win: text($('erWin').value).slice(0, 500), challenge: text($('erChallenge').value).slice(0, 500), answers: window.tapEntryFields(), savedAt: new Date().toISOString() },
       tomorrowFocus: text($('erTomorrow').value).slice(0, 300)
     };
   }

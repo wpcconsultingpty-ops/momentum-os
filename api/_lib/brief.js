@@ -1,5 +1,6 @@
 // Shared brief-generation logic — used by /api/debrief.js and /api/generate-briefs-queue.js
 import OpenAI from "openai";
+import "../../momentum-scores.js";
 
 function toNumber(value, fallback = null) {
   if (value === null || value === undefined || value === "") return fallback;
@@ -259,6 +260,12 @@ export function summariseWeek(entries, profile = null, weekOf = null) {
       challenge: toCleanString(e.eveningReview.challenge).slice(0, 500),
       nextAction: toCleanString(e.tomorrowFocus).slice(0, 300),
     })),
+    ringMeasures: {
+      version: globalThis.MomentumScores.version,
+      note: 'Separate readiness (capacity) and follow-through (behaviour). Do not compare these with legacy health/personal/overall scores. Motivation does not reduce follow-through. Consistency counts AM/PM check-ins, not a performance bonus.',
+      consistency: globalThis.MomentumScores.summary(thisWeek, isDateKey(weekOf) ? new Date(weekOf + 'T12:00:00') : new Date()).consistency,
+      days: thisWeek.map(e => ({ date:e.date, readiness:globalThis.MomentumScores.readiness(e), followThrough:globalThis.MomentumScores.followThrough(e), morningLogged:globalThis.MomentumScores.morningComplete(e), eveningLogged:globalThis.MomentumScores.eveningComplete(e) }))
+    },
     physical,
   };
 }

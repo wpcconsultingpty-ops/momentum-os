@@ -1772,7 +1772,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <div class="progress-value-text" id="overallProgressValue">0</div>
               </div>
               <div style="text-align: center;">
-                <div class="card-label">Overall Score</div>
+                <div class="card-label">Consistency</div>
                 <div class="score-pill is-mixed" id="overallScoreState">Not tracked</div>
               </div>
             </div>
@@ -1786,8 +1786,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <div class="progress-value-text" id="healthProgressValue">0</div>
               </div>
               <div style="text-align: center;">
-                <div class="card-label">Morning Score</div>
-                <div style="color: var(--muted); font-size: 0.9rem;">Energy & readiness</div>
+                <div class="card-label">Readiness</div>
+                <div style="color: var(--muted); font-size: 0.9rem;">Today's starting capacity · /100</div>
               </div>
             </div>
 
@@ -1800,8 +1800,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <div class="progress-value-text" id="personalProgressValue">0</div>
               </div>
               <div style="text-align: center;">
-                <div class="card-label">Evening Score</div>
-                <div style="color: var(--muted); font-size: 0.9rem;">Reflection & reset</div>
+                <div class="card-label">Follow-through</div>
+                <div style="color: var(--muted); font-size: 0.9rem;">How you responded today · /100</div>
               </div>
             </div>
           </div>
@@ -1852,7 +1852,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <!-- What's Driving Today (driver mini-rings) -->
         <div class="card animate-in" style="margin-top: 16px;">
           <h3 style="margin: 0 0 4px; font-size: 1.1rem;">What's driving today</h3>
-          <div style="color: var(--muted); font-size: 0.9rem; margin: 0 0 16px;">Contributing factors behind your scores</div>
+          <div style="color: var(--muted); font-size: 0.9rem; margin: 0 0 16px;">Saved ratings from today only. Missing ratings stay empty.</div>
           <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-around;">
             <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
               <div class="progress-ring" style="width: 72px; height: 72px;">
@@ -1892,7 +1892,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 </svg>
                 <div class="progress-value-text" id="driverDisciplineValue" style="font-size: 0.95rem;">0</div>
               </div>
-              <div style="color: var(--muted); font-size: 0.8rem;">Discipline</div>
+              <div style="color: var(--muted); font-size: 0.8rem;">Stress</div>
             </div>
           </div>
         </div>
@@ -1912,7 +1912,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="ptrend-toggle" role="tablist" aria-label="Overlay metric">
               <button type="button" data-overlay="none" class="active" onclick="setPhysicalOverlay('none')">None</button>
               <button type="button" data-overlay="sleep" onclick="setPhysicalOverlay('sleep')">Sleep</button>
-              <button type="button" data-overlay="score" onclick="setPhysicalOverlay('score')">Overall score</button>
+              <button type="button" data-overlay="score" onclick="setPhysicalOverlay('score')">Readiness</button>
             </div>
           </div>
           <div class="ptrend-legend" id="physicalTrendsLegend">
@@ -1962,7 +1962,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
           <div class="grid grid-3" style="margin-top: 24px;">
             <article class="card">
-              <div class="card-label">Morning Score</div>
+              <div class="card-label">Readiness</div>
               <div class="score-value" id="currentHealthScore">0</div>
               <div class="score-subtext">Today's score</div>
             </article>
@@ -1972,9 +1972,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
               <div class="score-subtext">Recent baseline</div>
             </article>
             <article class="card">
-              <div class="card-label">Streak</div>
+              <div class="card-label">7-day check-ins</div>
               <div class="score-value" id="healthStreak">0</div>
-              <div class="score-subtext">Days tracked</div>
+              <div class="score-subtext">Morning + evening, out of 14</div>
             </article>
           </div>
 
@@ -1985,16 +1985,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           </div>
           <div class="range-list" id="healthRangeList">
             <div class="range-row">
-              <label for="mood"><span>Mood</span><span id="moodValue">7 / 10</span></label>
-              <input id="mood" type="range" min="1" max="10" value="7">
+              <label for="mood"><span>Mood</span><span id="moodValue">5 / 10</span></label>
+              <input id="mood" type="range" min="0" max="10" value="5">
             </div>
             <div class="range-row">
-              <label for="sleepQuality"><span>Sleep Quality</span><span id="sleepQualityValue">7 / 10</span></label>
-              <input id="sleepQuality" type="range" min="1" max="10" value="7">
+              <label for="sleepQuality"><span>Sleep Quality</span><span id="sleepQualityValue">5 / 10</span></label>
+              <input id="sleepQuality" type="range" min="0" max="10" value="5">
             </div>
             <div class="range-row">
-              <label for="energy"><span>Energy</span><span id="energyValue">7 / 10</span></label>
-              <input id="energy" type="range" min="1" max="10" value="7">
+              <label for="energy"><span>Energy</span><span id="energyValue">5 / 10</span></label>
+              <input id="energy" type="range" min="0" max="10" value="5">
             </div>
           </div>
 
@@ -2003,7 +2003,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="range-list" id="healthRangeListMore" style="margin-top:8px;">
               <div class="range-row">
                 <label for="stress"><span>Stress</span><span id="stressValue">5 / 10</span></label>
-                <input id="stress" type="range" min="1" max="10" value="5">
+                <input id="stress" type="range" min="0" max="10" value="5">
               </div>
               <div class="range-row">
                 <label for="hydration"><span>Hydration</span><span id="hydrationValue">7 / 10</span></label>
@@ -2051,7 +2051,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
           <div class="grid grid-3" id="eveningScoreCards" style="margin-top: 24px;">
             <article class="card">
-              <div class="card-label">Evening Score</div>
+              <div class="card-label">Follow-through</div>
               <div class="score-value" id="currentPersonalScore">0</div>
               <div class="score-subtext">Today's score</div>
             </article>
@@ -2252,14 +2252,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         <div class="score-subtext">Tracked</div>
       </article>
       <article class="card">
-        <div class="card-label">Average Score</div>
+        <div class="card-label">Readiness average</div>
         <div class="score-value" id="avgScore">0</div>
-        <div class="score-subtext">Overall</div>
+        <div class="score-subtext">Last 7 calendar days · logged mornings</div>
       </article>
       <article class="card">
-        <div class="card-label">Best Score</div>
+        <div class="card-label">Follow-through average</div>
         <div class="score-value" id="bestScore">0</div>
-        <div class="score-subtext">All time</div>
+        <div class="score-subtext">Last 7 calendar days · scored evenings</div>
       </article>
     </div>
 
@@ -2276,7 +2276,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     </div>
 
     <div class="button-row">
-      <button class="btn" onclick="shareMomentum()">Share Momentum</button>
+      <button class="btn" onclick="shareMomentum()">Download ring summary</button>
         <button class="btn" onclick="exportData()">Export Data</button>
       <button class="btn" onclick="clearData()">Clear All Data</button>
     </div>
@@ -2551,6 +2551,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function calculateHealthScore() {
+      // Historical storage contract only. Current UI uses MomentumScores.
       const mood = parseInt((document.getElementById('mood')||{value:5}).value);
       const energy = parseInt((document.getElementById('energy')||{value:5}).value);
       const stress = 10 - parseInt((document.getElementById('stress')||{value:5}).value);
@@ -2564,6 +2565,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function calculatePersonalScore() {
+      // Historical storage contract only. Do not use for current rings or trends.
       const desire = parseInt((document.getElementById('personalDesire')||{value:5}).value);
       const discipline = parseInt((document.getElementById('personalDiscipline')||{value:5}).value);
       const control = parseInt((document.getElementById('personalControl')||{value:5}).value);
@@ -2573,6 +2575,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function updateProgressRing(ringId, valueId, value) { try { var _pct = Math.min(100, Math.max(0, Math.round(value || 0))); var _ring = document.getElementById(ringId); if (_ring) { var _c = 327; _ring.style.strokeDasharray = _c; _ring.style.strokeDashoffset = _c - (_pct / 100) * _c; } var _vt = document.getElementById(valueId); if (_vt) _vt.textContent = _pct; } catch(_e) { console.error('updateProgressRing failed', _e); } } function updateScores() {
+      // Current rings never use form defaults or the historical score scale.
+      if (window.ScoreRings) { window.ScoreRings.render(); saveCurrentData(); return; }
       try {   const healthScore = calculateHealthScore();   document.querySelectorAll('#currentHealthScore').forEach(function(_e){_e.textContent = healthScore;});
       const personalScore = calculatePersonalScore();
       const _streakBonus = Math.min(15, calculateStreak(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')) * 3); const overallScore = Math.min(100, Math.round((healthScore + personalScore) / 2) + _streakBonus);
@@ -2602,6 +2606,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
         function updateDriverRings() {
+      if (window.ScoreRings) { window.ScoreRings.renderDrivers(); return; }
       const drivers = [
         { ringId: 'driverSleepRing', valueId: 'driverSleepValue', inputId: 'sleepQuality' },
         { ringId: 'driverEnergyRing', valueId: 'driverEnergyValue', inputId: 'energy' },
@@ -2724,15 +2729,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       let todayEntry = entries.find(e => new Date(e.date).toDateString() === today);
       
       if (todayEntry) {
-        Object.assign(todayEntry, newData); { const _h = (newData.healthScore != null) ? newData.healthScore : ((todayEntry.healthScore != null) ? todayEntry.healthScore : calculateHealthScore()); const _p = (newData.personalScore != null) ? newData.personalScore : ((todayEntry.personalScore != null) ? todayEntry.personalScore : calculatePersonalScore()); todayEntry.healthScore = _h; todayEntry.personalScore = _p; todayEntry.overallScore = Math.round((_h + _p) / 2); }
+        Object.assign(todayEntry, newData);
+        todayEntry.overallScore = (todayEntry.healthScore != null && todayEntry.personalScore != null)
+          ? Math.round((todayEntry.healthScore + todayEntry.personalScore) / 2) : null;
       } else {
-        const healthScore = newData.healthScore || calculateHealthScore();
-        const personalScore = newData.personalScore || calculatePersonalScore();
+        const healthScore = newData.healthScore ?? null;
+        const personalScore = newData.personalScore ?? null;
         entries.push({
           ...newData,
           healthScore,
           personalScore,
-          overallScore: Math.round((healthScore + personalScore) / 2)
+          overallScore: (healthScore !== null && personalScore !== null) ? Math.round((healthScore + personalScore) / 2) : null
         });
       }
 
@@ -3000,8 +3007,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         opts: [{ k: 'yes', l: 'Yes', v: 9 }, { k: 'partly', l: 'Partly', v: 5 }, { k: 'no', l: 'No', v: 2 }],
         follow: { partly: { q: 'What got in the way?', chips: TAP_BLOCKERS }, no: { q: 'What got in the way?', chips: TAP_BLOCKERS } } },
       { key: 'exercise', input: 'exercise', detailField: 'exerciseDetail', eyebrow: 'Movement',
-        q: 'Did you move today?',
-        opts: [{ k: 'trained', l: 'Trained', v: 9 }, { k: 'light', l: 'Light movement', v: 6 }, { k: 'none', l: 'No movement', v: 2 }],
+        q: 'How did you support your body today?',
+        opts: [{ k: 'trained', l: 'Trained', v: 9 }, { k: 'light', l: 'Light movement', v: 6 }, { k: 'rest', l: 'Planned recovery', v: 9 }, { k: 'none', l: 'No movement', v: 2 }],
         follow: { trained: { q: 'What did you do?', chips: TAP_MOVES }, light: { q: 'What did you do?', chips: TAP_MOVES },
                   none: { q: 'What got in the way?', chips: ['Time', 'Energy', 'Sore or injured', 'Forgot', "Didn't want to"] } } },
       { key: 'nutrition', input: 'nutrition', detailField: 'nutritionDetail', eyebrow: 'Nutrition',
@@ -3789,7 +3796,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     function updateDashboard() { try { updateScores();   try { renderSessionCards(); } catch(e) {} } catch(e) {}       updateDriverRings();
       const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
       
-      if (entries.length > 0) {
+      if (!window.ScoreRings && entries.length > 0) {
         const recent = entries.slice(-7);
         const avgHealth = Math.round(recent.reduce((sum, e) => sum + (e.healthScore || 0), 0) / recent.length);
         const avgPersonal = Math.round(recent.reduce((sum, e) => sum + (e.personalScore || 0), 0) / recent.length);
@@ -3811,6 +3818,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function updateHistory() {
+      if (window.ScoreRings) { window.ScoreRings.history(); return; }
       const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]');
       
       document.getElementById('totalDays').textContent = entries.length;
@@ -3853,6 +3861,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     }
 
     function updateCharts() {
+      if (window.ScoreRings) { window.ScoreRings.charts(); renderPhysicalTrends(); return; }
       renderWeeklyChart();
       renderMonthlyChart();
       renderPhysicalTrends();
@@ -3900,7 +3909,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
           weightKg: num(e.weightKg),
           alcoholDrinks: num(e.alcoholDrinks),
           sleepQuality: num(e.sleepQuality),
-          overallScore: num(e.overallScore),
+          overallScore: window.MomentumScores ? window.MomentumScores.readiness(e) : num(e.overallScore),
         });
       }
       // Precompute per-series presence (used to decide empty state)
@@ -3957,7 +3966,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
       // Overlay scale is metric-specific (0–10 for sleep, 0–100 for score)
       let overlayMax = 10, overlayLabel = '', overlayKey = null;
       if (overlay === 'sleep') { overlayKey = 'sleepQuality'; overlayMax = 10; overlayLabel = 'Sleep quality (0–10)'; }
-      else if (overlay === 'score') { overlayKey = 'overallScore'; overlayMax = 100; overlayLabel = 'Overall score (0–100)'; }
+      else if (overlay === 'score') { overlayKey = 'overallScore'; overlayMax = 100; overlayLabel = 'Readiness (0–100)'; }
 
       // Coordinate helpers
       const xAt = function (i) { return padL + step * i; };
@@ -4059,7 +4068,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     function describePhysicalCorrelation(shaped, overlay) {
       if (overlay === 'none') return null;
       const key = overlay === 'sleep' ? 'sleepQuality' : 'overallScore';
-      const label = overlay === 'sleep' ? 'sleep quality' : 'overall score';
+      const label = overlay === 'sleep' ? 'sleep quality' : 'readiness';
       const threshold = overlay === 'sleep' ? 0.8 : 6; // score is 0–100 so we use ~6 points
 
       const withAlc = shaped.days.filter(function (d) { return d.alcoholDrinks !== null && d[key] !== null; });
@@ -4491,11 +4500,8 @@ async function askCoach(opts) {
   const prompt = promptInput.value.trim();
   if (!prompt) return;
 
-  // Build context from current UI/state
-  const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
-  const healthScore = parseInt(document.getElementById('healthProgressValue')?.textContent || '0', 10) || 0;
-  const personalScore = parseInt(document.getElementById('personalProgressValue')?.textContent || '0', 10) || 0;
-  const capacity = parseInt(document.getElementById('energy')?.value || '0', 10) || null;
+  // Shared saved-state context for both chat and Today's Moves.
+  const { overallScore, healthScore, personalScore, capacity, ringScores } = buildCoachPayload();
 
   const bleedTriggers = Array.from(
     document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
@@ -4533,6 +4539,7 @@ async function askCoach(opts) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         overallScore,
+        ringScores,
         healthScore,
         personalScore,
         capacity,
@@ -4879,10 +4886,11 @@ function buildPhysicalSignals() {
 }
 
 function buildCoachPayload(extra) {
-  const overallScore = parseInt(document.getElementById('overallProgressValue')?.textContent || '0', 10) || 0;
-  const healthScore = parseInt(document.getElementById('healthProgressValue')?.textContent || '0', 10) || 0;
-  const personalScore = parseInt(document.getElementById('personalProgressValue')?.textContent || '0', 10) || 0;
-  const capacity = parseInt(document.getElementById('energy')?.value || '0', 10) || null;
+  const ringScores = window.ScoreRings ? window.ScoreRings.current() : null;
+  // Do not pass consistency as "overall", or mix the new scales into legacy fields.
+  const overallScore = null, healthScore = null, personalScore = null;
+  const savedToday = window.MomentumScores?.dayMap(JSON.parse(localStorage.getItem(STORAGE_KEYS.entries) || '[]')).get(localDayKey(new Date()));
+  const capacity = savedToday ? window.MomentumScores.number(savedToday.energy) : null;
   const bleedTriggers = Array.from(
     document.querySelectorAll('.habit-card input[type="checkbox"]:checked')
   ).map(input => input.dataset.trigger || '');
@@ -4890,6 +4898,7 @@ function buildCoachPayload(extra) {
   const physicalSignals = buildPhysicalSignals();
   return Object.assign({
     overallScore,
+    ringScores,
     healthScore,
     personalScore,
     capacity,
@@ -5024,6 +5033,9 @@ function askQuickQuestion(topic) {
     window.askQuickQuestion = askQuickQuestion;
     window.switchView = switchView;
   </script>
+  <link rel="stylesheet" href="score-rings.css">
+  <script src="momentum-scores.js"></script>
+  <script src="score-rings.js"></script>
   <link rel="stylesheet" href="evening-review.css">
   <script src="evening-review.js"></script>
   <script src="checkin.js" defer></script>   <script src="auth.js"></script>

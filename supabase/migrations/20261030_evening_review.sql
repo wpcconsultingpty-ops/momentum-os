@@ -3,4 +3,4 @@
 alter table public.daily_entries
   add column if not exists evening_review jsonb;
 comment on column public.daily_entries.evening_review is
-  'Versioned evening reflection: win, challenge and savedAt. Numeric metrics remain in existing columns.';
+  'Versioned evening reflection: win, challenge, categorical answers and savedAt. Numeric metrics remain in existing columns.';

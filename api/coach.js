@@ -5,6 +5,7 @@ const client = new OpenAI({
 });
 
 function toNumber(value, fallback = null) {
+  if (value === null || value === undefined || value === '') return fallback;
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
 }
@@ -299,6 +300,13 @@ export function buildContext(body) {
   const capacity = clamp(toNumber(body.capacity), 0, 10);
   const recentTriggers = toCleanArray(body.recentTriggers).slice(0, 12);
   const context = {
+    ringScores: body.ringScores?.version === 'readiness-followthrough-consistency-v1' ? {
+      version: 'readiness-followthrough-consistency-v1',
+      readiness: clamp(toNumber(body.ringScores.readiness)),
+      followThrough: clamp(toNumber(body.ringScores.followThrough)),
+      consistency: { completed: clamp(toNumber(body.ringScores.consistency?.completed),0,14), total:14, todayInProgress:body.ringScores.consistency?.todayInProgress !== false },
+      interpretation: 'Separate measures, never an overall grade. Readiness is saved self-rated capacity (sleep, energy, mood, inverse stress), not achievement. Follow-through weights intention 40%, deliberate responses 20%, movement/planned recovery 20%, nutrition 20%. Motivation is context, not scored. Consistency is saved AM/PM check-ins in seven calendar days including today, out of 14. Missing is unknown, not zero. No streak bonus. Legacy scores are not comparable.'
+    } : null,
     overallScore,
     weeklyAverage,
     scoreDelta,
@@ -465,6 +473,7 @@ export function buildChatUserPrompt(context) {
   const hs = rest.historySignals || {};
   const dataBlock = `Their current state (reference up to three numbers, only if they strengthen the answer):\n${JSON.stringify({
     focus: rest.focus,
+    ringScores: rest.ringScores,
     capacity: rest.capacity,
     capacityBand: rest.capacityBand,
     overallScore: rest.overallScore,
@@ -512,6 +521,7 @@ export function buildMovesSystemPrompt() {
 SAFETY (highest priority, overrides everything below): If the person shows any sign of being at risk of self-harm, suicide, or being in crisis, do not produce a moves list. Instead return a single move that says: "Reach out to Lifeline on 13 11 14, or 000 in an emergency. You do not have to get through this hour on your own." and set mood to "overwhelmed".
 
 How you decide what to suggest (do this silently, never show your reasoning):
+- When ringScores is present, use its separate measures and interpretation. Never turn consistency into overall performance or compare the new measures with legacy score fields. Drive is context, not a follow-through penalty. Planned recovery is a valid health choice, not a missed workout.
 - Read overallScore, weeklyAverage, scoreDelta, capacity, capacityBand, focus, target, bleed, mood, trends, triggerFrequency, historySignals, and physicalSignals.
 - Pick 3 to 5 moves that are specifically responsive to that data. If sleep is falling, suggest a sleep-protective move. If exercise trend is falling, suggest a movement move. If stress or overwhelm is high, lead with a recovery move. If hydration or nutrition is low, add one there. If capacity is very low, keep every move tiny (5–15 minutes). If capacity is good, one move may be more ambitious.
 - Also read physicalSignals when present. It can contain weight (thisAvg, lastAvg, delta, bmi, bmiBand, daysLogged) and alcohol (total, drinkingDays, dryDays, correlation with sleep). Use these directly: a rising weight trend or a bmiBand outside "healthy" is a signal for a movement, sleep, or nutrition move. A heavy drinking week or a clear alcohol-sleep correlation gap is a signal for a hydration, sleep, or drink-swap move. Reference the specific number or delta in the 'why'.
