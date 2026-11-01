@@ -8,19 +8,24 @@
     if (!el || !label) return;
     const pct=value===null?0:value;
     el.style.strokeDasharray=327; el.style.strokeDashoffset=327-(pct/100*327);
-    label.textContent=display ?? (value===null?'Not logged':String(value));
+    label.textContent=display ?? (value===null?'–':String(value));
     label.classList.toggle('ring-empty',value===null);
-    el.closest('.progress-ring').setAttribute('role','img');
-    el.closest('.progress-ring').setAttribute('aria-label',description);
+    label.classList.toggle('ring-empty-copy',value===null && Boolean(display));
+    const container=el.closest('.progress-ring');
+    container.classList.toggle('is-unrecorded',value===null);
+    container.setAttribute('role','img');
+    container.setAttribute('aria-label',description);
   }
   const avg = values => { const valid=values.filter(v=>v!==null); return valid.length?Math.round(valid.reduce((a,b)=>a+b,0)/valid.length):null; };
   function render() {
     const s=current(), consistency=s.consistency;
     ring('healthProgressRing','healthProgressValue',s.readiness,null,`Readiness: ${s.readiness??'not logged'}${s.readiness===null?'':' out of 100'}. Saved morning ratings only.`);
     ring('personalProgressRing','personalProgressValue',s.followThrough,s.legacyEvening?'Update review':null,`Follow-through: ${s.followThrough??(s.legacyEvening?'older review needs clearer answers':'not logged')}. Saved evening answers only.`);
-    ring('overallProgressRing','overallProgressValue',consistency.completed?consistency.percent:null,consistency.completed?`${consistency.completed}/14`:'Not logged',`Consistency: ${consistency.completed} of 14 possible morning and evening check-ins over seven calendar days including today.`);
-    put('overallScoreState',`${Number(s.today.morning)+Number(s.today.evening)}/2 today · ${consistency.todayInProgress?'in progress':'complete'}`);
-    if ($('overallScoreState')) $('overallScoreState').className='score-pill';
+    ring('overallProgressRing','overallProgressValue',consistency.completed?consistency.percent:null,consistency.completed?`${consistency.completed}/14`:null,`Consistency: ${consistency.completed} of 14 possible morning and evening check-ins over seven calendar days including today.`);
+    put('readinessRingHint',s.readiness===null?'Start with a morning entry':"Today's starting capacity · /100");
+    put('followThroughRingHint',s.followThrough===null?(s.legacyEvening?'Update your earlier review':'Ready after your evening review'):'How you responded today · /100');
+    put('overallScoreState',consistency.completed?`${Number(s.today.morning)+Number(s.today.evening)}/2 today · ${consistency.todayInProgress?'in progress':'complete'}`:'Begins with your first check-in');
+    if ($('overallScoreState')) $('overallScoreState').className=consistency.completed?'score-pill':'ring-hint';
     put('currentHealthScore',s.readiness??'Not logged');
     put('currentPersonalScore',s.followThrough??(s.legacyEvening?'Update review':'Not logged'));
     put('health7DayAvg',avg(consistency.days.map(d=>d.readiness))??'Not logged');
@@ -52,6 +57,7 @@
       if(!el||!txt)continue;
       const c=2*Math.PI*30;el.style.strokeDasharray=c;el.style.strokeDashoffset=c-(v??0)/10*c;
       txt.textContent=v??'–';
+      el.closest('.progress-ring').classList.toggle('is-unrecorded',v===null);
       el.closest('.progress-ring').setAttribute('role','img');
       el.closest('.progress-ring').setAttribute('aria-label',`${name==='Discipline'?'Stress':name}: ${v===null?'not logged today':v+' out of 10, saved today'}`);
     }
