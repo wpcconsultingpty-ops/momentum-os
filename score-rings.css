@@ -1,4 +1,9 @@
-.ring-empty { font-size: .9rem !important; line-height: 1.3; max-width: 92px; text-align: center; }
+.ring-empty { font-size: 2rem; line-height: 1; font-weight: 400; text-align: center; }
+.ring-empty-copy { font-size: .9rem; line-height: 1.3; padding-inline: 16px; }
+#dashboard .progress-ring.is-unrecorded .progress-ring-circle { stroke-width: 2; }
+#dashboard .progress-ring.is-unrecorded .progress-ring-value { visibility: hidden; transition: none; }
+#dashboard .progress-ring.is-unrecorded .progress-value-text { color: color-mix(in srgb, var(--muted) 80%, var(--text)); }
+.ring-hint { color: color-mix(in srgb, var(--muted) 80%, var(--text)); font-size: .9rem; line-height: 1.5; }
 #dashboard .card-label { color: var(--text); }
 .score-explainer { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px; }
 .score-explainer summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
